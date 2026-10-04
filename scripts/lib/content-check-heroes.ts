@@ -38,7 +38,7 @@ export function lintHeroes(ctx: GameContext, registry: Record<string, SpriteDef>
   const fallbacks: string[] = [];
   const noPortrait = new Map<string, string[]>();
   for (const t of Object.values(ctx.content.heroes)) {
-    const own = [t.visual.sprite, ...t.branches.map((b) => b.visual.sprite)].filter((x): x is string => !!x);
+    const own = [t.visual.sprite, ...t.branches.flatMap((b) => [b.visual.sprite, b.advanced?.visual.sprite])].filter((x): x is string => !!x);
     for (const id of own) {
       if (!has(id)) warnings.push(`карточка ${t.id}: листа "${id}" нет в реестре — будет лист класса`);
       else sprites.add(id);
@@ -49,6 +49,7 @@ export function lintHeroes(ctx: GameContext, registry: Record<string, SpriteDef>
     const forms: { hero: HeroState; label: string }[] = [
       { hero: { id: 'check', templateId: t.id, rarity: t.baseRarity, level: 1 }, label: t.id },
       ...t.branches.map((b) => ({ hero: { id: 'check', templateId: t.id, rarity: 'purple' as const, level: 1, branch: b.job }, label: `${t.id}/${b.job}` })),
+      ...t.branches.flatMap((b) => b.advanced ? [{ hero: { id: 'check', templateId: t.id, rarity: b.advanced.minRarity, level: b.advanced.minLevel, branch: b.job }, label: `${t.id}/${b.advanced.job}` }] : []),
     ];
     for (const { hero, label } of forms) {
       const sprite = heroSprite(hero, ctx, has);

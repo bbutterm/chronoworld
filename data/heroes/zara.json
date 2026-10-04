@@ -66,6 +66,50 @@
       "bio": "Ассасин Моррока с ядом на каждом клинке. Зара вернулась туда, где её подставили, и имя предателя уже почти у неё в руках. Враги падают раньше, чем замечают её тень.",
       "visual": {
         "sprite": "hero_zara_assassin_detail_v2"
+      },
+      "advanced": {
+        "job": "assassin_cross",
+        "role": "damage",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.1655,
+          "atk": 1.4985,
+          "def": 1.11,
+          "spd": 1.2765
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_assassin_grimtooth"
+          },
+          {
+            "level": 10,
+            "skill": "job_assassin_enchant_poison"
+          },
+          {
+            "level": 70,
+            "skill": "adv_assassin_cross_cross_cut"
+          },
+          {
+            "level": 80,
+            "skill": "adv_assassin_cross_expose"
+          },
+          {
+            "level": 90,
+            "skill": "adv_assassin_cross_veil"
+          },
+          {
+            "level": 100,
+            "skill": "adv_assassin_cross_execution"
+          }
+        ],
+        "ult": "ult_adv_zara_assassin_cross",
+        "promotion": "Зара доводит скрытый подход и работу катаров до точного выхода без чужих жертв. Сила ассасина-кросса не превращает всякого слугу Сета в её должника.",
+        "bio": "Ассасин-кросс Моррока, которая оставляет Сету песок под дверью, но не трогает сторожей ради мести. Зара проверяет пути отхода и носит противоядие прежде яда. Дорна по-прежнему встречает ножом-вопросом; доверие Бруно узнаёт по кофе, который больше не проверяет.",
+        "visual": {
+          "sprite": "assassin_cross_f"
+        }
       }
     },
     {
@@ -100,7 +144,52 @@
       "visual": {
         "sprite": "hero_zara_rogue_detail_v2"
       },
-      "behavior": "assassin"
+      "behavior": "assassin",
+      "advanced": {
+        "job": "stalker",
+        "role": "support",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.2765,
+          "atk": 1.332,
+          "def": 1.221,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_rogue_back_stab"
+          },
+          {
+            "level": 10,
+            "skill": "job_rogue_gank"
+          },
+          {
+            "level": 70,
+            "skill": "adv_stalker_disarm_chain"
+          },
+          {
+            "level": 80,
+            "skill": "adv_stalker_snare"
+          },
+          {
+            "level": 90,
+            "skill": "adv_stalker_prepared"
+          },
+          {
+            "level": 100,
+            "skill": "adv_stalker_siphon"
+          }
+        ],
+        "ult": "ult_adv_zara_stalker",
+        "promotion": "Зара осваивает обезоруживание и сохранение следов для проверки. Выучка сталкера позволяет уйти без шума; она выбирает не оставлять за собой чужую вину.",
+        "bio": "Сталкер, способная снять ремень незаметно и вернуть его с лучшей пряжкой. Зара бережёт улики так же тщательно, как противоядие, и платит за свои решения сама. Больше мести Сету боится стать им: выйти чистой, оставив вместо себя невиновного.",
+        "visual": {
+          "sprite": "stalker_f"
+        },
+        "behavior": "assassin"
+      }
     }
   ],
   "bio": "Воровка с ядовитыми ножами из пустыни Сограт.",

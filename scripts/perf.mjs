@@ -9,10 +9,11 @@
 // PERF_JSON=файл — сырые цифры, PERF_SNAPSHOT=файл — снимок кучи после боёв (для поиска удерживающих ссылок).
 // Память текстур меряется по экранам: главная, список героев, карточка героя, бой, главная после боёв.
 // Подробности и цифры: docs/content/performance.md.
-import { execSync, spawn } from 'node:child_process';
+
+import { textureMemory } from './lib/texture-memory.mjs';
+// PLAYWRIGHT_MODULE: absolute index.mjs; CHROME_EXECUTABLE_PATH: optional browser executable.
 import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { loadPlaywright, browserOptions, startVite, stopVite } from './lib/perf-browser.mjs';
 
 const PORT = Number(process.env.PERF_PORT ?? 5185);
 const URL = `http://localhost:${PORT}/`;
@@ -35,51 +36,9 @@ const texBudget = (screen) => (/боёв|боя\)/.test(screen) ? AFTER_BATTLES_
 const log = (...a) => console.log('[perf]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function loadPlaywright() {
-  const root = execSync('npm root -g', { encoding: 'utf8' }).trim();
-  const entry = join(root, 'playwright', 'index.mjs');
-  try {
-    return await import(pathToFileURL(entry).href);
-  } catch (e) {
-    throw new Error(`Не найден глобальный Playwright (${entry}). Он нужен заранее установленным: perf ничего не ставит.\n${e.message}`);
-  }
-}
-
-async function startVite() {
-  const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--port', String(PORT), '--strictPort'], {
-    stdio: ['ignore', 'pipe', 'pipe'],
-    detached: process.platform !== 'win32',
-  });
-  let out = '';
-  vite.stdout.on('data', (d) => (out += d));
-  vite.stderr.on('data', (d) => (out += d));
-  let exited = null;
-  vite.on('exit', (code) => (exited = code));
-  for (let i = 0; i < 150; i++) {
-    if (exited !== null) throw new Error(`vite завершился с кодом ${exited} (порт ${PORT} занят?):\n${out}`);
-    try {
-      const r = await fetch(URL);
-      if (r.ok) return vite;
-    } catch {
-      // ещё не поднялся
-    }
-    await sleep(200);
-  }
-  throw new Error(`vite не ответил за 30 с:\n${out}`);
-}
-
-function stopVite(vite) {
-  if (!vite || vite.exitCode !== null) return;
-  try {
-    if (process.platform !== 'win32') process.kill(-vite.pid, 'SIGTERM');
-    else vite.kill('SIGTERM');
-  } catch {
-    vite.kill('SIGKILL');
-  }
-}
-
 /** В странице: сборщик кадров и выборки объектов. Живёт в window.__perf. */
-function installProbe() {
+function installProbe(textureMemorySource) {
+  const measureTextures = (0, eval)(`(${textureMemorySource})`);
   const g = window.__game;
   const P = { on: false, frames: [], steps: [], samples: [], stepStart: 0, last: 0, made: { objects: 0, texts: 0, tweens: 0, timers: 0 } };
   window.__perf = P;
@@ -169,17 +128,7 @@ function installProbe() {
     };
   };
   /** Все загруженные текстуры: ключ, размер источника, байт (w×h×4). */
-  P.textures = () =>
-    g.textures.getTextureKeys().map((key) => {
-      const t = g.textures.get(key);
-      let bytes = 0;
-      const dims = [];
-      for (const s of t.source) {
-        bytes += s.width * s.height * 4;
-        dims.push(`${s.width}x${s.height}`);
-      }
-      return { key, dims: dims.join('+'), bytes };
-    });
+  P.textures = () => measureTextures(g.textures.getTextureKeys().map(key => ({ key, source: g.textures.get(key).source })));
   /** Все текстуры, МБ (w×h×4), и сколько из них листы юнитов spr_*. */
   P.texMB = () => {
     const all = P.textures();
@@ -217,14 +166,14 @@ const f1 = (v) => v.toFixed(1);
 
 async function main() {
   const { chromium } = await loadPlaywright();
-  const vite = await startVite();
+  const vite = await startVite(PORT, URL);
   log(`vite: ${URL}, CPU ×${CPU}, боёв: ${RUNS}, seed ${SEED}, скорость 2x`);
   let browser;
   const problems = [];
   const rows = [];
   let tex = null;
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch(browserOptions());
     const page = await browser.newPage({ viewport: { width: 540, height: 960 } });
     page.on('console', (m) => {
       if (m.type() !== 'error') return;
@@ -246,7 +195,7 @@ async function main() {
     await page.reload();
     await page.waitForFunction(() => window.__game?.scene?.isActive('Campaign'), null, { timeout: 60000 });
     await sleep(500);
-    await page.evaluate(installProbe);
+    await page.evaluate(installProbe, textureMemory.toString());
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
 
     const heapMB = async () => {

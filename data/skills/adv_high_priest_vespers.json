@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_high_priest_vespers",
+  "name": "Вечерняя служба",
+  "description": "В начале боя (шанс 100%): Всем союзникам, включая себя: щит 8% макс. ОЗ цели.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.08
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "battleStart",
+  "chance": 1
+}

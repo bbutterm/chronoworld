@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_high_wizard_focus",
+  "name": "Сосредоточение архимага",
+  "description": "В начале хода (шанс 25%): На себя: энергия +6.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 6
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "turnStart",
+  "chance": 0.25
+}

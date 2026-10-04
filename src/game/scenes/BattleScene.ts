@@ -2430,8 +2430,8 @@ export class BattleScene extends Phaser.Scene {
     const id = skillFx(skill.id)?.ground;
     if (!id || !targets.length) return;
     const pts = targets.map((u) => this.point(u));
-    // Grand Cross originates under the crusader even though the game skill is ranged.
-    const center = skill.id === 'job_crusader_grand_cross' || skill.range === 'melee'
+    // Grand Cross and Volcano originate under the caster, including ally status casts.
+    const center = skill.id === 'job_crusader_grand_cross' || skill.id === 'job_sage_volcano' || skill.range === 'melee'
       ? this.point(v) : { x: avg(pts.map((p) => p.x)), feet: avg(pts.map((p) => p.feet)) };
     this.sfx.later(delay, () => this.floats.catalogFlash(center.x, center.feet, id, 320, undefined, v.node.x, targets[0].snap.side === 'A'));
   }

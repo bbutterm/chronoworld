@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_kai_professor",
+  "name": "Замкнутый круг Кая",
+  "description": "На полной энергии. Всем союзникам, включая себя: щит 19% макс. ОЗ цели; энергия +12.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.19
+    },
+    {
+      "type": "energy",
+      "amount": 12
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

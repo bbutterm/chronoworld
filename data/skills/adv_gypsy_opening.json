@@ -1,0 +1,29 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_gypsy_opening",
+  "name": "Первый поворот",
+  "description": "В начале боя (шанс 100%): На себя: АТК +14% на 3 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_opening",
+        "name": "Натиск",
+        "turns": 3,
+        "stats": {
+          "atk": 0.14
+        }
+      }
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "battleStart",
+  "chance": 1
+}

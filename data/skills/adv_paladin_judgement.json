@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_paladin_judgement",
+  "name": "Сдерживающий суд",
+  "description": "Ближайшему врагу: урон 1.55 × АТК; АТК -18% на 2 хода статуса.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.55
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_judge",
+        "name": "Натиск",
+        "turns": 2,
+        "stats": {
+          "atk": -0.18
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 6
+}

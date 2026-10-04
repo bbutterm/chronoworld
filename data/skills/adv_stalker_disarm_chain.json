@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_stalker_disarm_chain",
+  "name": "Цепь обезоруживания",
+  "description": "Ближайшему врагу: урон 1.35 × АТК; АТК -22% на 2 хода статуса.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.35
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_disarm",
+        "name": "Натиск",
+        "turns": 2,
+        "stats": {
+          "atk": -0.22
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 6
+}

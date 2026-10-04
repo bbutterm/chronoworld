@@ -68,7 +68,52 @@
       "visual": {
         "sprite": "hero_iris_knight_detail_v2"
       },
-      "behavior": "charger"
+      "behavior": "charger",
+      "advanced": {
+        "job": "lord_knight",
+        "role": "damage",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.2765,
+          "atk": 1.4985,
+          "def": 1.1655,
+          "spd": 1.1655
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_knight_charge_attack"
+          },
+          {
+            "level": 10,
+            "skill": "job_knight_two_hand_quicken"
+          },
+          {
+            "level": 70,
+            "skill": "adv_lord_knight_lance_line"
+          },
+          {
+            "level": 80,
+            "skill": "adv_lord_knight_iron_order"
+          },
+          {
+            "level": 90,
+            "skill": "adv_lord_knight_vanguard"
+          },
+          {
+            "level": 100,
+            "skill": "adv_lord_knight_reprise"
+          }
+        ],
+        "ult": "ult_adv_iris_lord_knight",
+        "promotion": "Ирис доводит бой двуручником до прикрытия отхода с ношей. Выучку лорда-рыцаря доказывает спасёнными людьми, не ожиданием прощения от старого ордена.",
+        "bio": "Лорд-рыцарь с двуручником, которую изгнали за брошенный ради троих раненых щит. Ирис учит уходить с ношей, а не спорить о славе. Не берёт денег с спасённых; жетоны павших носит, чтобы вернуть семьям имена и место погребения, не как знак своих побед.",
+        "visual": {
+          "sprite": "lord_knight_f"
+        },
+        "behavior": "charger"
+      }
     },
     {
       "job": "crusader",
@@ -101,6 +146,50 @@
       "bio": "Крестоносец, вернувшаяся в орден, который её изгнал. Щит Ирис снова взяла в руки — не для себя, а чтобы закрыть им всех, кого когда-то выносила на плечах. Святой свет ордена теперь служит её собственному правилу: раненых не бросают.",
       "visual": {
         "sprite": "hero_iris_crusader_detail_v2"
+      },
+      "advanced": {
+        "job": "paladin",
+        "role": "tank",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.4985,
+          "atk": 1.2765,
+          "def": 1.443,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_crusader_holy_cross"
+          },
+          {
+            "level": 30,
+            "skill": "job_crusader_faith"
+          },
+          {
+            "level": 70,
+            "skill": "adv_paladin_oath"
+          },
+          {
+            "level": 80,
+            "skill": "adv_paladin_judgement"
+          },
+          {
+            "level": 90,
+            "skill": "adv_paladin_consecration"
+          },
+          {
+            "level": 100,
+            "skill": "adv_paladin_resolve"
+          }
+        ],
+        "ult": "ult_adv_iris_paladin",
+        "promotion": "Ирис учится держать щит неподвижно под долгим натиском. Паладинский караул нужен там, где раненому или его товарищу нельзя приказать торопиться.",
+        "bio": "Паладин, которая не путает клятву с приказом бросить своих. Ирис держит проход, пока другой работает на коленях, и читает молитву над каждым найденным жетоном. Её близость с Гарретом умещается в кивке: оба знают вес человека, которого удалось вынести.",
+        "visual": {
+          "sprite": "paladin_f"
+        }
       }
     }
   ],

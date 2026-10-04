@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_teo_champion",
+  "name": "Ритм Тео",
+  "description": "На полной энергии. Ближайшему врагу: урон 2.5 × АТК; АТК -20% на 3 хода статуса.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "teo_combo",
+        "name": "Натиск",
+        "turns": 3,
+        "stats": {
+          "atk": -0.2
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 6
+}

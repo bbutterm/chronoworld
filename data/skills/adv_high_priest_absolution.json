@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_high_priest_absolution",
+  "name": "Охранная молитва",
+  "description": "Союзнику с наименьшей долей ОЗ (включая себя): лечение 1.45 × АТК; ЗАЩ +18% на 2 хода статуса.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.45
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_absolution",
+        "name": "Защита",
+        "turns": 2,
+        "stats": {
+          "def": 0.18
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

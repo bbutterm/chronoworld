@@ -2561,9 +2561,363 @@
         "scale": 1.0,
         "note": "EF_BEGINASURA11 510 / 328 (MO_EXTREMITYFIST effectId): glyphs 阿修羅覇凰拳 asura11-16.tga, ThreeDEffect parameters"
       }
+    },
+    {
+      "id": "fx_job_veteran_lord_knight",
+      "file": "effects/fx_job_veteran_lord_knight.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_paladin",
+      "file": "effects/fx_job_veteran_paladin.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_sniper",
+      "file": "effects/fx_job_veteran_sniper.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_clown",
+      "file": "effects/fx_job_veteran_clown.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_gypsy",
+      "file": "effects/fx_job_veteran_gypsy.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_high_wizard",
+      "file": "effects/fx_job_veteran_high_wizard.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_professor",
+      "file": "effects/fx_job_veteran_professor.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_assassin_cross",
+      "file": "effects/fx_job_veteran_assassin_cross.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_stalker",
+      "file": "effects/fx_job_veteran_stalker.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_high_priest",
+      "file": "effects/fx_job_veteran_high_priest.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_champion",
+      "file": "effects/fx_job_veteran_champion.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_whitesmith",
+      "file": "effects/fx_job_veteran_whitesmith.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
+    },
+    {
+      "id": "fx_job_veteran_creator",
+      "file": "effects/fx_job_veteran_creator.png",
+      "cell": [
+        128,
+        128
+      ],
+      "columns": 6,
+      "frames": 24,
+      "ms": 35,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        64,
+        64
+      ],
+      "attach": "target",
+      "scale": 2.2,
+      "alpha": 0.85,
+      "source": {
+        "kind": "original",
+        "renderer": "Chronoworld deterministic vector raster",
+        "seed": 0,
+        "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
+      }
     }
   ],
   "skills": {
+    "job_alchemist_acid_terror": {"projectile": "fx_job_alchemist_acid_terror_projectile"},
+    "job_archer_arrow_shower": {"projectile": "fx_job_archer_arrow_shower_source"},
+    "job_sage_volcano": {"ground": "fx_job_sage_volcano_ground"},
     "alde_clock_pendulum": {
       "hit": "fx_npc_stun_attack"
     },
@@ -3022,12 +3376,267 @@
     },
     "ult_zara_strip_weapon": {
       "debuff": "fx_job_rogue_strip_weapon"
+    },
+    "adv_assassin_cross_cross_cut": {
+      "hit": "fx_job_veteran_assassin_cross",
+      "debuff": "fx_job_veteran_assassin_cross"
+    },
+    "adv_assassin_cross_execution": {
+      "cast": "fx_job_veteran_assassin_cross"
+    },
+    "adv_assassin_cross_expose": {
+      "hit": "fx_job_veteran_assassin_cross",
+      "debuff": "fx_job_veteran_assassin_cross"
+    },
+    "adv_assassin_cross_veil": {
+      "buff": "fx_job_veteran_assassin_cross"
+    },
+    "adv_champion_centering": {
+      "buff": "fx_job_veteran_champion"
+    },
+    "adv_champion_pulse": {
+      "cast": "fx_job_veteran_champion"
+    },
+    "adv_champion_sphere_chain": {
+      "hit": "fx_job_veteran_champion",
+      "debuff": "fx_job_veteran_champion"
+    },
+    "adv_champion_stance": {
+      "buff": "fx_job_veteran_champion"
+    },
+    "adv_clown_discord": {
+      "hit": "fx_job_veteran_clown",
+      "debuff": "fx_job_veteran_clown"
+    },
+    "adv_clown_encore": {
+      "cast": "fx_job_veteran_clown"
+    },
+    "adv_clown_field_song": {
+      "buff": "fx_job_veteran_clown"
+    },
+    "adv_clown_overture": {
+      "buff": "fx_job_veteran_clown"
+    },
+    "adv_creator_detonation": {
+      "hit": "fx_job_veteran_creator",
+      "debuff": "fx_job_veteran_creator"
+    },
+    "adv_creator_distillation": {
+      "buff": "fx_job_veteran_creator"
+    },
+    "adv_creator_reagents": {
+      "buff": "fx_job_veteran_creator"
+    },
+    "adv_creator_restorative": {
+      "buff": "fx_job_veteran_creator"
+    },
+    "adv_gypsy_afterbeat": {
+      "debuff": "fx_job_veteran_gypsy"
+    },
+    "adv_gypsy_burst_step": {
+      "hit": "fx_job_veteran_gypsy",
+      "debuff": "fx_job_veteran_gypsy"
+    },
+    "adv_gypsy_opening": {
+      "buff": "fx_job_veteran_gypsy"
+    },
+    "adv_gypsy_scout_rhythm": {
+      "buff": "fx_job_veteran_gypsy"
+    },
+    "adv_high_priest_absolution": {
+      "buff": "fx_job_veteran_high_priest"
+    },
+    "adv_high_priest_breath": {
+      "buff": "fx_job_veteran_high_priest"
+    },
+    "adv_high_priest_sanctuary": {
+      "buff": "fx_job_veteran_high_priest"
+    },
+    "adv_high_priest_vespers": {
+      "buff": "fx_job_veteran_high_priest"
+    },
+    "adv_high_wizard_cinder": {
+      "hit": "fx_job_veteran_high_wizard",
+      "debuff": "fx_job_veteran_high_wizard"
+    },
+    "adv_high_wizard_convergence": {
+      "hit": "fx_job_veteran_high_wizard",
+      "debuff": "fx_job_veteran_high_wizard"
+    },
+    "adv_high_wizard_focus": {
+      "cast": "fx_job_veteran_high_wizard"
+    },
+    "adv_high_wizard_ward": {
+      "buff": "fx_job_veteran_high_wizard"
+    },
+    "adv_lord_knight_iron_order": {
+      "buff": "fx_job_veteran_lord_knight"
+    },
+    "adv_lord_knight_lance_line": {
+      "hit": "fx_job_veteran_lord_knight",
+      "debuff": "fx_job_veteran_lord_knight"
+    },
+    "adv_lord_knight_reprise": {
+      "hit": "fx_job_veteran_lord_knight"
+    },
+    "adv_lord_knight_vanguard": {
+      "buff": "fx_job_veteran_lord_knight"
+    },
+    "adv_paladin_consecration": {
+      "buff": "fx_job_veteran_paladin"
+    },
+    "adv_paladin_judgement": {
+      "hit": "fx_job_veteran_paladin",
+      "debuff": "fx_job_veteran_paladin"
+    },
+    "adv_paladin_oath": {
+      "buff": "fx_job_veteran_paladin"
+    },
+    "adv_paladin_resolve": {
+      "buff": "fx_job_veteran_paladin"
+    },
+    "adv_professor_counter_lattice": {
+      "hit": "fx_job_veteran_professor",
+      "debuff": "fx_job_veteran_professor"
+    },
+    "adv_professor_feedback": {
+      "cast": "fx_job_veteran_professor"
+    },
+    "adv_professor_lecture": {
+      "buff": "fx_job_veteran_professor"
+    },
+    "adv_professor_proof": {
+      "buff": "fx_job_veteran_professor"
+    },
+    "adv_sniper_falcon_mark": {
+      "hit": "fx_job_veteran_sniper",
+      "debuff": "fx_job_veteran_sniper"
+    },
+    "adv_sniper_pinning_volley": {
+      "hit": "fx_job_veteran_sniper",
+      "debuff": "fx_job_veteran_sniper"
+    },
+    "adv_sniper_quiver": {
+      "cast": "fx_job_veteran_sniper"
+    },
+    "adv_sniper_sight": {
+      "buff": "fx_job_veteran_sniper"
+    },
+    "adv_stalker_disarm_chain": {
+      "hit": "fx_job_veteran_stalker",
+      "debuff": "fx_job_veteran_stalker"
+    },
+    "adv_stalker_prepared": {
+      "buff": "fx_job_veteran_stalker"
+    },
+    "adv_stalker_siphon": {
+      "cast": "fx_job_veteran_stalker"
+    },
+    "adv_stalker_snare": {
+      "hit": "fx_job_veteran_stalker",
+      "debuff": "fx_job_veteran_stalker"
+    },
+    "adv_whitesmith_bellows": {
+      "cast": "fx_job_veteran_whitesmith"
+    },
+    "adv_whitesmith_forge_burst": {
+      "hit": "fx_job_veteran_whitesmith",
+      "debuff": "fx_job_veteran_whitesmith"
+    },
+    "adv_whitesmith_rivets": {
+      "buff": "fx_job_veteran_whitesmith"
+    },
+    "adv_whitesmith_temper": {
+      "buff": "fx_job_veteran_whitesmith"
+    },
+    "ult_adv_alan_lord_knight": {
+      "hit": "fx_job_veteran_lord_knight",
+      "debuff": "fx_job_veteran_lord_knight"
+    },
+    "ult_adv_alan_paladin": {
+      "buff": "fx_job_veteran_paladin"
+    },
+    "ult_adv_bran_clown": {
+      "buff": "fx_job_veteran_clown"
+    },
+    "ult_adv_bran_sniper": {
+      "hit": "fx_job_veteran_sniper",
+      "debuff": "fx_job_veteran_sniper"
+    },
+    "ult_adv_dorn_assassin_cross": {
+      "hit": "fx_job_veteran_assassin_cross",
+      "debuff": "fx_job_veteran_assassin_cross"
+    },
+    "ult_adv_dorn_stalker": {
+      "hit": "fx_job_veteran_stalker",
+      "debuff": "fx_job_veteran_stalker"
+    },
+    "ult_adv_greta_creator": {
+      "buff": "fx_job_veteran_creator"
+    },
+    "ult_adv_greta_whitesmith": {
+      "buff": "fx_job_veteran_whitesmith"
+    },
+    "ult_adv_iris_lord_knight": {
+      "hit": "fx_job_veteran_lord_knight",
+      "debuff": "fx_job_veteran_lord_knight"
+    },
+    "ult_adv_iris_paladin": {
+      "buff": "fx_job_veteran_paladin"
+    },
+    "ult_adv_kai_high_wizard": {
+      "hit": "fx_job_veteran_high_wizard",
+      "debuff": "fx_job_veteran_high_wizard"
+    },
+    "ult_adv_kai_professor": {
+      "buff": "fx_job_veteran_professor"
+    },
+    "ult_adv_lira_high_wizard": {
+      "hit": "fx_job_veteran_high_wizard",
+      "debuff": "fx_job_veteran_high_wizard"
+    },
+    "ult_adv_lira_professor": {
+      "hit": "fx_job_veteran_professor",
+      "debuff": "fx_job_veteran_professor"
+    },
+    "ult_adv_meilin_gypsy": {
+      "hit": "fx_job_veteran_gypsy",
+      "debuff": "fx_job_veteran_gypsy"
+    },
+    "ult_adv_meilin_sniper": {
+      "hit": "fx_job_veteran_sniper",
+      "debuff": "fx_job_veteran_sniper"
+    },
+    "ult_adv_otto_creator": {
+      "buff": "fx_job_veteran_creator"
+    },
+    "ult_adv_otto_whitesmith": {
+      "hit": "fx_job_veteran_whitesmith",
+      "debuff": "fx_job_veteran_whitesmith"
+    },
+    "ult_adv_teo_champion": {
+      "hit": "fx_job_veteran_champion",
+      "debuff": "fx_job_veteran_champion"
+    },
+    "ult_adv_teo_high_priest": {
+      "buff": "fx_job_veteran_high_priest"
+    },
+    "ult_adv_vika_champion": {
+      "buff": "fx_job_veteran_champion"
+    },
+    "ult_adv_vika_high_priest": {
+      "buff": "fx_job_veteran_high_priest"
+    },
+    "ult_adv_zara_assassin_cross": {
+      "hit": "fx_job_veteran_assassin_cross",
+      "debuff": "fx_job_veteran_assassin_cross"
+    },
+    "ult_adv_zara_stalker": {
+      "hit": "fx_job_veteran_stalker",
+      "debuff": "fx_job_veteran_stalker"
     }
   },
   "rejected": {
-    "fx_job_sage_heavens_drive": "Небесный удар: захват — неподвижная плоская стена камней (3D-движение клиента не снято); в бою закрывала отряд бежевой плитой. Нужен арт: ряд шипов, вырастающих из земли.",
-    "fx_job_alchemist_acid_terror_projectile": "Колба Кислотного террора: захват 32×34 с альфой по яркости — в полёте бледное полупрозрачное зелёное пятно. Нужен арт: плотная колба 32–48 px (кадры кувырка). Пока летит процедурная колба.",
-    "fx_job_archer_arrow_shower_source": "Град стрел: захват — веер из 10 стрел, расходящихся из точки (статичный 3D-источник), в бою — бледная розовая «звезда». Нужен арт: пучок стрел, падающих вниз, или вонзившиеся стрелы. Пока — процедурные стрелы.",
-    "fx_job_sage_volcano_ground": "Вулкан: захват 122×98 — плоская бледно-розовая «корона» без огня; в бою читается пятном, а не извержением. Нужен арт: лава/огненный круг на земле. Пока — процедурный вулкан."
+    "fx_job_sage_heavens_drive": "Небесный удар: захват — неподвижная плоская стена камней (3D-движение клиента не снято); в бою закрывала отряд бежевой плитой. Нужен арт: ряд шипов, вырастающих из земли."
   }
 }

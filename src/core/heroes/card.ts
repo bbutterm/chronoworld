@@ -65,12 +65,14 @@ export interface ActiveForm {
   branch?: string;
   /** Строка возвышения ветки. */
   promotion?: string;
+  bio?: string;
+  advanced?: boolean;
   /** Профиль поведения формы в бою (переопределение профиля профессии). */
   behavior?: string;
 }
 
 /** Что нужно знать об экземпляре для формы: редкость и выбранная ветка. */
-export type FormKey = Pick<HeroState, 'rarity'> & { branch?: string };
+export type FormKey = Pick<HeroState, 'rarity'> & { branch?: string; level?: number };
 
 /** Ветка шаблона по id профессии (нет такой — undefined). */
 export function branchOf(t: HeroTemplate, job: string | undefined): HeroBranch | undefined {
@@ -96,6 +98,7 @@ export function branchForm(b: HeroBranch): ActiveForm {
     ...(b.ult ? { ult: b.ult } : {}),
     branch: b.job,
     promotion: b.promotion,
+    bio: b.bio,
     ...(b.visual.sprite ? { sprite: b.visual.sprite } : {}),
     ...(b.behavior ? { behavior: b.behavior } : {}),
   };
@@ -104,7 +107,12 @@ export function branchForm(b: HeroBranch): ActiveForm {
 /** Форма экземпляра: ветка (фиолетовый и выше с выбранной веткой) или первая профессия. */
 export function activeForm(t: HeroTemplate, hero: FormKey): ActiveForm {
   const b = activeBranch(t, hero);
-  return b ? branchForm(b) : baseForm(t);
+  if (!b) return baseForm(t);
+  const a = b.advanced;
+  if (a && hero.level !== undefined && hero.level >= a.minLevel && rarityIndex(hero.rarity) >= rarityIndex(a.minRarity)) {
+    return { ...branchForm(a), branch: b.job, advanced: true };
+  }
+  return branchForm(b);
 }
 
 /** Фиолетовый и выше без выбранной ветки — «Выберите ветку!» (выбор бесплатный, branch.ts chooseBranch). */
@@ -113,7 +121,7 @@ export function needsBranch(hero: Pick<HeroState, 'templateId' | 'rarity' | 'bra
   return !!t && rarityIndex(hero.rarity) >= rarityIndex(BRANCH_RARITY) && !activeBranch(t, hero);
 }
 
-type HeroKey = Pick<HeroState, 'templateId' | 'rarity'> & { branch?: string };
+type HeroKey = Pick<HeroState, 'templateId' | 'rarity'> & { branch?: string; level?: number };
 const tmpl = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext) => heroTemplate(ctx, hero.templateId);
 
 export const heroName = (hero: Pick<HeroState, 'templateId'>, ctx: GameContext): string => ctx.content.heroes[hero.templateId]?.name ?? hero.templateId;
@@ -142,7 +150,7 @@ function jobOf(ctx: GameContext, jobId: string): JobDef {
 /** Статы героя шаблона t на уровне level, редкости rarity и ветке branch (без экипировки), округление до целых. */
 export function cardStats(t: HeroTemplate, level: number, rarity: CardRarity, ctx: GameContext, branch?: string): Stats {
   const line = jobOf(ctx, t.line);
-  const mods = activeForm(t, { rarity, branch }).statMods;
+  const mods = activeForm(t, { rarity, branch, level }).statMods;
   const mult = rarityDef(ctx, rarity).statMult;
   const k = Math.max(0, level - 1);
   const b = line.baseStats;
@@ -245,12 +253,14 @@ export interface BranchView {
   /** История формы после возвышения (может не быть). */
   bio?: string;
   sprite?: string;
+  advanced?: BranchView & { minRarity: CardRarity; minLevel: number };
 }
 
 export function branchView(b: HeroBranch, ctx: GameContext, gender: Gender = 'm'): BranchView {
   return {
     job: b.job,
     jobName: jobTitle(ctx, b.job, gender),
+    ...(b.advanced ? { advanced: { ...branchView(b.advanced, ctx, gender), minRarity: b.advanced.minRarity, minLevel: b.advanced.minLevel } } : {}),
     role: b.role,
     skills: b.skills,
     ...(b.ult ? { ult: b.ult } : {}),
@@ -294,6 +304,9 @@ export interface HeroCard {
   branches: BranchView[];
   /** Редкость, на которой выбирается ветка (если герой ещё ниже неё) — для подписи «с фиолетового». */
   branchAt?: CardRarity;
+  advanced: boolean;
+  formBio?: string;
+  promotion?: string;
   bio: string;
   hook: string;
   locked: boolean;
@@ -325,6 +338,9 @@ export function heroCard(hero: HeroState, ctx: GameContext): HeroCard {
     needsBranch: needsBranch(hero, ctx),
     branches: t.branches.map((b) => branchView(b, ctx, t.gender)),
     ...(below ? { branchAt: BRANCH_RARITY } : {}),
+    advanced: !!form.advanced,
+    formBio: form.bio,
+    promotion: form.promotion,
     bio: t.bio,
     hook: t.hook,
     locked: !!hero.locked,

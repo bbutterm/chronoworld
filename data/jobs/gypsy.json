@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "gypsy",
+  "name": "Цыганка",
+  "description": "Ветеранский ранг: Цыганка. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "dancer"
+  ],
+  "maxJobLevel": 100,
+  "role": "support",
+  "baseStats": {
+    "hp": 2150,
+    "atk": 220,
+    "def": 45,
+    "spd": 105
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 6,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_gypsy_burst_step"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_gypsy_scout_rhythm"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_gypsy_opening"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_gypsy_afterbeat"
+    }
+  ],
+  "visual": {
+    "sprite": "gypsy_f",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  },
+  "behavior": "aura",
+  "nameF": "Цыганка"
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_alan_lord_knight",
+  "name": "Рубеж Алана",
+  "description": "На полной энергии. Врагам переднего ряда (если пуст — заднего): урон 1.9 × АТК; «Вызов Алана» на 2 хода статуса — провоцирует атаковать Алана.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "alan_challenge",
+        "name": "Вызов Алана",
+        "turns": 2,
+        "taunt": true
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

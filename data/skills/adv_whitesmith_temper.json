@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_whitesmith_temper",
+  "name": "Полевая закалка",
+  "description": "Всем союзникам, включая себя: щит 8% макс. ОЗ цели; АТК +12% на 2 хода статуса.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.08
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_temper",
+        "name": "Натиск",
+        "turns": 2,
+        "stats": {
+          "atk": 0.12
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

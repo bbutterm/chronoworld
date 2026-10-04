@@ -1,0 +1,35 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_lira_high_wizard",
+  "name": "Разрыв Лиры",
+  "description": "На полной энергии. Врагам заднего ряда (если пуст — переднего): урон 2 × АТК; срыв текущего каста на 1 хода статуса; энергия -12.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "lira_rift",
+        "name": "Срыв заклинания",
+        "turns": 1,
+        "interrupt": true
+      }
+    },
+    {
+      "type": "energy",
+      "amount": -12
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

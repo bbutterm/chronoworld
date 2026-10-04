@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "assassin_cross",
+  "name": "Ассасин Креста",
+  "description": "Ветеранский ранг: Ассасин Креста. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "assassin"
+  ],
+  "maxJobLevel": 100,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2150,
+    "atk": 260,
+    "def": 45,
+    "spd": 120
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 8,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_assassin_cross_cross_cut"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_assassin_cross_expose"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_assassin_cross_veil"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_assassin_cross_execution"
+    }
+  ],
+  "visual": {
+    "sprite": "assassin_cross_m",
+    "hitFx": "fx_hit"
+  },
+  "behavior": "assassin",
+  "nameF": "Ассасин Креста"
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "high_priest",
+  "name": "Верховный жрец",
+  "nameF": "Верховная жрица",
+  "description": "Ветеранский ранг Жреца: святилище и защитные молитвы. Золотая редкость и уровень 70.",
+  "tier": 3,
+  "from": [
+    "priest"
+  ],
+  "maxJobLevel": 100,
+  "role": "healer",
+  "baseStats": {
+    "hp": 2300,
+    "atk": 200,
+    "def": 55,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 55,
+    "atk": 5,
+    "def": 1.5,
+    "spd": 0
+  },
+  "basic": "basic_heal",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_high_priest_sanctuary"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_high_priest_absolution"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_high_priest_vespers"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_high_priest_breath"
+    }
+  ],
+  "visual": {
+    "sprite": "high_priest_m",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  },
+  "behavior": "medic"
+}

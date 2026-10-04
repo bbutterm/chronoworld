@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_paladin_consecration",
+  "name": "Освящённый доспех",
+  "description": "В начале боя (шанс 100%): На себя: щит 12% макс. ОЗ цели.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.12
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "battleStart",
+  "chance": 1
+}

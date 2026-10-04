@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_iris_paladin",
+  "name": "Опора Ирис",
+  "description": "На полной энергии. На себя: щит 30% макс. ОЗ цели; АТК +30% на 3 хода статуса.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "iris_stand",
+        "name": "Натиск",
+        "turns": 3,
+        "stats": {
+          "atk": 0.3
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

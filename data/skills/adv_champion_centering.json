@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_champion_centering",
+  "name": "Средоточие духа",
+  "description": "На себя: лечение 0.65 × АТК; щит 12% макс. ОЗ цели.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 0.65
+    },
+    {
+      "type": "shield",
+      "pctMaxHp": 0.12
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_otto_whitesmith",
+  "name": "Клеймо Отто",
+  "description": "На полной энергии. Врагам переднего ряда (если пуст — заднего): урон 2 × АТК; ЗАЩ -28% на 3 хода статуса.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "otto_stamp",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": -0.28
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

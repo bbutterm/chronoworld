@@ -3,10 +3,10 @@ import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey, loo
 import catalogJson from '../assets/effects/effects.json';
 
 describe('RO animated effects', () => {
-  it('queues all 93 captured atlases with catalog cell sizes', () => {
+  it('queues all captured and authored atlases with catalog cell sizes', () => {
     const queued: Array<[string, string, number, number]> = [];
     queueAnimatedFx((key, file, w, h) => queued.push([key, file, w, h]));
-    expect(queued).toHaveLength(93);
+    expect(queued).toHaveLength(106);
     expect(queued).toContainEqual(['anim_fx_job_sage_volcano_ground', 'effects/fx_job_sage_volcano_ground.png', 122, 98]);
     expect(queued).toContainEqual(['anim_fx_job_thief_venom_knife_projectile', 'effects/fx_job_thief_venom_knife_projectile.png', 42, 38]);
     expect(queued).toContainEqual(['anim_fx_job_thief_steal', 'effects/fx_job_thief_steal.png', 188, 176]);
@@ -21,6 +21,18 @@ describe('RO animated effects', () => {
     expect(queued).toContainEqual(['anim_fx_job_acolyte_signum_crucis', 'effects/fx_job_acolyte_signum_crucis.png', 236, 260]);
     expect(queued).toContainEqual(['anim_fx_job_crusader_holy_cross', 'effects/fx_job_crusader_holy_cross.png', 442, 442]);
     expect(queued).toContainEqual(['anim_fx_job_wizard_storm_gust', 'effects/fx_job_wizard_storm_gust.png', 362, 308]);
+  });
+
+  it('registers the 13 original veteran atlases with their authored frame metadata', () => {
+    const jobs = ['lord_knight', 'paladin', 'sniper', 'clown', 'gypsy', 'high_wizard', 'professor', 'assassin_cross', 'stalker', 'high_priest', 'champion', 'whitesmith', 'creator'];
+    const catalog = catalogJson as { effects: Array<Record<string, unknown>> };
+    for (const job of jobs) {
+      const id = `fx_job_veteran_${job}`;
+      const effect = catalog.effects.find((row) => row.id === id)!;
+      expect(effect, id).toBeDefined();
+      expect(effect).toMatchObject({ file: `effects/${id}.png`, cell: [128, 128], columns: 6, frames: 24, ms: 35, anchor: [64, 64], attach: 'target' });
+      expect(effect.source).toMatchObject({ kind: 'original' });
+    }
   });
 
   it('plays authored frames without entering blank trailing cells', () => {
@@ -55,6 +67,28 @@ describe('RO animated effects', () => {
 });
 
 describe('эффекты навыков (effects.json → skills)', () => {
+  it('maps all 76 veteran skills to their class atlas and mechanical event roles', async () => {
+    const { loadFullContext } = await import('../scripts/lib/content-node');
+    const content = loadFullContext().content;
+    const catalog = catalogJson as { skills: Record<string, Record<string, string>> };
+    const ids = Object.keys(content.skills).filter((id) => id.startsWith('adv_') || id.startsWith('ult_adv_'));
+    expect(ids).toHaveLength(76);
+    for (const id of ids) {
+      const skill = content.skills[id];
+      const roles = catalog.skills[id];
+      const types = new Set(skill.effects.map((effect) => effect.type));
+      expect(roles, id).toBeDefined();
+      expect(new Set(Object.values(roles)).size, id).toBe(1);
+      const atlas = Object.values(roles)[0];
+      expect(atlas, id).toMatch(/^fx_job_veteran_/);
+      expect(animatedEffect(atlas), id).toMatchObject({ frames: 24, columns: 6, cell: [128, 128] });
+      if (types.has('damage')) expect(roles.hit, `${id}: damage`).toBe(atlas);
+      if (types.has('shield') || types.has('heal') || (types.has('status') && skill.target.side === 'ally')) expect(roles.buff, `${id}: apply`).toBe(atlas);
+      if (types.has('status') && skill.target.side === 'enemy') expect(roles.debuff, `${id}: hostile status`).toBe(atlas);
+      if (types.size === 1 && types.has('energy')) expect(roles.cast, `${id}: caster proc`).toBe(atlas);
+    }
+  });
+
   it('maps verified direct and shared RO effects to the correct battle event', async () => {
     const { skillFx } = await import('../src/game/animatedFx');
     expect(skillFx('swordman_endure')?.buff).toBe('fx_swordman_endure');

@@ -55072,6 +55072,7254 @@
     "genericSourceRetained": true,
     "readyIndexSha256": "db9ef5bc2164e26d6a043b0a6f7bbf80733430769ebb8458b00e6b0736026872"
    }
+  },
+  "lord_knight_m": {
+   "source": {
+    "job": "Lord Knight",
+    "jobId": 4008,
+    "gender": "male",
+    "head": 1,
+    "headPalette": 1,
+    "hair": {
+     "style": 1,
+     "palette": 1
+    },
+    "weaponItemName": "Katana",
+    "weaponItemView": null,
+    "weaponView": 3,
+    "shieldView": 0,
+    "itemId": 1116,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "alan",
+    "heroName": "Алан",
+    "jobStage": "advanced",
+    "previousForm": "knight_m",
+    "identitySource": "hero_alan_swordman"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -16,
+      -83,
+      47,
+      7
+     ],
+     [
+      -16,
+      -81,
+      49,
+      7
+     ],
+     [
+      -16,
+      -80,
+      49,
+      7
+     ],
+     [
+      -17,
+      -82,
+      47,
+      7
+     ]
+    ],
+    "walk": [
+     [
+      -13,
+      -85,
+      16,
+      9
+     ],
+     [
+      -18,
+      -84,
+      20,
+      9
+     ],
+     [
+      -22,
+      -82,
+      31,
+      9
+     ],
+     [
+      -21,
+      -83,
+      26,
+      9
+     ],
+     [
+      -15,
+      -85,
+      16,
+      6
+     ],
+     [
+      -19,
+      -84,
+      19,
+      6
+     ],
+     [
+      -21,
+      -82,
+      29,
+      8
+     ],
+     [
+      -18,
+      -83,
+      19,
+      9
+     ]
+    ],
+    "attack": [
+     [
+      -46,
+      -87,
+      23,
+      5
+     ],
+     [
+      -50,
+      -87,
+      19,
+      5
+     ],
+     [
+      -23,
+      -85,
+      34,
+      4
+     ],
+     [
+      -20,
+      -64,
+      94,
+      29
+     ],
+     [
+      -19,
+      -64,
+      55,
+      29
+     ],
+     [
+      -18,
+      -64,
+      40,
+      15
+     ]
+    ],
+    "cast": [
+     [
+      -26,
+      -82,
+      28,
+      9
+     ],
+     [
+      -26,
+      -82,
+      28,
+      9
+     ],
+     [
+      -26,
+      -82,
+      28,
+      9
+     ],
+     [
+      -26,
+      -82,
+      28,
+      9
+     ],
+     [
+      -26,
+      -82,
+      28,
+      9
+     ],
+     [
+      -26,
+      -82,
+      28,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -32,
+      -77,
+      22,
+      6
+     ],
+     [
+      -35,
+      -76,
+      20,
+      3
+     ],
+     [
+      -32,
+      -77,
+      22,
+      6
+     ]
+    ],
+    "death": [
+     [
+      -40,
+      -46,
+      33,
+      9
+     ],
+     [
+      -40,
+      -46,
+      33,
+      9
+     ],
+     [
+      -40,
+      -46,
+      33,
+      9
+     ],
+     [
+      -40,
+      -46,
+      33,
+      9
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "lord_knight_m_idle_38_w3_s0_h1_p1.png",
+    "walk": "lord_knight_m_walk_14_w3_s0_h1_p1.png",
+    "attack": "lord_knight_m_attack_86_w3_s0_h1_p1.png",
+    "cast": "lord_knight_m_cast_102_w3_s0_h1_p1.png",
+    "hurt": "lord_knight_m_hurt_54_w3_s0_h1_p1.png",
+    "death": "lord_knight_m_death_70_w3_s0_h1_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "lord_knight_f": {
+   "source": {
+    "job": "Lord Knight",
+    "jobId": 4008,
+    "gender": "female",
+    "head": 7,
+    "headPalette": 1,
+    "hair": {
+     "style": 7,
+     "palette": 1
+    },
+    "weaponItemName": "Claymore",
+    "weaponItemView": null,
+    "weaponView": 3,
+    "shieldView": 0,
+    "itemId": 1163,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "iris",
+    "heroName": "Ирис",
+    "jobStage": "advanced",
+    "previousForm": "knight_f",
+    "identitySource": "knight_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -48,
+      -80,
+      26,
+      8
+     ],
+     [
+      -50,
+      -83,
+      23,
+      8
+     ],
+     [
+      -50,
+      -84,
+      22,
+      8
+     ],
+     [
+      -49,
+      -81,
+      25,
+      8
+     ]
+    ],
+    "walk": [
+     [
+      -13,
+      -82,
+      12,
+      7
+     ],
+     [
+      -18,
+      -81,
+      23,
+      7
+     ],
+     [
+      -19,
+      -79,
+      27,
+      7
+     ],
+     [
+      -20,
+      -80,
+      23,
+      6
+     ],
+     [
+      -14,
+      -82,
+      13,
+      6
+     ],
+     [
+      -15,
+      -81,
+      22,
+      6
+     ],
+     [
+      -21,
+      -79,
+      25,
+      8
+     ],
+     [
+      -19,
+      -80,
+      18,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -56,
+      -80,
+      29,
+      8
+     ],
+     [
+      -58,
+      -82,
+      22,
+      2
+     ],
+     [
+      -31,
+      -62,
+      77,
+      16
+     ],
+     [
+      -18,
+      -61,
+      70,
+      16
+     ],
+     [
+      -18,
+      -61,
+      70,
+      16
+     ],
+     [
+      -18,
+      -61,
+      70,
+      16
+     ]
+    ],
+    "cast": [
+     [
+      -24,
+      -78,
+      26,
+      9
+     ],
+     [
+      -24,
+      -78,
+      26,
+      9
+     ],
+     [
+      -24,
+      -78,
+      26,
+      9
+     ],
+     [
+      -24,
+      -78,
+      26,
+      9
+     ],
+     [
+      -24,
+      -78,
+      26,
+      9
+     ],
+     [
+      -24,
+      -78,
+      26,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -27,
+      -73,
+      11,
+      6
+     ],
+     [
+      -35,
+      -70,
+      12,
+      8
+     ],
+     [
+      -27,
+      -73,
+      11,
+      6
+     ]
+    ],
+    "death": [
+     [
+      -44,
+      -42,
+      19,
+      20
+     ],
+     [
+      -44,
+      -42,
+      19,
+      20
+     ],
+     [
+      -44,
+      -42,
+      19,
+      20
+     ],
+     [
+      -44,
+      -42,
+      19,
+      20
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "lord_knight_f_idle_38_w3_s0_h7_p1.png",
+    "walk": "lord_knight_f_walk_14_w3_s0_h7_p1.png",
+    "attack": "lord_knight_f_attack_86_w3_s0_h7_p1.png",
+    "cast": "lord_knight_f_cast_102_w3_s0_h7_p1.png",
+    "hurt": "lord_knight_f_hurt_54_w3_s0_h7_p1.png",
+    "death": "lord_knight_f_death_70_w3_s0_h7_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "paladin_m": {
+   "source": {
+    "job": "Paladin",
+    "jobId": 4015,
+    "gender": "male",
+    "head": 1,
+    "headPalette": 1,
+    "hair": {
+     "style": 1,
+     "palette": 1
+    },
+    "weaponItemName": "Sword",
+    "weaponItemView": null,
+    "weaponView": 2,
+    "shieldView": 3,
+    "itemId": 1101,
+    "shieldItemId": 2105,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "alan",
+    "heroName": "Алан",
+    "jobStage": "advanced",
+    "previousForm": "crusader_m",
+    "identitySource": "hero_alan_swordman"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -26,
+      -82,
+      57,
+      7
+     ],
+     [
+      -26,
+      -83,
+      55,
+      7
+     ],
+     [
+      -25,
+      -84,
+      56,
+      7
+     ],
+     [
+      -26,
+      -82,
+      57,
+      7
+     ]
+    ],
+    "walk": [
+     [
+      -19,
+      -81,
+      16,
+      7
+     ],
+     [
+      -23,
+      -80,
+      18,
+      7
+     ],
+     [
+      -25,
+      -78,
+      26,
+      7
+     ],
+     [
+      -25,
+      -79,
+      20,
+      5
+     ],
+     [
+      -23,
+      -81,
+      16,
+      5
+     ],
+     [
+      -21,
+      -80,
+      19,
+      5
+     ],
+     [
+      -20,
+      -78,
+      28,
+      6
+     ],
+     [
+      -20,
+      -79,
+      21,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -26,
+      -82,
+      57,
+      8
+     ],
+     [
+      -19,
+      -81,
+      36,
+      8
+     ],
+     [
+      -17,
+      -81,
+      37,
+      8
+     ],
+     [
+      -48,
+      -65,
+      109,
+      38
+     ],
+     [
+      -31,
+      -63,
+      107,
+      40
+     ],
+     [
+      -29,
+      -62,
+      109,
+      19
+     ]
+    ],
+    "cast": [
+     [
+      -22,
+      -80,
+      33,
+      12
+     ],
+     [
+      -22,
+      -81,
+      30,
+      8
+     ],
+     [
+      -17,
+      -81,
+      37,
+      8
+     ],
+     [
+      -48,
+      -65,
+      109,
+      38
+     ],
+     [
+      -31,
+      -63,
+      107,
+      40
+     ],
+     [
+      -28,
+      -62,
+      108,
+      23
+     ]
+    ],
+    "hurt": [
+     [
+      -33,
+      -72,
+      15,
+      7
+     ],
+     [
+      -39,
+      -70,
+      13,
+      6
+     ],
+     [
+      -33,
+      -72,
+      15,
+      7
+     ]
+    ],
+    "death": [
+     [
+      -36,
+      -35,
+      31,
+      27
+     ],
+     [
+      -36,
+      -35,
+      31,
+      27
+     ],
+     [
+      -36,
+      -35,
+      31,
+      27
+     ],
+     [
+      -36,
+      -35,
+      31,
+      27
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "paladin_m_idle_38_w2_s3_h1_p1.png",
+    "walk": "paladin_m_walk_14_w2_s3_h1_p1.png",
+    "attack": "paladin_m_attack_86_w2_s3_h1_p1.png",
+    "cast": "paladin_m_cast_102_w2_s3_h1_p1.png",
+    "hurt": "paladin_m_hurt_54_w2_s3_h1_p1.png",
+    "death": "paladin_m_death_70_w2_s3_h1_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "paladin_f": {
+   "source": {
+    "job": "Paladin",
+    "jobId": 4015,
+    "gender": "female",
+    "head": 7,
+    "headPalette": 1,
+    "hair": {
+     "style": 7,
+     "palette": 1
+    },
+    "weaponItemName": "Sword",
+    "weaponItemView": null,
+    "weaponView": 2,
+    "shieldView": 1,
+    "itemId": 1101,
+    "shieldItemId": 2101,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "iris",
+    "heroName": "Ирис",
+    "jobStage": "advanced",
+    "previousForm": "crusader_f",
+    "identitySource": "knight_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -58,
+      -78,
+      30,
+      13
+     ],
+     [
+      -58,
+      -80,
+      29,
+      13
+     ],
+     [
+      -58,
+      -82,
+      31,
+      13
+     ],
+     [
+      -59,
+      -80,
+      31,
+      13
+     ]
+    ],
+    "walk": [
+     [
+      -18,
+      -80,
+      13,
+      12
+     ],
+     [
+      -17,
+      -79,
+      19,
+      12
+     ],
+     [
+      -18,
+      -77,
+      24,
+      12
+     ],
+     [
+      -19,
+      -78,
+      21,
+      12
+     ],
+     [
+      -17,
+      -80,
+      13,
+      8
+     ],
+     [
+      -15,
+      -79,
+      17,
+      9
+     ],
+     [
+      -16,
+      -77,
+      22,
+      11
+     ],
+     [
+      -18,
+      -78,
+      19,
+      12
+     ]
+    ],
+    "attack": [
+     [
+      -49,
+      -80,
+      20,
+      7
+     ],
+     [
+      -51,
+      -76,
+      20,
+      7
+     ],
+     [
+      -51,
+      -76,
+      20,
+      7
+     ],
+     [
+      -54,
+      -81,
+      51,
+      7
+     ],
+     [
+      -35,
+      -91,
+      64,
+      7
+     ],
+     [
+      -22,
+      -90,
+      48,
+      7
+     ]
+    ],
+    "cast": [
+     [
+      -18,
+      -74,
+      39,
+      14
+     ],
+     [
+      -58,
+      -80,
+      20,
+      7
+     ],
+     [
+      -60,
+      -76,
+      20,
+      7
+     ],
+     [
+      -45,
+      -78,
+      22,
+      7
+     ],
+     [
+      -35,
+      -91,
+      64,
+      7
+     ],
+     [
+      -22,
+      -90,
+      48,
+      7
+     ]
+    ],
+    "hurt": [
+     [
+      -24,
+      -75,
+      22,
+      10
+     ],
+     [
+      -30,
+      -75,
+      19,
+      10
+     ],
+     [
+      -24,
+      -75,
+      22,
+      10
+     ]
+    ],
+    "death": [
+     [
+      -34,
+      -32,
+      38,
+      30
+     ],
+     [
+      -34,
+      -32,
+      38,
+      30
+     ],
+     [
+      -34,
+      -32,
+      38,
+      30
+     ],
+     [
+      -34,
+      -32,
+      38,
+      30
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "paladin_f_idle_38_w2_s1_h7_p1.png",
+    "walk": "paladin_f_walk_14_w2_s1_h7_p1.png",
+    "attack": "paladin_f_attack_86_w2_s1_h7_p1.png",
+    "cast": "paladin_f_cast_102_w2_s1_h7_p1.png",
+    "hurt": "paladin_f_hurt_54_w2_s1_h7_p1.png",
+    "death": "paladin_f_death_70_w2_s1_h7_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "sniper_m": {
+   "source": {
+    "job": "Sniper",
+    "jobId": 4012,
+    "gender": "male",
+    "head": 8,
+    "headPalette": 7,
+    "hair": {
+     "style": 8,
+     "palette": 7
+    },
+    "weaponItemName": "Hunter Bow",
+    "weaponItemView": null,
+    "weaponView": 11,
+    "shieldView": 0,
+    "itemId": 1718,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "bran",
+    "heroName": "Бран",
+    "jobStage": "advanced",
+    "previousForm": "hunter_m",
+    "identitySource": "hero_bran_archer"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -15,
+      -87,
+      31,
+      8
+     ],
+     [
+      -15,
+      -85,
+      32,
+      8
+     ],
+     [
+      -16,
+      -86,
+      31,
+      8
+     ],
+     [
+      -16,
+      -88,
+      33,
+      8
+     ]
+    ],
+    "walk": [
+     [
+      -11,
+      -86,
+      19,
+      7
+     ],
+     [
+      -11,
+      -85,
+      22,
+      7
+     ],
+     [
+      -16,
+      -83,
+      29,
+      7
+     ],
+     [
+      -14,
+      -84,
+      25,
+      6
+     ],
+     [
+      -11,
+      -86,
+      16,
+      5
+     ],
+     [
+      -13,
+      -85,
+      22,
+      4
+     ],
+     [
+      -16,
+      -83,
+      29,
+      4
+     ],
+     [
+      -14,
+      -84,
+      24,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -14,
+      -85,
+      20,
+      8
+     ],
+     [
+      -13,
+      -85,
+      17,
+      8
+     ],
+     [
+      -16,
+      -85,
+      14,
+      8
+     ],
+     [
+      -9,
+      -71,
+      51,
+      8
+     ],
+     [
+      -9,
+      -68,
+      53,
+      8
+     ],
+     [
+      -9,
+      -67,
+      53,
+      8
+     ]
+    ],
+    "cast": [
+     [
+      -14,
+      -77,
+      25,
+      7
+     ],
+     [
+      -14,
+      -73,
+      25,
+      7
+     ],
+     [
+      -14,
+      -72,
+      24,
+      7
+     ],
+     [
+      -13,
+      -83,
+      17,
+      8
+     ],
+     [
+      -13,
+      -82,
+      16,
+      8
+     ],
+     [
+      -11,
+      -71,
+      52,
+      8
+     ]
+    ],
+    "hurt": [
+     [
+      -20,
+      -71,
+      22,
+      6
+     ],
+     [
+      -21,
+      -72,
+      20,
+      5
+     ],
+     [
+      -20,
+      -71,
+      22,
+      6
+     ]
+    ],
+    "death": [
+     [
+      -35,
+      -38,
+      32,
+      17
+     ],
+     [
+      -35,
+      -38,
+      32,
+      17
+     ],
+     [
+      -35,
+      -38,
+      32,
+      17
+     ],
+     [
+      -35,
+      -38,
+      32,
+      17
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "sniper_m_idle_38_w11_s0_h8_p7.png",
+    "walk": "sniper_m_walk_14_w11_s0_h8_p7.png",
+    "attack": "sniper_m_attack_86_w11_s0_h8_p7.png",
+    "cast": "sniper_m_cast_102_w11_s0_h8_p7.png",
+    "hurt": "sniper_m_hurt_54_w11_s0_h8_p7.png",
+    "death": "sniper_m_death_70_w11_s0_h8_p7.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "sniper_f": {
+   "source": {
+    "job": "Sniper",
+    "jobId": 4012,
+    "gender": "female",
+    "head": 12,
+    "headPalette": 1,
+    "hair": {
+     "style": 12,
+     "palette": 1
+    },
+    "weaponItemName": "Arbalest",
+    "weaponItemView": null,
+    "weaponView": 11,
+    "shieldView": 0,
+    "itemId": 1713,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "meilin",
+    "heroName": "Мэйлин",
+    "jobStage": "advanced",
+    "previousForm": "hunter_f",
+    "identitySource": "hunter_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -17,
+      -82,
+      33,
+      6
+     ],
+     [
+      -17,
+      -86,
+      33,
+      6
+     ],
+     [
+      -17,
+      -87,
+      33,
+      6
+     ],
+     [
+      -19,
+      -84,
+      34,
+      6
+     ]
+    ],
+    "walk": [
+     [
+      -11,
+      -83,
+      17,
+      9
+     ],
+     [
+      -16,
+      -82,
+      24,
+      9
+     ],
+     [
+      -18,
+      -80,
+      28,
+      9
+     ],
+     [
+      -16,
+      -81,
+      24,
+      7
+     ],
+     [
+      -11,
+      -83,
+      16,
+      6
+     ],
+     [
+      -14,
+      -82,
+      25,
+      6
+     ],
+     [
+      -18,
+      -80,
+      28,
+      8
+     ],
+     [
+      -14,
+      -81,
+      24,
+      9
+     ]
+    ],
+    "attack": [
+     [
+      -11,
+      -86,
+      22,
+      8
+     ],
+     [
+      -11,
+      -86,
+      19,
+      8
+     ],
+     [
+      -16,
+      -60,
+      49,
+      15
+     ],
+     [
+      -13,
+      -63,
+      47,
+      15
+     ],
+     [
+      -13,
+      -63,
+      47,
+      15
+     ],
+     [
+      -13,
+      -63,
+      47,
+      15
+     ]
+    ],
+    "cast": [
+     [
+      -17,
+      -83,
+      19,
+      5
+     ],
+     [
+      -18,
+      -84,
+      20,
+      5
+     ],
+     [
+      -30,
+      -89,
+      28,
+      6
+     ],
+     [
+      -20,
+      -80,
+      22,
+      6
+     ],
+     [
+      -20,
+      -78,
+      24,
+      5
+     ],
+     [
+      -13,
+      -74,
+      37,
+      11
+     ]
+    ],
+    "hurt": [
+     [
+      -29,
+      -78,
+      14,
+      5
+     ],
+     [
+      -37,
+      -81,
+      6,
+      2
+     ],
+     [
+      -29,
+      -78,
+      14,
+      5
+     ]
+    ],
+    "death": [
+     [
+      -40,
+      -39,
+      24,
+      14
+     ],
+     [
+      -40,
+      -39,
+      24,
+      14
+     ],
+     [
+      -40,
+      -39,
+      24,
+      14
+     ],
+     [
+      -40,
+      -39,
+      24,
+      14
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "sniper_f_idle_38_w11_s0_h12_p1.png",
+    "walk": "sniper_f_walk_14_w11_s0_h12_p1.png",
+    "attack": "sniper_f_attack_86_w11_s0_h12_p1.png",
+    "cast": "sniper_f_cast_102_w11_s0_h12_p1.png",
+    "hurt": "sniper_f_hurt_54_w11_s0_h12_p1.png",
+    "death": "sniper_f_death_70_w11_s0_h12_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "clown_m": {
+   "source": {
+    "job": "Clown",
+    "jobId": 4020,
+    "gender": "male",
+    "head": 8,
+    "headPalette": 7,
+    "hair": {
+     "style": 8,
+     "palette": 7
+    },
+    "weaponItemName": "Violin",
+    "weaponItemView": null,
+    "weaponView": 13,
+    "shieldView": 0,
+    "itemId": 1901,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "bran",
+    "heroName": "Бран",
+    "jobStage": "advanced",
+    "previousForm": "bard_m",
+    "identitySource": "hero_bran_archer"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -33,
+      -84,
+      26,
+      9
+     ],
+     [
+      -33,
+      -82,
+      29,
+      9
+     ],
+     [
+      -33,
+      -83,
+      28,
+      9
+     ],
+     [
+      -33,
+      -85,
+      24,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -13,
+      -83,
+      14,
+      7
+     ],
+     [
+      -14,
+      -82,
+      18,
+      7
+     ],
+     [
+      -18,
+      -80,
+      28,
+      7
+     ],
+     [
+      -17,
+      -81,
+      20,
+      6
+     ],
+     [
+      -13,
+      -83,
+      14,
+      4
+     ],
+     [
+      -13,
+      -82,
+      21,
+      4
+     ],
+     [
+      -18,
+      -80,
+      29,
+      7
+     ],
+     [
+      -16,
+      -81,
+      21,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -33,
+      -84,
+      26,
+      9
+     ],
+     [
+      -41,
+      -82,
+      17,
+      12
+     ],
+     [
+      -41,
+      -82,
+      17,
+      12
+     ],
+     [
+      -3,
+      -71,
+      71,
+      12
+     ],
+     [
+      -23,
+      -51,
+      55,
+      27
+     ],
+     [
+      -18,
+      -51,
+      56,
+      27
+     ]
+    ],
+    "cast": [
+     [
+      -22,
+      -82,
+      29,
+      9
+     ],
+     [
+      -12,
+      -79,
+      34,
+      15
+     ],
+     [
+      -12,
+      -77,
+      34,
+      15
+     ],
+     [
+      -12,
+      -79,
+      34,
+      15
+     ],
+     [
+      -16,
+      -85,
+      28,
+      10
+     ],
+     [
+      -15,
+      -86,
+      28,
+      10
+     ]
+    ],
+    "hurt": [
+     [
+      -30,
+      -74,
+      16,
+      8
+     ],
+     [
+      -34,
+      -71,
+      12,
+      8
+     ],
+     [
+      -30,
+      -74,
+      16,
+      8
+     ]
+    ],
+    "death": [
+     [
+      -33,
+      -36,
+      34,
+      24
+     ],
+     [
+      -33,
+      -36,
+      34,
+      24
+     ],
+     [
+      -33,
+      -36,
+      34,
+      24
+     ],
+     [
+      -33,
+      -36,
+      34,
+      24
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "clown_m_idle_38_w13_s0_h8_p7.png",
+    "walk": "clown_m_walk_14_w13_s0_h8_p7.png",
+    "attack": "clown_m_attack_86_w13_s0_h8_p7.png",
+    "cast": "clown_m_cast_102_w13_s0_h8_p7.png",
+    "hurt": "clown_m_hurt_54_w13_s0_h8_p7.png",
+    "death": "clown_m_death_70_w13_s0_h8_p7.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "gypsy_f": {
+   "source": {
+    "job": "Gypsy",
+    "jobId": 4021,
+    "gender": "female",
+    "head": 12,
+    "headPalette": 1,
+    "hair": {
+     "style": 12,
+     "palette": 1
+    },
+    "weaponItemName": "Rope",
+    "weaponItemView": null,
+    "weaponView": 14,
+    "shieldView": 0,
+    "itemId": 1950,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "meilin",
+    "heroName": "Мэйлин",
+    "jobStage": "advanced",
+    "previousForm": "dancer_f",
+    "identitySource": "hunter_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -10,
+      -83,
+      28,
+      9
+     ],
+     [
+      -9,
+      -83,
+      30,
+      9
+     ],
+     [
+      -8,
+      -83,
+      29,
+      9
+     ],
+     [
+      -9,
+      -83,
+      27,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -22,
+      -81,
+      26,
+      6
+     ],
+     [
+      -20,
+      -80,
+      17,
+      6
+     ],
+     [
+      -12,
+      -78,
+      22,
+      5
+     ],
+     [
+      -24,
+      -79,
+      27,
+      5
+     ],
+     [
+      -20,
+      -81,
+      19,
+      8
+     ],
+     [
+      -17,
+      -80,
+      13,
+      8
+     ],
+     [
+      -12,
+      -78,
+      26,
+      9
+     ],
+     [
+      -24,
+      -79,
+      31,
+      9
+     ]
+    ],
+    "attack": [
+     [
+      -10,
+      -82,
+      31,
+      9
+     ],
+     [
+      -22,
+      -83,
+      20,
+      9
+     ],
+     [
+      -22,
+      -83,
+      20,
+      9
+     ],
+     [
+      -10,
+      -82,
+      96,
+      9
+     ],
+     [
+      -9,
+      -89,
+      96,
+      9
+     ],
+     [
+      -10,
+      -84,
+      63,
+      9
+     ]
+    ],
+    "cast": [
+     [
+      -30,
+      -80,
+      23,
+      1
+     ],
+     [
+      -20,
+      -82,
+      24,
+      10
+     ],
+     [
+      -16,
+      -80,
+      25,
+      10
+     ],
+     [
+      -14,
+      -81,
+      26,
+      10
+     ],
+     [
+      -10,
+      -81,
+      21,
+      10
+     ],
+     [
+      -10,
+      -79,
+      21,
+      10
+     ]
+    ],
+    "hurt": [
+     [
+      -12,
+      -75,
+      22,
+      11
+     ],
+     [
+      -12,
+      -73,
+      22,
+      10
+     ],
+     [
+      -12,
+      -75,
+      22,
+      11
+     ]
+    ],
+    "death": [
+     [
+      -34,
+      -46,
+      28,
+      11
+     ],
+     [
+      -34,
+      -46,
+      28,
+      11
+     ],
+     [
+      -34,
+      -46,
+      28,
+      11
+     ],
+     [
+      -34,
+      -46,
+      28,
+      11
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "gypsy_f_idle_38_w14_s0_h12_p1.png",
+    "walk": "gypsy_f_walk_14_w14_s0_h12_p1.png",
+    "attack": "gypsy_f_attack_86_w14_s0_h12_p1.png",
+    "cast": "gypsy_f_cast_102_w14_s0_h12_p1.png",
+    "hurt": "gypsy_f_hurt_54_w14_s0_h12_p1.png",
+    "death": "gypsy_f_death_70_w14_s0_h12_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "high_wizard_m": {
+   "source": {
+    "job": "High Wizard",
+    "jobId": 4010,
+    "gender": "male",
+    "head": 9,
+    "headPalette": 5,
+    "hair": {
+     "style": 9,
+     "palette": 5
+    },
+    "weaponItemName": "Rod",
+    "weaponItemView": null,
+    "weaponView": 10,
+    "shieldView": 0,
+    "itemId": 1601,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "kai",
+    "heroName": "Кай",
+    "jobStage": "advanced",
+    "previousForm": "wizard_m",
+    "identitySource": "wizard_m"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -19,
+      -84,
+      25,
+      9
+     ],
+     [
+      -19,
+      -85,
+      25,
+      9
+     ],
+     [
+      -19,
+      -86,
+      25,
+      9
+     ],
+     [
+      -21,
+      -85,
+      25,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -15,
+      -83,
+      15,
+      9
+     ],
+     [
+      -17,
+      -82,
+      20,
+      9
+     ],
+     [
+      -20,
+      -80,
+      26,
+      9
+     ],
+     [
+      -18,
+      -81,
+      23,
+      8
+     ],
+     [
+      -15,
+      -83,
+      17,
+      7
+     ],
+     [
+      -18,
+      -82,
+      21,
+      4
+     ],
+     [
+      -19,
+      -80,
+      26,
+      8
+     ],
+     [
+      -17,
+      -81,
+      22,
+      9
+     ]
+    ],
+    "attack": [
+     [
+      -19,
+      -85,
+      48,
+      9
+     ],
+     [
+      -13,
+      -92,
+      26,
+      9
+     ],
+     [
+      -13,
+      -94,
+      27,
+      9
+     ],
+     [
+      -50,
+      -71,
+      39,
+      9
+     ],
+     [
+      -43,
+      -71,
+      39,
+      9
+     ],
+     [
+      -43,
+      -71,
+      39,
+      9
+     ]
+    ],
+    "cast": [
+     [
+      -23,
+      -78,
+      22,
+      9
+     ],
+     [
+      -22,
+      -77,
+      23,
+      9
+     ],
+     [
+      -21,
+      -78,
+      30,
+      9
+     ],
+     [
+      -24,
+      -75,
+      34,
+      9
+     ],
+     [
+      -24,
+      -75,
+      37,
+      9
+     ],
+     [
+      -24,
+      -75,
+      37,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -23,
+      -70,
+      16,
+      7
+     ],
+     [
+      -30,
+      -70,
+      12,
+      4
+     ],
+     [
+      -23,
+      -70,
+      16,
+      7
+     ]
+    ],
+    "death": [
+     [
+      -39,
+      -39,
+      39,
+      16
+     ],
+     [
+      -39,
+      -39,
+      39,
+      16
+     ],
+     [
+      -39,
+      -39,
+      39,
+      16
+     ],
+     [
+      -39,
+      -39,
+      39,
+      16
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "high_wizard_m_idle_38_w10_s0_h9_p5.png",
+    "walk": "high_wizard_m_walk_14_w10_s0_h9_p5.png",
+    "attack": "high_wizard_m_attack_86_w10_s0_h9_p5.png",
+    "cast": "high_wizard_m_cast_102_w10_s0_h9_p5.png",
+    "hurt": "high_wizard_m_hurt_54_w10_s0_h9_p5.png",
+    "death": "high_wizard_m_death_70_w10_s0_h9_p5.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "high_wizard_f": {
+   "source": {
+    "job": "High Wizard",
+    "jobId": 4010,
+    "gender": "female",
+    "head": 16,
+    "headPalette": 8,
+    "hair": {
+     "style": 16,
+     "palette": 8
+    },
+    "weaponItemName": "Arc Wand",
+    "weaponItemView": null,
+    "weaponView": 10,
+    "shieldView": 0,
+    "itemId": 1610,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "lira",
+    "heroName": "Лира",
+    "jobStage": "advanced",
+    "previousForm": "wizard_f",
+    "identitySource": "wizard_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -20,
+      -82,
+      35,
+      8
+     ],
+     [
+      -20,
+      -83,
+      35,
+      8
+     ],
+     [
+      -21,
+      -82,
+      35,
+      8
+     ],
+     [
+      -19,
+      -81,
+      35,
+      8
+     ]
+    ],
+    "walk": [
+     [
+      -14,
+      -81,
+      14,
+      4
+     ],
+     [
+      -16,
+      -80,
+      23,
+      4
+     ],
+     [
+      -20,
+      -78,
+      24,
+      4
+     ],
+     [
+      -19,
+      -79,
+      23,
+      3
+     ],
+     [
+      -13,
+      -81,
+      16,
+      1
+     ],
+     [
+      -15,
+      -80,
+      22,
+      1
+     ],
+     [
+      -20,
+      -78,
+      23,
+      4
+     ],
+     [
+      -17,
+      -79,
+      22,
+      4
+     ]
+    ],
+    "attack": [
+     [
+      -19,
+      -81,
+      21,
+      1
+     ],
+     [
+      -18,
+      -81,
+      22,
+      1
+     ],
+     [
+      -12,
+      -81,
+      28,
+      1
+     ],
+     [
+      -12,
+      -71,
+      44,
+      7
+     ],
+     [
+      -12,
+      -71,
+      44,
+      7
+     ],
+     [
+      -12,
+      -71,
+      44,
+      7
+     ]
+    ],
+    "cast": [
+     [
+      -25,
+      -82,
+      28,
+      8
+     ],
+     [
+      -28,
+      -83,
+      26,
+      8
+     ],
+     [
+      -27,
+      -84,
+      27,
+      8
+     ],
+     [
+      -16,
+      -77,
+      37,
+      12
+     ],
+     [
+      -12,
+      -75,
+      38,
+      12
+     ],
+     [
+      -7,
+      -74,
+      38,
+      12
+     ]
+    ],
+    "hurt": [
+     [
+      -18,
+      -74,
+      21,
+      6
+     ],
+     [
+      -18,
+      -75,
+      22,
+      4
+     ],
+     [
+      -18,
+      -74,
+      21,
+      6
+     ]
+    ],
+    "death": [
+     [
+      -46,
+      -42,
+      27,
+      10
+     ],
+     [
+      -46,
+      -42,
+      27,
+      10
+     ],
+     [
+      -46,
+      -42,
+      27,
+      10
+     ],
+     [
+      -46,
+      -42,
+      27,
+      10
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "high_wizard_f_idle_38_w10_s0_h16_p8.png",
+    "walk": "high_wizard_f_walk_14_w10_s0_h16_p8.png",
+    "attack": "high_wizard_f_attack_86_w10_s0_h16_p8.png",
+    "cast": "high_wizard_f_cast_102_w10_s0_h16_p8.png",
+    "hurt": "high_wizard_f_hurt_54_w10_s0_h16_p8.png",
+    "death": "high_wizard_f_death_70_w10_s0_h16_p8.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "professor_m": {
+   "source": {
+    "job": "Professor",
+    "jobId": 4017,
+    "gender": "male",
+    "head": 9,
+    "headPalette": 5,
+    "hair": {
+     "style": 9,
+     "palette": 5
+    },
+    "weaponItemName": "Rod",
+    "weaponItemView": null,
+    "weaponView": 10,
+    "shieldView": 0,
+    "itemId": 1601,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "kai",
+    "heroName": "Кай",
+    "jobStage": "advanced",
+    "previousForm": "sage_m",
+    "identitySource": "wizard_m"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -16,
+      -81,
+      46,
+      11
+     ],
+     [
+      -14,
+      -84,
+      45,
+      11
+     ],
+     [
+      -14,
+      -85,
+      46,
+      11
+     ],
+     [
+      -15,
+      -81,
+      47,
+      11
+     ]
+    ],
+    "walk": [
+     [
+      -13,
+      -84,
+      18,
+      7
+     ],
+     [
+      -13,
+      -83,
+      21,
+      7
+     ],
+     [
+      -19,
+      -81,
+      26,
+      7
+     ],
+     [
+      -15,
+      -82,
+      21,
+      7
+     ],
+     [
+      -13,
+      -84,
+      17,
+      4
+     ],
+     [
+      -12,
+      -83,
+      22,
+      3
+     ],
+     [
+      -15,
+      -81,
+      26,
+      6
+     ],
+     [
+      -13,
+      -82,
+      22,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -16,
+      -81,
+      26,
+      11
+     ],
+     [
+      -11,
+      -86,
+      35,
+      2
+     ],
+     [
+      -7,
+      -85,
+      42,
+      2
+     ],
+     [
+      -12,
+      -64,
+      57,
+      17
+     ],
+     [
+      -12,
+      -56,
+      58,
+      17
+     ],
+     [
+      -12,
+      -56,
+      58,
+      17
+     ]
+    ],
+    "cast": [
+     [
+      -21,
+      -84,
+      22,
+      9
+     ],
+     [
+      -19,
+      -85,
+      26,
+      9
+     ],
+     [
+      -16,
+      -86,
+      24,
+      9
+     ],
+     [
+      -23,
+      -85,
+      48,
+      9
+     ],
+     [
+      -24,
+      -85,
+      45,
+      9
+     ],
+     [
+      -18,
+      -85,
+      41,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -22,
+      -68,
+      18,
+      10
+     ],
+     [
+      -27,
+      -67,
+      15,
+      9
+     ],
+     [
+      -22,
+      -68,
+      18,
+      10
+     ]
+    ],
+    "death": [
+     [
+      -45,
+      -35,
+      27,
+      30
+     ],
+     [
+      -45,
+      -35,
+      27,
+      30
+     ],
+     [
+      -45,
+      -35,
+      27,
+      30
+     ],
+     [
+      -45,
+      -35,
+      27,
+      30
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "professor_m_idle_38_w10_s0_h9_p5.png",
+    "walk": "professor_m_walk_14_w10_s0_h9_p5.png",
+    "attack": "professor_m_attack_86_w10_s0_h9_p5.png",
+    "cast": "professor_m_cast_102_w10_s0_h9_p5.png",
+    "hurt": "professor_m_hurt_54_w10_s0_h9_p5.png",
+    "death": "professor_m_death_70_w10_s0_h9_p5.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "professor_f": {
+   "source": {
+    "job": "Professor",
+    "jobId": 4017,
+    "gender": "female",
+    "head": 16,
+    "headPalette": 8,
+    "hair": {
+     "style": 16,
+     "palette": 8
+    },
+    "weaponItemName": "Book",
+    "weaponItemView": null,
+    "weaponView": 15,
+    "shieldView": 0,
+    "itemId": 1550,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "lira",
+    "heroName": "Лира",
+    "jobStage": "advanced",
+    "previousForm": "sage_f",
+    "identitySource": "wizard_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -21,
+      -77,
+      28,
+      14
+     ],
+     [
+      -21,
+      -79,
+      27,
+      14
+     ],
+     [
+      -21,
+      -79,
+      25,
+      14
+     ],
+     [
+      -21,
+      -76,
+      27,
+      14
+     ]
+    ],
+    "walk": [
+     [
+      -14,
+      -79,
+      16,
+      12
+     ],
+     [
+      -14,
+      -78,
+      28,
+      12
+     ],
+     [
+      -14,
+      -76,
+      28,
+      12
+     ],
+     [
+      -14,
+      -77,
+      26,
+      9
+     ],
+     [
+      -14,
+      -79,
+      19,
+      9
+     ],
+     [
+      -13,
+      -78,
+      28,
+      11
+     ],
+     [
+      -12,
+      -76,
+      28,
+      12
+     ],
+     [
+      -13,
+      -77,
+      21,
+      12
+     ]
+    ],
+    "attack": [
+     [
+      -18,
+      -80,
+      21,
+      12
+     ],
+     [
+      -24,
+      -83,
+      30,
+      11
+     ],
+     [
+      -24,
+      -83,
+      30,
+      11
+     ],
+     [
+      -11,
+      -56,
+      46,
+      20
+     ],
+     [
+      -11,
+      -55,
+      46,
+      20
+     ],
+     [
+      -11,
+      -55,
+      46,
+      20
+     ]
+    ],
+    "cast": [
+     [
+      -16,
+      -80,
+      23,
+      12
+     ],
+     [
+      -25,
+      -80,
+      23,
+      11
+     ],
+     [
+      -22,
+      -80,
+      25,
+      9
+     ],
+     [
+      -11,
+      -70,
+      37,
+      17
+     ],
+     [
+      -8,
+      -68,
+      38,
+      18
+     ],
+     [
+      -5,
+      -67,
+      38,
+      20
+     ]
+    ],
+    "hurt": [
+     [
+      -30,
+      -74,
+      18,
+      10
+     ],
+     [
+      -32,
+      -71,
+      17,
+      12
+     ],
+     [
+      -30,
+      -74,
+      18,
+      10
+     ]
+    ],
+    "death": [
+     [
+      -35,
+      -33,
+      30,
+      28
+     ],
+     [
+      -35,
+      -33,
+      30,
+      28
+     ],
+     [
+      -35,
+      -33,
+      30,
+      28
+     ],
+     [
+      -35,
+      -33,
+      30,
+      28
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "professor_f_idle_38_w15_s0_h16_p8.png",
+    "walk": "professor_f_walk_14_w15_s0_h16_p8.png",
+    "attack": "professor_f_attack_86_w15_s0_h16_p8.png",
+    "cast": "professor_f_cast_102_w15_s0_h16_p8.png",
+    "hurt": "professor_f_hurt_54_w15_s0_h16_p8.png",
+    "death": "professor_f_death_70_w15_s0_h16_p8.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "assassin_cross_m": {
+   "source": {
+    "job": "Assassin Cross",
+    "jobId": 4013,
+    "gender": "male",
+    "head": 10,
+    "headPalette": 2,
+    "hair": {
+     "style": 10,
+     "palette": 2
+    },
+    "weaponItemName": "Jur",
+    "weaponItemView": null,
+    "weaponView": 16,
+    "shieldView": 0,
+    "itemId": 1250,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "dorn",
+    "heroName": "Дорн",
+    "jobStage": "advanced",
+    "previousForm": "assassin_m",
+    "identitySource": "hero_dorn_thief"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -19,
+      -84,
+      25,
+      9
+     ],
+     [
+      -22,
+      -82,
+      24,
+      10
+     ],
+     [
+      -21,
+      -82,
+      25,
+      10
+     ],
+     [
+      -17,
+      -83,
+      27,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -19,
+      -87,
+      18,
+      3
+     ],
+     [
+      -17,
+      -86,
+      32,
+      3
+     ],
+     [
+      -19,
+      -84,
+      30,
+      3
+     ],
+     [
+      -18,
+      -85,
+      25,
+      5
+     ],
+     [
+      -18,
+      -87,
+      18,
+      5
+     ],
+     [
+      -16,
+      -86,
+      33,
+      5
+     ],
+     [
+      -17,
+      -84,
+      24,
+      5
+     ],
+     [
+      -17,
+      -85,
+      17,
+      1
+     ]
+    ],
+    "attack": [
+     [
+      -17,
+      -85,
+      17,
+      7
+     ],
+     [
+      -27,
+      -76,
+      21,
+      5
+     ],
+     [
+      -26,
+      -76,
+      20,
+      5
+     ],
+     [
+      -21,
+      -68,
+      31,
+      16
+     ],
+     [
+      -21,
+      -68,
+      31,
+      16
+     ],
+     [
+      -21,
+      -68,
+      30,
+      16
+     ]
+    ],
+    "cast": [
+     [
+      -17,
+      -85,
+      17,
+      7
+     ],
+     [
+      -18,
+      -72,
+      31,
+      12
+     ],
+     [
+      -22,
+      -86,
+      19,
+      8
+     ],
+     [
+      -21,
+      -87,
+      19,
+      9
+     ],
+     [
+      -23,
+      -67,
+      30,
+      15
+     ],
+     [
+      -19,
+      -64,
+      29,
+      15
+     ]
+    ],
+    "hurt": [
+     [
+      -25,
+      -64,
+      22,
+      7
+     ],
+     [
+      -28,
+      -65,
+      19,
+      5
+     ],
+     [
+      -25,
+      -64,
+      22,
+      7
+     ]
+    ],
+    "death": [
+     [
+      -41,
+      -41,
+      24,
+      11
+     ],
+     [
+      -41,
+      -41,
+      24,
+      11
+     ],
+     [
+      -41,
+      -41,
+      24,
+      11
+     ],
+     [
+      -41,
+      -41,
+      24,
+      11
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "assassin_cross_m_idle_38_w16_s0_h10_p2.png",
+    "walk": "assassin_cross_m_walk_14_w16_s0_h10_p2.png",
+    "attack": "assassin_cross_m_attack_86_w16_s0_h10_p2.png",
+    "cast": "assassin_cross_m_cast_102_w16_s0_h10_p2.png",
+    "hurt": "assassin_cross_m_hurt_54_w16_s0_h10_p2.png",
+    "death": "assassin_cross_m_death_70_w16_s0_h10_p2.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "assassin_cross_f": {
+   "source": {
+    "job": "Assassin Cross",
+    "jobId": 4013,
+    "gender": "female",
+    "head": 20,
+    "headPalette": 2,
+    "hair": {
+     "style": 20,
+     "palette": 2
+    },
+    "weaponItemName": "Gladius",
+    "weaponItemView": null,
+    "weaponView": 1,
+    "shieldView": 0,
+    "itemId": 1219,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "zara",
+    "heroName": "Зара",
+    "jobStage": "advanced",
+    "previousForm": "assassin_f",
+    "identitySource": "assassin_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -41,
+      -76,
+      24,
+      9
+     ],
+     [
+      -41,
+      -78,
+      23,
+      9
+     ],
+     [
+      -41,
+      -79,
+      24,
+      9
+     ],
+     [
+      -41,
+      -77,
+      24,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -17,
+      -83,
+      16,
+      6
+     ],
+     [
+      -15,
+      -82,
+      27,
+      6
+     ],
+     [
+      -15,
+      -80,
+      30,
+      6
+     ],
+     [
+      -16,
+      -81,
+      26,
+      2
+     ],
+     [
+      -17,
+      -83,
+      18,
+      2
+     ],
+     [
+      -15,
+      -82,
+      21,
+      4
+     ],
+     [
+      -15,
+      -80,
+      26,
+      6
+     ],
+     [
+      -14,
+      -81,
+      22,
+      5
+     ]
+    ],
+    "attack": [
+     [
+      -23,
+      -77,
+      25,
+      10
+     ],
+     [
+      -27,
+      -80,
+      21,
+      6
+     ],
+     [
+      -25,
+      -77,
+      21,
+      6
+     ],
+     [
+      -19,
+      -69,
+      64,
+      22
+     ],
+     [
+      -19,
+      -57,
+      63,
+      22
+     ],
+     [
+      -19,
+      -57,
+      55,
+      22
+     ]
+    ],
+    "cast": [
+     [
+      -18,
+      -78,
+      23,
+      8
+     ],
+     [
+      -23,
+      -75,
+      28,
+      11
+     ],
+     [
+      -22,
+      -78,
+      28,
+      10
+     ],
+     [
+      -24,
+      -83,
+      19,
+      2
+     ],
+     [
+      -17,
+      -67,
+      41,
+      12
+     ],
+     [
+      -17,
+      -65,
+      45,
+      12
+     ]
+    ],
+    "hurt": [
+     [
+      -19,
+      -80,
+      21,
+      3
+     ],
+     [
+      -20,
+      -81,
+      24,
+      1
+     ],
+     [
+      -19,
+      -80,
+      21,
+      3
+     ]
+    ],
+    "death": [
+     [
+      -49,
+      -45,
+      33,
+      13
+     ],
+     [
+      -49,
+      -45,
+      33,
+      13
+     ],
+     [
+      -49,
+      -45,
+      33,
+      13
+     ],
+     [
+      -49,
+      -45,
+      33,
+      13
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "assassin_cross_f_idle_38_w1_s0_h20_p2.png",
+    "walk": "assassin_cross_f_walk_14_w1_s0_h20_p2.png",
+    "attack": "assassin_cross_f_attack_86_w1_s0_h20_p2.png",
+    "cast": "assassin_cross_f_cast_102_w1_s0_h20_p2.png",
+    "hurt": "assassin_cross_f_hurt_54_w1_s0_h20_p2.png",
+    "death": "assassin_cross_f_death_70_w1_s0_h20_p2.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "stalker_m": {
+   "source": {
+    "job": "Stalker",
+    "jobId": 4018,
+    "gender": "male",
+    "head": 10,
+    "headPalette": 2,
+    "hair": {
+     "style": 10,
+     "palette": 2
+    },
+    "weaponItemName": "Haedonggum",
+    "weaponItemView": null,
+    "weaponView": 2,
+    "shieldView": 0,
+    "itemId": 1123,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "dorn",
+    "heroName": "Дорн",
+    "jobStage": "advanced",
+    "previousForm": "rogue_m",
+    "identitySource": "hero_dorn_thief"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -46,
+      -73,
+      24,
+      13
+     ],
+     [
+      -44,
+      -72,
+      27,
+      13
+     ],
+     [
+      -43,
+      -71,
+      26,
+      13
+     ],
+     [
+      -41,
+      -69,
+      23,
+      13
+     ]
+    ],
+    "walk": [
+     [
+      -14,
+      -81,
+      14,
+      9
+     ],
+     [
+      -15,
+      -80,
+      23,
+      9
+     ],
+     [
+      -19,
+      -78,
+      30,
+      11
+     ],
+     [
+      -18,
+      -79,
+      20,
+      9
+     ],
+     [
+      -16,
+      -81,
+      14,
+      7
+     ],
+     [
+      -15,
+      -80,
+      23,
+      6
+     ],
+     [
+      -19,
+      -78,
+      32,
+      7
+     ],
+     [
+      -18,
+      -79,
+      23,
+      8
+     ]
+    ],
+    "attack": [
+     [
+      -43,
+      -71,
+      23,
+      13
+     ],
+     [
+      -42,
+      -71,
+      26,
+      13
+     ],
+     [
+      -42,
+      -72,
+      27,
+      8
+     ],
+     [
+      -23,
+      -95,
+      89,
+      25
+     ],
+     [
+      -16,
+      -68,
+      81,
+      25
+     ],
+     [
+      -16,
+      -58,
+      32,
+      25
+     ]
+    ],
+    "cast": [
+     [
+      -17,
+      -79,
+      23,
+      13
+     ],
+     [
+      -18,
+      -80,
+      23,
+      13
+     ],
+     [
+      -18,
+      -81,
+      23,
+      13
+     ],
+     [
+      -23,
+      -84,
+      23,
+      13
+     ],
+     [
+      -21,
+      -84,
+      21,
+      13
+     ],
+     [
+      -19,
+      -84,
+      21,
+      13
+     ]
+    ],
+    "hurt": [
+     [
+      -35,
+      -63,
+      9,
+      13
+     ],
+     [
+      -37,
+      -61,
+      5,
+      12
+     ],
+     [
+      -35,
+      -63,
+      9,
+      13
+     ]
+    ],
+    "death": [
+     [
+      -37,
+      -27,
+      35,
+      25
+     ],
+     [
+      -37,
+      -27,
+      35,
+      25
+     ],
+     [
+      -37,
+      -27,
+      35,
+      25
+     ],
+     [
+      -37,
+      -27,
+      35,
+      25
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "stalker_m_idle_38_w2_s0_h10_p2.png",
+    "walk": "stalker_m_walk_14_w2_s0_h10_p2.png",
+    "attack": "stalker_m_attack_86_w2_s0_h10_p2.png",
+    "cast": "stalker_m_cast_102_w2_s0_h10_p2.png",
+    "hurt": "stalker_m_hurt_54_w2_s0_h10_p2.png",
+    "death": "stalker_m_death_70_w2_s0_h10_p2.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "stalker_f": {
+   "source": {
+    "job": "Stalker",
+    "jobId": 4018,
+    "gender": "female",
+    "head": 20,
+    "headPalette": 2,
+    "hair": {
+     "style": 20,
+     "palette": 2
+    },
+    "weaponItemName": "Composite Bow",
+    "weaponItemView": null,
+    "weaponView": 11,
+    "shieldView": 0,
+    "itemId": 1704,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "zara",
+    "heroName": "Зара",
+    "jobStage": "advanced",
+    "previousForm": "rogue_f",
+    "identitySource": "assassin_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -20,
+      -72,
+      27,
+      18
+     ],
+     [
+      -20,
+      -74,
+      27,
+      18
+     ],
+     [
+      -20,
+      -74,
+      28,
+      18
+     ],
+     [
+      -20,
+      -72,
+      28,
+      18
+     ]
+    ],
+    "walk": [
+     [
+      -12,
+      -80,
+      17,
+      12
+     ],
+     [
+      -14,
+      -79,
+      29,
+      12
+     ],
+     [
+      -14,
+      -77,
+      22,
+      12
+     ],
+     [
+      -14,
+      -78,
+      19,
+      11
+     ],
+     [
+      -12,
+      -80,
+      16,
+      11
+     ],
+     [
+      -12,
+      -79,
+      29,
+      11
+     ],
+     [
+      -13,
+      -77,
+      22,
+      12
+     ],
+     [
+      -13,
+      -78,
+      17,
+      12
+     ]
+    ],
+    "attack": [
+     [
+      -20,
+      -72,
+      27,
+      18
+     ],
+     [
+      -30,
+      -76,
+      24,
+      9
+     ],
+     [
+      -30,
+      -76,
+      24,
+      9
+     ],
+     [
+      -15,
+      -66,
+      45,
+      14
+     ],
+     [
+      -15,
+      -65,
+      45,
+      14
+     ],
+     [
+      -15,
+      -63,
+      47,
+      14
+     ]
+    ],
+    "cast": [
+     [
+      -19,
+      -82,
+      21,
+      9
+     ],
+     [
+      -18,
+      -83,
+      20,
+      9
+     ],
+     [
+      -20,
+      -84,
+      22,
+      9
+     ],
+     [
+      -17,
+      -59,
+      37,
+      17
+     ],
+     [
+      -17,
+      -58,
+      38,
+      17
+     ],
+     [
+      -19,
+      -66,
+      21,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -22,
+      -74,
+      16,
+      7
+     ],
+     [
+      -26,
+      -75,
+      14,
+      7
+     ],
+     [
+      -22,
+      -74,
+      16,
+      7
+     ]
+    ],
+    "death": [
+     [
+      -38,
+      -26,
+      24,
+      29
+     ],
+     [
+      -38,
+      -26,
+      24,
+      29
+     ],
+     [
+      -38,
+      -26,
+      24,
+      29
+     ],
+     [
+      -38,
+      -26,
+      24,
+      29
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "stalker_f_idle_38_w11_s0_h20_p2.png",
+    "walk": "stalker_f_walk_14_w11_s0_h20_p2.png",
+    "attack": "stalker_f_attack_86_w11_s0_h20_p2.png",
+    "cast": "stalker_f_cast_102_w11_s0_h20_p2.png",
+    "hurt": "stalker_f_hurt_54_w11_s0_h20_p2.png",
+    "death": "stalker_f_death_70_w11_s0_h20_p2.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "high_priest_m": {
+   "source": {
+    "job": "High Priest",
+    "jobId": 4009,
+    "gender": "male",
+    "head": 6,
+    "headPalette": 4,
+    "hair": {
+     "style": 6,
+     "palette": 4
+    },
+    "weaponItemName": "Chain",
+    "weaponItemView": null,
+    "weaponView": 8,
+    "shieldView": 0,
+    "itemId": 1519,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "teo",
+    "heroName": "Тео",
+    "jobStage": "advanced",
+    "previousForm": "priest_m",
+    "identitySource": "priest_m"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -45,
+      -81,
+      21,
+      9
+     ],
+     [
+      -44,
+      -84,
+      21,
+      9
+     ],
+     [
+      -42,
+      -85,
+      21,
+      9
+     ],
+     [
+      -44,
+      -83,
+      21,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -12,
+      -84,
+      13,
+      7
+     ],
+     [
+      -15,
+      -83,
+      19,
+      7
+     ],
+     [
+      -21,
+      -81,
+      26,
+      7
+     ],
+     [
+      -21,
+      -82,
+      23,
+      6
+     ],
+     [
+      -14,
+      -84,
+      15,
+      5
+     ],
+     [
+      -12,
+      -83,
+      22,
+      3
+     ],
+     [
+      -16,
+      -81,
+      29,
+      5
+     ],
+     [
+      -16,
+      -82,
+      24,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -30,
+      -83,
+      21,
+      9
+     ],
+     [
+      -20,
+      -91,
+      16,
+      -2
+     ],
+     [
+      -18,
+      -80,
+      25,
+      10
+     ],
+     [
+      -17,
+      -86,
+      50,
+      10
+     ],
+     [
+      -17,
+      -86,
+      50,
+      10
+     ],
+     [
+      -17,
+      -86,
+      50,
+      10
+     ]
+    ],
+    "cast": [
+     [
+      -18,
+      -81,
+      21,
+      9
+     ],
+     [
+      -19,
+      -81,
+      21,
+      9
+     ],
+     [
+      -19,
+      -81,
+      21,
+      9
+     ],
+     [
+      -21,
+      -83,
+      33,
+      10
+     ],
+     [
+      -19,
+      -84,
+      25,
+      9
+     ],
+     [
+      -19,
+      -84,
+      25,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -16,
+      -79,
+      21,
+      3
+     ],
+     [
+      -18,
+      -77,
+      18,
+      2
+     ],
+     [
+      -16,
+      -79,
+      21,
+      3
+     ]
+    ],
+    "death": [
+     [
+      -50,
+      -46,
+      24,
+      11
+     ],
+     [
+      -50,
+      -46,
+      24,
+      11
+     ],
+     [
+      -50,
+      -46,
+      24,
+      11
+     ],
+     [
+      -50,
+      -46,
+      24,
+      11
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "high_priest_m_idle_38_w8_s0_h6_p4.png",
+    "walk": "high_priest_m_walk_14_w8_s0_h6_p4.png",
+    "attack": "high_priest_m_attack_86_w8_s0_h6_p4.png",
+    "cast": "high_priest_m_cast_102_w8_s0_h6_p4.png",
+    "hurt": "high_priest_m_hurt_54_w8_s0_h6_p4.png",
+    "death": "high_priest_m_death_70_w8_s0_h6_p4.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "high_priest_f": {
+   "source": {
+    "job": "High Priest",
+    "jobId": 4009,
+    "gender": "female",
+    "head": 11,
+    "headPalette": 0,
+    "hair": {
+     "style": 11,
+     "palette": 0
+    },
+    "weaponItemName": "Club",
+    "weaponItemView": null,
+    "weaponView": 8,
+    "shieldView": 0,
+    "itemId": 1501,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "vika",
+    "heroName": "Вика",
+    "jobStage": "advanced",
+    "previousForm": "priest_f",
+    "identitySource": "hero_vika_acolyte"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -19,
+      -83,
+      17,
+      9
+     ],
+     [
+      -19,
+      -82,
+      17,
+      9
+     ],
+     [
+      -19,
+      -83,
+      18,
+      9
+     ],
+     [
+      -19,
+      -84,
+      18,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -11,
+      -84,
+      18,
+      5
+     ],
+     [
+      -13,
+      -83,
+      22,
+      5
+     ],
+     [
+      -16,
+      -81,
+      28,
+      5
+     ],
+     [
+      -17,
+      -82,
+      22,
+      4
+     ],
+     [
+      -10,
+      -84,
+      19,
+      2
+     ],
+     [
+      -12,
+      -83,
+      22,
+      1
+     ],
+     [
+      -17,
+      -81,
+      29,
+      4
+     ],
+     [
+      -17,
+      -82,
+      23,
+      4
+     ]
+    ],
+    "attack": [
+     [
+      -36,
+      -80,
+      21,
+      7
+     ],
+     [
+      -24,
+      -81,
+      20,
+      7
+     ],
+     [
+      -24,
+      -82,
+      20,
+      7
+     ],
+     [
+      -18,
+      -66,
+      48,
+      10
+     ],
+     [
+      -17,
+      -65,
+      48,
+      10
+     ],
+     [
+      -17,
+      -65,
+      48,
+      10
+     ]
+    ],
+    "cast": [
+     [
+      -17,
+      -83,
+      20,
+      8
+     ],
+     [
+      -16,
+      -84,
+      25,
+      8
+     ],
+     [
+      -13,
+      -85,
+      19,
+      8
+     ],
+     [
+      -13,
+      -85,
+      19,
+      8
+     ],
+     [
+      -14,
+      -82,
+      20,
+      8
+     ],
+     [
+      -13,
+      -81,
+      19,
+      8
+     ]
+    ],
+    "hurt": [
+     [
+      -27,
+      -77,
+      17,
+      4
+     ],
+     [
+      -31,
+      -79,
+      14,
+      3
+     ],
+     [
+      -27,
+      -77,
+      17,
+      4
+     ]
+    ],
+    "death": [
+     [
+      -47,
+      -37,
+      24,
+      17
+     ],
+     [
+      -47,
+      -37,
+      24,
+      17
+     ],
+     [
+      -47,
+      -37,
+      24,
+      17
+     ],
+     [
+      -47,
+      -37,
+      24,
+      17
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "high_priest_f_idle_38_w8_s0_h11_p0.png",
+    "walk": "high_priest_f_walk_14_w8_s0_h11_p0.png",
+    "attack": "high_priest_f_attack_86_w8_s0_h11_p0.png",
+    "cast": "high_priest_f_cast_102_w8_s0_h11_p0.png",
+    "hurt": "high_priest_f_hurt_54_w8_s0_h11_p0.png",
+    "death": "high_priest_f_death_70_w8_s0_h11_p0.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "champion_m": {
+   "source": {
+    "job": "Champion",
+    "jobId": 4016,
+    "gender": "male",
+    "head": 6,
+    "headPalette": 4,
+    "hair": {
+     "style": 6,
+     "palette": 4
+    },
+    "weaponItemName": "Waghnakh",
+    "weaponItemView": null,
+    "weaponView": 12,
+    "shieldView": 0,
+    "itemId": 1801,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "teo",
+    "heroName": "Тео",
+    "jobStage": "advanced",
+    "previousForm": "monk_m",
+    "identitySource": "priest_m"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -16,
+      -82,
+      28,
+      10
+     ],
+     [
+      -16,
+      -84,
+      28,
+      10
+     ],
+     [
+      -15,
+      -85,
+      29,
+      10
+     ],
+     [
+      -16,
+      -83,
+      29,
+      10
+     ]
+    ],
+    "walk": [
+     [
+      -12,
+      -82,
+      16,
+      7
+     ],
+     [
+      -12,
+      -81,
+      22,
+      7
+     ],
+     [
+      -17,
+      -79,
+      27,
+      7
+     ],
+     [
+      -18,
+      -80,
+      20,
+      7
+     ],
+     [
+      -12,
+      -82,
+      15,
+      7
+     ],
+     [
+      -12,
+      -81,
+      20,
+      4
+     ],
+     [
+      -15,
+      -79,
+      28,
+      5
+     ],
+     [
+      -17,
+      -80,
+      23,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -15,
+      -85,
+      29,
+      10
+     ],
+     [
+      -16,
+      -82,
+      25,
+      11
+     ],
+     [
+      -17,
+      -84,
+      25,
+      11
+     ],
+     [
+      -17,
+      -82,
+      31,
+      11
+     ],
+     [
+      -14,
+      -75,
+      42,
+      11
+     ],
+     [
+      -14,
+      -71,
+      38,
+      11
+     ]
+    ],
+    "cast": [
+     [
+      -18,
+      -84,
+      32,
+      10
+     ],
+     [
+      -25,
+      -75,
+      24,
+      17
+     ],
+     [
+      -26,
+      -40,
+      25,
+      16
+     ],
+     [
+      -25,
+      -75,
+      24,
+      17
+     ],
+     [
+      -25,
+      -68,
+      27,
+      16
+     ],
+     [
+      -24,
+      -84,
+      32,
+      7
+     ]
+    ],
+    "hurt": [
+     [
+      -39,
+      -71,
+      12,
+      14
+     ],
+     [
+      -42,
+      -70,
+      8,
+      13
+     ],
+     [
+      -39,
+      -71,
+      12,
+      14
+     ]
+    ],
+    "death": [
+     [
+      -39,
+      -34,
+      29,
+      30
+     ],
+     [
+      -39,
+      -34,
+      29,
+      30
+     ],
+     [
+      -39,
+      -34,
+      29,
+      30
+     ],
+     [
+      -39,
+      -34,
+      29,
+      30
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "champion_m_idle_38_w12_s0_h6_p4.png",
+    "walk": "champion_m_walk_14_w12_s0_h6_p4.png",
+    "attack": "champion_m_attack_86_w12_s0_h6_p4.png",
+    "cast": "champion_m_cast_102_w12_s0_h6_p4.png",
+    "hurt": "champion_m_hurt_54_w12_s0_h6_p4.png",
+    "death": "champion_m_death_70_w12_s0_h6_p4.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "champion_f": {
+   "source": {
+    "job": "Champion",
+    "jobId": 4016,
+    "gender": "female",
+    "head": 11,
+    "headPalette": 0,
+    "hair": {
+     "style": 11,
+     "palette": 0
+    },
+    "weaponItemName": "Mace",
+    "weaponItemView": null,
+    "weaponView": 8,
+    "shieldView": 0,
+    "itemId": 1501,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "vika",
+    "heroName": "Вика",
+    "jobStage": "advanced",
+    "previousForm": "monk_f",
+    "identitySource": "hero_vika_acolyte"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -45,
+      -77,
+      21,
+      10
+     ],
+     [
+      -44,
+      -80,
+      20,
+      10
+     ],
+     [
+      -44,
+      -81,
+      22,
+      10
+     ],
+     [
+      -45,
+      -78,
+      24,
+      10
+     ]
+    ],
+    "walk": [
+     [
+      -11,
+      -80,
+      13,
+      11
+     ],
+     [
+      -13,
+      -79,
+      29,
+      11
+     ],
+     [
+      -17,
+      -77,
+      22,
+      11
+     ],
+     [
+      -17,
+      -78,
+      18,
+      12
+     ],
+     [
+      -11,
+      -80,
+      14,
+      9
+     ],
+     [
+      -14,
+      -79,
+      27,
+      9
+     ],
+     [
+      -17,
+      -77,
+      24,
+      10
+     ],
+     [
+      -14,
+      -78,
+      18,
+      12
+     ]
+    ],
+    "attack": [
+     [
+      -16,
+      -78,
+      24,
+      11
+     ],
+     [
+      -19,
+      -80,
+      24,
+      11
+     ],
+     [
+      -21,
+      -81,
+      26,
+      11
+     ],
+     [
+      -22,
+      -80,
+      28,
+      11
+     ],
+     [
+      -13,
+      -66,
+      60,
+      16
+     ],
+     [
+      -13,
+      -66,
+      60,
+      16
+     ]
+    ],
+    "cast": [
+     [
+      -21,
+      -80,
+      24,
+      10
+     ],
+     [
+      -20,
+      -70,
+      35,
+      12
+     ],
+     [
+      -20,
+      -51,
+      29,
+      7
+     ],
+     [
+      -17,
+      -83,
+      23,
+      8
+     ],
+     [
+      -7,
+      -61,
+      53,
+      12
+     ],
+     [
+      -23,
+      -72,
+      32,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -13,
+      -77,
+      30,
+      10
+     ],
+     [
+      -19,
+      -75,
+      29,
+      11
+     ],
+     [
+      -13,
+      -77,
+      30,
+      10
+     ]
+    ],
+    "death": [
+     [
+      -38,
+      -31,
+      27,
+      24
+     ],
+     [
+      -38,
+      -31,
+      27,
+      24
+     ],
+     [
+      -38,
+      -31,
+      27,
+      24
+     ],
+     [
+      -38,
+      -31,
+      27,
+      24
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "champion_f_idle_38_w8_s0_h11_p0.png",
+    "walk": "champion_f_walk_14_w8_s0_h11_p0.png",
+    "attack": "champion_f_attack_86_w8_s0_h11_p0.png",
+    "cast": "champion_f_cast_102_w8_s0_h11_p0.png",
+    "hurt": "champion_f_hurt_54_w8_s0_h11_p0.png",
+    "death": "champion_f_death_70_w8_s0_h11_p0.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "whitesmith_m": {
+   "source": {
+    "job": "Whitesmith",
+    "jobId": 4011,
+    "gender": "male",
+    "head": 3,
+    "headPalette": 1,
+    "hair": {
+     "style": 3,
+     "palette": 1
+    },
+    "weaponItemName": "Battle Axe",
+    "weaponItemView": null,
+    "weaponView": 7,
+    "shieldView": 0,
+    "itemId": 1351,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "otto",
+    "heroName": "Отто",
+    "jobStage": "advanced",
+    "previousForm": "blacksmith_m",
+    "identitySource": "blacksmith_m"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -18,
+      -83,
+      24,
+      8
+     ],
+     [
+      -17,
+      -82,
+      24,
+      8
+     ],
+     [
+      -17,
+      -84,
+      24,
+      8
+     ],
+     [
+      -18,
+      -84,
+      24,
+      8
+     ]
+    ],
+    "walk": [
+     [
+      -12,
+      -85,
+      17,
+      7
+     ],
+     [
+      -13,
+      -84,
+      24,
+      7
+     ],
+     [
+      -21,
+      -82,
+      31,
+      6
+     ],
+     [
+      -20,
+      -83,
+      24,
+      7
+     ],
+     [
+      -14,
+      -85,
+      14,
+      5
+     ],
+     [
+      -14,
+      -84,
+      24,
+      3
+     ],
+     [
+      -17,
+      -82,
+      32,
+      4
+     ],
+     [
+      -16,
+      -83,
+      24,
+      7
+     ]
+    ],
+    "attack": [
+     [
+      -21,
+      -85,
+      25,
+      6
+     ],
+     [
+      -27,
+      -86,
+      25,
+      6
+     ],
+     [
+      -20,
+      -81,
+      25,
+      6
+     ],
+     [
+      -17,
+      -61,
+      44,
+      11
+     ],
+     [
+      -17,
+      -61,
+      44,
+      11
+     ],
+     [
+      -17,
+      -61,
+      44,
+      11
+     ]
+    ],
+    "cast": [
+     [
+      -22,
+      -68,
+      35,
+      13
+     ],
+     [
+      -26,
+      -84,
+      23,
+      6
+     ],
+     [
+      -28,
+      -85,
+      26,
+      6
+     ],
+     [
+      -30,
+      -85,
+      22,
+      6
+     ],
+     [
+      -26,
+      -84,
+      27,
+      6
+     ],
+     [
+      -20,
+      -60,
+      55,
+      16
+     ]
+    ],
+    "hurt": [
+     [
+      -23,
+      -77,
+      17,
+      9
+     ],
+     [
+      -31,
+      -73,
+      12,
+      7
+     ],
+     [
+      -23,
+      -77,
+      17,
+      9
+     ]
+    ],
+    "death": [
+     [
+      -39,
+      -42,
+      22,
+      12
+     ],
+     [
+      -39,
+      -42,
+      22,
+      12
+     ],
+     [
+      -39,
+      -42,
+      22,
+      12
+     ],
+     [
+      -39,
+      -42,
+      22,
+      12
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "whitesmith_m_idle_38_w7_s0_h3_p1.png",
+    "walk": "whitesmith_m_walk_14_w7_s0_h3_p1.png",
+    "attack": "whitesmith_m_attack_86_w7_s0_h3_p1.png",
+    "cast": "whitesmith_m_cast_102_w7_s0_h3_p1.png",
+    "hurt": "whitesmith_m_hurt_54_w7_s0_h3_p1.png",
+    "death": "whitesmith_m_death_70_w7_s0_h3_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "whitesmith_f": {
+   "source": {
+    "job": "Whitesmith",
+    "jobId": 4011,
+    "gender": "female",
+    "head": 19,
+    "headPalette": 1,
+    "hair": {
+     "style": 19,
+     "palette": 1
+    },
+    "weaponItemName": "Axe",
+    "weaponItemView": null,
+    "weaponView": 6,
+    "shieldView": 0,
+    "itemId": 1301,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "greta",
+    "heroName": "Грета",
+    "jobStage": "advanced",
+    "previousForm": "blacksmith_f",
+    "identitySource": "blacksmith_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -49,
+      -84,
+      22,
+      9
+     ],
+     [
+      -47,
+      -86,
+      22,
+      9
+     ],
+     [
+      -46,
+      -87,
+      22,
+      9
+     ],
+     [
+      -50,
+      -86,
+      22,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -13,
+      -86,
+      20,
+      4
+     ],
+     [
+      -17,
+      -85,
+      28,
+      4
+     ],
+     [
+      -17,
+      -83,
+      23,
+      9
+     ],
+     [
+      -13,
+      -84,
+      18,
+      9
+     ],
+     [
+      -13,
+      -86,
+      15,
+      6
+     ],
+     [
+      -18,
+      -85,
+      28,
+      6
+     ],
+     [
+      -19,
+      -83,
+      22,
+      9
+     ],
+     [
+      -13,
+      -84,
+      14,
+      5
+     ]
+    ],
+    "attack": [
+     [
+      -22,
+      -85,
+      25,
+      2
+     ],
+     [
+      -23,
+      -82,
+      34,
+      2
+     ],
+     [
+      -24,
+      -55,
+      39,
+      17
+     ],
+     [
+      -23,
+      -53,
+      39,
+      17
+     ],
+     [
+      -23,
+      -53,
+      39,
+      17
+     ],
+     [
+      -23,
+      -53,
+      39,
+      17
+     ]
+    ],
+    "cast": [
+     [
+      -20,
+      -83,
+      17,
+      11
+     ],
+     [
+      -19,
+      -80,
+      29,
+      4
+     ],
+     [
+      -23,
+      -90,
+      15,
+      4
+     ],
+     [
+      -27,
+      -96,
+      11,
+      4
+     ],
+     [
+      -25,
+      -51,
+      50,
+      22
+     ],
+     [
+      -24,
+      -50,
+      50,
+      23
+     ]
+    ],
+    "hurt": [
+     [
+      -21,
+      -72,
+      22,
+      11
+     ],
+     [
+      -23,
+      -70,
+      22,
+      12
+     ],
+     [
+      -21,
+      -72,
+      22,
+      11
+     ]
+    ],
+    "death": [
+     [
+      -33,
+      -39,
+      30,
+      16
+     ],
+     [
+      -33,
+      -39,
+      30,
+      16
+     ],
+     [
+      -33,
+      -39,
+      30,
+      16
+     ],
+     [
+      -33,
+      -39,
+      30,
+      16
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "whitesmith_f_idle_38_w6_s0_h19_p1.png",
+    "walk": "whitesmith_f_walk_14_w6_s0_h19_p1.png",
+    "attack": "whitesmith_f_attack_86_w6_s0_h19_p1.png",
+    "cast": "whitesmith_f_cast_102_w6_s0_h19_p1.png",
+    "hurt": "whitesmith_f_hurt_54_w6_s0_h19_p1.png",
+    "death": "whitesmith_f_death_70_w6_s0_h19_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "creator_m": {
+   "source": {
+    "job": "Creator",
+    "jobId": 4019,
+    "gender": "male",
+    "head": 3,
+    "headPalette": 1,
+    "hair": {
+     "style": 3,
+     "palette": 1
+    },
+    "weaponItemName": "Axe",
+    "weaponItemView": null,
+    "weaponView": 6,
+    "shieldView": 0,
+    "itemId": 1301,
+    "shieldItemId": 0,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "otto",
+    "heroName": "Отто",
+    "jobStage": "advanced",
+    "previousForm": "alchemist_m",
+    "identitySource": "blacksmith_m"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -19,
+      -77,
+      24,
+      9
+     ],
+     [
+      -20,
+      -80,
+      23,
+      9
+     ],
+     [
+      -19,
+      -81,
+      24,
+      9
+     ],
+     [
+      -18,
+      -78,
+      25,
+      9
+     ]
+    ],
+    "walk": [
+     [
+      -10,
+      -82,
+      15,
+      9
+     ],
+     [
+      -12,
+      -81,
+      20,
+      9
+     ],
+     [
+      -19,
+      -79,
+      28,
+      9
+     ],
+     [
+      -16,
+      -80,
+      20,
+      6
+     ],
+     [
+      -11,
+      -82,
+      16,
+      6
+     ],
+     [
+      -10,
+      -81,
+      21,
+      6
+     ],
+     [
+      -18,
+      -79,
+      26,
+      6
+     ],
+     [
+      -15,
+      -80,
+      21,
+      9
+     ]
+    ],
+    "attack": [
+     [
+      -17,
+      -77,
+      24,
+      9
+     ],
+     [
+      -17,
+      -84,
+      14,
+      -2
+     ],
+     [
+      -25,
+      -82,
+      15,
+      -2
+     ],
+     [
+      -21,
+      -81,
+      20,
+      -2
+     ],
+     [
+      -17,
+      -68,
+      40,
+      11
+     ],
+     [
+      -19,
+      -69,
+      36,
+      10
+     ]
+    ],
+    "cast": [
+     [
+      -17,
+      -77,
+      24,
+      9
+     ],
+     [
+      -17,
+      -86,
+      19,
+      8
+     ],
+     [
+      -17,
+      -86,
+      19,
+      8
+     ],
+     [
+      -17,
+      -87,
+      19,
+      8
+     ],
+     [
+      -18,
+      -86,
+      40,
+      9
+     ],
+     [
+      -17,
+      -86,
+      40,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -32,
+      -65,
+      6,
+      9
+     ],
+     [
+      -35,
+      -63,
+      6,
+      9
+     ],
+     [
+      -32,
+      -65,
+      6,
+      9
+     ]
+    ],
+    "death": [
+     [
+      -36,
+      -29,
+      28,
+      19
+     ],
+     [
+      -36,
+      -29,
+      28,
+      19
+     ],
+     [
+      -36,
+      -29,
+      28,
+      19
+     ],
+     [
+      -36,
+      -29,
+      28,
+      19
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "creator_m_idle_38_w6_s0_h3_p1.png",
+    "walk": "creator_m_walk_14_w6_s0_h3_p1.png",
+    "attack": "creator_m_attack_86_w6_s0_h3_p1.png",
+    "cast": "creator_m_cast_102_w6_s0_h3_p1.png",
+    "hurt": "creator_m_hurt_54_w6_s0_h3_p1.png",
+    "death": "creator_m_death_70_w6_s0_h3_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
+  },
+  "creator_f": {
+   "source": {
+    "job": "Creator",
+    "jobId": 4019,
+    "gender": "female",
+    "head": 19,
+    "headPalette": 1,
+    "hair": {
+     "style": 19,
+     "palette": 1
+    },
+    "weaponItemName": "Mace",
+    "weaponItemView": null,
+    "weaponView": 8,
+    "shieldView": 2,
+    "itemId": 1501,
+    "shieldItemId": 2103,
+    "renderer": "ragassets /image; ACT direction 6; shadow=false; native x1",
+    "heroId": "greta",
+    "heroName": "Грета",
+    "jobStage": "advanced",
+    "previousForm": "alchemist_f",
+    "identitySource": "blacksmith_f"
+   },
+   "sourceFrameBboxes": {
+    "idle": [
+     [
+      -15,
+      -81,
+      22,
+      8
+     ],
+     [
+      -15,
+      -83,
+      21,
+      8
+     ],
+     [
+      -15,
+      -84,
+      20,
+      8
+     ],
+     [
+      -16,
+      -82,
+      21,
+      8
+     ]
+    ],
+    "walk": [
+     [
+      -12,
+      -80,
+      15,
+      8
+     ],
+     [
+      -12,
+      -79,
+      27,
+      8
+     ],
+     [
+      -16,
+      -77,
+      26,
+      8
+     ],
+     [
+      -12,
+      -78,
+      19,
+      6
+     ],
+     [
+      -12,
+      -80,
+      15,
+      5
+     ],
+     [
+      -17,
+      -79,
+      27,
+      3
+     ],
+     [
+      -23,
+      -77,
+      27,
+      8
+     ],
+     [
+      -17,
+      -78,
+      20,
+      8
+     ]
+    ],
+    "attack": [
+     [
+      -14,
+      -77,
+      21,
+      13
+     ],
+     [
+      -15,
+      -80,
+      18,
+      6
+     ],
+     [
+      -22,
+      -81,
+      16,
+      5
+     ],
+     [
+      -25,
+      -82,
+      16,
+      5
+     ],
+     [
+      -14,
+      -80,
+      20,
+      6
+     ],
+     [
+      -15,
+      -64,
+      38,
+      17
+     ]
+    ],
+    "cast": [
+     [
+      -15,
+      -81,
+      20,
+      9
+     ],
+     [
+      -24,
+      -81,
+      20,
+      9
+     ],
+     [
+      -24,
+      -82,
+      20,
+      9
+     ],
+     [
+      -25,
+      -80,
+      33,
+      9
+     ],
+     [
+      -24,
+      -79,
+      32,
+      9
+     ],
+     [
+      -22,
+      -78,
+      32,
+      9
+     ]
+    ],
+    "hurt": [
+     [
+      -16,
+      -72,
+      28,
+      7
+     ],
+     [
+      -17,
+      -72,
+      27,
+      3
+     ],
+     [
+      -16,
+      -72,
+      28,
+      7
+     ]
+    ],
+    "death": [
+     [
+      -36,
+      -28,
+      35,
+      23
+     ],
+     [
+      -36,
+      -28,
+      35,
+      23
+     ],
+     [
+      -36,
+      -28,
+      35,
+      23
+     ],
+     [
+      -36,
+      -28,
+      35,
+      23
+     ]
+    ]
+   },
+   "sourceFrameIndices": {
+    "idle": [
+     0,
+     2,
+     3,
+     5
+    ],
+    "walk": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "attack": [
+     0,
+     2,
+     3,
+     5,
+     6,
+     8
+    ],
+    "cast": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "hurt": [
+     0,
+     1,
+     2
+    ],
+    "death": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sourceFrameCounts": {
+    "idle": 6,
+    "walk": 8,
+    "attack": 9,
+    "cast": 6,
+    "hurt": 3,
+    "death": 1
+   },
+   "sourceCacheFiles": {
+    "idle": "creator_f_idle_38_w8_s2_h19_p1.png",
+    "walk": "creator_f_walk_14_w8_s2_h19_p1.png",
+    "attack": "creator_f_attack_86_w8_s2_h19_p1.png",
+    "cast": "creator_f_cast_102_w8_s2_h19_p1.png",
+    "hurt": "creator_f_hurt_54_w8_s2_h19_p1.png",
+    "death": "creator_f_death_70_w8_s2_h19_p1.png"
+   },
+   "sourceActions": {
+    "idle": 38,
+    "walk": 14,
+    "attack": 86,
+    "cast": 102,
+    "hurt": 54,
+    "death": 70
+   },
+   "sourceAlphaValues": [],
+   "sourceLimitations": {
+    "equipment": "Renderer uses a weapon-type visual, not the exact item sprite; equipped props may disappear in walk/attack frames.",
+    "itemView": "The selected rAthena weapon items have no item_db View field; weaponView is the renderer weapon-type ID.",
+    "death": "RO action 70 may have fewer distinct poses than four; repeated last pose is retained.",
+    "cast": "Original generic RO action 102, not individual skill VFX."
+   },
+   "portraitSource": "Nearest-neighbor 4x enlargement of a native 64x64 ready-pose crop."
   }
- }
+}
 }

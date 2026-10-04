@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_alan_paladin",
+  "name": "Клятва Алана",
+  "description": "На полной энергии. Всем союзникам, включая себя: щит 23% макс. ОЗ цели; ЗАЩ +20% на 3 хода статуса.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.23
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "alan_oath",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": 0.2
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

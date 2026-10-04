@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_stalker_siphon",
+  "name": "Украденный темп",
+  "description": "В начале хода (шанс 25%): Ближайшему врагу: энергия -6.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": -6
+    }
+  ],
+  "castTime": 0,
+  "priority": 6,
+  "trigger": "turnStart",
+  "chance": 0.25
+}

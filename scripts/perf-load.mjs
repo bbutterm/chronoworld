@@ -9,11 +9,11 @@
 // Затем повторный визит (кэш включён) — как второй запуск Mini App.
 // Переменные: LOAD_PORT (5190), LOAD_RUNS (3, берётся медиана), LOAD_CPU (4), LOAD_NET (fast3g | none),
 // LOAD_SKIP_BUILD=1 — не пересобирать dist, LOAD_JSON=файл — сырые цифры.
+// PLAYWRIGHT_MODULE: absolute index.mjs; CHROME_EXECUTABLE_PATH: optional browser executable.
 // Playwright — глобальный (`npm root -g`), Chromium уже скачан; скрипт ничего не устанавливает.
-import { execSync, spawn } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { loadPlaywright, browserOptions, startVite, stopVite } from './lib/perf-browser.mjs';
 
 const PORT = Number(process.env.LOAD_PORT ?? 5190);
 const URL = `http://localhost:${PORT}/`;
@@ -27,49 +27,6 @@ const NETWORKS = {
 
 const log = (...a) => console.log('[load]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function loadPlaywright() {
-  const root = execSync('npm root -g', { encoding: 'utf8' }).trim();
-  const entry = join(root, 'playwright', 'index.mjs');
-  try {
-    return await import(pathToFileURL(entry).href);
-  } catch (e) {
-    throw new Error(`Не найден глобальный Playwright (${entry}). Скрипт ничего не устанавливает.\n${e.message}`);
-  }
-}
-
-async function startPreview() {
-  const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(PORT), '--strictPort'], {
-    stdio: ['ignore', 'pipe', 'pipe'],
-    detached: process.platform !== 'win32',
-  });
-  let out = '';
-  vite.stdout.on('data', (d) => (out += d));
-  vite.stderr.on('data', (d) => (out += d));
-  let exited = null;
-  vite.on('exit', (code) => (exited = code));
-  for (let i = 0; i < 150; i++) {
-    if (exited !== null) throw new Error(`vite preview завершился с кодом ${exited} (порт ${PORT} занят?):\n${out}`);
-    try {
-      const r = await fetch(URL);
-      if (r.ok) return vite;
-    } catch {
-      // ещё не поднялся
-    }
-    await sleep(200);
-  }
-  throw new Error(`vite preview не ответил за 30 с:\n${out}`);
-}
-
-function stopPreview(vite) {
-  if (!vite || vite.exitCode !== null) return;
-  try {
-    if (process.platform !== 'win32') process.kill(-vite.pid, 'SIGTERM');
-    else vite.kill('SIGTERM');
-  } catch {
-    vite.kill('SIGKILL');
-  }
-}
 
 /** Цифры из страницы: метки, FCP, ресурсы до метки главной. */
 function collect() {
@@ -147,10 +104,10 @@ async function main() {
     execSync('node node_modules/vite/bin/vite.js build', { stdio: 'ignore' });
   }
   const { chromium } = await loadPlaywright();
-  const vite = await startPreview();
+  const vite = await startVite(PORT, URL, true);
   let browser;
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch(browserOptions());
     log(`CPU ×${CPU}, сеть ${NET}, ${RUNS} прогона`);
     const cold = [];
     const warm = [];
@@ -160,8 +117,8 @@ async function main() {
     if (process.env.LOAD_JSON) writeFileSync(process.env.LOAD_JSON, JSON.stringify(out, null, 2));
     log('OK');
   } finally {
-    await browser?.close();
-    stopPreview(vite);
+    await browser?.close().catch(() => {});
+    stopVite(vite);
   }
 }
 

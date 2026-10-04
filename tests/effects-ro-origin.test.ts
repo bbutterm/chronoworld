@@ -44,6 +44,7 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   job_assassin_enchant_poison: { ro: 'AS_ENCHANTPOISON', fx: ['20'] },
   job_assassin_venom_splasher: { ro: 'AS_SPLASHER', fx: ['129'] },
   // Лучник, Охотник
+  job_archer_arrow_shower: { ro: 'AC_SHOWER', fx: ['ef_arrow_shower_projectile'] },
   job_archer_improve_concentration: { ro: 'AC_CONCENTRATION', fx: ['153'] },
   job_hunter_claymore_trap: { ro: 'HT_CLAYMORETRAP', fx: ['107'] },
   job_hunter_sandman: { ro: 'HT_SANDMAN', fx: ['139'] },
@@ -63,6 +64,7 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   job_wizard_frost_nova: { ro: 'WZ_FROSTNOVA', fx: ['28', '51'] },
   job_wizard_soul_drain: { ro: 'HW_SOULDRAIN', fx: ['217'] },
   job_sage_earth_spike: { ro: 'WZ_EARTHSPIKE', fx: ['79', '147'] },
+  job_sage_volcano: { ro: 'SA_VOLCANO', fx: ['239'] },
   job_sage_dispell: { ro: 'SA_DISPELL', fx: ['235'] },
   // Послушник, Священник
   job_acolyte_blessing: { ro: 'AL_BLESSING', fx: ['42'] },
@@ -83,6 +85,7 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   job_blacksmith_hammer_fall: { ro: 'BS_HAMMERFALL', fx: ['102'] },
   job_blacksmith_weapon_perfection: { ro: 'BS_WEAPONPERFECT', fx: ['103'] },
   job_blacksmith_adrenaline_rush: { ro: 'BS_ADRENALINE', fx: ['98', 'str_adrenaline'] },
+  job_alchemist_acid_terror: { ro: 'AM_ACIDTERROR', fx: ['298'] },
   job_alchemist_demonstration: { ro: 'AM_DEMONSTRATION', fx: ['302', 'sprite 데몬스트레이션'] },
 
   // Ульты героев (01.10, docs/design/battle-decisions.md §1): усиленные формы навыков RO — эффект того же навыка RO.
@@ -185,14 +188,17 @@ const RO_ORIGIN: Record<string, { ro: string; fx: string[] }> = {
   mob7_boss_meteor_storm: { ro: 'WZ_METEOR', fx: ['92', '49'] },
 };
 
-type Catalog = { effects: { id: string; source?: { roEffectId?: string } }[]; skills: Record<string, Record<string, string>> };
+type Catalog = { effects: { id: string; source?: { kind?: string; roEffectId?: string } }[]; skills: Record<string, Record<string, string>> };
 const catalog = catalogJson as unknown as Catalog;
 const roOf = new Map(catalog.effects.map((e) => [e.id, e.source?.roEffectId]));
+const original = new Set(catalog.effects.filter((e) => e.source?.kind === 'original').map((e) => e.id));
 
 describe('эффекты навыков — только оригинальные эффекты RO (без подстановок)', () => {
   it('каждая привязка effects.json → skills есть в белом списке и атлас — эффект этого навыка RO', () => {
     const bad: string[] = [];
     for (const [skill, roles] of Object.entries(catalog.skills)) {
+      // Chronoworld-authored veteran signatures explicitly are not RO captures.
+      if (Object.values(roles).every((fx) => original.has(fx))) continue;
       const origin = RO_ORIGIN[skill];
       if (!origin) {
         bad.push(`${skill}: нет в RO_ORIGIN (какой навык RO?)`);

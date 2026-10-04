@@ -61,6 +61,46 @@
       "bio": "Жрица собора Пронтеры. Вика всё ещё боится крови, но руки больше не дрожат: её исцеление держит на ногах весь отряд. Бинты при ней по-прежнему — на всякий случай.",
       "visual": {
         "sprite": "hero_vika_priest_detail_v2"
+      },
+      "advanced": {
+        "job": "high_priest",
+        "role": "healer",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.332,
+          "atk": 1.3875,
+          "def": 1.332,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_acolyte_heal"
+          },
+          {
+            "level": 70,
+            "skill": "adv_high_priest_sanctuary"
+          },
+          {
+            "level": 80,
+            "skill": "adv_high_priest_absolution"
+          },
+          {
+            "level": 90,
+            "skill": "adv_high_priest_vespers"
+          },
+          {
+            "level": 100,
+            "skill": "adv_high_priest_breath"
+          }
+        ],
+        "ult": "ult_adv_vika_high_priest",
+        "promotion": "Вика сохраняет защиту нескольких раненых и силы для следующей перевязки. Сан Верховной жрицы не отменяет страха; он требует не бросить работу.",
+        "bio": "Верховная жрица с приютским стежком и бинтами при себе. Вика всё ещё боится крови, но распределяет исцеление так, чтобы хватило последнему раненому. Она не обещает отменить любую утрату и учится принимать заботу Греты, а не только отдавать свою.",
+        "visual": {
+          "sprite": "high_priest_f"
+        }
       }
     },
     {
@@ -95,7 +135,52 @@
       "visual": {
         "sprite": "hero_vika_monk_detail_v2"
       },
-      "behavior": "guard"
+      "behavior": "guard",
+      "advanced": {
+        "job": "champion",
+        "role": "tank",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.554,
+          "atk": 1.1655,
+          "def": 1.554,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_monk_blade_stop"
+          },
+          {
+            "level": 10,
+            "skill": "job_monk_iron_hand"
+          },
+          {
+            "level": 70,
+            "skill": "adv_champion_sphere_chain"
+          },
+          {
+            "level": 80,
+            "skill": "adv_champion_centering"
+          },
+          {
+            "level": 90,
+            "skill": "adv_champion_stance"
+          },
+          {
+            "level": 100,
+            "skill": "adv_champion_pulse"
+          }
+        ],
+        "ult": "ult_adv_vika_champion",
+        "promotion": "Вика удерживает защитную стойку и выбирает момент ответа, не открывая раненых. Чемпионскую силу осваивает вместе с правом не наносить лишний удар.",
+        "bio": "Чемпионка святой Капитолины, чья открытая ладонь прежде всего закрывает раненого. Вика удерживает дыхание под ударом и не тратит ответ ради мести. Письма пропавшему воспитателю лежат под бинтами; молчание хранит её боль, но не мешает услышать просьбу о помощи.",
+        "visual": {
+          "sprite": "champion_f"
+        },
+        "behavior": "guard"
+      }
     }
   ],
   "bio": "Аколит из церкви Пронтеры. «Бинты со мной».",

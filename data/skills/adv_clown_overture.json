@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_clown_overture",
+  "name": "Увертюра похода",
+  "description": "В начале боя (шанс 100%): Всем союзникам, включая себя: щит 7% макс. ОЗ цели.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.07
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "battleStart",
+  "chance": 1
+}

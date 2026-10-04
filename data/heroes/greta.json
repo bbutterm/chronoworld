@@ -63,6 +63,46 @@
       "bio": "Кузнец гильдии Эйнброха. Грета куёт так же, как торгуется, — быстро, громко и в свою пользу; молот мастера бьёт по врагам не хуже сковородки. Колокольчик на рукояти звенит перед каждым ударом.",
       "visual": {
         "sprite": "hero_greta_blacksmith_detail_v2"
+      },
+      "advanced": {
+        "job": "whitesmith",
+        "role": "damage",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.332,
+          "atk": 1.443,
+          "def": 1.2765,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_merchant_frying_pan"
+          },
+          {
+            "level": 70,
+            "skill": "adv_whitesmith_forge_burst"
+          },
+          {
+            "level": 80,
+            "skill": "adv_whitesmith_temper"
+          },
+          {
+            "level": 90,
+            "skill": "adv_whitesmith_rivets"
+          },
+          {
+            "level": 100,
+            "skill": "adv_whitesmith_bellows"
+          }
+        ],
+        "ult": "ult_adv_greta_whitesmith",
+        "promotion": "Грета осваивает точную обработку и проверку оружия под нагрузкой. Молот мастера теперь означает ответ за то, что не должно сломаться у товарища.",
+        "bio": "Мастер-кузнец со звонким молотом и трактирной хваткой. Грета проверяет оружие своих до торга о добыче и отличает трещину, которую надо стянуть, от старого металла, которому нельзя навязывать новый голос. За колокольчик отвечает сама; чужие руки к нему не подпускает.",
+        "visual": {
+          "sprite": "whitesmith_f"
+        }
       }
     },
     {
@@ -97,7 +137,52 @@
       "visual": {
         "sprite": "hero_greta_alchemist_detail_v2"
       },
-      "behavior": "medic"
+      "behavior": "medic",
+      "advanced": {
+        "job": "creator",
+        "role": "healer",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.332,
+          "atk": 1.332,
+          "def": 1.2765,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_alchemist_potion_pitcher"
+          },
+          {
+            "level": 10,
+            "skill": "job_alchemist_chemical_protection"
+          },
+          {
+            "level": 70,
+            "skill": "adv_creator_restorative"
+          },
+          {
+            "level": 80,
+            "skill": "adv_creator_detonation"
+          },
+          {
+            "level": 90,
+            "skill": "adv_creator_reagents"
+          },
+          {
+            "level": 100,
+            "skill": "adv_creator_distillation"
+          }
+        ],
+        "ult": "ult_adv_greta_creator",
+        "promotion": "Грета доводит составы до повторяемого результата и проверяет их совместимость. Право создательницы испытывать новое не даёт права рисковать своими.",
+        "bio": "Создательница, которая считает каждую каплю, но умеет написать «не в долг». Грета проверяет состав на пробе прежде, чем доверить его товарищу, и заранее предупреждает о последней склянке. Семейный колокольчик для неё не опыт и не товар, сколько бы ни предлагали.",
+        "visual": {
+          "sprite": "creator_f"
+        },
+        "behavior": "medic"
+      }
     }
   ],
   "bio": "Торговка с тяжёлой сковородкой. Считает деньги быстрее, чем враги — удары.",

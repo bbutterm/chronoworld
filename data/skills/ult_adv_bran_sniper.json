@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_bran_sniper",
+  "name": "Выстрел Брана",
+  "description": "На полной энергии. Врагу с наименьшими ОЗ: урон 2.8 × АТК; ЗАЩ -25% на 3 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "bran_mark",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": -0.25
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 6
+}

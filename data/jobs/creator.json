@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "creator",
+  "name": "Биохимик",
+  "description": "Ветеранский ранг: Биохимик. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "alchemist"
+  ],
+  "maxJobLevel": 100,
+  "role": "support",
+  "baseStats": {
+    "hp": 2450,
+    "atk": 200,
+    "def": 65,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 60,
+    "atk": 6,
+    "def": 2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_creator_restorative"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_creator_detonation"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_creator_reagents"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_creator_distillation"
+    }
+  ],
+  "visual": {
+    "sprite": "creator_m",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  },
+  "behavior": "caster",
+  "nameF": "Биохимик"
+}

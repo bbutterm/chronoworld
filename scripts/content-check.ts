@@ -118,9 +118,9 @@ if (content) {
       ...(u.phases ?? []).flatMap((p) => p.actions.flatMap((a) => (a.type === 'addActive' ? [a.skill] : []))),
     ]),
     ...Object.values(content.jobs).flatMap((j) => [j.basic, ...j.skills.map((s) => s.skill)]),
-    ...Object.values(content.heroes).flatMap((t) => [...t.skills, ...t.branches.flatMap((b) => b.skills)].map((s) => s.skill)),
+    ...Object.values(content.heroes).flatMap((t) => [...t.skills, ...t.branches.flatMap((b) => [...b.skills, ...(b.advanced?.skills ?? [])])].map((s) => s.skill)),
     // Ульты форм героев (поле ult шаблона и веток).
-    ...Object.values(content.heroes).flatMap((t) => [t.ult, ...t.branches.map((b) => b.ult)]),
+    ...Object.values(content.heroes).flatMap((t) => [t.ult, ...t.branches.flatMap((b) => [b.ult, b.advanced?.ult])]),
   ]);
 
   // 8. Карточки героев и Таверна: правила карточек, листы (свой / класса / пол), портреты, выдача Таверны.

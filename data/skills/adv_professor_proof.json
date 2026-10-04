@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_professor_proof",
+  "name": "Доказанная защита",
+  "description": "В начале боя (шанс 100%): Всем союзникам, включая себя: ЗАЩ +10% на 3 хода статуса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_proof",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": 0.1
+        }
+      }
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "battleStart",
+  "chance": 1
+}

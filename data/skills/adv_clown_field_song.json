@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_clown_field_song",
+  "name": "Песня полевого лагеря",
+  "description": "Всем союзникам, включая себя: лечение 0.45 × АТК; СКР +12% на 2 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 0.45
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_song",
+        "name": "Темп",
+        "turns": 2,
+        "stats": {
+          "spd": 0.12
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

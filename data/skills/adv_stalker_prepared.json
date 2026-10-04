@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_stalker_prepared",
+  "name": "Подготовленный отход",
+  "description": "В начале боя (шанс 100%): На себя: щит 10% макс. ОЗ цели.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.1
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "battleStart",
+  "chance": 1
+}

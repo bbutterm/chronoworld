@@ -13,6 +13,7 @@ export function validateJobs(content: Content, problems: string[]): void {
     const where = `профессия ${j.id}`;
     if (!content.skills[j.basic]) problems.push(`${where}: basic ссылается на несуществующий навык ${j.basic}`);
     else if (content.skills[j.basic].trigger) problems.push(`${where}: обычная атака ${j.basic} не может иметь trigger`);
+    if (j.tier === 3 && (j.from.length !== 1 || content.jobs[j.from[0]]?.tier !== 2)) problems.push(`${where}: ветеранский ранг требует одну родительскую профессию tier 2`);
     const levels = new Set<number>();
     for (const s of j.skills) {
       if (!content.skills[s.skill]) problems.push(`${where}: навык ${s.skill} не найден`);

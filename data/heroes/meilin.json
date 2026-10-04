@@ -66,7 +66,48 @@
       "visual": {
         "sprite": "hero_meilin_hunter_detail_v2"
       },
-      "behavior": "trapper"
+      "behavior": "trapper",
+      "advanced": {
+        "job": "sniper",
+        "role": "damage",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.221,
+          "atk": 1.443,
+          "def": 1.1655,
+          "spd": 1.1655
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_hunter_ankle_snare"
+          },
+          {
+            "level": 70,
+            "skill": "adv_sniper_falcon_mark"
+          },
+          {
+            "level": 80,
+            "skill": "adv_sniper_pinning_volley"
+          },
+          {
+            "level": 90,
+            "skill": "adv_sniper_sight"
+          },
+          {
+            "level": 100,
+            "skill": "adv_sniper_quiver"
+          }
+        ],
+        "ult": "ult_adv_meilin_sniper",
+        "promotion": "Мэйлин соединяет тихий подход с дальним выстрелом и безопасным обходом ловушек. Снайперская позиция должна позволять видеть не только цель, но и своих.",
+        "bio": "Снайпер из Пайона с соколом и отцовским тихим шагом. Мэйлин ставит ловушки преследователям, но оставляет своим отмеченный обход. Ищет лук, унесённый белым волком, не забывая: тот сторожил спящих, а не был добычей. На север уходит, оставив путь обратно.",
+        "visual": {
+          "sprite": "sniper_f"
+        },
+        "behavior": "trapper"
+      }
     },
     {
       "job": "dancer",
@@ -100,6 +141,50 @@
       "bio": "Танцовщица Комодо, чьи шаги сбивают врага с ритма. Мэйлин кружится между стрелами и песнями, и строй противника рассыпается. Белого волка она ищет по-прежнему — говорят, он приходит на звук её бубна.",
       "visual": {
         "sprite": "dancer_f"
+      },
+      "advanced": {
+        "job": "gypsy",
+        "role": "support",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.2765,
+          "atk": 1.2765,
+          "def": 1.11,
+          "spd": 1.221
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_dancer_slinging_arrow"
+          },
+          {
+            "level": 50,
+            "skill": "job_dancer_fortune_kiss"
+          },
+          {
+            "level": 70,
+            "skill": "adv_gypsy_burst_step"
+          },
+          {
+            "level": 80,
+            "skill": "adv_gypsy_scout_rhythm"
+          },
+          {
+            "level": 90,
+            "skill": "adv_gypsy_opening"
+          },
+          {
+            "level": 100,
+            "skill": "adv_gypsy_afterbeat"
+          }
+        ],
+        "ult": "ult_adv_meilin_gypsy",
+        "promotion": "Мэйлин учится смещать шаг, не теряя ритма для товарищей. Выучка цыганки нужна ей, чтобы выводить людей из чужой песни, а не удерживать у своей.",
+        "bio": "Цыганка Комодо, превратившая лесной шаг в ритм возвращения. Мэйлин держит бубен, пока последний дозорный не дойдёт к огню, и ломает чужой такт, чтобы выпустить своих. За белым волком идёт без приманки: зрителю тоже положен свободный путь обратно.",
+        "visual": {
+          "sprite": "gypsy_f"
+        }
       }
     }
   ],

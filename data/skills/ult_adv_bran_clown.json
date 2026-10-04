@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_bran_clown",
+  "name": "Размеренный напев Брана",
+  "description": "На полной энергии. Всем союзникам, включая себя: лечение 0.8 × АТК; ЗАЩ +22% на 3 хода статуса; энергия +10.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 0.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "bran_song",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": 0.22
+        }
+      }
+    },
+    {
+      "type": "energy",
+      "amount": 10
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

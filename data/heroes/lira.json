@@ -64,6 +64,46 @@
       "bio": "Волшебница Гефена, повелительница льда. Её ледяные стены и метели останавливают целые отряды врагов, пока свои перестраиваются. Лира по-прежнему чинит то, что сжёг брат, — просто теперь это делает буря.",
       "visual": {
         "sprite": "hero_lira_wizard_detail_v2"
+      },
+      "advanced": {
+        "job": "high_wizard",
+        "role": "damage",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.221,
+          "atk": 1.4985,
+          "def": 1.1655,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_wizard_frost_nova"
+          },
+          {
+            "level": 70,
+            "skill": "adv_high_wizard_convergence"
+          },
+          {
+            "level": 80,
+            "skill": "adv_high_wizard_cinder"
+          },
+          {
+            "level": 90,
+            "skill": "adv_high_wizard_ward"
+          },
+          {
+            "level": 100,
+            "skill": "adv_high_wizard_focus"
+          }
+        ],
+        "ult": "ult_adv_lira_high_wizard",
+        "promotion": "Лира рассчитывает ледяную стену на целый строй и выход для своих. Верховное мастерство для неё — удержать защиту, не заперев за ней отряд.",
+        "bio": "Верховная волшебница, чьи стены оставляют место для раненых и смены дозора. Лира слышит трещину до падения колонны и говорит тихо, но не просит разрешения на приказ. Учится создавать своё, а не только чинить за Каем; заботу о брате не выдаёт за единственное призвание.",
+        "visual": {
+          "sprite": "high_wizard_f"
+        }
       }
     },
     {
@@ -98,7 +138,52 @@
       "visual": {
         "sprite": "sage_f"
       },
-      "behavior": "counter"
+      "behavior": "counter",
+      "advanced": {
+        "job": "professor",
+        "role": "support",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.3875,
+          "atk": 1.2765,
+          "def": 1.2765,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_sage_dispell"
+          },
+          {
+            "level": 10,
+            "skill": "job_sage_magic_rod"
+          },
+          {
+            "level": 70,
+            "skill": "adv_professor_counter_lattice"
+          },
+          {
+            "level": 80,
+            "skill": "adv_professor_lecture"
+          },
+          {
+            "level": 90,
+            "skill": "adv_professor_proof"
+          },
+          {
+            "level": 100,
+            "skill": "adv_professor_feedback"
+          }
+        ],
+        "ult": "ult_adv_lira_professor",
+        "promotion": "Лира проверяет полевые расчёты и запас на отклонения, включая тепло Кая. Профессорская выучка означает вовремя прекратить опыт и вернуть всех наверх.",
+        "bio": "Профессор, оставляющая в расчёте запас на одного брата. Лира сверяет наблюдения с людьми, а не объявляет их память ошибкой, и честно называет предел своего метода. Её списки защищают отряд; личный список она только учится ставить рядом с рабочим.",
+        "visual": {
+          "sprite": "professor_f"
+        },
+        "behavior": "counter"
+      }
     }
   ],
   "bio": "Маг льда и защиты: замедляет врагов и прикрывает своих.",

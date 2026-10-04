@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_assassin_cross_execution",
+  "name": "Расчёт убийцы",
+  "description": "При убийстве (шанс 25%): На себя: энергия +8.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "energy",
+      "amount": 8
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "kill",
+  "chance": 0.25
+}

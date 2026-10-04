@@ -1,0 +1,2082 @@
+{
+  "activation": {
+    "minRarity": "gold",
+    "minLevel": 70
+  },
+  "note": "tier 3 — игровой ветеранский ранг второй профессии; signatures — намерение для VFX, не утверждение о готовой анимации.",
+  "skills": [
+    {
+      "id": "adv_lord_knight_lance_line",
+      "advancedJob": "lord_knight",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.35
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_lance_slow",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": -0.18
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "front"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "lance impact",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_lord_knight_iron_order",
+      "advancedJob": "lord_knight",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.16
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_iron",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": 0.2
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "lance impact",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_lord_knight_vanguard",
+      "advancedJob": "lord_knight",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_vanguard",
+            "name": "Защита",
+            "turns": 4,
+            "stats": {
+              "def": 0.12
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "lance impact",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_lord_knight_reprise",
+      "advancedJob": "lord_knight",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 0.35
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "lance impact",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_paladin_oath",
+      "advancedJob": "paladin",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.18
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_oath",
+            "name": "Защита",
+            "turns": 2,
+            "stats": {
+              "def": 0.15
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "lowestHpPct",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "oath shield",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_paladin_judgement",
+      "advancedJob": "paladin",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.55
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_judge",
+            "name": "Натиск",
+            "turns": 2,
+            "stats": {
+              "atk": -0.18
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "oath shield",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_paladin_consecration",
+      "advancedJob": "paladin",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.12
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "oath shield",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_paladin_resolve",
+      "advancedJob": "paladin",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 0.32
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "oath shield",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_sniper_falcon_mark",
+      "advancedJob": "sniper",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.65
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_falcon",
+            "name": "Защита",
+            "turns": 2,
+            "stats": {
+              "def": -0.15
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "lowestHp"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "falcon precision",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_sniper_pinning_volley",
+      "advancedJob": "sniper",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.05
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_pin",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": -0.22
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "falcon precision",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_sniper_sight",
+      "advancedJob": "sniper",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_sight",
+            "name": "Натиск",
+            "turns": 4,
+            "stats": {
+              "atk": 0.12
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "falcon precision",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_sniper_quiver",
+      "advancedJob": "sniper",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": 6
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "falcon precision",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_clown_field_song",
+      "advancedJob": "clown",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 0.45
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_song",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": 0.12
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "field song",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_clown_discord",
+      "advancedJob": "clown",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 0.95
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_discord",
+            "name": "Срыв заклинания",
+            "turns": 1,
+            "interrupt": true
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "field song",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_clown_overture",
+      "advancedJob": "clown",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.07
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "field song",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_clown_encore",
+      "advancedJob": "clown",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": 5
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "field song",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_gypsy_burst_step",
+      "advancedJob": "gypsy",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.2
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_dance",
+            "name": "Ожог",
+            "turns": 3,
+            "dot": {
+              "k": 0.16
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "explosive arrows",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_gypsy_scout_rhythm",
+      "advancedJob": "gypsy",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_scout",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": 0.18
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 5
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "explosive arrows",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_gypsy_opening",
+      "advancedJob": "gypsy",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_opening",
+            "name": "Натиск",
+            "turns": 3,
+            "stats": {
+              "atk": 0.14
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "explosive arrows",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_gypsy_afterbeat",
+      "advancedJob": "gypsy",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_afterbeat",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": -0.12
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "explosive arrows",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_wizard_convergence",
+      "advancedJob": "high_wizard",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.05
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_converge",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": -0.15
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "elemental convergence",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_wizard_cinder",
+      "advancedJob": "high_wizard",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.65
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_cinder",
+            "name": "Ожог",
+            "turns": 3,
+            "dot": {
+              "k": 0.25
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "elemental convergence",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_wizard_ward",
+      "advancedJob": "high_wizard",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.12
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "elemental convergence",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_wizard_focus",
+      "advancedJob": "high_wizard",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": 6
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "elemental convergence",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_professor_counter_lattice",
+      "advancedJob": "professor",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 0.9
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_lattice",
+            "name": "Срыв заклинания",
+            "turns": 1,
+            "interrupt": true
+          }
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_lattice_atk",
+            "name": "Натиск",
+            "turns": 2,
+            "stats": {
+              "atk": -0.15
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "counterspell lattice",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_professor_lecture",
+      "advancedJob": "professor",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.16
+        },
+        {
+          "type": "energy",
+          "amount": 8
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "lowestHpPct",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "counterspell lattice",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_professor_proof",
+      "advancedJob": "professor",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_proof",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": 0.1
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "counterspell lattice",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_professor_feedback",
+      "advancedJob": "professor",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": -5
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "counterspell lattice",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_assassin_cross_cross_cut",
+      "advancedJob": "assassin_cross",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.7
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_cross",
+            "name": "Ожог",
+            "turns": 3,
+            "dot": {
+              "k": 0.18
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "lowestHp"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "shadow cross",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_assassin_cross_expose",
+      "advancedJob": "assassin_cross",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.15
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_expose",
+            "name": "Защита",
+            "turns": 2,
+            "stats": {
+              "def": -0.2
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "shadow cross",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_assassin_cross_veil",
+      "advancedJob": "assassin_cross",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_veil",
+            "name": "Темп",
+            "turns": 3,
+            "stats": {
+              "spd": 0.15
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "shadow cross",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_assassin_cross_execution",
+      "advancedJob": "assassin_cross",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": 8
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "kill",
+      "chance": 0.25,
+      "intendedSignature": "shadow cross",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_stalker_disarm_chain",
+      "advancedJob": "stalker",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.35
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_disarm",
+            "name": "Натиск",
+            "turns": 2,
+            "stats": {
+              "atk": -0.22
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "disarm chain",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_stalker_snare",
+      "advancedJob": "stalker",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.05
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_snare",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": -0.25
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "disarm chain",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_stalker_prepared",
+      "advancedJob": "stalker",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.1
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "disarm chain",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_stalker_siphon",
+      "advancedJob": "stalker",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": -6
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "disarm chain",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_priest_sanctuary",
+      "advancedJob": "high_priest",
+      "role": "healer",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 0.85
+        },
+        {
+          "type": "shield",
+          "pctMaxHp": 0.06
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sanctuary",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_priest_absolution",
+      "advancedJob": "high_priest",
+      "role": "healer",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 1.45
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_absolution",
+            "name": "Защита",
+            "turns": 2,
+            "stats": {
+              "def": 0.18
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "lowestHpPct",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sanctuary",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_priest_vespers",
+      "advancedJob": "high_priest",
+      "role": "healer",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.08
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "sanctuary",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_high_priest_breath",
+      "advancedJob": "high_priest",
+      "role": "healer",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 0.22
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "lowestHpPct",
+        "includeSelf": true
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "sanctuary",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_champion_sphere_chain",
+      "advancedJob": "champion",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.55
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_sphere",
+            "name": "Оглушение",
+            "turns": 1,
+            "stun": true
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sphere combo",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_champion_centering",
+      "advancedJob": "champion",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 0.65
+        },
+        {
+          "type": "shield",
+          "pctMaxHp": 0.12
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sphere combo",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_champion_stance",
+      "advancedJob": "champion",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_stance",
+            "name": "Защита",
+            "turns": 4,
+            "stats": {
+              "def": 0.15
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "sphere combo",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_champion_pulse",
+      "advancedJob": "champion",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": 6
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "sphere combo",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_whitesmith_forge_burst",
+      "advancedJob": "whitesmith",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.25
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_forge",
+            "name": "Защита",
+            "turns": 2,
+            "stats": {
+              "def": -0.15
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "front"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "forge burst",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_whitesmith_temper",
+      "advancedJob": "whitesmith",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.08
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_temper",
+            "name": "Натиск",
+            "turns": 2,
+            "stats": {
+              "atk": 0.12
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "forge burst",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_whitesmith_rivets",
+      "advancedJob": "whitesmith",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_rivets",
+            "name": "Защита",
+            "turns": 4,
+            "stats": {
+              "def": 0.14
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "forge burst",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_whitesmith_bellows",
+      "advancedJob": "whitesmith",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "energy",
+          "amount": 5
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "forge burst",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_creator_restorative",
+      "advancedJob": "creator",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 1.2
+        },
+        {
+          "type": "shield",
+          "pctMaxHp": 0.1
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "lowestHpPct",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "alchemy detonation",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_creator_detonation",
+      "advancedJob": "creator",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.1
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "adv_reaction",
+            "name": "Ожог",
+            "turns": 3,
+            "dot": {
+              "k": 0.2
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "front"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "alchemy detonation",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_creator_reagents",
+      "advancedJob": "creator",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.06
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": "battleStart",
+      "chance": 1,
+      "intendedSignature": "alchemy detonation",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "adv_creator_distillation",
+      "advancedJob": "creator",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 0.25
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "lowestHpPct",
+        "includeSelf": true
+      },
+      "trigger": "turnStart",
+      "chance": 0.25,
+      "intendedSignature": "alchemy detonation",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_alan_lord_knight",
+      "advancedJob": "lord_knight",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.9
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "alan_challenge",
+            "name": "Вызов Алана",
+            "turns": 2,
+            "taunt": true
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "front"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "lance impact",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_alan_paladin",
+      "advancedJob": "paladin",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.23
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "alan_oath",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": 0.2
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "oath shield",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_bran_sniper",
+      "advancedJob": "sniper",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2.8
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "bran_mark",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": -0.25
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "lowestHp"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "falcon precision",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_bran_clown",
+      "advancedJob": "clown",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 0.8
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "bran_song",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": 0.22
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": 10
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "field song",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_dorn_assassin_cross",
+      "advancedJob": "assassin_cross",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2.6
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "dorn_cut",
+            "name": "Ожог",
+            "turns": 3,
+            "dot": {
+              "k": 0.35
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "lowestHp"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "shadow cross",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_dorn_stalker",
+      "advancedJob": "stalker",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.7
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "dorn_trap",
+            "name": "Натиск",
+            "turns": 2,
+            "stats": {
+              "atk": -0.3
+            }
+          }
+        },
+        {
+          "type": "energy",
+          "amount": -10
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "disarm chain",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_greta_whitesmith",
+      "advancedJob": "whitesmith",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.18
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "greta_temper",
+            "name": "Натиск",
+            "turns": 3,
+            "stats": {
+              "atk": 0.22
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "forge burst",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_greta_creator",
+      "advancedJob": "creator",
+      "role": "healer",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 2.4
+        },
+        {
+          "type": "shield",
+          "pctMaxHp": 0.22
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "lowestHpPct",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "alchemy detonation",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_iris_lord_knight",
+      "advancedJob": "lord_knight",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2.1
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "iris_break",
+            "name": "Оглушение",
+            "turns": 1,
+            "stun": true
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "front"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "lance impact",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_iris_paladin",
+      "advancedJob": "paladin",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.3
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "iris_stand",
+            "name": "Натиск",
+            "turns": 3,
+            "stats": {
+              "atk": 0.3
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "oath shield",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_kai_high_wizard",
+      "advancedJob": "high_wizard",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.7
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "kai_balance",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": -0.25
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "elemental convergence",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_kai_professor",
+      "advancedJob": "professor",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "shield",
+          "pctMaxHp": 0.19
+        },
+        {
+          "type": "energy",
+          "amount": 12
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "counterspell lattice",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_lira_high_wizard",
+      "advancedJob": "high_wizard",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "lira_rift",
+            "name": "Срыв заклинания",
+            "turns": 1,
+            "interrupt": true
+          }
+        },
+        {
+          "type": "energy",
+          "amount": -12
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "elemental convergence",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_lira_professor",
+      "advancedJob": "professor",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 0.9
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "lira_counter",
+            "name": "Срыв заклинания",
+            "turns": 1,
+            "interrupt": true
+          }
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "lira_deny",
+            "name": "Натиск",
+            "turns": 2,
+            "stats": {
+              "atk": -0.25
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "counterspell lattice",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_meilin_sniper",
+      "advancedJob": "sniper",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.8
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "meilin_arrows",
+            "name": "Темп",
+            "turns": 2,
+            "stats": {
+              "spd": -0.3
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "falcon precision",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_meilin_gypsy",
+      "advancedJob": "gypsy",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 1.3
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "meilin_sparks",
+            "name": "Ожог",
+            "turns": 3,
+            "dot": {
+              "k": 0.3
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "explosive arrows",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_otto_whitesmith",
+      "advancedJob": "whitesmith",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "otto_stamp",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": -0.28
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "front"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "forge burst",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_otto_creator",
+      "advancedJob": "creator",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 1.05
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "otto_recipe",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": 0.2
+            }
+          }
+        },
+        {
+          "type": "shield",
+          "pctMaxHp": 0.08
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "alchemy detonation",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_teo_high_priest",
+      "advancedJob": "high_priest",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 1.15
+        },
+        {
+          "type": "energy",
+          "amount": 15
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "teo_litany",
+            "name": "Темп",
+            "turns": 3,
+            "stats": {
+              "spd": 0.12
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sanctuary",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_teo_champion",
+      "advancedJob": "champion",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2.5
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "teo_combo",
+            "name": "Натиск",
+            "turns": 3,
+            "stats": {
+              "atk": -0.2
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "nearest"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sphere combo",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_vika_high_priest",
+      "advancedJob": "high_priest",
+      "role": "healer",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 1.4
+        },
+        {
+          "type": "shield",
+          "pctMaxHp": 0.14
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "all",
+        "includeSelf": true
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sanctuary",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_vika_champion",
+      "advancedJob": "champion",
+      "role": "tank",
+      "mechanics": [
+        {
+          "type": "heal",
+          "k": 1.1
+        },
+        {
+          "type": "shield",
+          "pctMaxHp": 0.25
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "vika_fists",
+            "name": "Защита",
+            "turns": 3,
+            "stats": {
+              "def": 0.3
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "ally",
+        "pick": "self"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "sphere combo",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_zara_assassin_cross",
+      "advancedJob": "assassin_cross",
+      "role": "damage",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2.05
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "zara_cross",
+            "name": "Защита",
+            "turns": 2,
+            "stats": {
+              "def": -0.25
+            }
+          }
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "all",
+        "row": "back"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "shadow cross",
+      "existingEffect": "fx_hit"
+    },
+    {
+      "id": "ult_adv_zara_stalker",
+      "advancedJob": "stalker",
+      "role": "support",
+      "mechanics": [
+        {
+          "type": "damage",
+          "k": 2.3
+        },
+        {
+          "type": "status",
+          "status": {
+            "id": "zara_grip",
+            "name": "Оглушение",
+            "turns": 1,
+            "stun": true
+          }
+        },
+        {
+          "type": "energy",
+          "amount": -15
+        }
+      ],
+      "target": {
+        "side": "enemy",
+        "pick": "lowestHp"
+      },
+      "trigger": null,
+      "chance": 1,
+      "intendedSignature": "disarm chain",
+      "existingEffect": "fx_hit"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { veteranSkillTiles, skillTileStatus, type SkillTile } from '../heroSkillTiles';
 import { heroFooterLayout } from '../runtimeUiLayout';
 import { hintDone, markHint } from '../hints';
 import {
@@ -629,8 +630,11 @@ export class HeroScene extends Phaser.Scene {
         toast(this, `Новый навык: ${skills.join(', ')}`, C.success, 3000);
         if (this.tab === 'skills') this.renderTab();
       }
+      // При смене формы обновляем также фигуру и название профессии в статичной шапке.
+      const upgraded = r.save.heroes.find(h => h.id === hero.id)!;
+      const formChanged = heroCard(hero, GAME).job !== heroCard(upgraded, GAME).job;
       // Упёрлись в предел — на месте «Улучшить» встанет «Вознести».
-      if (!levelUpInfo(session.save, hero.id, GAME).cost) {
+      if (formChanged || !levelUpInfo(session.save, hero.id, GAME).cost) {
         this.stopHold();
         this.time.delayedCall(700, () => this.reopen({ heroId: hero.id, tab: this.tab }));
       }
@@ -784,12 +788,28 @@ export class HeroScene extends Phaser.Scene {
 
     // Плитки формы: обычная атака, ульта, навыки по уровню открытия.
     const tiles: SkillTile[] = [{ id: job0?.basic ?? '', basic: true }];
-    if (c.ult) tiles.push({ id: c.ult, ult: true, note: c.branch ? 'Доступна после выбора этой ветки' : 'Доступна с первого уровня' });
+    if (c.ult) tiles.push({ id: c.ult, ult: true, note: c.advanced ? 'Ветеран · золото и ур. 70' : c.branch ? 'Доступна после выбора этой ветки' : 'Доступна с первого уровня' });
     for (const sk of heroSkillList(hero, GAME)) {
       const gate = sk.unlocked ? null : skillRarityGate(sk.level, hero.rarity, GAME);
       tiles.push(sk.unlocked ? { id: sk.skill, note: `Открыто с ур. ${sk.level}` } : { id: sk.skill, locked: sk.level, gate: gate?.name });
     }
     y = this.skillGrid(tiles, y, power);
+
+    // Превью ветеранского ранга находится в прокручиваемой вкладке, не уплотняет шапку.
+    const veteranBranches = c.branch ? c.branches.filter(b => b.job === c.branch) : c.branches;
+    for (const b of veteranBranches) {
+      const next = b.advanced;
+      if (!next) continue;
+      const rarity = rarityDef(GAME, next.minRarity).name;
+      a.add(text(this, S.l + S.s, y + 22, `${c.advanced ? 'Ветеран' : 'Следующий ранг'}: ${next.jobName}`, T.caption, COLOR.title).setOrigin(0, 0.5));
+      y += 44;
+      a.add(text(this, S.l + S.s, y + 18, `${rarity} и выше · ур. ${next.minLevel} · автоматически`, T.caption, COLOR.textSecondary).setOrigin(0, 0.5));
+      y += 44;
+      if (!c.advanced) {
+        const preview = veteranSkillTiles(next, rarity);
+        y = this.skillGrid(preview, y, power);
+      }
+    }
 
     // Другие формы бледнее: до фиолетового — обе ветки, без ветки — обе, с веткой — другая.
     const rn = GAME.cards.rarities.find((r) => r.id === (c.branchAt ?? 'purple'))?.name ?? 'Фиолетовый';
@@ -836,7 +856,7 @@ export class HeroScene extends Phaser.Scene {
     const tx = ix + 58;
     const tw = w - 136;
     a.add(text(this, tx, cy - 112, sk?.name ?? r.id, T.caption, COLOR.textPrimary, { align: 'left', fontStyle: 'bold', wordWrap: { width: tw } }).setOrigin(0, 0));
-    const status = locked ? `Ур. ${r.locked}${r.form ? ' · другая ветка' : ''}` : r.basic ? 'Обычная атака' : r.ult ? 'Полная энергия' : r.note ?? 'Доступен';
+    const status = skillTileStatus(r);
     a.add(text(this, tx, cy + 40, status, T.caption, COLOR.textSecondary, { align: 'left', wordWrap: { width: tw } }).setOrigin(0, 0));
     if (!sk) return;
     const lockNote = locked ? (r.note ?? `Откроется на ур. ${r.locked}${r.gate ? ` · нужен ${r.gate}` : ''}`) : undefined;
@@ -1066,6 +1086,12 @@ export class HeroScene extends Phaser.Scene {
       y += S.xs;
       head(`После возвышения: ${chosen.jobName}`);
       branchStory(chosen, false);
+      if (chosen.advanced) {
+        const v = chosen.advanced;
+        head(`${c.advanced ? 'Ветеран' : 'Будущий ранг'}: ${v.jobName}`);
+        para(`${rarityDef(GAME, v.minRarity).name} и выше, уровень ${v.minLevel}. Возвышение автоматически, без сброса уровня.`, COLOR.textSecondary, T.caption);
+        branchStory(v, !c.advanced);
+      }
     }
     const others = c.branches.filter((b) => b !== chosen);
     if (others.length) {
@@ -1084,20 +1110,6 @@ export class HeroScene extends Phaser.Scene {
   }
 }
 
-interface SkillTile {
-  id: string;
-  basic?: boolean;
-  /** Уровень открытия (закрытый навык). */
-  locked?: number;
-  /** Нужна редкость (уровень выше предела текущей). */
-  gate?: string;
-  /** Навык другой ветки второй профессии. */
-  form?: boolean;
-  /** Своя подпись в листе вместо «Откроется на ур. N». */
-  note?: string;
-  /** Ульта формы (лист — «на полной энергии» вместо перезарядки). */
-  ult?: boolean;
-}
 
 /** Текст поверх арта витрины: мягкая тень вместо обводки. */
 function onArt<O extends Phaser.GameObjects.Text>(t: O): O {

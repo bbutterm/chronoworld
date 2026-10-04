@@ -99,9 +99,10 @@ export function contentSpriteIds(root: string): string[] {
     const abs = join(root, dir);
     if (!existsSync(abs)) continue;
     for (const f of readdirSync(abs).filter((n) => n.endsWith('.json'))) {
-      const data = readJson<Visual & { branches?: Visual[]; forms?: Visual[] }>(join(abs, f));
+      const data = readJson<Visual & { branches?: (Visual & { advanced?: Visual })[]; forms?: Visual[] }>(join(abs, f));
       addVisual(data);
       for (const form of [...(data?.branches ?? []), ...(data?.forms ?? [])]) addVisual(form);
+      for (const b of data?.branches ?? []) if (b.advanced) addVisual(b.advanced);
     }
   }
   // data/story: спикеры-NPC (portrait: "npc_<имя>") — лист NPC из assets/sprites/npcs, портрет вырезается из стойки.

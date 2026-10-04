@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_vika_champion",
+  "name": "Несокрушимость Вики",
+  "description": "На полной энергии. На себя: лечение 1.1 × АТК; щит 25% макс. ОЗ цели; ЗАЩ +30% на 3 хода статуса.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.1
+    },
+    {
+      "type": "shield",
+      "pctMaxHp": 0.25
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "vika_fists",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": 0.3
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

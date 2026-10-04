@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_sniper_pinning_volley",
+  "name": "Сковывающий залп",
+  "description": "Врагам заднего ряда (если пуст — переднего): урон 1.05 × АТК; СКР -22% на 2 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.05
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_pin",
+        "name": "Темп",
+        "turns": 2,
+        "stats": {
+          "spd": -0.22
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

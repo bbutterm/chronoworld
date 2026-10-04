@@ -217,7 +217,7 @@ export function ascendPreview(hero: HeroState, ctx: GameContext, choice?: string
   const pick = choice && t.branches.some((b) => b.job === choice) ? choice : undefined;
   const branch = hero.branch ?? (rarityIndex(to) >= rarityIndex(BRANCH_RARITY) ? pick : undefined);
   const f0 = activeForm(t, hero);
-  const f1 = activeForm(t, { rarity: to, branch });
+  const f1 = activeForm(t, { rarity: to, branch, level: hero.level });
   const cap0 = maxLevelOf(ctx, hero.rarity);
   const cap1 = maxLevelOf(ctx, to);
   // Новая профессия — все её навыки до нового предела (открытые уровнем — сразу); иначе — навыки, которые станут

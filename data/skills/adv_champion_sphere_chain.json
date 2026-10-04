@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_champion_sphere_chain",
+  "name": "Цепь духовных сфер",
+  "description": "Ближайшему врагу: урон 1.55 × АТК; оглушение на 1 хода статуса.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.55
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_sphere",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 6
+}

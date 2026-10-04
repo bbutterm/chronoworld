@@ -970,6 +970,8 @@ const SIGS: Record<Signature, SigDef> = {
     // Вулкан: огненный круг под мудрецом, языки пламени (союзники — аура volcano).
     hit: at(150),
     draw: (fx, k) => {
+      // BattleScene emits the mapped ground atlas once per cast; ally auras remain separate.
+      if (k.atlas?.ground) return;
       groundCircle(fx, k.c, 0xff6a20, 1.8, 1000);
       fx.rise(k.c.x, k.c.feet, 0xff8a20, 14, 110);
       fx.glow(k.c.x, k.c.feet - 30, 0xff5010, 1.2, 5, 600, 0, 0.8, T.glow, 0.5);

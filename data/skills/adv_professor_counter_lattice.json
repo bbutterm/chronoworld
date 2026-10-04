@@ -1,0 +1,42 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_professor_counter_lattice",
+  "name": "Решётка контрмагии",
+  "description": "Врагам заднего ряда (если пуст — переднего): урон 0.9 × АТК; срыв текущего каста на 1 хода статуса; АТК -15% на 2 хода статуса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_lattice",
+        "name": "Срыв заклинания",
+        "turns": 1,
+        "interrupt": true
+      }
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_lattice_atk",
+        "name": "Натиск",
+        "turns": 2,
+        "stats": {
+          "atk": -0.15
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}
