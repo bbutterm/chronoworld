@@ -18,8 +18,8 @@ const zeroReference = JSON.parse(readFileSync(join(ROOT, 'tests/fixtures/behavio
 };
 
 describe('каркас профилей', () => {
-  it('нулевой профиль: 292 полных лога совпадают с эталоном актуального темпа 04.10', () => {
-    // Эталон обновлён осознанно при изменении общего темпа, энергии и истечения статусов, действующих и без профилей.
+  it('нулевой профиль: 292 полных лога совпадают с эталоном после исправления целей и лимита 100 с', () => {
+    // Общие multihit fix и cap100 действуют и без профилей: 68 логов обновлены, 224 остались прежними.
     // Составы и seeds прежние. Обновление: npx tsx scripts/behavior-zero-fixture.ts --write; причина — в reference JSON.
     const want = JSON.parse(readFileSync(join(ROOT, 'tests/fixtures/behavior-zero-hashes.json'), 'utf8')) as Record<string, string>;
     expect(zeroReference.scenarioCount).toBe(292);

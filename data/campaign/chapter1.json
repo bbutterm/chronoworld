@@ -27,11 +27,11 @@
       "enemies": [
         {
           "unit": "mob_fabre",
-          "mult": 0.8085
+          "mult": 1.8
         },
         {
           "unit": "mob_fabre",
-          "mult": 0.8085
+          "mult": 1.8
         },
         null,
         null,

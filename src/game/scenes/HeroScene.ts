@@ -20,6 +20,7 @@ import {
   chooseBranch,
   gearUpgrades,
   heroCard,
+  heroCopyUpgradeOptions,
   heroJourney,
   heroGearStats,
   heroPower,
@@ -52,10 +53,11 @@ import { haptic } from '../haptics';
 import { bump, burst, countUp, juiceOn, pulse } from '../juice';
 import { skinIcon } from '../skin';
 import { glowTexture, GUILD_NAMES, rarityPalette, rarityPips } from '../heroCard';
-import { browseNeighbours, copyCounter, heroesUi, inventoryUi, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
+import { ascendedBranch, browseNeighbours, copyCounter, heroesUi, inventoryUi, nextLevelDelta, copySources, skillRarityGate } from '../heroesView';
 import { openBranchPicker } from '../branchPicker';
 import { openHeroJourney } from '../heroJourneyView';
 import { openHeroTraining } from '../heroTrainingView';
+import { heroCopyTextSize, heroCopyTouchHeight, openHeroUpgradeCopyPicker } from '../heroUpgradeCopyPicker';
 import { openSkillDetail } from '../skillDetail';
 import { gemIcon } from '../screen';
 import { roIconImage } from '../itemIcons';
@@ -316,12 +318,16 @@ export class HeroScene extends Phaser.Scene {
   /** Превью обеих веток (до фиолетового). */
   private previewBranches(hero: HeroState, c: HeroCard): void {
     const rn = GAME.cards.rarities.find((r) => r.id === (c.branchAt ?? 'purple'))?.name ?? 'Фиолетовый';
+    const ownPath = ascendedBranch(hero, 'purple', GAME);
     openBranchPicker(this, {
       templateId: hero.templateId,
       title: `${c.name}: ветки второй профессии`,
       heroId: hero.id,
       save: session.save,
-      subtitle: `Выбор — при вознесении в «${rn}». Первая смена ветки — бесплатно.`,
+      subtitle: ownPath
+        ? `На фиолетовом восстановится ваша профессия: ${heroCard({ ...hero, rarity: 'purple', branch: ownPath }, GAME).jobName}.`
+        : `Выбор — при вознесении в «${rn}». Первая смена ветки — бесплатно.`,
+      ...(ownPath ? { current: ownPath } : {}),
       viewOnly: true,
     });
   }
@@ -332,7 +338,6 @@ export class HeroScene extends Phaser.Scene {
     const jobName = (job: string) => branchPreview(hero.templateId, job, GAME, hero).card.jobName;
     const change = st.canChange;
     const other = change ? c.branches.find((b) => b.job !== st.branch)?.job : undefined;
-    const gems = session.save.currency.gems;
     openBranchPicker(this, {
       templateId: hero.templateId,
       title: change ? 'Сменить ветку' : 'Выберите ветку',
@@ -344,7 +349,10 @@ export class HeroScene extends Phaser.Scene {
       heroId: hero.id,
       save: session.save,
       // LT-16: гемов на смену не хватает — кнопка серая, причина над ней.
-      blocked: () => (change && !st.changeFree && gems < st.changeCost ? `Не хватает ${formatNumber(st.changeCost - gems)} гемов` : null),
+      blocked: () => {
+        const current = branchStatus(session.save, hero.id, GAME);
+        return current.blockerText ?? (change && !current.changeFree && session.save.currency.gems < current.changeCost ? `Не хватает ${formatNumber(current.changeCost - session.save.currency.gems)} гемов` : null);
+      },
       confirmLabel: (job) => (!job ? 'Выберите ветку' : change ? (st.changeFree ? `Сменить: ${jobName(job)}` : `Сменить за ${formatNumber(st.changeCost)} гемов`) : `Выбрать: ${jobName(job)}`),
       onConfirm: (job) => {
         try {
@@ -767,12 +775,14 @@ export class HeroScene extends Phaser.Scene {
       const b = button(this, S.l + S.s + 200, headY, 400, BTN.m, '', 'Выбрать ветку', () => this.pickBranch(hero, c), T.heading, { variant: 'secondary' });
       b.label.setColor(COLOR.title);
       b.container.setName('chooseBranchBtn');
+      b.setEnabled(!st.blockerText);
       a.add(b.container);
-      pulse(this, b.container, 1.05);
+      if (!st.blockerText) pulse(this, b.container, 1.05);
       head = true;
     } else if (st.canChange) {
       const b = button(this, S.l + S.s + 170, headY, 340, BTN.m, '', 'Сменить ветку', () => this.pickBranch(hero, c), T.body, { variant: 'secondary' });
       b.container.setName('changeBranchBtn');
+      b.setEnabled(!st.blockerText);
       a.add(b.container);
       const cost = st.changeFree
         ? tag(this, S.l + S.s + 340 + S.xs, headY, 'бесплатно', 'positive', { align: 'left' })
@@ -791,6 +801,11 @@ export class HeroScene extends Phaser.Scene {
       head = true;
     }
     if (head) y += BTN.m + S.s;
+    if (st.blockerText) {
+      const blocker = text(this, S.l + S.s, y, st.blockerText, T.caption, COLOR.warning, { align: 'left', wordWrap: { width: CONTENT_W - 2 * S.s, useAdvancedWrap: true } }).setOrigin(0, 0).setName('heroProfessionBlocker');
+      a.add(blocker);
+      y += blocker.height + S.s;
+    }
 
     // Плитки формы: обычная атака, ульта, навыки по уровню открытия.
     const tiles: SkillTile[] = [{ id: job0?.basic ?? '', basic: true }];
@@ -1039,6 +1054,22 @@ export class HeroScene extends Phaser.Scene {
     const goal = ellipsize(text(this, left, y, journey.nextGoal.text, T.body, COLOR.title, { align: 'left' }).setOrigin(0, 0), wrapW).setName('heroNextGoal');
     a.add(goal);
     y += goal.height + S.s;
+    if (heroCopyUpgradeOptions(session.save, hero.id, GAME).length) {
+      const touchH = heroCopyTouchHeight();
+      const develop = button(this, GAME_W / 2, y + touchH / 2, wrapW, touchH, '', 'Развить спутника', a.tap(() => {
+        openHeroUpgradeCopyPicker(this, hero.id, {
+          lock: a,
+          onChange: () => this.reopen({ heroId: hero.id, tab: 'story' }),
+          onInspect: copyId => this.scene.start('Hero', {
+            heroId: copyId,
+            tab: 'story',
+            back: { to: 'Hero', data: { heroId: hero.id, tab: 'story', back: this.back } },
+          } satisfies HeroData),
+        });
+      }), heroCopyTextSize(T.body), { variant: 'secondary' });
+      a.add(develop.container.setName('heroDevelopCompanion'));
+      y += touchH + S.m;
+    }
     const actionW = (wrapW - S.s) / 2;
     const entries = [
       { label: 'Вехи пути', name: 'heroJourneyBtn', open: () => openHeroJourney(this, hero.id, { lock: a, onChange: () => this.reopen({ heroId: hero.id, tab: 'story' }) }) },

@@ -11,8 +11,12 @@ const h = vi.hoisted(() => {
     constructor(x = 0, y = 0, text = '') { this.x = x; this.y = y; this.text = text; }
     add(items: Node | Node[]) { for (const n of [items].flat()) { n.parentContainer = this; this.list.push(n); } return this; }
     removeAll(destroy: boolean) { if (destroy) this.list.forEach((n) => n.destroy()); this.list = []; return this; }
-    destroy() { this.removeAll(true); this.scene = undefined; this.handlers = {}; }
+    destroy() { this.emit('destroy'); this.removeAll(true); this.scene = undefined; this.handlers = {}; }
     on(event: string, fn: (...args: any[]) => void) { (this.handlers[event] ??= []).push(fn); return this; }
+    once(event: string, fn: (...args: any[]) => void) {
+      const once = (...args: any[]) => { this.handlers[event] = (this.handlers[event] ?? []).filter((h) => h !== once); fn(...args); };
+      return this.on(event, once);
+    }
     emit(event: string, ...args: any[]) { for (const fn of [...(this.handlers[event] ?? [])]) fn(...args); }
     setName(n: string) { this.name = n; return this; }
     setText(t: string) { this.text = t; return this; }
@@ -26,7 +30,7 @@ const h = vi.hoisted(() => {
   }
   return { Node, save: undefined as unknown as SaveState, commits: [] as SaveState[], now: 1000 };
 });
-vi.mock('phaser', () => ({ default: { BlendModes: { ADD: 1 } } }));
+vi.mock('phaser', () => ({ default: { BlendModes: { ADD: 1 }, Scenes: { Events: { SHUTDOWN: 'shutdown' } }, GameObjects: { Events: { DESTROY: 'destroy' } } } }));
 vi.mock('../src/game/content', async () => ({ GAME: (await import('../scripts/lib/content-node')).loadFullContext() }));
 vi.mock('../src/game/session', () => ({ session: { get save() { return h.save; } }, commit: (save: SaveState) => { h.save = save; h.commits.push(save); } }));
 vi.mock('../src/game/audio', () => ({ sfx: () => {} }));

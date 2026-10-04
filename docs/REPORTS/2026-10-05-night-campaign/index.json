@@ -1,0 +1,83 @@
+{
+  "campaignStages": 180,
+  "fullFreshRuns": [
+    {
+      "artifact": "after-companions-seed1-summary.json",
+      "status": "complete",
+      "seedBase": 1,
+      "policy": "free_fast_rewards_when_rarity_capped_and_original_companions",
+      "cleared": 180,
+      "totalWaits": 24,
+      "elapsedHours": 300.795,
+      "attempts": 564,
+      "campaignLosses": 384,
+      "cpuTimeSeconds": 56.036
+    },
+    {
+      "artifact": "after-rational-seed1-summary.json",
+      "status": "complete",
+      "seedBase": 1,
+      "policy": "free_fast_rewards_when_rarity_capped",
+      "cleared": 180,
+      "totalWaits": 31,
+      "elapsedHours": 389.88,
+      "attempts": 689,
+      "campaignLosses": 509,
+      "cpuTimeSeconds": 79.161
+    },
+    {
+      "artifact": "after-rational-seed2-summary.json",
+      "status": "complete",
+      "seedBase": 2,
+      "policy": "free_fast_rewards_when_rarity_capped",
+      "cleared": 180,
+      "totalWaits": 33,
+      "elapsedHours": 412.828,
+      "attempts": 774,
+      "campaignLosses": 594,
+      "cpuTimeSeconds": 78.419
+    },
+    {
+      "artifact": "after-rational-seed3-summary.json",
+      "status": "complete",
+      "seedBase": 3,
+      "policy": "free_fast_rewards_when_rarity_capped",
+      "cleared": 180,
+      "totalWaits": 29,
+      "elapsedHours": 361.667,
+      "attempts": 637,
+      "campaignLosses": 457,
+      "cpuTimeSeconds": 69.938
+    },
+    {
+      "artifact": "baseline-naive-summary.json",
+      "status": "complete",
+      "seedBase": 1,
+      "policy": "all_affordable_fast_rewards",
+      "cleared": 180,
+      "totalWaits": 48,
+      "elapsedHours": 603.848,
+      "attempts": 992,
+      "campaignLosses": 812,
+      "cpuTimeSeconds": null
+    },
+    {
+      "artifact": "baseline-rational-summary.json",
+      "status": "complete",
+      "seedBase": 1,
+      "policy": "free_fast_rewards_when_rarity_capped",
+      "cleared": 180,
+      "totalWaits": 37,
+      "elapsedHours": 465.358,
+      "attempts": 783,
+      "campaignLosses": 603,
+      "cpuTimeSeconds": null
+    }
+  ],
+  "controlledIdentityRepeats": "model-optimization-proof.json",
+  "preciseBeforeFirstWinEvidence": [
+    "first-win-evidence-seed2.json",
+    "first-win-evidence-seed3.json"
+  ],
+  "coverageLimit": "Limited squad/branch/arena heuristic, core-only simulated play, not an optimality or physical-device UI proof."
+}

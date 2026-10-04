@@ -113,7 +113,6 @@ export function modeBanner(scene: Phaser.Scene, x: number, y: number, w: number,
   const shape = scene.make.graphics({}, false);
   shape.fillStyle(0xffffff, 1).fillRoundedRect(left, top, w, h, R.l);
   const mask = shape.createGeometryMask();
-  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => shape.destroy());
   const clip = <G extends Phaser.GameObjects.Components.Mask>(g: G): G => g.setMask(mask);
   clip(scene.add.graphics().fillGradientStyle(o.colors[0], o.colors[0], o.colors[1], o.colors[1], 1).fillRect(left, top, w, h));
   if (o.backdrop) {
@@ -152,11 +151,26 @@ export function modeBanner(scene: Phaser.Scene, x: number, y: number, w: number,
         clip(s);
         if (!o.open) s.setTint(0x0c0a08).setAlpha(0.85);
         else if (f.tint !== undefined) s.setTint(f.tint);
-        scene.children.moveBelow(s, shade);
+        if (shade.parentContainer) {
+          shade.parentContainer.add(s);
+          shade.parentContainer.moveBelow<Phaser.GameObjects.GameObject>(s, shade);
+        } else scene.children.moveBelow(s, shade);
       },
     });
   });
   const frame = plate(scene, x, y, w, h, { fill: COLOR.bg, alpha: 0, border: o.open ? COLOR.border : '#3a3226', borderW: 4, r: R.l, hl: o.open ? 0.18 : 0 }).setName(o.name);
+  // GeometryMask не наследует перемещение контейнера: при прокрутке маска следует за рамкой баннера.
+  const moveMask = () => {
+    const matrix = frame.getWorldTransformMatrix();
+    shape.setPosition(matrix.tx - x, matrix.ty - y);
+  };
+  scene.events.on(Phaser.Scenes.Events.PRE_RENDER, moveMask);
+  frame.setData('bannerMask', shape);
+  frame.once(Phaser.GameObjects.Events.DESTROY, () => {
+    scene.events.off(Phaser.Scenes.Events.PRE_RENDER, moveMask);
+    mask.destroy();
+    shape.destroy();
+  });
   const tx = left + S.l;
   if (footer) {
     // No nested badge frames: a solid, quiet surface makes both lines independent of the artwork.

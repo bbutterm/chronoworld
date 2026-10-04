@@ -255,14 +255,20 @@ export function sanitizeSave(
       ? Object.fromEntries(Object.entries(h.journey.branchLevels).filter(([job]) => t.branches.some((b) => b.job === job)))
       : undefined;
     const badJourney = validJourney !== undefined && Object.keys(validJourney).length !== Object.keys(h.journey!.branchLevels!).length;
-    if (rarity === h.rarity && level === h.level && !badBranch && !badJourney) return [h];
+    const badLastBranch = h.journey?.lastBranch !== undefined && !t.branches.some((b) => b.job === h.journey!.lastBranch);
+    const restoredBranch = (h.branch === undefined || badBranch) && rarities.indexOf(rarity) >= rarities.indexOf(BRANCH_RARITY)
+      && !badLastBranch ? h.journey?.lastBranch : undefined;
+    if (rarity === h.rarity && level === h.level && !badBranch && !badJourney && !badLastBranch && !restoredBranch) return [h];
     changed = true;
     if (rarity !== h.rarity || level !== h.level) warnings.push(`${t.name}: редкость и уровень приведены к правилам карточки.`);
-    if (badBranch) warnings.push(`${t.name}: ветка второй профессии сброшена — выберите её заново.`);
-    if (badJourney) warnings.push(`${t.name}: неизвестные профессии в личной истории удалены.`);
+    if (badBranch) warnings.push(restoredBranch ? `${t.name}: ветка второй профессии восстановлена по личному пути.` : `${t.name}: ветка второй профессии сброшена — выберите её заново.`);
+    if (badJourney || badLastBranch) warnings.push(`${t.name}: неизвестные профессии в личной истории удалены.`);
+    const { lastBranch: _lastBranch, ...withoutLastBranch } = h.journey ?? {};
+    const journey = badLastBranch ? withoutLastBranch : h.journey;
     const { branch: _b, ...rest } = h;
     return [{ ...(badBranch ? rest : h), rarity, level,
-      ...(badJourney ? { journey: { ...h.journey, branchLevels: validJourney } } : {}) }];
+      ...(restoredBranch ? { branch: restoredBranch } : {}),
+      ...(badJourney || badLastBranch ? { journey: { ...journey, ...(badJourney ? { branchLevels: validJourney } : {}) } } : {}) }];
   });
   // Старые карточки получают устойчивого личного героя без изменения ID, экипировки или профессии.
   const companions = new Map<string, typeof heroes[number]>();

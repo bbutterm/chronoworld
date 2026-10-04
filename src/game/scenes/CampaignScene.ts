@@ -16,7 +16,7 @@ import { campaignLayout, campaignPages } from '../runtimeUiLayout';
 import { GAME_W } from '../layout';
 import { confirm, confirmOpen, CONTENT_TOP, contentBottom, unitFigure, cta, dot, gemIcon, NAV_H, NAV_TAB_W, navTabX, navY, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
-import { BTN, button, chip, ellipsize, mixHex, plate, pressable, SURFACE, text, toast, tutorialHint, type ButtonView } from '../ui';
+import { BTN, button, chip, ellipsize, mixHex, plate, pressable, ScrollArea, SURFACE, text, toast, tutorialHint, type ButtonView } from '../ui';
 import { C, COLOR, COLOR_N, E, M, R, S, T, TOUCH } from '../theme';
 import { SKIN_TINT, skinIcon } from '../skin';
 import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
@@ -27,6 +27,7 @@ import { ChestCardView, lootLines, lootSummary, type ChestState } from '../chest
 import { campaignObjective, chestArt, nodeLabeled } from '../campaignView';
 import { rewardIcon } from '../rewardsView';
 import { touchToday } from '../homeEvents';
+import { minimumFontSize, onViewChange } from '../viewport';
 
 /** Узел этапа на тропе (босс — ×1.25). */
 const NODE = 120;
@@ -65,7 +66,13 @@ export function labelRoom(pos: readonly { x: number; y: number }[], stages: read
 
 /** Кампания: этапы главы снизу вверх, как тропа (закрыт / открыт / пройден / босс), сундук и «В бой». */
 export class CampaignScene extends Phaser.Scene {
-  private get layout() { return campaignLayout(contentBottom()); }
+  private get layout() { return campaignLayout(contentBottom(), this.mapStageCount, this.compactLayout); }
+
+  private compactLayout = false;
+  private mapStageCount = 5;
+  private mapArea?: ScrollArea;
+  private footer: Phaser.GameObjects.GameObject[] = [];
+  private footerBottom = 0;
 
   private chapterIndex = 0;
   private chestView?: ChestCardView;
@@ -87,12 +94,19 @@ export class CampaignScene extends Phaser.Scene {
     this.hintId = null;
     this.hintView = null;
     this.chestPulsing = false;
+    // Telegram сообщает insets асинхронно: scroll-body нужен уже до первого сокращения безопасной высоты.
+    this.compactLayout = true;
+    this.mapArea = undefined;
+    this.mapStageCount = 5;
+    this.footer = [];
     // Сцена-синглтон живёт всю игру: после выхода не держать её уничтоженные объекты (npm run perf — «dead»).
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.hintView = null;
       this.chestImg = this.chestRays = this.chestGlow = undefined;
       this.chestView = undefined;
       this.claimBtn = undefined;
+      this.mapArea = undefined;
+      this.footer = [];
     });
     restartOnNewDay(this);
     // Засчитать сегодняшний вход и доставить письма до навигации — её значок «Город» их учитывает.
@@ -111,12 +125,31 @@ export class CampaignScene extends Phaser.Scene {
     const bg = screenBackground(this);
     if (bg) setThemeBackground(bg, 'map', themeOfChapter(chapter.id));
 
-    this.add.rectangle(GAME_W / 2, (this.layout.squadY - 135 + contentBottom()) / 2, GAME_W, contentBottom() - this.layout.squadY + 135, COLOR_N.surface);
+    if (this.compactLayout) {
+      this.mapArea = new ScrollArea(this, this.layout.bodyTop, this.layout.bodyBottom);
+      this.mapArea.content.setName('campaignMapScroll');
+    } else this.add.rectangle(GAME_W / 2, (this.layout.squadY - 135 + contentBottom()) / 2, GAME_W, contentBottom() - this.layout.squadY + 135, COLOR_N.surface);
     this.map(chapter.id, ci, chapters.length, data?.page);
-    this.squadStrip();
+    this.intoMapFlow(() => this.squadStrip());
+    this.mapArea?.setContentHeight(this.layout.bodyHeight);
+    const footerBefore = new Set(this.children.list);
+    const footerTop = this.compactLayout ? this.layout.bodyBottom + 12 : this.layout.squadY - 135;
+    if (this.compactLayout) this.add.rectangle(GAME_W / 2, (footerTop + contentBottom()) / 2, GAME_W, contentBottom() - footerTop, COLOR_N.surface);
     this.fastRewards();
     this.fightCta();
     this.chest();
+    this.footer = this.children.list.filter((o) => !footerBefore.has(o));
+    this.footerBottom = contentBottom();
+    onViewChange(this, () => {
+      const bottom = contentBottom();
+      const dy = bottom - this.footerBottom;
+      for (const o of this.footer) if (o.scene && 'y' in o) (o as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform).y += dy;
+      this.footerBottom = bottom;
+      this.mapArea?.setBounds(this.layout.bodyTop, this.layout.bodyBottom);
+      this.hintView?.destroy();
+      this.hintView = null;
+      this.hintId = null;
+    });
 
     this.refresh();
     // Сундук считаем раз в секунду, а не каждый кадр.
@@ -174,21 +207,24 @@ export class CampaignScene extends Phaser.Scene {
     const auto = cur >= 0 ? pageOf(cur) : all.every((s) => stageStatus(session.save, s.id, GAME) === 'cleared') ? pages.length - 1 : 0;
     const page = Phaser.Math.Clamp(pageArg ?? auto, 0, pages.length - 1);
     const stages = all.slice(pages[page].from, pages[page].to);
+    this.mapStageCount = stages.length;
     const paged = pages.length > 1;
     const cleared = all.filter((s) => stageStatus(session.save, s.id, GAME) === 'cleared').length;
     text(this, GAME_W / 2, CONTENT_TOP + 108, `Глава ${ci + 1} · ${cleared} / ${all.length}`, T.caption, COLOR.textSecondary).setName('chapterProgress');
     const toPage = (p: number, up: boolean, y: number, name: string) => {
       const pg = pages[p];
       const w = 220;
-      const b = button(this, GAME_W - 40 - w / 2, y, w, BTN.m, '', `${pg.from + 1}–${pg.to}`, () => this.scene.restart({ chapter: ci, page: p }), T.body, { variant: 'secondary' });
+      const x = this.compactLayout && !up ? 40 + w / 2 : GAME_W - 40 - w / 2;
+      const b = button(this, x, y, w, this.compactLayout ? 132 : BTN.m, '', `${pg.from + 1}–${pg.to}`, () => this.scene.restart({ chapter: ci, page: p }), T.body, { variant: 'secondary' });
       b.label.setX(22);
       b.container.add(this.add.image(22 - b.label.width / 2 - 30, 0, skinIcon('next')).setDisplaySize(36, 36).setAngle(up ? -90 : 90).setTint(COLOR_N.title));
       b.container.setName(name);
     };
-    if (page < pages.length - 1) toPage(page + 1, true, CONTENT_TOP + 150, 'mapPageUp');
-    if (page > 0) toPage(page - 1, false, CONTENT_TOP + (page < pages.length - 1 ? 150 + BTN.m + S.xs : 150), 'mapPageDown');
+    if (page < pages.length - 1) toPage(page + 1, true, CONTENT_TOP + (this.compactLayout ? 134 : 150), 'mapPageUp');
+    if (page > 0) toPage(page - 1, false, CONTENT_TOP + (this.compactLayout ? 134 : page < pages.length - 1 ? 150 + BTN.m + S.xs : 150), 'mapPageDown');
     // Участком — ниже кнопок участков и «Истории» (верхний узел не под ними).
-    const top = paged ? this.layout.mapTop + 40 : this.layout.mapTop;
+    const before = new Set(this.children.list);
+    const top = paged && !this.compactLayout ? this.layout.mapTop + 40 : this.layout.mapTop;
     const objective = campaignObjective(chapterId, session.save.campaign.cleared);
     const bottom = this.layout.mapBottom;
     if (objective) {
@@ -198,7 +234,7 @@ export class CampaignScene extends Phaser.Scene {
     }
     const step = stages.length > 1 ? (bottom - top) / (stages.length - 1) : 0;
     // Тропа змейкой снизу вверх (как в референсе владельца), подпись — с той стороны, где больше места.
-    const pos = stages.map((_, i) => ({ x: GAME_W / 2 + Math.sin(i * 1.05 + 0.4) * 250, y: bottom - step * i }));
+    const pos = stages.map((_, i) => ({ x: GAME_W / 2 + Math.sin(i * 1.05 + 0.4) * 250, y: this.compactLayout ? top + step * i : bottom - step * i }));
 
     if (pos.length > 1) {
       const curve = new Phaser.Curves.Spline(pos.map((p) => new Phaser.Math.Vector2(p.x, p.y)));
@@ -248,8 +284,26 @@ export class CampaignScene extends Phaser.Scene {
 
     // «История» (P3): пересмотр увиденных сцен главы. Слева вверху, под стрелкой глав: там нет узлов и подписей этапов.
     if (seenChapterScenes(session.save, chapterId, GAME).length) {
-      button(this, 40 + 110, CONTENT_TOP + 150, 220, BTN.m, '', 'История', () => openStoryHistory(this, chapterId), T.body, { variant: 'secondary' }).container.setName('historyBtn');
+      button(this, 40 + 110, this.compactLayout ? this.layout.objectiveY + 100 : CONTENT_TOP + 150, 220, this.compactLayout ? 132 : BTN.m, '', 'История', () => openStoryHistory(this, chapterId), T.body, { variant: 'secondary' }).container.setName('historyBtn');
     }
+    this.moveIntoMapFlow(before);
+    if (this.mapArea && cur >= pages[page].from && cur < pages[page].to) {
+      this.mapArea.setContentHeight(this.layout.bodyHeight);
+      this.mapArea.offset = Math.max(0, pos[cur - pages[page].from].y - this.layout.bodyTop - (this.layout.bodyBottom - this.layout.bodyTop) / 2);
+    }
+  }
+
+  private intoMapFlow(draw: () => void): void {
+    const before = new Set(this.children.list);
+    draw();
+    this.moveIntoMapFlow(before);
+  }
+
+  private moveIntoMapFlow(before: Set<Phaser.GameObjects.GameObject>): void {
+    if (!this.mapArea) return;
+    const items = this.children.list.filter((o) => !before.has(o));
+    for (const o of items) if ('y' in o) (o as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform).y -= this.layout.bodyTop;
+    this.mapArea.content.add(items);
   }
 
   /** Текущий этап: золотое кольцо вокруг узла, один пульс при входе (дальше спокойно — не мельтешит). */
@@ -277,7 +331,7 @@ export class CampaignScene extends Phaser.Scene {
     const lx = lxOf(right) + (right ? S.xs : -S.xs);
     const room = roomOf(right);
     name.setX(lx).setOrigin(right ? 0 : 1, 0.5);
-    if (name.width > room) name.setFontSize(T.caption);
+    if (name.width > room) name.setFontSize(Math.max(T.caption, minimumFontSize()));
     ellipsize(name, room);
     const pw = name.displayWidth + 2 * S.xs + 8;
     const px = right ? lx - S.xs + pw / 2 : lx + S.xs - pw / 2;
@@ -302,8 +356,9 @@ export class CampaignScene extends Phaser.Scene {
   /** Actual formation, with the same editor and return route used by preparation. */
   private squadStrip(): void {
     const edit = () => this.scene.start('Squad', { back: { to: 'Campaign', data: { chapter: this.chapterIndex } } });
-    text(this, 48, this.layout.squadY - 116, 'Отряд', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
-    const editButton = button(this, 860, this.layout.squadY - 116, 344, 96, '', 'Изменить отряд', edit, T.caption, { variant: 'secondary' });
+    const headerY = this.layout.squadY - (this.compactLayout ? 164 : 116);
+    text(this, 48, headerY, 'Отряд', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
+    const editButton = button(this, 860, headerY, 344, this.compactLayout ? 132 : 96, '', this.compactLayout ? 'Изменить' : 'Изменить отряд', edit, T.caption, { variant: 'secondary' });
     editButton.container.setName('campaignSquadEdit');
     Array.from({ length: 5 }, (_, i) => {
       const hero = session.save.heroes.find((h) => h.id === session.save.squad[i]);
@@ -312,7 +367,13 @@ export class CampaignScene extends Phaser.Scene {
       card.setName(`campaignSquad_${i}`);
       pressable(this, card, 184, 160, edit);
       if (hero) {
-        unitFigure(this, heroSprite(hero, GAME), x, this.layout.squadY + 22, 104, { maxScale: 1.4 });
+        unitFigure(this, heroSprite(hero, GAME), x, this.layout.squadY + 22, 104, { maxScale: 1.4, onReady: (sprite) => {
+          if (!card.scene) { sprite.destroy(); return; }
+          if (card.parentContainer && this.mapArea) {
+            sprite.y -= this.layout.bodyTop;
+            card.parentContainer.add(sprite);
+          }
+        } });
         ellipsize(text(this, x, this.layout.squadY + 56, heroCard(hero, GAME).name, T.caption, COLOR.textPrimary), 172);
       } else text(this, x, this.layout.squadY, 'Пусто', T.caption, COLOR.textSecondary);
     });

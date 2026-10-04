@@ -1,0 +1,3802 @@
+{
+  "scope": [
+    "Campaign",
+    "Adventure"
+  ],
+  "fixtures": "Private new/late profiles; no production writes",
+  "manifest": {
+    "worktree": "/workspace/chronoworld-worktrees/night-ui-runtime",
+    "base": "d71207a90c677b74089c12159b367d24bd99da98",
+    "scope": "Компактные Campaign/Adventure и общая раскладка; только эти две сцены production allowlist",
+    "files": [
+      {
+        "path": "src/game/viewLayout.ts",
+        "sha256": "c6a48efbd7fc92ef3732df3692e4c7ab874b9690635be4a6ecb4117c24ceb989"
+      },
+      {
+        "path": "src/game/viewport.ts",
+        "sha256": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      {
+        "path": "src/game/screen.ts",
+        "sha256": "128f03b19bba0bd27cc7c3d987822928737b8b688edbbb335e92c61e01be169a"
+      },
+      {
+        "path": "src/game/ui.ts",
+        "sha256": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418"
+      },
+      {
+        "path": "src/game/scroll.ts",
+        "sha256": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0"
+      },
+      {
+        "path": "src/game/featureTiles.ts",
+        "sha256": "68f3e0b142924ae250c12c167d402eacef56db910f04a631f0ef8c7c4c08726b"
+      },
+      {
+        "path": "src/game/runtimeUiLayout.ts",
+        "sha256": "f89655fd41e62f12fc4c8fc9a453edb9c3addfd303a96267911a13ab7ad6668a"
+      },
+      {
+        "path": "src/game/scenes/CampaignScene.ts",
+        "sha256": "f36c09ccbf71c1431af32c577899f7003a8b00cc8bfc916415423e9a889fc8a2"
+      },
+      {
+        "path": "src/game/scenes/AdventureScene.ts",
+        "sha256": "f86bcc3b1df0d66773ee744aca73e8574d51d57b2f468e7394c3eb263370cdbe"
+      },
+      {
+        "path": "src/game/storyPage.ts",
+        "sha256": "8e9f118d1176f2a32ad3a416c52f66e20462723000561d322777317fadcbf874"
+      },
+      {
+        "path": "src/game/dialogue.ts",
+        "sha256": "a8db250ebe7b652430973ede66146a5b514a01e79404186cb3ff160d99ca13f3"
+      },
+      {
+        "path": "src/game/unlockBanner.ts",
+        "sha256": "97dc6299feb4021ab901673d2cffb3e12a4dfc97fd9a8493befc302e4dc6dc0f"
+      },
+      {
+        "path": "tests/compact-viewport.test.ts",
+        "sha256": "ab9d0110827987533bc9b9f6a93db56278ad4a6ed8257158bd31b98b5fc62da6"
+      },
+      {
+        "path": "tests/adventure-status-refresh.test.ts",
+        "sha256": "b4007a4d1980276521ea5e4fffae30628874382435448c94e2b50c5f2ef6b13e"
+      },
+      {
+        "path": "tests/campaign-choice-ui.test.ts",
+        "sha256": "b525d199612e0a20a201ab6c98c86f2e05a57d6e412a148cbe3220bcfc232101"
+      },
+      {
+        "path": "tests/notice-modal.test.ts",
+        "sha256": "518f9a64b27d66d0948008d4c752ac38191b8686346c0e15778941b398a29f48"
+      },
+      {
+        "path": "tests/settings-layout.test.ts",
+        "sha256": "0843a69b72c7d0414e511bf50bd5f8d88a7f31ba3a76980a641d3c04ef422a3e"
+      }
+    ],
+    "critical_already_integrated": [
+      "src/game/backdrops.ts",
+      "src/game/backgroundCache.ts",
+      "tests/background-texture-lifecycle.test.ts"
+    ],
+    "build": "npm run build PASS index-GDWgpTnL.js",
+    "focused": "61 PASS (7 files): compact8 + runtimeUI10 + Adventure5 + choice16 + cache7 + viewport/frame15",
+    "browser_reports": [
+      "/tmp/night-ui-runtime/adaptive-scenes/report.json",
+      "/tmp/night-ui-runtime/adaptive-final/report.json",
+      "/tmp/night-ui-runtime/adaptive-choice/report.json",
+      "/tmp/night-ui-runtime/adaptive-compiled/report.json",
+      "/tmp/night-ui-runtime/adaptive-cold/report.json"
+    ],
+    "notes": [
+      "Предыдущий adaptive-final late Canvas Adventure-return был Campaign: nav перехватил поздний сюжет; завершающий choice и production compiled проверяют реальную сцену Adventure и проходят.",
+      "Два существующих harness получили только missing ScrollArea/Events/once mock APIs, исходные ожидания сохранены.",
+      "Scene START выбирает политику до create; UI resize не перезапускает сцены.",
+      "Story/page/dialogue/sheet/banner сохраняют состояние и safe placement; остальные игровые сцены остаются classic до отдельной адаптации."
+    ],
+    "cold_intro": "6 shots: actual final paragraph scroll, open resize640/760/640, real Next changes page, real Skip returns map; all 0 errors/source-null",
+    "compiled": "14 snapshots; actual scene assertions pass Campaign→Stage→Battle→Result→Campaign→Adventure, monotonic render heartbeat",
+    "cpu": "All owned browser contexts closed; Vite5511/preview5516 stopped",
+    "followup": "40 tests in notice-modal/settings-layout/compact-viewport/ui-lint PASS; only missing Graphics.destroy mocks and common drawMask in ui.ts, no expectations/baseline changes"
+  },
+  "reports": [
+    {
+      "report": "adaptive-scenes",
+      "mode": "late-webgl",
+      "errors": [],
+      "choice": null,
+      "steps": [
+        {
+          "label": "Home-classic",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 48,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-compact",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 70,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-drag",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 102,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": -298,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-first",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 130,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-compact",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 156,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-formation",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 186,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -710,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize760",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1770,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 744,
+            "backW": 360,
+            "backH": 744,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2232,
+            "safeTop": 0,
+            "safeBottom": 1770
+          },
+          "frames": 211,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                1064
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize640",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 236,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Stage-classic",
+          "scene": "Stage",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1920,
+            "compact": false,
+            "cssLeft": 0,
+            "cssTop": 47.875,
+            "cssW": 360,
+            "cssH": 592.1249999999999,
+            "backW": 360,
+            "backH": 592,
+            "density": 1,
+            "zoom": 0.24479166666666666,
+            "worldX": -195.31914893617022,
+            "worldY": -360,
+            "worldW": 1470.6382978723404,
+            "worldH": 2418.8936170212764,
+            "safeTop": 0,
+            "safeBottom": 1920
+          },
+          "frames": 274,
+          "badFrames": 0,
+          "nav": [],
+          "scrolls": [
+            {
+              "name": "",
+              "y": 1188,
+              "clip": [
+                1188,
+                1704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-return",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 299,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-return",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 320,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        }
+      ]
+    },
+    {
+      "report": "adaptive-scenes",
+      "mode": "fresh-webgl",
+      "errors": [],
+      "choice": null,
+      "steps": [
+        {
+          "label": "Home-classic",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 44,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-compact",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 64,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-drag",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 94,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": -298,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-first",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 102,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-compact",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 112,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-formation",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 123,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -710,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize760",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1770,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 744,
+            "backW": 360,
+            "backH": 744,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2232,
+            "safeTop": 0,
+            "safeBottom": 1770
+          },
+          "frames": 137,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                1064
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize640",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 152,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Stage-classic",
+          "scene": "Stage",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1920,
+            "compact": false,
+            "cssLeft": 0,
+            "cssTop": 47.875,
+            "cssW": 360,
+            "cssH": 592.1249999999999,
+            "backW": 360,
+            "backH": 592,
+            "density": 1,
+            "zoom": 0.24479166666666666,
+            "worldX": -195.31914893617022,
+            "worldY": -360,
+            "worldW": 1470.6382978723404,
+            "worldH": 2418.8936170212764,
+            "safeTop": 0,
+            "safeBottom": 1920
+          },
+          "frames": 183,
+          "badFrames": 0,
+          "nav": [],
+          "scrolls": [
+            {
+              "name": "",
+              "y": 1188,
+              "clip": [
+                1188,
+                1704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-return",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 199,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-return",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 215,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        }
+      ]
+    },
+    {
+      "report": "adaptive-scenes",
+      "mode": "late-canvas",
+      "errors": [],
+      "choice": null,
+      "steps": [
+        {
+          "label": "Home-classic",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 45,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-compact",
+          "scene": "Adventure",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 72,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-drag",
+          "scene": "Adventure",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 110,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": -298,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-first",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 140,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-compact",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 158,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-formation",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 184,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -710,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize760",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1770,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 744,
+            "backW": 360,
+            "backH": 744,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2232,
+            "safeTop": 0,
+            "safeBottom": 1770
+          },
+          "frames": 202,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                1064
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize640",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 227,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Stage-classic",
+          "scene": "Stage",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1920,
+            "compact": false,
+            "cssLeft": 0,
+            "cssTop": 47.875,
+            "cssW": 360,
+            "cssH": 592.1249999999999,
+            "backW": 360,
+            "backH": 592,
+            "density": 1,
+            "zoom": 0.24479166666666666,
+            "worldX": -195.31914893617022,
+            "worldY": -360,
+            "worldW": 1470.6382978723404,
+            "worldH": 2418.8936170212764,
+            "safeTop": 0,
+            "safeBottom": 1920
+          },
+          "frames": 254,
+          "badFrames": 0,
+          "nav": [],
+          "scrolls": [
+            {
+              "name": "",
+              "y": 1188,
+              "clip": [
+                1188,
+                1704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-return",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 269,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-return",
+          "scene": "Adventure",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 296,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        }
+      ]
+    },
+    {
+      "report": "adaptive-choice",
+      "mode": "late-webgl",
+      "errors": [],
+      "choice": {
+        "before": {
+          "choice": null,
+          "commits": 0
+        },
+        "after": {
+          "choice": "block",
+          "commits": 1,
+          "sceneSeen": false,
+          "remaining": 0
+        }
+      },
+      "steps": [
+        {
+          "label": "Choice-open",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 192,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Choice-resize760",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1770,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 744,
+            "backW": 360,
+            "backH": 744,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2232,
+            "safeTop": 0,
+            "safeBottom": 1770
+          },
+          "frames": 211,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                1064
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Choice-resize640",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 231,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Choice-picked",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 268,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Adventure-return",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 512,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        }
+      ]
+    },
+    {
+      "report": "adaptive-choice",
+      "mode": "late-canvas",
+      "errors": [],
+      "choice": {
+        "before": {
+          "choice": null,
+          "commits": 0
+        },
+        "after": {
+          "choice": "block",
+          "commits": 1,
+          "sceneSeen": false,
+          "remaining": 0
+        }
+      },
+      "steps": [
+        {
+          "label": "Choice-open",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 326,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Choice-resize760",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1770,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 744,
+            "backW": 360,
+            "backH": 744,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2232,
+            "safeTop": 0,
+            "safeBottom": 1770
+          },
+          "frames": 355,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                1064
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Choice-resize640",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 389,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Choice-picked",
+          "scene": "Campaign",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 450,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Adventure-return",
+          "scene": "Adventure",
+          "renderer": 1,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 712,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        }
+      ]
+    },
+    {
+      "report": "adaptive-compiled",
+      "mode": "late-webgl",
+      "errors": [],
+      "choice": null,
+      "steps": [
+        {
+          "label": "Initial-booted",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 4,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            },
+            {
+              "name": "storyPageScroll",
+              "y": 170,
+              "clip": [
+                170,
+                1175
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Initial-Campaign",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 53,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-compact",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 75,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-drag",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 107,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": -298,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-first",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 134,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-compact",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 162,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-formation",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 193,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -710,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize760",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1770,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 744,
+            "backW": 360,
+            "backH": 744,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2232,
+            "safeTop": 0,
+            "safeBottom": 1770
+          },
+          "frames": 218,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                1064
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Campaign-resize640",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 244,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": -350,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Stage-classic",
+          "scene": "Stage",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1920,
+            "adaptive": false,
+            "compact": false,
+            "cssLeft": 0,
+            "cssTop": 47.875,
+            "cssW": 360,
+            "cssH": 592.1249999999999,
+            "backW": 360,
+            "backH": 592,
+            "density": 1,
+            "zoom": 0.24479166666666666,
+            "worldX": -195.31914893617022,
+            "worldY": -360,
+            "worldW": 1470.6382978723404,
+            "worldH": 2418.8936170212764,
+            "safeTop": 0,
+            "safeBottom": 1920
+          },
+          "frames": 285,
+          "badFrames": 0,
+          "nav": [],
+          "scrolls": [
+            {
+              "name": "",
+              "y": 1188,
+              "clip": [
+                1188,
+                1704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Battle-classic",
+          "scene": "Battle",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1920,
+            "adaptive": false,
+            "compact": false,
+            "cssLeft": 0,
+            "cssTop": 47.875,
+            "cssW": 360,
+            "cssH": 592.1249999999999,
+            "backW": 360,
+            "backH": 592,
+            "density": 1,
+            "zoom": 0.24479166666666666,
+            "worldX": -195.31914893617022,
+            "worldY": -360,
+            "worldW": 1470.6382978723404,
+            "worldH": 2418.8936170212764,
+            "safeTop": 0,
+            "safeBottom": 1920
+          },
+          "frames": 334,
+          "badFrames": 0,
+          "nav": [],
+          "scrolls": [],
+          "modal": []
+        },
+        {
+          "label": "Result-classic",
+          "scene": "Result",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1920,
+            "adaptive": false,
+            "compact": false,
+            "cssLeft": 0,
+            "cssTop": 47.875,
+            "cssW": 360,
+            "cssH": 592.1249999999999,
+            "backW": 360,
+            "backH": 592,
+            "density": 1,
+            "zoom": 0.24479166666666666,
+            "worldX": -195.31914893617022,
+            "worldY": -360,
+            "worldW": 1470.6382978723404,
+            "worldH": 2418.8936170212764,
+            "safeTop": 0,
+            "safeBottom": 1920
+          },
+          "frames": 394,
+          "badFrames": 0,
+          "nav": [],
+          "scrolls": [],
+          "modal": []
+        },
+        {
+          "label": "Campaign-return",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 482,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 257,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        },
+        {
+          "label": "Adventure-return",
+          "scene": "Adventure",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 501,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "adventureScroll",
+              "y": 186,
+              "clip": [
+                186,
+                1230
+              ]
+            }
+          ],
+          "modal": []
+        }
+      ]
+    },
+    {
+      "report": "adaptive-cold",
+      "mode": "fresh-webgl",
+      "errors": [],
+      "choice": null,
+      "steps": [
+        {
+          "label": "Cold-intro",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 6,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            },
+            {
+              "name": "storyPageScroll",
+              "y": 170,
+              "clip": [
+                170,
+                1175
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Cold-intro-last-paragraph",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 26,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            },
+            {
+              "name": "storyPageScroll",
+              "y": -123,
+              "clip": [
+                170,
+                1175
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Cold-intro-resize760",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1770,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 744,
+            "backW": 360,
+            "backH": 744,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2232,
+            "safeTop": 0,
+            "safeBottom": 1770
+          },
+          "frames": 40,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                1064
+              ]
+            },
+            {
+              "name": "storyPageScroll",
+              "y": 170,
+              "clip": [
+                170,
+                1535
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Cold-intro-resize640",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 55,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            },
+            {
+              "name": "storyPageScroll",
+              "y": 170,
+              "clip": [
+                170,
+                1175
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Cold-real-next",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 82,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            },
+            {
+              "name": "storyPageScroll",
+              "y": 170,
+              "clip": [
+                170,
+                1175
+              ]
+            }
+          ],
+          "modal": [
+            "dialogue"
+          ]
+        },
+        {
+          "label": "Cold-map-return",
+          "scene": "Campaign",
+          "renderer": 2,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "frames": 158,
+          "badFrames": 0,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Heroes",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Home",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            },
+            {
+              "name": "nav_Adventure",
+              "w": 85.33333333333333,
+              "h": 56.666666666666664
+            }
+          ],
+          "scrolls": [
+            {
+              "name": "campaignMapScroll",
+              "y": 390,
+              "clip": [
+                390,
+                704
+              ]
+            }
+          ],
+          "modal": []
+        }
+      ]
+    }
+  ]
+}

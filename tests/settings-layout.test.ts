@@ -68,7 +68,7 @@ class Node extends EventEmitter {
 function setup() {
   const nodes: Node[] = [];
   const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); nodes.push(n); return n; };
-  const graphics = { fillStyle() { return this; }, fillRect: vi.fn(() => graphics), createGeometryMask() { return {}; } };
+  const graphics = { fillStyle() { return this; }, fillRect: vi.fn(() => graphics), createGeometryMask() { return {}; }, destroy: vi.fn() };
   const scene = {
     add: { container: make, rectangle: make },
     make: { graphics: () => graphics },

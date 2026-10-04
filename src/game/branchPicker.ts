@@ -141,7 +141,11 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
   } else {
     layer.add(button(scene, S.l + 170, BTN_Y, 340, BTN.l, '', 'Отмена', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchCancel'));
     confirmBtn = button(scene, GAME_W - S.l - 300, BTN_Y, 600, BTN.cta, '', 'Выбрать профессию', () => {
-      if (finished || !selected || opts.blocked?.(selected)) return;
+      if (finished || !selected) return;
+      if (opts.blocked?.(selected)) {
+        refresh();
+        return;
+      }
       finished = true;
       const job = selected;
       popOut(scene, layer, () => opts.onConfirm?.(job));

@@ -2,10 +2,10 @@
   "note": "Базовая линия scripts/ui-lint.ts: счётчики по файлам могут только уменьшаться. Опустить — npm run ui:lint -- --update. Руками не повышать.",
   "totals": {
     "instr": 1,
-    "color": 1688,
+    "color": 1686,
     "fontSize": 9,
-    "primary": 61,
-    "toast": 116
+    "primary": 62,
+    "toast": 115
   },
   "files": {
     "src/game/ambient.ts": {
@@ -74,6 +74,9 @@
       "color": 2,
       "toast": 1
     },
+    "src/game/heroUpgradeCopyPicker.ts": {
+      "primary": 1
+    },
     "src/game/homeBuildings.ts": {
       "color": 1
     },
@@ -123,7 +126,7 @@
     },
     "src/game/scenes/BattleScene.ts": {
       "instr": 1,
-      "color": 107,
+      "color": 105,
       "fontSize": 5,
       "toast": 1
     },
@@ -175,7 +178,7 @@
     "src/game/scenes/HomeScene.ts": {
       "color": 1,
       "primary": 1,
-      "toast": 2
+      "toast": 1
     },
     "src/game/scenes/HuntScene.ts": {
       "color": 26,

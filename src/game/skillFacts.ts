@@ -21,7 +21,8 @@ export interface SkillFactsOptions {
   nameOf?: (id: string) => string | undefined;
 }
 
-const pct = (x: number): string => `${Math.round(x * 100)}%`;
+// Умножение дробей может превратить 45.5% в 45.49999999999999%; убираем только погрешность представления.
+const pct = (x: number): string => `${Math.round(x * 100 + Number.EPSILON * 100)}%`;
 const signed = (x: number): string => `${x > 0 ? '+' : '−'}${pct(Math.abs(x))}`;
 
 /** Название способа применения: обычные активные навыки герой применяет сам. */
@@ -89,7 +90,8 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
     const cd = sk.cooldown ?? o.defaultCooldown;
     out.push(cd > 0 ? `Перезарядка: ${cd} с` : 'Без перезарядки');
   }
-  if (sk.castTime > 0) out.push(`Каст: ${sk.castTime} с (оглушение сбивает)`);
+  // Энергетическая ульта применяется сразу (battle.ts fireUlt), castTime относится к автонавыкам.
+  if (!o.ult && sk.castTime > 0) out.push(`Каст: ${sk.castTime} с (оглушение сбивает)`);
   out.push(`Цель: ${targetText(sk)}${o.passive ? '' : ` · ${sk.range === 'melee' ? 'ближний бой' : 'дальний бой'}`}`);
   const hits = sk.hits > 1 ? ` × ${sk.hits} ${plural(sk.hits, 'удар', 'удара', 'ударов')}` : '';
   for (const e of sk.effects) {
@@ -113,7 +115,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
         // RN-08: бой идёт по секундам — длительность и тики статуса в секундах (combat.json statusTurnSeconds).
         const tick = o.turnSeconds > 0 ? o.turnSeconds : 1;
         const secs = (x: number) => `${Math.round(x * 10) / 10}`.replace('.', ',');
-        if (st.dot) parts.push(`урон ${pct(st.dot.k)} АТК ${tick === 1 ? 'каждую секунду' : `каждые ${secs(tick)} с`}`);
+        if (st.dot) parts.push(`урон ${pct(st.dot.k * power)} АТК ${tick === 1 ? 'каждую секунду' : `каждые ${secs(tick)} с`}`);
         out.push(`«${st.name}»: ${parts.join(', ') || 'эффект'} на ${secs(st.turns * tick)} с${e.chance < 1 ? ` · шанс ${pct(e.chance)}` : ''}`);
         break;
       }

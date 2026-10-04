@@ -4,7 +4,7 @@ import { sfx } from './audio';
 import { haptic } from './haptics';
 import { setThemeBackground, themeOfChapter } from './backdrops';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
-import { bleedImage } from './viewport';
+import { bleedImage, onViewChange, view } from './viewport';
 import { SKIN, SKIN_TINT } from './skin';
 import { BTN, button, mixHex, plate, ScrollArea, SURFACE, text, type PlateSpec } from './ui';
 import { C, COLOR, FAMILY, M, R, S, T, TINT } from './theme';
@@ -64,7 +64,6 @@ const BODY_FS = T.body;
 const BODY_LEADING = Math.round(T.body * 0.4);
 const BODY_TOP_MIN = 520;
 const BODY_BOTTOM = 1690;
-const BTN_Y = 1805;
 
 /** Открыта ли страница на экране (тот же слой, что у диалога). */
 export const pageOpen = (scene: Phaser.Scene) => !!scene.children.getByName(DIALOGUE_NAME);
@@ -110,16 +109,17 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
   const skip = button(scene, GAME_W - S.l - 130, 90, 260, BTN.m, '', 'Пропустить', close, T.body, { variant: 'ghost' });
   skip.container.setName('pagesSkip');
   // Счётчик страниц — точки (не текст): текущая золотая, остальные приглушённые.
-  const dots = scene.add.container(cx, BTN_Y - 110);
-  const nextBtn = button(scene, cx, BTN_Y, 520, BTN.cta, 'ui_btn_primary', 'Далее ›', () => next(), T.title, { sound: null });
+  const footerY = () => view().safeBottom - 115;
+  const dots = scene.add.container(cx, footerY() - 110);
+  const nextBtn = button(scene, cx, footerY(), 520, BTN.cta, 'ui_btn_primary', 'Далее ›', () => next(), T.title, { sound: null });
   nextBtn.label.setFontFamily(FAMILY.heading);
   nextBtn.container.setName('pagesNext');
   layer.add([skip.container, dots, nextBtn.container]);
   back.on('pointerup', () => (area ? area.tap(next)() : next()));
 
-  const show = (i: number) => {
+  const show = (i: number, refresh = false) => {
     index = i;
-    shownAt = performance.now();
+    if (!refresh) shownAt = performance.now();
     const p = pages[i];
     // Фон — тема главы страницы (эпизод — «карта» главы), притемнённый.
     if (p.chapterId) {
@@ -140,18 +140,64 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
     area = null;
     page = scene.add.container(0, 0);
     layer.addAt(page, layer.getIndex(skip.container));
-    buildPage(scene, page, p, (a) => (area = a));
+    if (view().compact) buildScrollablePage(scene, page, p, (a) => (area = a));
+    else buildPage(scene, page, p, (a) => (area = a));
     const last = i === pages.length - 1;
     nextBtn.label.setText(last ? (opts.doneLabel ?? 'Закрыть') : 'Далее ›');
     dots.removeAll(true);
     if (pages.length > 1)
       pages.forEach((_, k) => dots.add(scene.add.circle((k - (pages.length - 1) / 2) * 36, 0, k === i ? 9 : 7, k === i ? COLOR_N_ACCENT : COLOR_N_DIM, k === i ? 1 : 0.6)));
-    page.setAlpha(0);
-    scene.tweens.add({ targets: page, alpha: 1, duration: M.base });
-    sfx(i === 0 ? 'ui_open' : 'ui_tab');
-    if (i === 0) haptic('soft');
+    if (!refresh) {
+      page.setAlpha(0);
+      scene.tweens.add({ targets: page, alpha: 1, duration: M.base });
+      sfx(i === 0 ? 'ui_open' : 'ui_tab');
+      if (i === 0) haptic('soft');
+    }
   };
   show(0);
+  const off = onViewChange(scene, (next, previous) => {
+    if (closed) return;
+    nextBtn.container.setY(footerY());
+    dots.setY(footerY() - 110);
+    if (next.compact !== previous.compact) {
+      const offset = area?.offset ?? 0;
+      show(index, true);
+      if (area) area.offset = offset;
+    } else if (next.compact) area?.setBounds(170, footerY() - 120);
+  });
+  layer.once(Phaser.GameObjects.Events.DESTROY, off);
+}
+
+/** Короткий экран: весь рассказ прокручивается, заголовок не отнимает место у текста и нижней кнопки. */
+function buildScrollablePage(scene: Phaser.Scene, root: Phaser.GameObjects.Container, p: StoryPage, onArea: (a: ScrollArea) => void): void {
+  const cx = GAME_W / 2;
+  const area = new ScrollArea(scene, 170, view().safeBottom - 235);
+  area.content.setName('storyPageScroll');
+  root.add(area.parts);
+  let y = S.l;
+  if (p.finding) {
+    area.add(findingIcon(scene, cx, y + 60, 120, p.finding));
+    y += 150;
+  }
+  const addText = (value: string, size: number, color: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) => {
+    const label = text(scene, cx, y, value, size, color, {
+      wordWrap: { width: TEXT_W, useAdvancedWrap: true }, lineSpacing: BODY_LEADING, ...style,
+    }).setOrigin(0.5, 0);
+    area.add(label);
+    y += label.height + S.s;
+    return label;
+  };
+  addText(p.kicker.toUpperCase(), T.caption, SKIN.goldLight, { fontStyle: 'bold' }).setName('pageKicker');
+  addText(p.title, T.display, C.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('pageTitle');
+  if (p.subtitle) addText(p.subtitle, T.body, SKIN.cream, { fontStyle: 'italic' });
+  area.add(divider(scene, cx, y));
+  y += S.l;
+  if (p.quote) addText(`«${p.quote}»`, T.body, C.title, { fontStyle: 'italic' });
+  addText(p.text, BODY_FS, SKIN.cream, { align: 'left' }).setName('pageText');
+  if (p.source) addText(`— ${p.source}`, T.caption, COLOR.textSecondary, { fontStyle: 'italic', align: 'right' });
+  if (p.comment) addText(`${p.comment.speaker}: «${p.comment.text}»`, T.body, COLOR.info, { fontStyle: 'italic', align: 'left' }).setName('pageComment');
+  area.setContentHeight(y + S.s);
+  onArea(area);
 }
 
 /** Собрать страницу в контейнер: заголовок сверху, текст по центру свободного места. */

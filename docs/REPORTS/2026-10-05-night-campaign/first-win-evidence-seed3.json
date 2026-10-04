@@ -1,0 +1,1452 @@
+{
+  "status": "all_180_match_actual_first_winning_attempt",
+  "snapshotDirectory": "/tmp/chronoworld-night-after-rational-seed3/saves",
+  "checked": [
+    "stage_not_yet_cleared",
+    "actual_battle_seed",
+    "squad_and_levels",
+    "resources_before_battle"
+  ],
+  "stages": [
+    {
+      "stage": "ch1_s1",
+      "seed": 3,
+      "power": 1425,
+      "recommended": 430,
+      "snapshotSha256": "e33c3f5c9f8e861fc3c0d931642e790d5b95f5a14d2e992ef8a845bfdfa9bb68",
+      "now": 1791160400756
+    },
+    {
+      "stage": "ch1_s2",
+      "seed": 4,
+      "power": 1463,
+      "recommended": 680,
+      "snapshotSha256": "2164f7ca9c98edc8380ce65c78b3e20b7c7f92b0a220d9baf17d6e0dac8a53ce",
+      "now": 1791160414006
+    },
+    {
+      "stage": "ch1_s11",
+      "seed": 5,
+      "power": 1483,
+      "recommended": 480,
+      "snapshotSha256": "c32a158e68f63111651e72180d11efdc3f7eac9553f103c85e9da2f17384e914",
+      "now": 1791160426806
+    },
+    {
+      "stage": "ch1_s3",
+      "seed": 6,
+      "power": 1483,
+      "recommended": 670,
+      "snapshotSha256": "7b6d9f763ade982d7b0a310a797f94990cbd4c005487a8f5cf5951692cf815a1",
+      "now": 1791160436606
+    },
+    {
+      "stage": "ch1_s4",
+      "seed": 7,
+      "power": 1502,
+      "recommended": 1100,
+      "snapshotSha256": "3c97f7dcedc3bffc42eef7f87e10082e6a318b116e8f0ece9b8cd1d1982628c9",
+      "now": 1791160446756
+    },
+    {
+      "stage": "ch1_s5",
+      "seed": 8,
+      "power": 1520,
+      "recommended": 1100,
+      "snapshotSha256": "62231388ca6f219b9f1961fc16e0b8927cfc730613f24e4c0038bd724d99acd4",
+      "now": 1791160459556
+    },
+    {
+      "stage": "ch1_s12",
+      "seed": 9,
+      "power": 2650,
+      "recommended": 2100,
+      "snapshotSha256": "41b5ca8aec051a62fab45a927b4edc4bf79cad4a1de0ef0264a9b1dd443e64c2",
+      "now": 1791160486906
+    },
+    {
+      "stage": "ch1_s6",
+      "seed": 10,
+      "power": 2671,
+      "recommended": 1900,
+      "snapshotSha256": "130bf2f556a7593f583ccb0fdd61cfaa67d2e58c19b195d07959ced16d0f5515",
+      "now": 1791160501956
+    },
+    {
+      "stage": "ch1_s13",
+      "seed": 11,
+      "power": 2711,
+      "recommended": 2100,
+      "snapshotSha256": "28306859c55e3fbc6ff8b43e483d5c8c2f7e994380ef04c118f8b24bb17e8a37",
+      "now": 1791160517306
+    },
+    {
+      "stage": "ch1_s7",
+      "seed": 12,
+      "power": 2741,
+      "recommended": 2100,
+      "snapshotSha256": "eb89ed8b0d6627ffd5f8097f318ef1f5382a8d238237d0c10aa447f0613009ce",
+      "now": 1791160534806
+    },
+    {
+      "stage": "ch1_s14",
+      "seed": 13,
+      "power": 2777,
+      "recommended": 2300,
+      "snapshotSha256": "9bf589c7265066bf9501f8e75a0fb4ed90876e192f3d084bdf201a2959c7a3d6",
+      "now": 1791160550756
+    },
+    {
+      "stage": "ch1_s8",
+      "seed": 14,
+      "power": 2834,
+      "recommended": 2200,
+      "snapshotSha256": "5d888708d0296c8677de207e04a5f4dff6458742d8fcb2d1600b0cc38b37a78c",
+      "now": 1791160566556
+    },
+    {
+      "stage": "ch1_s15",
+      "seed": 15,
+      "power": 2844,
+      "recommended": 2300,
+      "snapshotSha256": "0554dd84ffe5bfc4b6b036b23d0cb4aaa23cdc3292cc293a5721bb5e0677b126",
+      "now": 1791160581156
+    },
+    {
+      "stage": "ch1_s9",
+      "seed": 16,
+      "power": 2861,
+      "recommended": 2400,
+      "snapshotSha256": "e4883e889724b44d7a1f7520b408900c758e135e9c7f777dde2d4ccda1f71f3c",
+      "now": 1791160597706
+    },
+    {
+      "stage": "ch1_s16",
+      "seed": 17,
+      "power": 2887,
+      "recommended": 2400,
+      "snapshotSha256": "e64707dfffa95ac79728ce1e7e9ccc69f452e698fcb74fbc05953a098ad969db",
+      "now": 1791160613406
+    },
+    {
+      "stage": "ch1_s17",
+      "seed": 18,
+      "power": 2912,
+      "recommended": 2500,
+      "snapshotSha256": "2f1cc56a69a301556eef4eb3c90df10edb880f7c94f629f2197bdd45a0e065de",
+      "now": 1791160627556
+    },
+    {
+      "stage": "ch1_s18",
+      "seed": 19,
+      "power": 2935,
+      "recommended": 2400,
+      "snapshotSha256": "1dc8bbfb19ccd1316468452f4c7b97c24ac90500470c905d59bea6720ae60ba5",
+      "now": 1791160645106
+    },
+    {
+      "stage": "ch1_s10",
+      "seed": 20,
+      "power": 2999,
+      "recommended": 2700,
+      "snapshotSha256": "afc99e8c2c04392d50fb92b3ae54cd6027f8bee65bb625a62e56bd3aad7c1132",
+      "now": 1791160662056
+    },
+    {
+      "stage": "ch2_s1",
+      "seed": 21,
+      "power": 3030,
+      "recommended": 1400,
+      "snapshotSha256": "b2e45dda070289c4427c67d84e781b006efdb24290c4c5553d83ea2af5ee13e7",
+      "now": 1791160685406
+    },
+    {
+      "stage": "ch2_s11",
+      "seed": 22,
+      "power": 3031,
+      "recommended": 1700,
+      "snapshotSha256": "f9a78b2890c7414f771bd6f404ccb09ee3db8cc0cc183d1cdc576363ce5d25dd",
+      "now": 1791160699056
+    },
+    {
+      "stage": "ch2_s2",
+      "seed": 23,
+      "power": 3049,
+      "recommended": 1700,
+      "snapshotSha256": "07c13ec2d9a0b23549f7e0f0c0a6a6afb427f57a74ce60d511b2a22616ac0e65",
+      "now": 1791160712756
+    },
+    {
+      "stage": "ch2_s12",
+      "seed": 24,
+      "power": 3097,
+      "recommended": 2100,
+      "snapshotSha256": "02c22c595e3c8b48b929306090dfdbbbac5cc71316a4205ad0613eb573f49455",
+      "now": 1791160727206
+    },
+    {
+      "stage": "ch2_s3",
+      "seed": 25,
+      "power": 3114,
+      "recommended": 3000,
+      "snapshotSha256": "369e3e21afcd4618f64a48d9e71ae0d3355e2e536d44f0dd46a8bd426a42d2b8",
+      "now": 1791160744206
+    },
+    {
+      "stage": "ch2_s13",
+      "seed": 53,
+      "power": 3631,
+      "recommended": 3400,
+      "snapshotSha256": "44f7be9246c98c58465c5f19ec627e0b6d56865402e0b538bcb37d04e36a9fb2",
+      "now": 1791161390606
+    },
+    {
+      "stage": "ch2_s4",
+      "seed": 54,
+      "power": 3631,
+      "recommended": 3600,
+      "snapshotSha256": "36e1ea17fd23407df9b80a34ade049a6bd472023d1ca0c82a6e5054f94ccfab3",
+      "now": 1791161416756
+    },
+    {
+      "stage": "ch2_s14",
+      "seed": 76,
+      "power": 3747,
+      "recommended": 3800,
+      "snapshotSha256": "e44e8d74bc6d43fa5f9def8be5006ba873ce99dcf722d4ab89c1e0e777c213d7",
+      "now": 1791161944506
+    },
+    {
+      "stage": "ch2_s5",
+      "seed": 77,
+      "power": 3867,
+      "recommended": 3600,
+      "snapshotSha256": "895d2fb5f002f80628268d008fccad5f31038f3a58debdc7d4cbfba6c960547e",
+      "now": 1791161980356
+    },
+    {
+      "stage": "ch2_s15",
+      "seed": 78,
+      "power": 3871,
+      "recommended": 3800,
+      "snapshotSha256": "e9cdda2ff07c327936adc1af9f871d7f6c3671c1d716226813914ad00fe7c70c",
+      "now": 1791162007256
+    },
+    {
+      "stage": "ch2_s6",
+      "seed": 135,
+      "power": 4364,
+      "recommended": 4000,
+      "snapshotSha256": "81847d8ac4955e42c55bd3be76e7ed088072e6014a3437cf2c6f3ca9b2d0e71d",
+      "now": 1791249769006
+    },
+    {
+      "stage": "ch2_s16",
+      "seed": 137,
+      "power": 4400,
+      "recommended": 4300,
+      "snapshotSha256": "4ceafff5d64880005bff0c1bdb1158576fc03ef5e15bee71b308e899a868337a",
+      "now": 1791249825606
+    },
+    {
+      "stage": "ch2_s7",
+      "seed": 138,
+      "power": 4415,
+      "recommended": 4200,
+      "snapshotSha256": "3654128d4b64969f1eb93ce942d0ef8296725d42ed8801b0ecc48cb153d41e87",
+      "now": 1791249855556
+    },
+    {
+      "stage": "ch2_s17",
+      "seed": 139,
+      "power": 4439,
+      "recommended": 4100,
+      "snapshotSha256": "982793bb6def5be1a4c326f5dcf59d7486d1ab8ee3c5a4790ea1ee3f5e446108",
+      "now": 1791249886506
+    },
+    {
+      "stage": "ch2_s8",
+      "seed": 171,
+      "power": 4886,
+      "recommended": 4400,
+      "snapshotSha256": "ef79b77e8f4792a13e535f8929b5eec9d1c7f6a11d5a38a4ec7ea0c7e837f230",
+      "now": 1791250677356
+    },
+    {
+      "stage": "ch2_s18",
+      "seed": 172,
+      "power": 4891,
+      "recommended": 4400,
+      "snapshotSha256": "71926dbdcda9fc368157805e4d99eadf881da5814a04badf66e81114db422041",
+      "now": 1791250695156
+    },
+    {
+      "stage": "ch2_s9",
+      "seed": 173,
+      "power": 4920,
+      "recommended": 4500,
+      "snapshotSha256": "931a717123eb14ed133e2ad3badad001e40b146d8022e14c7d8b9db4b0e47119",
+      "now": 1791250715006
+    },
+    {
+      "stage": "ch2_s10",
+      "seed": 197,
+      "power": 4940,
+      "recommended": 5100,
+      "snapshotSha256": "ad45556fc829bd2a15b5099155059f7b46ab2587e5ed84f866d44d39b199d906",
+      "now": 1791251321856
+    },
+    {
+      "stage": "ch3_s1",
+      "seed": 198,
+      "power": 4969,
+      "recommended": 3200,
+      "snapshotSha256": "f740acf3baa145a9d29b4144ff9fd9a9d5e49de9a29515ac111c6e2e587b1cbc",
+      "now": 1791251351306
+    },
+    {
+      "stage": "ch3_s11",
+      "seed": 199,
+      "power": 4991,
+      "recommended": 2800,
+      "snapshotSha256": "c43634d3111407039a4cb6618e198eb1ce44ad6f08095a5fd64b63faa66cb5ed",
+      "now": 1791251364806
+    },
+    {
+      "stage": "ch3_s2",
+      "seed": 200,
+      "power": 4991,
+      "recommended": 3900,
+      "snapshotSha256": "b53ff260cc2a93432bf036f6d38fc967dbb5c12a4ceb8543d76cb315e38d6683",
+      "now": 1791251379006
+    },
+    {
+      "stage": "ch3_s12",
+      "seed": 201,
+      "power": 5015,
+      "recommended": 3600,
+      "snapshotSha256": "3c8166264b1b1b75749a7708d6eb9ea5a2f18f37f0fd8f3a78bbd3c76e97662a",
+      "now": 1791251394056
+    },
+    {
+      "stage": "ch3_s3",
+      "seed": 202,
+      "power": 5015,
+      "recommended": 3800,
+      "snapshotSha256": "dbbc6437709be90ca1cfeba8b859f242e809f6ef8b090c0a4a201afa5b575d9e",
+      "now": 1791251408156
+    },
+    {
+      "stage": "ch3_s13",
+      "seed": 203,
+      "power": 5312,
+      "recommended": 4100,
+      "snapshotSha256": "3539e7ad1d4fe960f71d950b4a84cc79802c273196e6caee25cd0da59a0751c2",
+      "now": 1791251425606
+    },
+    {
+      "stage": "ch3_s4",
+      "seed": 204,
+      "power": 5323,
+      "recommended": 3900,
+      "snapshotSha256": "67e2fb2e46139444250985957f45d75232896a1db5b27b079dee0379d4ddd424",
+      "now": 1791251438806
+    },
+    {
+      "stage": "ch3_s14",
+      "seed": 205,
+      "power": 5337,
+      "recommended": 4300,
+      "snapshotSha256": "57d163b325764b2caaee6215c942403e718241140d5059905a33c2698024107d",
+      "now": 1791251452256
+    },
+    {
+      "stage": "ch3_s5",
+      "seed": 206,
+      "power": 5337,
+      "recommended": 3900,
+      "snapshotSha256": "a546b3785421cde7ca02257bb27700c5f9299f8a27fae69b353f399ce445d192",
+      "now": 1791251465456
+    },
+    {
+      "stage": "ch3_s15",
+      "seed": 207,
+      "power": 5368,
+      "recommended": 5300,
+      "snapshotSha256": "5a4ba84b0965584d938c07e7a31cd63bff404ac650585cb04c9d739b3bed4bad",
+      "now": 1791251480106
+    },
+    {
+      "stage": "ch3_s6",
+      "seed": 208,
+      "power": 5390,
+      "recommended": 4300,
+      "snapshotSha256": "4b5feaf206503eca567331031cc2d4097aeab1d57e177e3e577efbdaf2b7f59e",
+      "now": 1791251498056
+    },
+    {
+      "stage": "ch3_s16",
+      "seed": 209,
+      "power": 5413,
+      "recommended": 4900,
+      "snapshotSha256": "c7e12878c2404b6f976002e61603ce15b1c3dd8d0d6439681b12648a9eef6505",
+      "now": 1791251513106
+    },
+    {
+      "stage": "ch3_s7",
+      "seed": 210,
+      "power": 5432,
+      "recommended": 5400,
+      "snapshotSha256": "e9494c5ab0dc26c5fb3ed34276a6be65f6492a13493265b3cae6bb328daf038d",
+      "now": 1791251529506
+    },
+    {
+      "stage": "ch3_s17",
+      "seed": 211,
+      "power": 5432,
+      "recommended": 5200,
+      "snapshotSha256": "c67af534979eff9a24b8fbb8a81d9f0a2e4c5992160d1acecec5fabbafb19f6a",
+      "now": 1791251545906
+    },
+    {
+      "stage": "ch3_s8",
+      "seed": 212,
+      "power": 5465,
+      "recommended": 5300,
+      "snapshotSha256": "22120a17a2ec80913fe423682c060753f5562e2f2196181c5d2c93a5f7528984",
+      "now": 1791251564406
+    },
+    {
+      "stage": "ch3_s18",
+      "seed": 213,
+      "power": 5482,
+      "recommended": 5500,
+      "snapshotSha256": "df21b9910546d5cc15a7839506c91e7ff07dde80db65114aa7738e996b8cdb8f",
+      "now": 1791251579706
+    },
+    {
+      "stage": "ch3_s9",
+      "seed": 214,
+      "power": 5482,
+      "recommended": 5800,
+      "snapshotSha256": "7570d5e6eb480760f884c2e6c30614535e71fd47358db26ff5e67dff3effd840",
+      "now": 1791251595706
+    },
+    {
+      "stage": "ch3_s10",
+      "seed": 216,
+      "power": 5513,
+      "recommended": 5100,
+      "snapshotSha256": "66d836644220cc0105c89c53ae783cfb9c4143b3ef85acfa589e32a3d0b79a06",
+      "now": 1791251632806
+    },
+    {
+      "stage": "ch4_s1",
+      "seed": 217,
+      "power": 5560,
+      "recommended": 3300,
+      "snapshotSha256": "9bc8fdc3e8c28063a3df199df6d436b4e4eaa542d93d19c483780083de6fc405",
+      "now": 1791251664356
+    },
+    {
+      "stage": "ch4_s2",
+      "seed": 218,
+      "power": 5620,
+      "recommended": 3800,
+      "snapshotSha256": "9f67b314183b701c68b54845fbffe112041535f45dcef4b6dd2182b1d96f93d6",
+      "now": 1791251686706
+    },
+    {
+      "stage": "ch4_s11",
+      "seed": 219,
+      "power": 5635,
+      "recommended": 3700,
+      "snapshotSha256": "d22a6e07f2a49fe9cfd3b2aee314b80f46c9f4e9d50df5eb8e7b45733a58c77c",
+      "now": 1791251701156
+    },
+    {
+      "stage": "ch4_s3",
+      "seed": 220,
+      "power": 5683,
+      "recommended": 3800,
+      "snapshotSha256": "d0320c9212764bea1f2345335811dcdbb85747918053e1757872e4d0368e9c5f",
+      "now": 1791251717456
+    },
+    {
+      "stage": "ch4_s4",
+      "seed": 221,
+      "power": 5766,
+      "recommended": 3900,
+      "snapshotSha256": "f952759c1b65906980e024ba53073846f617c5ba84d18ab67beec773958b39f1",
+      "now": 1791251740756
+    },
+    {
+      "stage": "ch4_s5",
+      "seed": 222,
+      "power": 5829,
+      "recommended": 4700,
+      "snapshotSha256": "a05dd60a05b2b2949ab728ac7032008534367733dbda726f4fbd9a0dc365f567",
+      "now": 1791251763206
+    },
+    {
+      "stage": "ch4_s12",
+      "seed": 223,
+      "power": 5879,
+      "recommended": 4100,
+      "snapshotSha256": "737e82f1f0cf55d101cb66731311526208d7b5cb916feb193e46d560b0811f49",
+      "now": 1791251786106
+    },
+    {
+      "stage": "ch4_s6",
+      "seed": 240,
+      "power": 5949,
+      "recommended": 5200,
+      "snapshotSha256": "bdf4332fa0daeda5e910780594226570a82ac25b1508ceb19562a12b8d1740f2",
+      "now": 1791252265956
+    },
+    {
+      "stage": "ch4_s13",
+      "seed": 241,
+      "power": 5997,
+      "recommended": 4700,
+      "snapshotSha256": "f16070b95db78257018822934c67fdac36a40d5547ea4bcb359607b606ea1664",
+      "now": 1791252290606
+    },
+    {
+      "stage": "ch4_s7",
+      "seed": 242,
+      "power": 6041,
+      "recommended": 5700,
+      "snapshotSha256": "eb73b15644158fe09e3bcc7dcb24355c7dc7ee6eef2b34fabbf7d9bc6a0c9a4f",
+      "now": 1791252321106
+    },
+    {
+      "stage": "ch4_s14",
+      "seed": 243,
+      "power": 6080,
+      "recommended": 5300,
+      "snapshotSha256": "a8ee3e5e1d0a3cf32682303fd93e5d33303d6e5a83611ac0ae8798a910388d2f",
+      "now": 1791252346506
+    },
+    {
+      "stage": "ch4_s8",
+      "seed": 258,
+      "power": 6641,
+      "recommended": 6600,
+      "snapshotSha256": "9d85d4d86eb3258288a9a9edbccd41b0d63e5cdd7a2795fc07aecb19645bb7a8",
+      "now": 1791295947606
+    },
+    {
+      "stage": "ch4_s15",
+      "seed": 259,
+      "power": 6707,
+      "recommended": 5700,
+      "snapshotSha256": "33a4a7e72bc5ee2861fff008a4b36b1dd36edc0db013751cbcecac127a348a34",
+      "now": 1791295975156
+    },
+    {
+      "stage": "ch4_s9",
+      "seed": 303,
+      "power": 7799,
+      "recommended": 6800,
+      "snapshotSha256": "18f57bbe34e95e60a4bfac674e596c1a6291ee2d718e85930af9e863dc313f16",
+      "now": 1791340442656
+    },
+    {
+      "stage": "ch4_s16",
+      "seed": 304,
+      "power": 8066,
+      "recommended": 5600,
+      "snapshotSha256": "d394ef52b49701509609b91f67c4257c4610218efc7f70c8f34b8b6dc5722f5e",
+      "now": 1791340480056
+    },
+    {
+      "stage": "ch4_s17",
+      "seed": 305,
+      "power": 8082,
+      "recommended": 7800,
+      "snapshotSha256": "e5011976f142a28c22ab6b5d8705c18d87f5db7e31fae76c6d430573d8ace473",
+      "now": 1791340506356
+    },
+    {
+      "stage": "ch4_s18",
+      "seed": 306,
+      "power": 8082,
+      "recommended": 7100,
+      "snapshotSha256": "6a70eca0651676e3534eef8ff911d57aaf421c05b51b464365ae6ea382f06aea",
+      "now": 1791340529056
+    },
+    {
+      "stage": "ch4_s10",
+      "seed": 371,
+      "power": 8706,
+      "recommended": 6900,
+      "snapshotSha256": "fc7d7c160810b80bfd87adba3b50d01cd741d786312074a2331b9b015dc1ada1",
+      "now": 1791429094606
+    },
+    {
+      "stage": "ch5_s1",
+      "seed": 372,
+      "power": 9093,
+      "recommended": 4400,
+      "snapshotSha256": "42a5b39bb5688bb9d669731e6278aafb194a65cc4054d4933ed7a378459cfb77",
+      "now": 1791429141106
+    },
+    {
+      "stage": "ch5_s2",
+      "seed": 373,
+      "power": 9099,
+      "recommended": 4600,
+      "snapshotSha256": "effe98558a7ebd2edc92f7d26aa74dbe475fb758f8c10bd68be2f94569ed07c7",
+      "now": 1791429166406
+    },
+    {
+      "stage": "ch5_s11",
+      "seed": 374,
+      "power": 9133,
+      "recommended": 5400,
+      "snapshotSha256": "32c602c3762e47518885614638e934cce10b666f2d955b701a48f8cbf962f268",
+      "now": 1791429182256
+    },
+    {
+      "stage": "ch5_s3",
+      "seed": 375,
+      "power": 9138,
+      "recommended": 4800,
+      "snapshotSha256": "3f0578115867fce9b4d01546bf938c4d96d00845f119b5c10042d36e7bfe7e11",
+      "now": 1791429197556
+    },
+    {
+      "stage": "ch5_s4",
+      "seed": 376,
+      "power": 9219,
+      "recommended": 4900,
+      "snapshotSha256": "ec85c5f743da34678a1755b8515b3113a886d936de04b08b75ecc581078823c2",
+      "now": 1791429222256
+    },
+    {
+      "stage": "ch5_s5",
+      "seed": 377,
+      "power": 9247,
+      "recommended": 6300,
+      "snapshotSha256": "81177a48257cb50f761c542f7d1b913f892e19932953fabbac07216d31819f39",
+      "now": 1791429246006
+    },
+    {
+      "stage": "ch5_s12",
+      "seed": 388,
+      "power": 9132,
+      "recommended": 5900,
+      "snapshotSha256": "f769b823733331c5e3dd07be9706e7514a113f147205d6cb39c6947fed826be9",
+      "now": 1791429641806
+    },
+    {
+      "stage": "ch5_s6",
+      "seed": 398,
+      "power": 9132,
+      "recommended": 5800,
+      "snapshotSha256": "7c2a56fa7f1ad236771b0be26e644d60d12e70c3b07feb290962c0224e9d1bbd",
+      "now": 1791430081956
+    },
+    {
+      "stage": "ch5_s13",
+      "seed": 407,
+      "power": 9291,
+      "recommended": 7900,
+      "snapshotSha256": "4615099e46ef64b233303ef7a0225a1d56cdb57d368342197f93499886b94654",
+      "now": 1791430416906
+    },
+    {
+      "stage": "ch5_s7",
+      "seed": 425,
+      "power": 9827,
+      "recommended": 6900,
+      "snapshotSha256": "1efce7892a670f55683eba79210e86d97a2c7718643d354420019adf10439528",
+      "now": 1791474231456
+    },
+    {
+      "stage": "ch5_s14",
+      "seed": 437,
+      "power": 9654,
+      "recommended": 7400,
+      "snapshotSha256": "a22eda61d94d20416210f08a267c36c861f8da3ad73abe0067fcd5ed342506a6",
+      "now": 1791474711506
+    },
+    {
+      "stage": "ch5_s8",
+      "seed": 484,
+      "power": 10233,
+      "recommended": 7600,
+      "snapshotSha256": "461bb012f3a793e001f0bc51e3d097d6ae18cecc19050f68eb86d75e7e5a0e04",
+      "now": 1791519626706
+    },
+    {
+      "stage": "ch5_s15",
+      "seed": 503,
+      "power": 10673,
+      "recommended": 8200,
+      "snapshotSha256": "689d422700de944fa77b7d17539de937839dd807beafbfcbf98673549aef2378",
+      "now": 1791563388056
+    },
+    {
+      "stage": "ch5_s9",
+      "seed": 572,
+      "power": 11886,
+      "recommended": 9400,
+      "snapshotSha256": "8a53e4cba9163650d28006c5c40d486cb5ac8a3b3e61d1bc1c971ff0e4e9beeb",
+      "now": 1791652038256
+    },
+    {
+      "stage": "ch5_s16",
+      "seed": 573,
+      "power": 11886,
+      "recommended": 8500,
+      "snapshotSha256": "19e10c5ce2d279027b52cef8f986037c66dc75515dc29f8017062f4a3564e633",
+      "now": 1791652073606
+    },
+    {
+      "stage": "ch5_s17",
+      "seed": 601,
+      "power": 12388,
+      "recommended": 10700,
+      "snapshotSha256": "dfaed53ebeb33fb9888010e005f4387b71b3f9c90b63330488c53a38625d5c02",
+      "now": 1791696126706
+    },
+    {
+      "stage": "ch5_s18",
+      "seed": 602,
+      "power": 12434,
+      "recommended": 11800,
+      "snapshotSha256": "5554e748ab640b8129db3a90f6ae276102cefdd7b1e65543b571c32cbffbe438",
+      "now": 1791696163606
+    },
+    {
+      "stage": "ch5_s10",
+      "seed": 638,
+      "power": 12745,
+      "recommended": 10400,
+      "snapshotSha256": "6505f7f5dde18b75b7c7425d4441b65fdc47424b89877b7b13b43e0d2ed1dd35",
+      "now": 1791697421106
+    },
+    {
+      "stage": "ch6_s1",
+      "seed": 694,
+      "power": 14055,
+      "recommended": 10900,
+      "snapshotSha256": "895eee2cf8b4770eab8bdd58dcd2bee02e9ca4f4c79d7ba9a3150bc678b6bf7c",
+      "now": 1791786066706
+    },
+    {
+      "stage": "ch6_s2",
+      "seed": 695,
+      "power": 14060,
+      "recommended": 12400,
+      "snapshotSha256": "796e20eb9888b4e3afab9ce9dcc199b071642f8a2b8a7743b08bf1c00f7fea6b",
+      "now": 1791786093756
+    },
+    {
+      "stage": "ch6_s11",
+      "seed": 696,
+      "power": 14116,
+      "recommended": 11000,
+      "snapshotSha256": "cdeb60da13009dc55073874bebc7f319a1743bc5c5e7538e400c027136587c10",
+      "now": 1791786123006
+    },
+    {
+      "stage": "ch6_s3",
+      "seed": 697,
+      "power": 14165,
+      "recommended": 9800,
+      "snapshotSha256": "034f43da5008bd8de420a780da787787fa3fa0e6cc1b6c068be2de21a4d12927",
+      "now": 1791786145556
+    },
+    {
+      "stage": "ch6_s4",
+      "seed": 698,
+      "power": 14214,
+      "recommended": 9400,
+      "snapshotSha256": "c06bce06b9c43acbad9a6abae0edbe00c4eeebae0815744d0c7da515d9702f8c",
+      "now": 1791786181806
+    },
+    {
+      "stage": "ch6_s5",
+      "seed": 699,
+      "power": 14264,
+      "recommended": 10900,
+      "snapshotSha256": "909691cc52454f4b417fcabb1e13607a6048f662fc70677eba48106d60159f81",
+      "now": 1791786221956
+    },
+    {
+      "stage": "ch6_s12",
+      "seed": 700,
+      "power": 14268,
+      "recommended": 13500,
+      "snapshotSha256": "ceeec3924f9ce3c7a4912c1d9474ba6388125d6a5d73f7cbe690c1d26c8fdbbe",
+      "now": 1791786262006
+    },
+    {
+      "stage": "ch6_s6",
+      "seed": 701,
+      "power": 14317,
+      "recommended": 9700,
+      "snapshotSha256": "bf2f5e302beaa0816cfc066d1ffc72a4e0f168557d99b6ec6b37cf4d21b39279",
+      "now": 1791786303956
+    },
+    {
+      "stage": "ch6_s13",
+      "seed": 702,
+      "power": 14322,
+      "recommended": 11900,
+      "snapshotSha256": "3ecc6381bd2bae841746a380dc0c3b5508af8c58743e9d0dc05355db96da45ed",
+      "now": 1791786337156
+    },
+    {
+      "stage": "ch6_s7",
+      "seed": 703,
+      "power": 14371,
+      "recommended": 10700,
+      "snapshotSha256": "8228df05bae6babce8ee94591f309afeae5a44d173ad26f926b22f1fef4e23d9",
+      "now": 1791786380106
+    },
+    {
+      "stage": "ch6_s14",
+      "seed": 704,
+      "power": 14456,
+      "recommended": 11300,
+      "snapshotSha256": "b32ca01dbcb13bf862cf8b4a3e366c791f928a07d0971ce0b5410547c684b4f1",
+      "now": 1791786420256
+    },
+    {
+      "stage": "ch6_s8",
+      "seed": 705,
+      "power": 14460,
+      "recommended": 12100,
+      "snapshotSha256": "241f7f1f62823cbe42ae4495a22a6ce0a3af3208f60b6c8f726dbb760ab9a73d",
+      "now": 1791786468506
+    },
+    {
+      "stage": "ch6_s15",
+      "seed": 706,
+      "power": 14516,
+      "recommended": 11000,
+      "snapshotSha256": "05d69fcb1ec1567e87c9c948923363926d7f3525f9f03373c0f123d72bfc3e23",
+      "now": 1791786499206
+    },
+    {
+      "stage": "ch6_s9",
+      "seed": 707,
+      "power": 14565,
+      "recommended": 12100,
+      "snapshotSha256": "7918b0635384c9e485fc3ce4aced6e619e326d918185c6cc24019dd24bb2e23d",
+      "now": 1791786546306
+    },
+    {
+      "stage": "ch6_s16",
+      "seed": 708,
+      "power": 14565,
+      "recommended": 13800,
+      "snapshotSha256": "6e188f4de9c891ef38b393729d19091052f92891ae83f0afe9014102fd688ff9",
+      "now": 1791786587456
+    },
+    {
+      "stage": "ch6_s17",
+      "seed": 709,
+      "power": 14565,
+      "recommended": 11600,
+      "snapshotSha256": "854757eecd5cfe58818eafcb4cf90833f54c0160d49f8a795c19b3305ad28df3",
+      "now": 1791786626406
+    },
+    {
+      "stage": "ch6_s18",
+      "seed": 711,
+      "power": 14633,
+      "recommended": 13700,
+      "snapshotSha256": "a7812c94b46434d482f7648dfc413ed95989177a71a4480e2ce4d990bdd8be62",
+      "now": 1791786708506
+    },
+    {
+      "stage": "ch6_s10",
+      "seed": 712,
+      "power": 14689,
+      "recommended": 13300,
+      "snapshotSha256": "c23923bdf3995cfb8b960a45e5f77a4824b769909e7a535f8f872e3229f0f683",
+      "now": 1791786746356
+    },
+    {
+      "stage": "ch7_s1",
+      "seed": 713,
+      "power": 14723,
+      "recommended": 10700,
+      "snapshotSha256": "4121e9a85527698daa7f004641b4eda9d29da03f7ecd930a3937453ab6487739",
+      "now": 1791786783956
+    },
+    {
+      "stage": "ch7_s2",
+      "seed": 714,
+      "power": 14744,
+      "recommended": 10800,
+      "snapshotSha256": "a0a015bbdfeaf622f6b222e69725400e54b762c36579015e77a5a3e7dd1bc2f4",
+      "now": 1791786827206
+    },
+    {
+      "stage": "ch7_s11",
+      "seed": 715,
+      "power": 14788,
+      "recommended": 13800,
+      "snapshotSha256": "e445029dbb488f33831381e113ae996b88ef33121f87323d3c5e76d0964be7f5",
+      "now": 1791786870806
+    },
+    {
+      "stage": "ch7_s3",
+      "seed": 716,
+      "power": 14829,
+      "recommended": 12100,
+      "snapshotSha256": "9d52dddcf6756c35fc04e317b2202ff93655a4f7bfb2d8595af9e60d6284ccc0",
+      "now": 1791786913506
+    },
+    {
+      "stage": "ch7_s4",
+      "seed": 717,
+      "power": 14906,
+      "recommended": 11000,
+      "snapshotSha256": "d0a7ec4143ec8fb1582c44878e02c47f410645264d5852a9c481048a1b1ae2e0",
+      "now": 1791786946706
+    },
+    {
+      "stage": "ch7_s5",
+      "seed": 719,
+      "power": 14948,
+      "recommended": 12900,
+      "snapshotSha256": "199ce42b69cef1c0013eaf8f713acaca4d5103fab63a673f19e0326a42a72a31",
+      "now": 1791787038756
+    },
+    {
+      "stage": "ch7_s12",
+      "seed": 720,
+      "power": 15025,
+      "recommended": 11500,
+      "snapshotSha256": "90dae182fb99615575aa9344258793e0f922ef93dca1a45901d0bd00ca74e049",
+      "now": 1791787082806
+    },
+    {
+      "stage": "ch7_s6",
+      "seed": 721,
+      "power": 15667,
+      "recommended": 13100,
+      "snapshotSha256": "4b214ac3b528e869b15d60bdb50bd8f5f83226891aa286bed982f33cbb8c522f",
+      "now": 1791787124706
+    },
+    {
+      "stage": "ch7_s13",
+      "seed": 722,
+      "power": 15763,
+      "recommended": 12500,
+      "snapshotSha256": "ff54f27267c561d663fd1d8cfe7e208698389abe8fb8379aa3337967e08f3343",
+      "now": 1791787162806
+    },
+    {
+      "stage": "ch7_s7",
+      "seed": 723,
+      "power": 15770,
+      "recommended": 14000,
+      "snapshotSha256": "8d6d7368cc31f1c0a40c3623b0b65827a483de0e5fd6151cd5459d8b263cca11",
+      "now": 1791787204656
+    },
+    {
+      "stage": "ch7_s14",
+      "seed": 724,
+      "power": 15809,
+      "recommended": 13000,
+      "snapshotSha256": "27460723e230495e4182dbeef0edc3449112efbd28a0c7bd990b929172b8a372",
+      "now": 1791787238306
+    },
+    {
+      "stage": "ch7_s8",
+      "seed": 725,
+      "power": 15809,
+      "recommended": 14500,
+      "snapshotSha256": "94ce2edd9d2b61be3f72bc041bcac5cb68b666f787ef1678f6571c0aaea51eb0",
+      "now": 1791787268406
+    },
+    {
+      "stage": "ch7_s15",
+      "seed": 726,
+      "power": 15868,
+      "recommended": 13200,
+      "snapshotSha256": "210055fe26f88d67e37dd3f1e34e00c35a133f9a8ff26a8daa9292c41a223c8a",
+      "now": 1791787311906
+    },
+    {
+      "stage": "ch7_s9",
+      "seed": 727,
+      "power": 15872,
+      "recommended": 15700,
+      "snapshotSha256": "7942f725fea243ec4ca53379d8eb0b5fea03ef60dc983c71e53fb0b74584834e",
+      "now": 1791787357106
+    },
+    {
+      "stage": "ch7_s16",
+      "seed": 728,
+      "power": 15876,
+      "recommended": 15200,
+      "snapshotSha256": "3c1712078351af300cb94eeae98874a92722901abb92ee942ecc8f03090d907f",
+      "now": 1791787399306
+    },
+    {
+      "stage": "ch7_s17",
+      "seed": 729,
+      "power": 15982,
+      "recommended": 13800,
+      "snapshotSha256": "c719db77d54439408258597f39a79c2ba0e6c27cf0ce23e11dc716913c21f475",
+      "now": 1791787437406
+    },
+    {
+      "stage": "ch7_s18",
+      "seed": 730,
+      "power": 16022,
+      "recommended": 16200,
+      "snapshotSha256": "8d96a366c31c4911399655c2443c5fbb4cf8cb33eff1a2d3e829051578c9d692",
+      "now": 1791787480856
+    },
+    {
+      "stage": "ch7_s10",
+      "seed": 837,
+      "power": 17027,
+      "recommended": 16800,
+      "snapshotSha256": "1e9b11061f8da947142c3e1d115a468c4bdf148b3e3f01945898d899a350711a",
+      "now": 1791878143406
+    },
+    {
+      "stage": "ch8_s1",
+      "seed": 838,
+      "power": 17053,
+      "recommended": 10300,
+      "snapshotSha256": "8dc1404fba1a89725f5aa58491a93bd483e5d3b630d0588ff90726e1cfc47a96",
+      "now": 1791878189556
+    },
+    {
+      "stage": "ch8_s2",
+      "seed": 839,
+      "power": 17156,
+      "recommended": 11000,
+      "snapshotSha256": "70ab44c28383efacf83541f8117120f2782068b9aaa7be604d6db469a4149dca",
+      "now": 1791878233906
+    },
+    {
+      "stage": "ch8_s3",
+      "seed": 840,
+      "power": 17156,
+      "recommended": 11300,
+      "snapshotSha256": "f5608b88d6fa5bcc8d69fc65cb691851e62bcf42a0312aad96257fd284161dea",
+      "now": 1791878277006
+    },
+    {
+      "stage": "ch8_s4",
+      "seed": 841,
+      "power": 17218,
+      "recommended": 12200,
+      "snapshotSha256": "86ba347d9230abaf3b571533748db48365eb60df37877350f2e6cdc879c0f57f",
+      "now": 1791878320256
+    },
+    {
+      "stage": "ch8_s5",
+      "seed": 842,
+      "power": 17311,
+      "recommended": 12700,
+      "snapshotSha256": "63ffa9bb454dd0616543ef7c391b7f84adc17345091db39013546c4bd874e992",
+      "now": 1791878362756
+    },
+    {
+      "stage": "ch8_s6",
+      "seed": 844,
+      "power": 17328,
+      "recommended": 13500,
+      "snapshotSha256": "6d1c87eab7418b0a25fbab574d653c1d1d0295c584b13b9f590de379bb2aff38",
+      "now": 1791878414356
+    },
+    {
+      "stage": "ch8_s7",
+      "seed": 845,
+      "power": 17340,
+      "recommended": 14400,
+      "snapshotSha256": "a353a306c43bb24c49368a97f6ccd1989780629280bd32aeb6d872e3d11cd4e6",
+      "now": 1791878442706
+    },
+    {
+      "stage": "ch8_s8",
+      "seed": 846,
+      "power": 17357,
+      "recommended": 13400,
+      "snapshotSha256": "c02a4bc11c563b6e1ecc81ab7d478a51b198e805197c58e646bedd5e8a9f39cb",
+      "now": 1791878480906
+    },
+    {
+      "stage": "ch8_s9",
+      "seed": 847,
+      "power": 17415,
+      "recommended": 15600,
+      "snapshotSha256": "e6ce9a294a84ea0d8a54121f916803128ba6442960d80eadea75ff5cff585fdc",
+      "now": 1791878514106
+    },
+    {
+      "stage": "ch8_s10",
+      "seed": 848,
+      "power": 17432,
+      "recommended": 16100,
+      "snapshotSha256": "5c41e0c7053c10a3cc0d2aaf3eec5c41714bec41c727e9293b0aa87227d0bf74",
+      "now": 1791878556456
+    },
+    {
+      "stage": "ch8_s11",
+      "seed": 865,
+      "power": 17432,
+      "recommended": 15300,
+      "snapshotSha256": "30a1649491f59f99c71368e2d6051aa5cdb6809fbc8f283fcb9c747de79bed6e",
+      "now": 1791879303106
+    },
+    {
+      "stage": "ch8_s12",
+      "seed": 866,
+      "power": 17440,
+      "recommended": 14400,
+      "snapshotSha256": "8c7e09b9fbc073fad470d8997cd93c0f14c5ed2d3417108c8a71b00cd007b4da",
+      "now": 1791879342606
+    },
+    {
+      "stage": "ch8_s13",
+      "seed": 880,
+      "power": 17478,
+      "recommended": 16500,
+      "snapshotSha256": "7c37297665988b7b091851a172ab9e1890d9707856e4e8cdb1d5915f7a1f5f43",
+      "now": 1791879985256
+    },
+    {
+      "stage": "ch8_s14",
+      "seed": 881,
+      "power": 17489,
+      "recommended": 16000,
+      "snapshotSha256": "ef0673dc3529bd8b2bec4514c01d680e230f20a19023a046846eb2b38980bafe",
+      "now": 1791880024806
+    },
+    {
+      "stage": "ch8_s15",
+      "seed": 893,
+      "power": 17511,
+      "recommended": 15600,
+      "snapshotSha256": "98ebe5ca5131302d56451d39a947d9ede1a6d4da225d0653021c38eaa2e7a2cd",
+      "now": 1791880633956
+    },
+    {
+      "stage": "ch8_s16",
+      "seed": 971,
+      "power": 18816,
+      "recommended": 18700,
+      "snapshotSha256": "c82b109c55dd9b019f1d2c1857b057565cf4356c50bfb5eb0986d3c70ea79512",
+      "now": 1792013440706
+    },
+    {
+      "stage": "ch8_s17",
+      "seed": 972,
+      "power": 18872,
+      "recommended": 18200,
+      "snapshotSha256": "fc07111bcb13b4ccde16c7a58eedf08b2473c5c6bbbe141296d0a3adbc720894",
+      "now": 1792013486006
+    },
+    {
+      "stage": "ch8_s18",
+      "seed": 1154,
+      "power": 22508,
+      "recommended": 20400,
+      "snapshotSha256": "ae73a0754f8a218b31bc0ba64c49c4f0df129b01cee31d1a2a7836af7b897dcf",
+      "now": 1792280684656
+    },
+    {
+      "stage": "ch9_s1",
+      "seed": 1155,
+      "power": 22508,
+      "recommended": 17300,
+      "snapshotSha256": "d1cc8a25ab28e4219df6e11f289f133633fc1af366bdd960a17f80e798a0cb1a",
+      "now": 1792280723656
+    },
+    {
+      "stage": "ch9_s2",
+      "seed": 1156,
+      "power": 22562,
+      "recommended": 16600,
+      "snapshotSha256": "bfa37da8d645598f29f3a7631a3fe5bea1e8c43bd0b4f3786c1b5d365c8ffcb1",
+      "now": 1792280767456
+    },
+    {
+      "stage": "ch9_s3",
+      "seed": 1157,
+      "power": 22562,
+      "recommended": 17600,
+      "snapshotSha256": "fcccfee9cdd2e1fdc192a26c2e3687b3a724695426d30110ad0017734f9cc5e6",
+      "now": 1792280805956
+    },
+    {
+      "stage": "ch9_s4",
+      "seed": 1158,
+      "power": 22610,
+      "recommended": 16900,
+      "snapshotSha256": "1c6c5cc70ce5fa32099eb02c9fd630e9f3b6bda4c2934f9be0d680d6505e243c",
+      "now": 1792280838306
+    },
+    {
+      "stage": "ch9_s5",
+      "seed": 1159,
+      "power": 22610,
+      "recommended": 19300,
+      "snapshotSha256": "3b5c5efc6e58f9004b9b72b07c37198aa65ded059c83133ccdd829edc61cb73a",
+      "now": 1792280879606
+    },
+    {
+      "stage": "ch9_s6",
+      "seed": 1160,
+      "power": 22610,
+      "recommended": 17500,
+      "snapshotSha256": "1eafefc5565d20a8e41dcfae7b850cff8b2a2441c775dc55a13b44a69bfa569c",
+      "now": 1792280921506
+    },
+    {
+      "stage": "ch9_s7",
+      "seed": 1161,
+      "power": 22662,
+      "recommended": 16100,
+      "snapshotSha256": "21da43c241125fc9ec133d155e1524631fbdfb4fd62fdd34cc52285de3973e7b",
+      "now": 1792280964156
+    },
+    {
+      "stage": "ch9_s8",
+      "seed": 1162,
+      "power": 22662,
+      "recommended": 18200,
+      "snapshotSha256": "12e87611fa3ad86fd4922c7890bdd4b056b985f517c763606041443e5a6cf27e",
+      "now": 1792280994206
+    },
+    {
+      "stage": "ch9_s9",
+      "seed": 1163,
+      "power": 22710,
+      "recommended": 20800,
+      "snapshotSha256": "cd1955a076968a6854c1f1920a828e12869f516386b68ed7e7df13381813e789",
+      "now": 1792281034856
+    },
+    {
+      "stage": "ch9_s10",
+      "seed": 1164,
+      "power": 22710,
+      "recommended": 17200,
+      "snapshotSha256": "34012c831311432e723ea6a5cf46c31e338120eb3fe0bfbdf7238f0b2467a0f5",
+      "now": 1792281073906
+    },
+    {
+      "stage": "ch9_s11",
+      "seed": 1165,
+      "power": 22764,
+      "recommended": 18700,
+      "snapshotSha256": "0eb129ca4ba2f90d6e4f622e14b694bde39117368c657c1b6e8ee768509a21ca",
+      "now": 1792281119906
+    },
+    {
+      "stage": "ch9_s12",
+      "seed": 1166,
+      "power": 22764,
+      "recommended": 18300,
+      "snapshotSha256": "6b9b8b5c17d7918646a94b01df4c63a4b401a4b53ebfe76dcce89225c51817d9",
+      "now": 1792281158806
+    },
+    {
+      "stage": "ch9_s13",
+      "seed": 1167,
+      "power": 22814,
+      "recommended": 21800,
+      "snapshotSha256": "fce9fbdedacc762038aff9a47182e092553fe338593e9f7ec610fde49e281237",
+      "now": 1792281198006
+    },
+    {
+      "stage": "ch9_s14",
+      "seed": 1168,
+      "power": 22814,
+      "recommended": 17300,
+      "snapshotSha256": "b6ca5301231ab238fcc644a08cb77a4478304ef13c79ea6b86024eb23c52a5b3",
+      "now": 1792281239706
+    },
+    {
+      "stage": "ch9_s15",
+      "seed": 1169,
+      "power": 22864,
+      "recommended": 18800,
+      "snapshotSha256": "2ae22ff8e82549d878a0c6bfe20e27117b03c2b95f367d6ebaaec00af06056fd",
+      "now": 1792281282706
+    },
+    {
+      "stage": "ch9_s16",
+      "seed": 1170,
+      "power": 22864,
+      "recommended": 22100,
+      "snapshotSha256": "d776bcadb8309cefb2420a12a8b1e495f317d632bcdcb5b7c797e4152dc9cf1b",
+      "now": 1792281324706
+    },
+    {
+      "stage": "ch9_s17",
+      "seed": 1171,
+      "power": 22944,
+      "recommended": 20000,
+      "snapshotSha256": "f6eaf2db087d1a9f8ecfda661eb38841d35233c5347b575442f4f27a231d28ec",
+      "now": 1792281369956
+    },
+    {
+      "stage": "ch9_s18",
+      "seed": 1172,
+      "power": 22944,
+      "recommended": 20200,
+      "snapshotSha256": "3ef3d558183185e7b6a3d92a5868ce2da684c916df422325692a9ec398a675b4",
+      "now": 1792281415206
+    },
+    {
+      "stage": "ch10_s1",
+      "seed": 1173,
+      "power": 23043,
+      "recommended": 21400,
+      "snapshotSha256": "7f84db0ce31a8f78d2b256c45bd6410fbd5c5263b516829d2a96c5ca64fbf2f3",
+      "now": 1792281459856
+    },
+    {
+      "stage": "ch10_s2",
+      "seed": 1174,
+      "power": 23082,
+      "recommended": 20000,
+      "snapshotSha256": "b29fa616af5a28515aa03853ab9d6b5fcce54990266347fd92576acbf555ab8f",
+      "now": 1792281508256
+    },
+    {
+      "stage": "ch10_s3",
+      "seed": 1175,
+      "power": 23121,
+      "recommended": 25100,
+      "snapshotSha256": "f4112d07fada9f7a78a9ab513cf5f8c2aeb888fdf11057d068e70c6a8df740c1",
+      "now": 1792281556756
+    },
+    {
+      "stage": "ch10_s4",
+      "seed": 1176,
+      "power": 23121,
+      "recommended": 21600,
+      "snapshotSha256": "ff44e04c644b218323a66e8b39b8df23a2b400946dfa7116c5f025452621f8d3",
+      "now": 1792281608306
+    },
+    {
+      "stage": "ch10_s5",
+      "seed": 1177,
+      "power": 23121,
+      "recommended": 20300,
+      "snapshotSha256": "94936fd64f4fecf3f4b442fa574f6c168b6ad9207098cf0c904bf0828de2de3a",
+      "now": 1792281650906
+    },
+    {
+      "stage": "ch10_s6",
+      "seed": 1214,
+      "power": 23777,
+      "recommended": 24200,
+      "snapshotSha256": "b7ef7f941f168376e47a88fa4e4a33da63411879d621205265c9d053695488a1",
+      "now": 1792326493406
+    },
+    {
+      "stage": "ch10_s7",
+      "seed": 1215,
+      "power": 23777,
+      "recommended": 21900,
+      "snapshotSha256": "30201a9ad6de6cbed34c4ca979b233e7b7bd873a1e77b62c2097a2cbca4cf5a3",
+      "now": 1792326540256
+    },
+    {
+      "stage": "ch10_s8",
+      "seed": 1216,
+      "power": 23777,
+      "recommended": 24700,
+      "snapshotSha256": "ea692b62c31181dd572e0ca2f85d9762368528ec9109f36236e6abb465485175",
+      "now": 1792326586456
+    },
+    {
+      "stage": "ch10_s9",
+      "seed": 1217,
+      "power": 23777,
+      "recommended": 23600,
+      "snapshotSha256": "ca0a0adc03e7be49f01beaa40e624477c7dbab1b2f41ed6895618c40014a19c4",
+      "now": 1792326631906
+    },
+    {
+      "stage": "ch10_s10",
+      "seed": 1218,
+      "power": 23777,
+      "recommended": 25700,
+      "snapshotSha256": "953c14158dd32baea181d9b3bd40ff41b51d4b9fb17cd617c7c9edf3cc0a3db4",
+      "now": 1792326678756
+    },
+    {
+      "stage": "ch10_s11",
+      "seed": 1320,
+      "power": 24579,
+      "recommended": 22400,
+      "snapshotSha256": "0d7d0450befef5a5372010bc8b9ec9fbc3f5a64648e1365c612b057e4e104332",
+      "now": 1792460611106
+    },
+    {
+      "stage": "ch10_s12",
+      "seed": 1321,
+      "power": 24579,
+      "recommended": 25500,
+      "snapshotSha256": "5b5db7f359560de1e5e02b2468776094498c12b6f1f0714869e810a1b29adcf3",
+      "now": 1792460653106
+    },
+    {
+      "stage": "ch10_s13",
+      "seed": 1322,
+      "power": 24579,
+      "recommended": 22200,
+      "snapshotSha256": "f5146ebee46b3233fac507fbefb0f241dc72e60291a6ec13aca9582c48ce50af",
+      "now": 1792460702206
+    },
+    {
+      "stage": "ch10_s14",
+      "seed": 1323,
+      "power": 24579,
+      "recommended": 27300,
+      "snapshotSha256": "f00977039799e5dcc87af57a741f31ed95d229926e36acd0c7e4705ee06b8daf",
+      "now": 1792460755056
+    },
+    {
+      "stage": "ch10_s15",
+      "seed": 1324,
+      "power": 24579,
+      "recommended": 24200,
+      "snapshotSha256": "b60132fe50ffa32d027938a9a55f517a4325524bc0161b634b289172213274bd",
+      "now": 1792460803956
+    },
+    {
+      "stage": "ch10_s16",
+      "seed": 1325,
+      "power": 24579,
+      "recommended": 24300,
+      "snapshotSha256": "305f7e5fc32b635b0de8178c9fe8df5cd179cc757c3ebaea3bf79f8d20d572c5",
+      "now": 1792460848756
+    },
+    {
+      "stage": "ch10_s17",
+      "seed": 1326,
+      "power": 24579,
+      "recommended": 27200,
+      "snapshotSha256": "c0002b202675507cd874acdbf3bde7b387b1ec1d46691c2cec7d435abb29955e",
+      "now": 1792460896706
+    },
+    {
+      "stage": "ch10_s18",
+      "seed": 1357,
+      "power": 25911,
+      "recommended": 25100,
+      "snapshotSha256": "0bf624e3f612804e1433dd94294791e06d6bc56b2b42575db455b0fa8f6835e9",
+      "now": 1792462340506
+    }
+  ]
+}

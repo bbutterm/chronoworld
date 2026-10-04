@@ -19,7 +19,8 @@ describe('спокойный темп и ценность ульт', () => {
     const r = simulateBattle(c, ['hero'], ['foe'], 11, { combat: cfg, manualUlt: true });
     const turns = of(r, 'turn').filter((e) => e.unit === 'A0');
     expect(turns.slice(0, 4).map((e) => e.t)).toEqual([1.5, 3, 4.5, 6]);
-    expect(r.duration).toBe(90);
+    // Поздние PvE-бои получили ещё 10 с до тайм-аута; частота действий осталась прежней — раз в 1.5 с.
+    expect(r.duration).toBe(100);
   });
 
   it('первая ульта после нескольких решений, а не в первые секунды; авто и вводы детерминированы', () => {

@@ -1,7 +1,7 @@
 import type { CampaignChoices } from '../campaign/choices';
 import { enemySquad, getStage } from '../campaign/campaign';
 import type { UnitDef } from '../content/schema';
-import { withGear } from '../equipment/equipment';
+import { heroGearStats, withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
 import { buildUnit } from '../progression/stats';
 import type { HeroState, SaveState } from '../save/schema';
@@ -26,7 +26,15 @@ export function unitPower(unit: UnitDef, ctx: FeatureContext): number {
  * K6: с save и ctx.equipment — с экипировкой героя из save.inventory (иначе без неё).
  */
 export function heroPower(hero: HeroState, ctx: FeatureContext & { equipment?: EquipmentConfig }, save?: SaveState): number {
-  return unitPower(buildUnit(hero, save ? withGear(ctx, save) : ctx), ctx);
+  if (save && ctx.equipment) {
+    // withGear раньше строил прибавки всей коллекции ради одного героя. Карты остаются от настоящего
+    // экземпляра в save, даже если hero — предварительный просмотр уровня/профессии.
+    const gear = save.heroes.some((h) => h.id === hero.id)
+      ? heroGearStats(save, hero.id, ctx as FeatureContext & { equipment: EquipmentConfig })
+      : { hp: 0, atk: 0, def: 0, spd: 0 };
+    return unitPower(buildUnit(hero, ctx, gear), ctx);
+  }
+  return unitPower(buildUnit(hero, ctx), ctx);
 }
 
 /** K2. Мощь отряда = сумма мощи героев в слотах save.squad (пустые и неизвестные слоты — 0), K6: с экипировкой. */
@@ -69,8 +77,8 @@ export function recommendedFactor(stageId: string, ctx: FeatureContext, choices?
 /**
  * «Рекомендуемая мощь этапа» (как в AFK — число над кнопкой «В бой»): stagePower × recommendedFactor, округлено до
  * красивого числа (2 значащие цифры, от 10 000 — 3). Сравнивается напрямую со squadPower (stagePowerCheck).
- * Калибровка — моделью игрока (npm run balance -- --fit-recommended, docs/content/balance.md): с мощью ≥ рекомендуемой
- * этап проходится с 1–2 попыток; 85–95% — «чуть-чуть не хватает», 1–2 уровня отряда решают.
+ * Калибровка — моделью игрока (npm run balance -- --fit-recommended, docs/content/balance.md). Это ориентир развития:
+ * распределение ролей, навыки, расстановка и лимит времени тоже определяют исход; превышение мощи не обещает победу.
  */
 export function recommendedPower(stageId: string, ctx: FeatureContext, choices?: CampaignChoices): number {
   return roundNice(stagePower(stageId, ctx, choices) * recommendedFactor(stageId, ctx, choices));

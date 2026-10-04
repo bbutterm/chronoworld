@@ -1,0 +1,265 @@
+{
+  "schema": 1,
+  "base": "d71207a90c677b74089c12159b367d24bd99da98",
+  "method": "Lawful replay; preparation scene opened directly; real fight/statistics/close/back buttons; manual 30Hz battle clocks, real render samples, native RAF Result. Not a browser playthrough or physical-device FPS proof.",
+  "baseline": [
+    {
+      "variant": "gold-canvas-390-tg",
+      "stage": "ch2_s10",
+      "width": 390,
+      "height": 844,
+      "renderer": 1,
+      "glVersion": null,
+      "telegram": true,
+      "seed": 4245839514,
+      "duration": 42.8,
+      "winner": "A",
+      "samples": 221,
+      "maximumCovered": 0.6517069428461834,
+      "maximumTime": 9.366666666666644,
+      "maximumHero": "Ирис",
+      "samplesOverHalf": 3,
+      "nameTapAlpha": 1,
+      "labelCollisionSamples": 0,
+      "resultBossName": "Золотой жук-вор",
+      "portraitBounds": {
+        "x": 54,
+        "right": 138,
+        "nameLeft": 162
+      },
+      "campaignReturn": [
+        "Campaign"
+      ],
+      "postrenderBattle": 1328,
+      "postrenderResult": 1664,
+      "errors": [],
+      "functionalFailures": [],
+      "rawReport": "/tmp/chronoworld-night-boss-gold-canvas-390-tg/report.json",
+      "renderEvery": 1
+    },
+    {
+      "variant": "gold-webgl-360-tg",
+      "stage": "ch2_s10",
+      "width": 360,
+      "height": 640,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "telegram": true,
+      "seed": 4245839514,
+      "duration": 42.8,
+      "winner": "A",
+      "samples": 221,
+      "maximumCovered": 0.6154478225143796,
+      "maximumTime": 16.733333333333324,
+      "maximumHero": "Ирис",
+      "samplesOverHalf": 4,
+      "nameTapAlpha": 1,
+      "labelCollisionSamples": 0,
+      "resultBossName": "Золотой жук-вор",
+      "portraitBounds": {
+        "x": 54,
+        "right": 138,
+        "nameLeft": 162
+      },
+      "campaignReturn": [
+        "Campaign"
+      ],
+      "postrenderBattle": 223,
+      "postrenderResult": 581,
+      "errors": [],
+      "functionalFailures": [],
+      "rawReport": "/tmp/chronoworld-night-boss-gold-webgl-360-tg/report.json",
+      "renderEvery": 6
+    },
+    {
+      "variant": "lord-canvas-360-tg",
+      "stage": "ch10_s18",
+      "width": 360,
+      "height": 640,
+      "renderer": 1,
+      "glVersion": null,
+      "telegram": true,
+      "seed": 4171357815,
+      "duration": 67.5,
+      "winner": "A",
+      "samples": 345,
+      "maximumCovered": 1,
+      "maximumTime": 23.533333333333662,
+      "maximumHero": "Алан",
+      "samplesOverHalf": 297,
+      "nameTapAlpha": 1,
+      "labelCollisionSamples": 0,
+      "resultBossName": "Владыка мёртвых",
+      "portraitBounds": {
+        "x": 54,
+        "right": 138,
+        "nameLeft": 162
+      },
+      "campaignReturn": [
+        "Campaign"
+      ],
+      "postrenderBattle": 2072,
+      "postrenderResult": 2663,
+      "errors": [],
+      "functionalFailures": [],
+      "rawReport": "/tmp/chronoworld-night-boss-lord-canvas-360-tg/report.json",
+      "renderEvery": 1
+    },
+    {
+      "variant": "lord-webgl-390-tg-complete",
+      "stage": "ch10_s18",
+      "width": 390,
+      "height": 844,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "telegram": true,
+      "seed": 4171357815,
+      "duration": 67.5,
+      "winner": "A",
+      "samples": 345,
+      "maximumCovered": 1,
+      "maximumTime": 32.36666666666739,
+      "maximumHero": "Алан",
+      "samplesOverHalf": 297,
+      "nameTapAlpha": 1,
+      "labelCollisionSamples": 0,
+      "resultBossName": "Владыка мёртвых",
+      "portraitBounds": {
+        "x": 54,
+        "right": 138,
+        "nameLeft": 162
+      },
+      "campaignReturn": [
+        "Campaign"
+      ],
+      "postrenderBattle": 347,
+      "postrenderResult": 707,
+      "errors": [],
+      "functionalFailures": [],
+      "rawReport": "/tmp/chronoworld-night-boss-lord-webgl-390-tg-complete/report.json",
+      "renderEvery": 6
+    }
+  ],
+  "sourceSha256": {
+    "src/game/scenes/BattleScene.ts": "a8bbaf5324aa95c1cde4dc95010a3dd146030ddcf369177623fda3a997672747",
+    "src/game/scenes/ResultScene.ts": "6cdb2449e0d0c274a289c826dace11f908f798989fb5e1a25f32441430920c2f",
+    "src/game/battleSpread.ts": "1f9618d1dd5fd3c471b8c90f3cae9522482b5065e89e8b4ed73dc55c8322f4e3",
+    "src/pipeline/sprites.ts": "ef64f93a41b8678197c33d9edcfa3a29f28e0129c92522ba81b46cce727f63f4",
+    "assets/sprites/sprites.json": "67b4d866095e527a0e4eca43d5ea4c74f70ddd9ba92ebecea3ea94174aa30de6",
+    "assets/sprites/bosses_xl/lord_of_death.png": "19293c0944e6d33ba8d9cb4921bd2be6b3c5ec3d1656fd4077b2bc84a81a75ce",
+    "assets/sprites/monsters/elite.png": "0ce21cb17fcb457f1b50e493d0496a4b66ba9c8e047a5616d8ba614fd2f21534",
+    "data/units/mob_lord_of_death.json": "538501428549ab0dc4ffb2f7932b58c5842ee24ca46c93b2e49dad6fef019911",
+    "data/units/sewer_golden_bug.json": "4872c83a9dc26ee9be23e628bc7b7f4c00ec3aaea64bd0cf1b1fdcdc639b7cf5",
+    "/tmp/chronoworld-night-baseline/saves/after-ch2_s10.json": "a917ac183b2a14c1a0d7d3b14a84e6ee16ae75b369ba2b5422b18bf4c67d8ed3",
+    "/tmp/chronoworld-night-baseline/saves/after-ch2_s10.clock.json": "cc18bc786b1ce09f448d6f0cb0d601b752dce11cc7144485914da8255ed0d3f1",
+    "/tmp/chronoworld-night-baseline/saves/after-ch10_s18.json": "f71dfed8bd52d2b1a76de9f690b4711404fe983e951cac33ef6e5ff49819d499",
+    "/tmp/chronoworld-night-baseline/saves/after-ch10_s18.clock.json": "85b32db7100eb9de2e8c40e18f89001127ab91ac7d7e864cfed601070e2bb5fc",
+    "src/game/backdrops.ts (temporary root mirror; removed after QA)": "e67506b683a00b892e7559804d52fad1e6ade8c4173ae2b5f98c55dab82ab167",
+    "src/game/backgroundCache.ts (temporary root mirror; removed after QA)": "81f412040045c454331c830d69942775f4974c745c7fdfc054f8ee7847cbd938"
+  },
+  "bug158": "Lord of Death overlap independently verified fixed on390TGWebGL1 and360TGCanvas; max<0.7%, no samples above50%",
+  "bug117": "Current labels and Result names clear on lawful baseline replays; original elite.png remains art debt",
+  "fixed": [
+    {
+      "variant": "webgl-390-tg",
+      "stage": "ch10_s18",
+      "width": 390,
+      "height": 844,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "telegram": true,
+      "samples": 345,
+      "maximumCovered": 0.006479722935984806,
+      "maximumTime": 30.766666666667355,
+      "maximumHero": "Алан",
+      "samplesOverHalf": 0,
+      "bossTapAlpha": 1,
+      "tap": {
+        "selector": "visible boss opaque figure with actual Phaser hit test",
+        "worldPoint": {
+          "x": 856.0237388724037,
+          "y": 1049.73293768546
+        },
+        "canvasPoint": {
+          "x": 305.84553171017757,
+          "y": 495.01981708451626
+        },
+        "visibleCandidates": 5709,
+        "hitTarget": "B1",
+        "nameAlpha": 1
+      },
+      "labelCollisionSamples": 0,
+      "campaignReturn": [
+        "Campaign"
+      ],
+      "resultBossName": "Владыка мёртвых",
+      "duration": 67.5,
+      "winner": "A",
+      "seed": 4171357815,
+      "seedMatchesBaseline": true,
+      "initialUnitsMatchBaseline": true,
+      "durationMatchesBaseline": true,
+      "winnerMatchesBaseline": true,
+      "postrenderBattle": 347,
+      "postrenderResult": 705,
+      "errors": [],
+      "functionalFailures": [],
+      "rawReport": "/tmp/chronoworld-night-boss-lord-fixed-webgl-390-tg/report.json",
+      "renderEvery": 6
+    },
+    {
+      "variant": "canvas-360-tg",
+      "stage": "ch10_s18",
+      "width": 360,
+      "height": 640,
+      "renderer": 1,
+      "glVersion": null,
+      "telegram": true,
+      "samples": 345,
+      "maximumCovered": 0.0067842605156037995,
+      "maximumTime": 9.73333333333331,
+      "maximumHero": "Вика",
+      "samplesOverHalf": 0,
+      "bossTapAlpha": 1,
+      "tap": {
+        "selector": "visible boss opaque figure with actual Phaser hit test",
+        "worldPoint": {
+          "x": 855.8297872340426,
+          "y": 1051.9148936170213
+        },
+        "canvasPoint": {
+          "x": 257.2380700897663,
+          "y": 345.4047927184308
+        },
+        "visibleCandidates": 2750,
+        "hitTarget": "B1",
+        "nameAlpha": 1
+      },
+      "labelCollisionSamples": 0,
+      "campaignReturn": [
+        "Campaign"
+      ],
+      "resultBossName": "Владыка мёртвых",
+      "duration": 67.5,
+      "winner": "A",
+      "seed": 4171357815,
+      "seedMatchesBaseline": true,
+      "initialUnitsMatchBaseline": true,
+      "durationMatchesBaseline": true,
+      "winnerMatchesBaseline": true,
+      "postrenderBattle": 347,
+      "postrenderResult": 939,
+      "errors": [],
+      "functionalFailures": [],
+      "rawReport": "/tmp/chronoworld-night-boss-lord-fixed-canvas-360-tg/report.json",
+      "renderEvery": 6
+    }
+  ],
+  "fixedSourceSha256": {
+    "src/game/scenes/BattleScene.ts": "d3ff907980f0e0f2df2bbbd08a0236e2e114ecfa2409465cdb269e385125a1b0",
+    "src/game/battlePresentation.ts": "ac4f7e734058bad785c2afaa738daff737c33df5d30987ee52e1177634e7f181",
+    "src/game/backdrops.ts": "e67506b683a00b892e7559804d52fad1e6ade8c4173ae2b5f98c55dab82ab167",
+    "src/game/backgroundCache.ts": "81f412040045c454331c830d69942775f4974c745c7fdfc054f8ee7847cbd938"
+  },
+  "helperSha256": "d10fa9ca1b2881333f2a9d26243159ee3f9f1243072590472d3a838240c3df1b"
+}

@@ -43,6 +43,8 @@ export const HeroStateSchema = z.object({
   journey: z.object({
     peakLevel: z.number().int().min(1).max(100).optional(),
     branchLevels: z.record(z.string(), z.number().int().min(1).max(100)).optional(),
+    /** Последний собственный выбор пути: восстанавливается при возвращении фиолетовой редкости. */
+    lastBranch: z.string().optional(),
     focus: z.enum(['resolve', 'precision', 'guard']).optional(),
   }).optional(),
 });

@@ -12,6 +12,7 @@ import { C, COLOR, FS, leading, OUTLINE, R, S, T, TITLE_STYLE } from './theme';
 import { unlockTagline } from './tipTexts';
 import { BTN, button, clampLines, plate, pressable, SURFACE, text, toast } from './ui';
 import { haptic } from './haptics';
+import { minimumTouchSize, onViewChange, view } from './viewport';
 
 /**
  * Открытие функций по этапам (data/unlocks.json, ядро — src/core/unlocks): замки на закрытом («Откроется на этапе 1-8»,
@@ -189,10 +190,10 @@ function banner(scene: Phaser.Scene, f: FeatureView, more: number, close: (go: b
   // Медальон наполовину заходит на верх окна (как в AFK): текст начинается под ним.
   const PAD_TOP = ICON / 2 + S.m;
   const CTA_W = 560;
-  const LATER_H = BTN.m;
+  const LATER_H = Math.max(BTN.m, minimumTouchSize());
   const boxH = PAD_TOP + kicker.height + S.xxs + title.height + S.s + line.height + S.xl + BTN.cta + S.xs + LATER_H + S.s;
   const below = more > 0 ? 80 : 0;
-  const boxTop = Math.round((GAME_H - (ICON / 2 + boxH + below)) / 2 + ICON / 2);
+  const boxTop = Math.round((view().uiHeight - (ICON / 2 + boxH + below)) / 2 + ICON / 2);
   const iconY = boxTop;
 
   layer.add(slowRays(scene, cx, iconY, 820, 0.45));
@@ -234,4 +235,9 @@ function banner(scene: Phaser.Scene, f: FeatureView, more: number, close: (go: b
   });
   haptic('unlock');
   popIn(scene, layer, shade);
+  const offView = onViewChange(scene, () => {
+    const inner = layer.getByName('popInner') as Phaser.GameObjects.Container | null;
+    inner?.setY(view().uiHeight / 2);
+  });
+  layer.once(Phaser.GameObjects.Events.DESTROY, offView);
 }

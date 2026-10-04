@@ -1,7 +1,7 @@
 {
   "actionThreshold": 1500,
   "tickSeconds": 0.1,
-  "timeLimitSeconds": 90,
+  "timeLimitSeconds": 100,
   "damage": {
     "defScale": 100,
     "varianceMin": 0.95,

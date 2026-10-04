@@ -15,7 +15,12 @@ vi.mock('../src/game/juice', () => ({ collect: (_: unknown, fn: () => void) => {
 vi.mock('../src/game/layout', () => ({ GAME_W: 1080 }));
 vi.mock('../src/game/screen', () => ({ CONTENT_TOP: 170, contentBottom: () => 1730, screen: () => {}, confirmOpen: () => state.modal }));
 vi.mock('../src/game/session', () => ({ now: () => 0, restartOnNewDay: () => {}, session: { save: {} } }));
-vi.mock('../src/game/ui', () => ({ tutorialHint: () => {} }));
+vi.mock('../src/game/ui', () => ({ tutorialHint: () => {}, ScrollArea: class {
+  offset = 0;
+  content = { setName: () => this.content, add: () => this.content };
+  setContentHeight() {} setBounds() {}
+} }));
+vi.mock('../src/game/viewport', () => ({ onViewChange: () => () => {} }));
 vi.mock('../src/game/unlockBanner', () => ({ showUnlockBanners: () => {}, UNLOCK_BANNER_NAME: 'unlock' }));
 import { AdventureScene } from '../src/game/scenes/AdventureScene';
 
