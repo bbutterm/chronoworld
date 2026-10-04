@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_zara_assassin_cross",
+  "name": "Решение Зары",
+  "description": "На полной энергии. Врагам заднего ряда (если пуст — переднего): урон 2.05 × АТК; ЗАЩ -25% на 2 хода статуса.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.05
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "zara_cross",
+        "name": "Защита",
+        "turns": 2,
+        "stats": {
+          "def": -0.25
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

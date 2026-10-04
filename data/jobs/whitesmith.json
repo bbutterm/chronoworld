@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "whitesmith",
+  "name": "Мастер кузнец",
+  "description": "Ветеранский ранг: Мастер кузнец. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "blacksmith"
+  ],
+  "maxJobLevel": 100,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2650,
+    "atk": 220,
+    "def": 75,
+    "spd": 95
+  },
+  "growth": {
+    "hp": 65,
+    "atk": 6,
+    "def": 2,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_whitesmith_forge_burst"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_whitesmith_temper"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_whitesmith_rivets"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_whitesmith_bellows"
+    }
+  ],
+  "visual": {
+    "sprite": "whitesmith_m",
+    "hitFx": "fx_hit"
+  },
+  "behavior": "smith",
+  "nameF": "Мастер кузнец"
+}

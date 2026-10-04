@@ -20,7 +20,7 @@ describe('O: used assets (что попадает в dist)', () => {
     }
   });
 
-  it('включает все 93 анимированных FX (у каждого свой лист; 30.09 — +31 оригинальный атлас RO из клиента scRO; 01.10 — +20 ульт и частых навыков, build_ro_fx.py) в сборку при наличии статических fallback в манифесте', () => {
+  it('включает все 106 анимированных FX (93 прежних и 13 оригинальных ветеранских атласов) в сборку при наличии статических fallback в манифесте', () => {
     const catalog = json('assets/effects/effects.json') as { effects: { id: string; file: string }[] };
     expect(catalog.effects.map((effect) => effect.id).sort()).toEqual([
       'fx_arrow', 'fx_death', 'fx_heal', 'fx_hit', 'fx_job_acolyte_angelus', 'fx_job_acolyte_blessing',
@@ -44,7 +44,9 @@ describe('O: used assets (что попадает в dist)', () => {
       'fx_job_rogue_strip_armor', 'fx_job_rogue_strip_weapon', 'fx_job_sage_deluge', 'fx_job_sage_dispell',
       'fx_job_sage_earth_spike', 'fx_job_sage_heavens_drive', 'fx_job_sage_magic_rod', 'fx_job_sage_spell_breaker',
       'fx_job_sage_volcano_ground', 'fx_job_swordman_magnum_break', 'fx_job_swordman_provoke', 'fx_job_thief_envenom',
-      'fx_job_thief_steal', 'fx_job_thief_venom_knife_projectile', 'fx_job_wizard_earth_hit',
+      'fx_job_thief_steal', 'fx_job_thief_venom_knife_projectile',
+      ...['assassin_cross', 'champion', 'clown', 'creator', 'gypsy', 'high_priest', 'high_wizard', 'lord_knight', 'paladin', 'professor', 'sniper', 'stalker', 'whitesmith'].map((job) => `fx_job_veteran_${job}`),
+      'fx_job_wizard_earth_hit',
       'fx_job_wizard_jupitel_thunder_projectile', 'fx_job_wizard_jupitel_thunder_target',
       'fx_job_wizard_lord_of_vermilion', 'fx_job_wizard_meteor_storm', 'fx_job_wizard_quagmire',
       'fx_job_wizard_soul_drain', 'fx_job_wizard_storm_gust', 'fx_job_wizard_wind_hit', 'fx_magic',

@@ -208,6 +208,113 @@
           "behavior": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "advanced": {
+            "type": "object",
+            "properties": {
+              "job": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "tank",
+                  "damage",
+                  "healer",
+                  "support"
+                ]
+              },
+              "statMods": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "hp": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "atk": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "def": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "spd": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                }
+              },
+              "skills": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "level": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "skill": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "level",
+                    "skill"
+                  ]
+                }
+              },
+              "ult": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "promotion": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "bio": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "visual": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "sprite": {
+                    "type": "string"
+                  }
+                }
+              },
+              "behavior": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "minRarity": {
+                "type": "string",
+                "enum": [
+                  "gold",
+                  "red"
+                ]
+              },
+              "minLevel": {
+                "type": "integer",
+                "minimum": 70,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "job",
+              "role",
+              "skills",
+              "promotion",
+              "minRarity",
+              "minLevel"
+            ]
           }
         },
         "required": [

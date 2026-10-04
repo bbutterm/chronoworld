@@ -19,8 +19,8 @@ export const JobSchema = z.object({
   /** Название для героини («Жрица», «Волшебница»); нет — то же, что name. Показ — jobTitle (src/core/heroes/card.ts). */
   nameF: z.string().optional(),
   description: z.string().optional(),
-  /** 0 — Новичок, 1 — первая профессия, 2 — вторая. */
-  tier: z.number().int().min(0).max(2),
+  /** 0 — Новичок, 1 — первая профессия, 2 — вторая, 3 — её ветеранский ранг (не третья профессия RO). */
+  tier: z.number().int().min(0).max(3),
   /** Из каких профессий можно перейти (пусто только у tier 0). */
   from: z.array(id).default([]),
   maxJobLevel: z.number().int().positive(),

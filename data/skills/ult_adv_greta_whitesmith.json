@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_greta_whitesmith",
+  "name": "Ремонт Греты",
+  "description": "На полной энергии. Всем союзникам, включая себя: щит 18% макс. ОЗ цели; АТК +22% на 3 хода статуса.",
+  "icon": "icon_ult_warrior",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.18
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "greta_temper",
+        "name": "Натиск",
+        "turns": 3,
+        "stats": {
+          "atk": 0.22
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

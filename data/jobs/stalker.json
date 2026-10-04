@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "stalker",
+  "name": "Сталкер",
+  "nameF": "Сталкер",
+  "description": "Ветеранский ранг: Сталкер. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "rogue"
+  ],
+  "maxJobLevel": 100,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2250,
+    "atk": 240,
+    "def": 50,
+    "spd": 115
+  },
+  "growth": {
+    "hp": 55,
+    "atk": 7,
+    "def": 1.5,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_stalker_disarm_chain"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_stalker_snare"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_stalker_prepared"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_stalker_siphon"
+    }
+  ],
+  "visual": {
+    "sprite": "stalker_m",
+    "hitFx": "fx_hit"
+  },
+  "behavior": "line"
+}

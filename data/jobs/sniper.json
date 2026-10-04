@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "sniper",
+  "name": "Снайпер",
+  "nameF": "Снайпер",
+  "description": "Ветеранский ранг: Снайпер. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "hunter"
+  ],
+  "maxJobLevel": 100,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2100,
+    "atk": 250,
+    "def": 45,
+    "spd": 105
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 7,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_sniper_falcon_mark"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_sniper_pinning_volley"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_sniper_sight"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_sniper_quiver"
+    }
+  ],
+  "visual": {
+    "sprite": "sniper_m",
+    "hitFx": "fx_hit",
+    "projectile": "fx_arrow"
+  },
+  "behavior": "marksman"
+}

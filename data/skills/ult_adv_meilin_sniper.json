@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_meilin_sniper",
+  "name": "Разведка боем Мэйлин",
+  "description": "На полной энергии. Врагам заднего ряда (если пуст — переднего): урон 1.8 × АТК; СКР -30% на 2 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.8
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "meilin_arrows",
+        "name": "Темп",
+        "turns": 2,
+        "stats": {
+          "spd": -0.3
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

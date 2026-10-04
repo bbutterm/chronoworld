@@ -67,7 +67,52 @@
       "visual": {
         "sprite": "hero_otto_blacksmith_detail_v2"
       },
-      "behavior": "charger"
+      "behavior": "charger",
+      "advanced": {
+        "job": "whitesmith",
+        "role": "tank",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.554,
+          "atk": 1.1655,
+          "def": 1.554,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_blacksmith_hammer_fall"
+          },
+          {
+            "level": 10,
+            "skill": "job_blacksmith_tempering"
+          },
+          {
+            "level": 70,
+            "skill": "adv_whitesmith_forge_burst"
+          },
+          {
+            "level": 80,
+            "skill": "adv_whitesmith_temper"
+          },
+          {
+            "level": 90,
+            "skill": "adv_whitesmith_rivets"
+          },
+          {
+            "level": 100,
+            "skill": "adv_whitesmith_bellows"
+          }
+        ],
+        "ult": "ult_adv_otto_whitesmith",
+        "promotion": "Отто проверяет оси, крепления и железо под живой нагрузкой. Мастерская работа должна выдержать дорогу, а не только понравиться покупателю на месте.",
+        "bio": "Мастер-кузнец и альбертинский возчик, различающий поломки тележки по скрипу. Отто помнит руку отца на козлах, но не оправдывает памятью плохую ось. Чинит даже орочью дубину без торга; самый дорогой груз для него — люди, которых надо довезти целыми.",
+        "visual": {
+          "sprite": "whitesmith_m"
+        },
+        "behavior": "charger"
+      }
     },
     {
       "job": "alchemist",
@@ -100,6 +145,46 @@
       "bio": "Алхимик на колёсах: вместо товара в тележке Отто плещется кислота и гремят огненные колбы. Он бьёт врага издалека тем, что раньше продавал бы на альбертинском рынке. Торговлю пришлось отложить — покупатели разбежались.",
       "visual": {
         "sprite": "hero_otto_alchemist_detail_v2"
+      },
+      "advanced": {
+        "job": "creator",
+        "role": "damage",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.2765,
+          "atk": 1.443,
+          "def": 1.1655,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_alchemist_acid_terror"
+          },
+          {
+            "level": 70,
+            "skill": "adv_creator_restorative"
+          },
+          {
+            "level": 80,
+            "skill": "adv_creator_detonation"
+          },
+          {
+            "level": 90,
+            "skill": "adv_creator_reagents"
+          },
+          {
+            "level": 100,
+            "skill": "adv_creator_distillation"
+          }
+        ],
+        "ult": "ult_adv_otto_creator",
+        "promotion": "Отто осваивает точную дозировку и безопасную перевозку составов. Выучка создателя требует доставить зелье целым и применить там, где оно действительно нужно.",
+        "bio": "Создатель с тележкой, где кислота отделена от лечебных зелий. Отто знает цену трём каплям и сначала укрывает то, что нельзя испортить. Матери пишет коротко, но регулярно; остаётся возить отряд по собственному выбору, не теряя связи с Альбертой.",
+        "visual": {
+          "sprite": "creator_m"
+        }
       }
     }
   ],

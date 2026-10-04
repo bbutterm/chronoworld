@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_lord_knight_iron_order",
+  "name": "Железный приказ",
+  "description": "На себя: щит 16% макс. ОЗ цели; ЗАЩ +20% на 3 хода статуса.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.16
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_iron",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": 0.2
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

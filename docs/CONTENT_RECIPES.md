@@ -80,7 +80,7 @@ id вида `chapterN` выводится сам (`ch<N>`).
 
 1. Скопировать ближайшую: `cp data/jobs/knight.json data/jobs/lord_knight.json`; `id`, `name`, `description`.
 2. `tier` (1 — первая, 2 — вторая), `from: ["<профессия tier ниже>"]`, `maxJobLevel` (50), `role`, `baseStats`, `growth`, `basic`.
-   Порог перехода — `progression.json → jobChange.tierLevel`. Tier 3 сейчас схемой не поддерживается (`tier` 0–2).
+   Порог перехода — `progression.json → jobChange.tierLevel`. Для ветеранского ранга второй профессии используется tier 3 (не третья профессия RO), единственный from — исходная tier 2. Переход карточки задаётся branch.advanced: minRarity/minLevel, без смены сохранённого branch.
 3. `skills`: 5 навыков на уровнях 1/10/20/30/40 (на уровне — не больше одного), навыки — рецепт 3.
 4. Вид: `visual.sprite` (лист героя 224×192 с `cast`), `visual.projectile` для дальних, `hitFx`.
    Бюст для рамки портрета — `assets/ro/portraits/hero_<id спрайта>_portrait.png` (256×256), необязателен.

@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_creator_detonation",
+  "name": "Реакция катализатора",
+  "description": "Врагам переднего ряда (если пуст — заднего): урон 1.1 × АТК; урон 0.2 × АТК каждый ход статуса на 3 хода статуса.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.1
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_reaction",
+        "name": "Ожог",
+        "turns": 3,
+        "dot": {
+          "k": 0.2
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

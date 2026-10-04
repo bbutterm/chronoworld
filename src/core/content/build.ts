@@ -31,7 +31,11 @@ export class ContentError extends Error {
 
 function parseAll<T extends { id: string }>(files: RawFile[], schema: z.ZodType<T>, what: string, problems: string[]): Record<string, T> {
   const out: Record<string, T> = {};
-  for (const f of files) {
+  // Node sorts filenames by code point; browser globs may use locale collation.
+  // Keep the same registry order for prefix pairs such as assassin.json / assassin_cross.json.
+  const filename = (f: RawFile) => f.file.split('/').at(-1) ?? f.file;
+  const ordered = [...files].sort((a, b) => filename(a) < filename(b) ? -1 : filename(a) > filename(b) ? 1 : 0);
+  for (const f of ordered) {
     const r = schema.safeParse(f.data);
     if (!r.success) {
       for (const i of r.error.issues) problems.push(`${f.file}: ${i.path.join('.') || '(корень)'} — ${i.message}`);

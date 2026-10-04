@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "lord_knight",
+  "name": "Лорд-рыцарь",
+  "description": "Ветеранский ранг: Лорд-рыцарь. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "knight"
+  ],
+  "maxJobLevel": 100,
+  "role": "tank",
+  "baseStats": {
+    "hp": 2950,
+    "atk": 225,
+    "def": 95,
+    "spd": 100
+  },
+  "growth": {
+    "hp": 70,
+    "atk": 6,
+    "def": 2.5,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_lord_knight_lance_line"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_lord_knight_iron_order"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_lord_knight_vanguard"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_lord_knight_reprise"
+    }
+  ],
+  "visual": {
+    "sprite": "lord_knight_m",
+    "hitFx": "fx_hit"
+  },
+  "behavior": "guard",
+  "nameF": "Леди-рыцарь"
+}

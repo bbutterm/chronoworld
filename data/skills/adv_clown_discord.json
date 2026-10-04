@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_clown_discord",
+  "name": "Сбитый такт",
+  "description": "Врагам заднего ряда (если пуст — переднего): урон 0.95 × АТК; срыв текущего каста на 1 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.95
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_discord",
+        "name": "Срыв заклинания",
+        "turns": 1,
+        "interrupt": true
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

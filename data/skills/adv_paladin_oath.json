@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_paladin_oath",
+  "name": "Щит обета",
+  "description": "Союзнику с наименьшей долей ОЗ (включая себя): щит 18% макс. ОЗ цели; ЗАЩ +15% на 2 хода статуса.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.18
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_oath",
+        "name": "Защита",
+        "turns": 2,
+        "stats": {
+          "def": 0.15
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

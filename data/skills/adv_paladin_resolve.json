@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_paladin_resolve",
+  "name": "Стойкость обета",
+  "description": "В начале хода (шанс 25%): На себя: лечение 0.32 × АТК.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 0.32
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "turnStart",
+  "chance": 0.25
+}

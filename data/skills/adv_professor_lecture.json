@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_professor_lecture",
+  "name": "Защитная формула",
+  "description": "Союзнику с наименьшей долей ОЗ (включая себя): щит 16% макс. ОЗ цели; энергия +8.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "shield",
+      "pctMaxHp": 0.16
+    },
+    {
+      "type": "energy",
+      "amount": 8
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

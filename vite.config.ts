@@ -5,6 +5,7 @@ import { build, type Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { ASSETS_DIR, bootFiles, collectUsedAssets } from './scripts/lib/used-assets.ts';
 import { SKIN_REPLACED } from './src/pipeline/bootAssets.ts';
+import { trimEffectsJson } from './scripts/lib/trim-effects.ts';
 import { SPRITE_RUNTIME_KEYS } from './src/pipeline/sprites.ts';
 
 /** WebP-копии PNG без потерь (tools/build_webp.py, `npm run assets:webp`). */
@@ -214,7 +215,7 @@ export default defineConfig(({ command }) => ({
   // В dev отдаём всю папку; при сборке копирует только нужное usedAssetsPlugin.
   publicDir: command === 'build' ? false : 'assets',
   base: './',
-  plugins: [phaserLiteDev(), phaserFlags(), trimSpritesJson(), assetPackPlugin(), previewCacheHeaders()],
+  plugins: [phaserLiteDev(), phaserFlags(), trimSpritesJson(), trimEffectsJson(), assetPackPlugin(), previewCacheHeaders()],
   resolve: { alias: command === 'build' ? [{ find: /^phaser$/, replacement: PHASER_LITE }] : [] },
   build: {
     // Phaser (≈ 0.9 МБ без физики) — отдельным файлом: он меняется редко, и после обновления игры повторный визит

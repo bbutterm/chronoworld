@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_gypsy_burst_step",
+  "name": "Взрывной шаг",
+  "description": "Врагам заднего ряда (если пуст — переднего): урон 1.2 × АТК; урон 0.16 × АТК каждый ход статуса на 3 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.2
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_dance",
+        "name": "Ожог",
+        "turns": 3,
+        "dot": {
+          "k": 0.16
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

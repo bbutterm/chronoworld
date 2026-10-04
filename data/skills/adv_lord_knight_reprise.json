@@ -1,0 +1,22 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_lord_knight_reprise",
+  "name": "Ответный выпад",
+  "description": "В начале хода (шанс 25%): Ближайшему врагу: урон 0.35 × АТК.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.35
+    }
+  ],
+  "castTime": 0,
+  "priority": 6,
+  "trigger": "turnStart",
+  "chance": 0.25
+}

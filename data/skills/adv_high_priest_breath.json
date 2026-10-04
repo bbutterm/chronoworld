@@ -1,0 +1,23 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_high_priest_breath",
+  "name": "Ровное дыхание веры",
+  "description": "В начале хода (шанс 25%): Союзнику с наименьшей долей ОЗ (включая себя): лечение 0.22 × АТК.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 0.22
+    }
+  ],
+  "castTime": 0,
+  "priority": 10,
+  "trigger": "turnStart",
+  "chance": 0.25
+}

@@ -6,7 +6,7 @@ import { rarityIndex, type CardSkill } from './schema';
 const DEFAULT_MAX_LEVEL = { green: 20, blue: 40, purple: 60, gold: 80, red: 100 } as const;
 
 /** Ветки, которые бывают только у одного пола (Лучник: парень — Бард, девушка — Танцовщица). */
-const GENDER_ONLY: Record<string, 'm' | 'f'> = { bard: 'm', dancer: 'f' };
+const GENDER_ONLY: Record<string, 'm' | 'f'> = { bard: 'm', dancer: 'f', clown: 'm', gypsy: 'f' };
 
 /**
  * Перекрёстные проверки шаблонов героев (ошибки — problems, content:check ✗; предупреждения — warnings, ⚠).
@@ -54,6 +54,20 @@ export function validateHeroes(content: Content, problems: string[], warnings: s
       if (only && only !== t.gender) problems.push(`${bw}: ветка ${b.job} — только для ${only === 'm' ? 'парня' : 'девушки'}`);
       checkSkills(content, bw, b.skills, t.maxRarity, line, problems, warnings);
       checkUlt(content, bw, b.ult, b.skills, problems);
+      const a = b.advanced;
+      if (a) {
+        const aw = `${bw}: advanced`;
+        const aj = content.jobs[a.job];
+        if (!aj || aj.tier !== 3 || aj.from.length !== 1 || aj.from[0] !== b.job || lineOf({ content }, a.job) !== line) problems.push(`${aw}: требуется ветеранский ранг своей ветки ${b.job}`);
+        if (GENDER_ONLY[a.job] && GENDER_ONLY[a.job] !== t.gender) problems.push(`${aw}: неверный пол профессии`);
+        if (a.visual.sprite !== `${a.job}_${t.gender}`) problems.push(`${aw}: нужен явный лист профессии своего пола`);
+        if (a.role !== b.role) problems.push(`${aw}: роль ветки должна сохраняться`);
+        if (a.minLevel > DEFAULT_MAX_LEVEL[a.minRarity] || rarityIndex(a.minRarity) > rarityIndex(t.maxRarity)) problems.push(`${aw}: недостижимый порог`);
+        checkSkills(content, aw, a.skills, t.maxRarity, line, problems, warnings, 6);
+        checkUlt(content, aw, a.ult, a.skills, problems);
+        if (!a.ult) problems.push(`${aw}: нужна личная ульта`);
+        if (a.skills.some(s => !b.skills.some(old => old.skill === s.skill) && s.level < a.minLevel)) problems.push(`${aw}: новый навык ниже порога формы`);
+      }
     }
   }
   // ✗ Навыки 1-го уровня различны: у героев (первая профессия) и у форм веток.
@@ -113,7 +127,7 @@ function checkSkillNames(content: Content, problems: string[]): void {
     return JSON.stringify({ mode, ...rules });
   };
   for (const hero of Object.values(content.heroes)) {
-    for (const form of [hero, ...hero.branches]) {
+    for (const form of [hero, ...hero.branches.flatMap(b => b.advanced ? [b, b.advanced] : [b])]) {
       const uses = [
         ...form.skills.map(({ skill }) => ({ id: skill, mode: content.skills[skill]?.trigger ? 'passive' : 'active' })),
         ...(form.ult ? [{ id: form.ult, mode: 'ult' }] : []),
@@ -148,8 +162,8 @@ function checkUlt(content: Content, where: string, ult: string | undefined, skil
   if (skills.some((s) => s.skill === ult)) problems.push(`${where}: ульта ${ult} уже среди навыков формы`);
 }
 
-function checkSkills(content: Content, where: string, skills: CardSkill[], maxRarity: keyof typeof DEFAULT_MAX_LEVEL, line: string, problems: string[], warnings: string[]): void {
-  if (skills.length < 2 || skills.length > 4) problems.push(`${where}: навыков ${skills.length}, нужно 2–4`);
+function checkSkills(content: Content, where: string, skills: CardSkill[], maxRarity: keyof typeof DEFAULT_MAX_LEVEL, line: string, problems: string[], warnings: string[], maxSkills = 4): void {
+  if (skills.length < 2 || skills.length > maxSkills) problems.push(`${where}: навыков ${skills.length}, нужно 2–${maxSkills}`);
   let last = 0;
   const seen = new Set<string>();
   for (const s of skills) {

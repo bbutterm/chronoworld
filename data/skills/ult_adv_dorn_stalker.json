@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_dorn_stalker",
+  "name": "Ловушка Дорна",
+  "description": "На полной энергии. Врагам заднего ряда (если пуст — переднего): урон 1.7 × АТК; АТК -30% на 2 хода статуса; энергия -10.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.7
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "dorn_trap",
+        "name": "Натиск",
+        "turns": 2,
+        "stats": {
+          "atk": -0.3
+        }
+      }
+    },
+    {
+      "type": "energy",
+      "amount": -10
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

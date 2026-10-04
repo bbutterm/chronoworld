@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_dorn_assassin_cross",
+  "name": "Расчёт Дорна",
+  "description": "На полной энергии. Врагу с наименьшими ОЗ: урон 2.6 × АТК; урон 0.35 × АТК каждый ход статуса на 3 хода статуса.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "lowestHp"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "dorn_cut",
+        "name": "Ожог",
+        "turns": 3,
+        "dot": {
+          "k": 0.35
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 6
+}

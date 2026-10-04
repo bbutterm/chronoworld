@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_greta_creator",
+  "name": "Аптечка Греты",
+  "description": "На полной энергии. Союзнику с наименьшей долей ОЗ (включая себя): лечение 2.4 × АТК; щит 22% макс. ОЗ цели.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 2.4
+    },
+    {
+      "type": "shield",
+      "pctMaxHp": 0.22
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 10
+}

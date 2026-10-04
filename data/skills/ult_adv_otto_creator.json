@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_otto_creator",
+  "name": "Рецепт Отто",
+  "description": "На полной энергии. Всем союзникам, включая себя: лечение 1.05 × АТК; ЗАЩ +20% на 3 хода статуса; щит 8% макс. ОЗ цели.",
+  "icon": "icon_ult_priest",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "heal",
+      "k": 1.05
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "otto_recipe",
+        "name": "Защита",
+        "turns": 3,
+        "stats": {
+          "def": 0.2
+        }
+      }
+    },
+    {
+      "type": "shield",
+      "pctMaxHp": 0.08
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

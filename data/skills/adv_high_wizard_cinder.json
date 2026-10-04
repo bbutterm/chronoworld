@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_high_wizard_cinder",
+  "name": "Угольная печать",
+  "description": "Ближайшему врагу: урон 1.65 × АТК; урон 0.25 × АТК каждый ход статуса на 3 хода статуса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.65
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_cinder",
+        "name": "Ожог",
+        "turns": 3,
+        "dot": {
+          "k": 0.25
+        }
+      }
+    }
+  ],
+  "cooldown": 9,
+  "castTime": 0.25,
+  "priority": 6
+}

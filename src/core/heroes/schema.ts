@@ -50,7 +50,7 @@ export const CardSkillSchema = z.object({ level: z.number().int().positive(), sk
  * Ветка второй профессии (форма на фиолетовом и выше, выбирает игрок): класс, роль, статы, 4 навыка, лист спрайта,
  * строка возвышения. Пол героя сохраняется (Лучник-парень → Бард, девушка → Танцовщица).
  */
-export const HeroBranchSchema = z.object({
+const HeroFormSchema = z.object({
   /** Вторая профессия (id из data/jobs, tier 2 линии героя). Это же значение хранится в save.heroes[].branch. */
   job: id,
   role: UnitSchema.shape.role,
@@ -74,6 +74,14 @@ export const HeroBranchSchema = z.object({
   /** Профиль поведения формы в бою (id из data/combat.json → behaviors), если отличается от профиля профессии. */
   behavior: id.optional(),
 });
+
+/** Ветеранский ранг выбранной второй профессии; сохранённый id ветки не меняется. */
+export const HeroAdvancedSchema = HeroFormSchema.extend({
+  minRarity: z.enum(['gold', 'red']),
+  minLevel: z.number().int().min(70).max(100),
+});
+export const HeroBranchSchema = HeroFormSchema.extend({ advanced: HeroAdvancedSchema.optional() });
+export type HeroAdvanced = z.infer<typeof HeroAdvancedSchema>;
 
 export const HeroTemplateSchema = z.object({
   $schema: z.string().optional(),

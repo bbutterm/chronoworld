@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "professor",
+  "name": "Профессор",
+  "description": "Ветеранский ранг: Профессор. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "sage"
+  ],
+  "maxJobLevel": 100,
+  "role": "support",
+  "baseStats": {
+    "hp": 2100,
+    "atk": 240,
+    "def": 45,
+    "spd": 105
+  },
+  "growth": {
+    "hp": 50,
+    "atk": 7,
+    "def": 1.2,
+    "spd": 0
+  },
+  "basic": "basic_ranged",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_professor_counter_lattice"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_professor_lecture"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_professor_proof"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_professor_feedback"
+    }
+  ],
+  "visual": {
+    "sprite": "professor_m",
+    "hitFx": "fx_hit",
+    "projectile": "fx_magic"
+  },
+  "behavior": "caster",
+  "nameF": "Профессор"
+}

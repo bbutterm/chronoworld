@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_high_wizard_convergence",
+  "name": "Схождение стихий",
+  "description": "Всем врагам: урон 1.05 × АТК; СКР -15% на 2 хода статуса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.05
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_converge",
+        "name": "Темп",
+        "turns": 2,
+        "stats": {
+          "spd": -0.15
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

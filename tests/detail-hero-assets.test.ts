@@ -88,7 +88,11 @@ describe('Approved 36-pack profession release', () => {
     expect(preserved).toHaveLength(release.preservedSpriteIds.length);
     expect(createHash('sha256').update(JSON.stringify(canonical(preserved))).digest('hex')).toBe(release.preservedRuntimeEntriesSha256);
     const added = manifest.sprites.filter(s => !release.preservedSpriteIds.includes(s.id));
-    expect(added).toHaveLength(36);
+    // The approved original 36 remain intact; the veteran release adds exactly 24 gender forms.
+    const veterans = Object.values(ctx.content.heroes).flatMap(t => t.branches.flatMap(b => b.advanced ? [b.advanced.visual.sprite!] : []));
+    expect(veterans).toHaveLength(24);
+    expect(new Set(veterans).size).toBe(24);
+    expect(added.map(s => s.id).sort()).toEqual([...cases.map(a => a.new_sprite_id), ...veterans].sort());
     expect(added.every(s => s.class === 'hero')).toBe(true);
   });
 

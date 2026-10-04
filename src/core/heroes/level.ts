@@ -104,8 +104,9 @@ export function levelUpHero(save: SaveState, heroId: string, ctx: GameContext, t
   const spent = levelRangeCost(hero.level, hero.level + n, ctx);
   const level = hero.level + n;
   const events: ProgressEvent[] = [];
-  const form = activeForm(heroTemplate(ctx, hero.templateId), hero);
+  const template = heroTemplate(ctx, hero.templateId);
   for (let l = hero.level + 1; l <= level; l++) {
+    const form = activeForm(template, { ...hero, level: l });
     events.push({ type: 'levelUp', heroId, level: l });
     for (const s of form.skills) if (s.level === l) events.push({ type: 'skillUnlocked', heroId, skill: s.skill, level: l });
   }

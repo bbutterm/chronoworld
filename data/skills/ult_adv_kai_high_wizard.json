@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_kai_high_wizard",
+  "name": "Равновесие Кая",
+  "description": "На полной энергии. Всем врагам: урон 1.7 × АТК; СКР -25% на 2 хода статуса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.7
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "kai_balance",
+        "name": "Темп",
+        "turns": 2,
+        "stats": {
+          "spd": -0.25
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

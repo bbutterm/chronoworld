@@ -1,0 +1,41 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_lira_professor",
+  "name": "Возражение Лиры",
+  "description": "На полной энергии. Всем врагам: урон 0.9 × АТК; срыв текущего каста на 1 хода статуса; АТК -25% на 2 хода статуса.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "lira_counter",
+        "name": "Срыв заклинания",
+        "turns": 1,
+        "interrupt": true
+      }
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "lira_deny",
+        "name": "Натиск",
+        "turns": 2,
+        "stats": {
+          "atk": -0.25
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

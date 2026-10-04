@@ -1,0 +1,32 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_meilin_gypsy",
+  "name": "Искры Мэйлин",
+  "description": "На полной энергии. Всем врагам: урон 1.3 × АТК; урон 0.3 × АТК каждый ход статуса на 3 хода статуса.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "meilin_sparks",
+        "name": "Ожог",
+        "turns": 3,
+        "dot": {
+          "k": 0.3
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

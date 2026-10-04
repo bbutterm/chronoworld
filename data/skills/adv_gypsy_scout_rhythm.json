@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_gypsy_scout_rhythm",
+  "name": "Ритм разведки",
+  "description": "Всем союзникам, включая себя: СКР +18% на 2 хода статуса; энергия +5.",
+  "icon": "icon_ult_archer",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_scout",
+        "name": "Темп",
+        "turns": 2,
+        "stats": {
+          "spd": 0.18
+        }
+      }
+    },
+    {
+      "type": "energy",
+      "amount": 5
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.25,
+  "priority": 10
+}

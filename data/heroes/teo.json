@@ -63,6 +63,50 @@
       "bio": "Жрец, чей голос слышно через всё поле боя. Тео благословляет отряд, изгоняет нечисть и, наконец, лечит всерьёз. Хор, выгнавший его за громкость, теперь приходит слушать его проповеди.",
       "visual": {
         "sprite": "hero_teo_priest_detail_v2"
+      },
+      "advanced": {
+        "job": "high_priest",
+        "role": "support",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.332,
+          "atk": 1.3875,
+          "def": 1.2765,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_priest_impositio_manus"
+          },
+          {
+            "level": 10,
+            "skill": "job_priest_magnificat"
+          },
+          {
+            "level": 70,
+            "skill": "adv_high_priest_sanctuary"
+          },
+          {
+            "level": 80,
+            "skill": "adv_high_priest_absolution"
+          },
+          {
+            "level": 90,
+            "skill": "adv_high_priest_vespers"
+          },
+          {
+            "level": 100,
+            "skill": "adv_high_priest_breath"
+          }
+        ],
+        "ult": "ult_adv_teo_high_priest",
+        "promotion": "Тео удерживает благословение и голос на длинной службе до последних слов. Сан Верховного жреца требует отвечать не только за громкость, но и за слушающих.",
+        "bio": "Верховный жрец с голосом, которому собор когда-то оказался мал. Тео учится не прятать горн, а ставить его туда, где нужен, и беречь дыхание до последней строки. Может поднять площадь молитвой; потом сам объяснит стражникам, почему это было не тревогой.",
+        "visual": {
+          "sprite": "high_priest_m"
+        }
       }
     },
     {
@@ -96,6 +140,50 @@
       "bio": "Монах святой Капитолины с кулаками тяжелее молитвенника. Тео бьёт серией ударов и боевым кличем сбивает врагов с ног; обет молчания продержался ровно до первой драки. Настоятель махнул рукой и выдал ему кастеты.",
       "visual": {
         "sprite": "hero_teo_monk_detail_v2"
+      },
+      "advanced": {
+        "job": "champion",
+        "role": "damage",
+        "minRarity": "gold",
+        "minLevel": 70,
+        "statMods": {
+          "hp": 1.332,
+          "atk": 1.443,
+          "def": 1.221,
+          "spd": 1.11
+        },
+        "skills": [
+          {
+            "level": 1,
+            "skill": "job_monk_triple_attack"
+          },
+          {
+            "level": 10,
+            "skill": "job_monk_call_spirits"
+          },
+          {
+            "level": 70,
+            "skill": "adv_champion_sphere_chain"
+          },
+          {
+            "level": 80,
+            "skill": "adv_champion_centering"
+          },
+          {
+            "level": 90,
+            "skill": "adv_champion_stance"
+          },
+          {
+            "level": 100,
+            "skill": "adv_champion_pulse"
+          }
+        ],
+        "ult": "ult_adv_teo_champion",
+        "promotion": "Тео соединяет дыхание, паузу и удар духа, не расходуя силу на повторный крик. Чемпионская выучка начинается с умения услышать товарища.",
+        "bio": "Чемпион святой Капитолины, собравший свой горн в один точный клич. Тео умеет шепнуть приказ сквозь грохот и оставить другим место в тишине. Радуется всё ещё на весь квартал, но силу бережёт для прохода своих, а не для доказательства, что его слышно.",
+        "visual": {
+          "sprite": "champion_m"
+        }
       }
     }
   ],

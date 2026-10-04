@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "adv_assassin_cross_expose",
+  "name": "Открытая брешь",
+  "description": "Врагам заднего ряда (если пуст — переднего): урон 1.15 × АТК; ЗАЩ -20% на 2 хода статуса.",
+  "icon": "icon_ult_assassin",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "back"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.15
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "adv_expose",
+        "name": "Защита",
+        "turns": 2,
+        "stats": {
+          "def": -0.2
+        }
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

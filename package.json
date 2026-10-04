@@ -20,7 +20,7 @@
     "perf:load": "node scripts/perf-load.mjs",
     "ui:atlas": "node scripts/ui-atlas.mjs",
     "ui:lint": "tsx scripts/ui-lint.ts",
-    "check": "npm run content:check && npm run typecheck && npm test",
+    "check": "npm run content:check && npm run typecheck && npm test && node --test tests/perf-helpers.test.mjs",
     "e2e": "node scripts/e2e.mjs",
     "perf": "node scripts/perf.mjs",
     "perf:ui": "node scripts/perf-ui.mjs",

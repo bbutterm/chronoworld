@@ -1,0 +1,31 @@
+{
+  "$schema": "../schema/skill.schema.json",
+  "id": "ult_adv_iris_lord_knight",
+  "name": "Натиск Ирис",
+  "description": "На полной энергии. Врагам переднего ряда (если пуст — заднего): урон 2.1 × АТК; оглушение на 1 хода статуса.",
+  "icon": "icon_ult_guard",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "all",
+    "row": "front"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.1
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "iris_break",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
+    }
+  ],
+  "cooldown": 12,
+  "castTime": 0.6,
+  "priority": 6
+}

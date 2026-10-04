@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/job.schema.json",
+  "id": "champion",
+  "name": "Чемпион",
+  "nameF": "Чемпион",
+  "description": "Ветеранский ранг: Чемпион. Автоматически при золотой редкости и уровне 70.",
+  "tier": 3,
+  "from": [
+    "monk"
+  ],
+  "maxJobLevel": 100,
+  "role": "damage",
+  "baseStats": {
+    "hp": 2500,
+    "atk": 230,
+    "def": 60,
+    "spd": 110
+  },
+  "growth": {
+    "hp": 55,
+    "atk": 7,
+    "def": 1.5,
+    "spd": 0
+  },
+  "basic": "basic_melee",
+  "skills": [
+    {
+      "jobLevel": 70,
+      "skill": "adv_champion_sphere_chain"
+    },
+    {
+      "jobLevel": 80,
+      "skill": "adv_champion_centering"
+    },
+    {
+      "jobLevel": 90,
+      "skill": "adv_champion_stance"
+    },
+    {
+      "jobLevel": 100,
+      "skill": "adv_champion_pulse"
+    }
+  ],
+  "visual": {
+    "sprite": "champion_m",
+    "hitFx": "fx_hit"
+  },
+  "behavior": "assassin"
+}
