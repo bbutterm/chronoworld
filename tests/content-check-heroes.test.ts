@@ -42,7 +42,9 @@ describe('content:check — карточки героев и Таверна', ()
 
     const classSheet = ctx.content.jobs.mage.visual.sprite;
     const bare: Record<string, SpriteDef> = Object.fromEntries(Object.entries(registry).filter(([id]) => !id.startsWith(classSheet)));
-    const broken = lintHeroes(ctx, bare, {});
+    // A hero-specific atlas remains valid when the class fallback is absent.
+    expect(lintHeroes(ctx, bare, {}).errors.some((e) => e.startsWith('карточка kai: лист'))).toBe(false);
+    const broken = lintHeroes(withHeroes({ kai: { ...kai, visual: { sprite: 'no_such_sheet' } } }), bare, {});
     expect(broken.errors.some((e) => e.startsWith('карточка kai: лист'))).toBe(true);
   });
 

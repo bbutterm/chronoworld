@@ -151,8 +151,14 @@ export function buildRegistry(legacy: LegacySprites | undefined, v2: SpritesV2 |
  * Лист героя с учётом пола: `<base>_f` / `<base>_m`, если такой лист есть в реестре, иначе базовый `<base>`.
  * Базовые листы героев — одного пола (source.gender в sprites.provenance.json): Аколит и Жрец (acolyte, priest) — женские,
  * остальные — мужские; так что без варианта женщина-Мечник выглядит мужским листом, а мужчина-Аколит — женским.
+ * Только общие листы Новичка заменяются готовыми detail-паками; собственные формы карточек сюда не перенаправляются.
  */
 export function genderedSpriteId(base: string, gender: 'm' | 'f' | undefined, has: (id: string) => boolean): string {
+  const noviceGender = base === 'novice_f' ? 'f' : base === 'novice_m' ? 'm' : base === 'novice' ? (gender ?? 'm') : undefined;
+  if (noviceGender) {
+    const novice = `profession_novice_${noviceGender}_detail_v1`;
+    if (has(novice)) return novice;
+  }
   if (!gender) return base;
   const variant = `${base}_${gender}`;
   if (has(variant)) return variant;

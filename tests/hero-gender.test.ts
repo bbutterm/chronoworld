@@ -59,7 +59,7 @@ describe('пол героев (карточки)', () => {
   });
 
   it('лист: свой лист карточки (форма) → `<лист класса>_f/_m` → базовый лист класса', () => {
-    const has = (id: string) => ['swordman_f', 'acolyte_m', 'swordman_m', 'knight_m'].includes(id);
+    const has = (id: string) => ['swordman_f', 'acolyte_m', 'swordman_m', 'knight_m', 'hero_alan_knight_detail_v2'].includes(id);
     expect(genderedSpriteId('swordman', 'f', has)).toBe('swordman_f');
     expect(genderedSpriteId('swordman', 'm', has)).toBe('swordman_m');
     expect(genderedSpriteId('archer_first', 'f', has)).toBe('archer_first');
@@ -70,10 +70,10 @@ describe('пол героев (карточки)', () => {
     expect(heroSprite(cardHero(ctx, 'iris'), ctx, () => false)).toBe(ctx.content.jobs.swordman.visual.sprite);
     // Тео — аколит-мужчина.
     expect(heroSprite(cardHero(ctx, 'teo'), ctx, has)).toBe('acolyte_m');
-    // Алан: свой лист swordman_m; на фиолетовом с веткой Рыцарь — knight_m (лист ветки); нет листа — откат.
+    // Алан: без detail первой профессии — swordman_m; на фиолетовом с веткой Рыцарь — свой detail; нет листа — откат.
     // Фиолетовый без ветки — лист первой профессии.
     expect(heroSprite(cardHero(ctx, 'alan'), ctx, has)).toBe('swordman_m');
-    expect(heroSprite(cardHero(ctx, 'alan/knight', 40), ctx, has)).toBe('knight_m');
+    expect(heroSprite(cardHero(ctx, 'alan/knight', 40), ctx, has)).toBe('hero_alan_knight_detail_v2');
     expect(heroSprite(cardHero(ctx, 'alan/knight', 40), ctx, () => false)).toBe(ctx.content.jobs.knight.visual.sprite);
     expect(heroSprite(cardHero(ctx, 'alan', 40, { rarity: 'purple' }), ctx, has)).toBe('swordman_m');
     // Ирис-Рыцарь: листа knight_f нет — лист класса Рыцаря (откат, ⚠ в content:check).

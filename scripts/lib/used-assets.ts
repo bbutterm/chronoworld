@@ -11,7 +11,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { buildRegistry, type LegacySprites, type SpritesV2 } from '../../src/pipeline/sprites.ts';
+import { buildRegistry, genderedSpriteId, type LegacySprites, type SpritesV2 } from '../../src/pipeline/sprites.ts';
 import { AMBIENCE, MUSIC } from '../../src/game/audioCatalog.ts';
 
 export const ASSETS_DIR = 'assets';
@@ -60,6 +60,7 @@ export function usedAssets(input: AssetInputs): UsedAssets {
   for (const file of input.skillIcons ?? []) add(file, `skillIcon:${file.replace(/^.*\/|\.png$/g, '')}`);
   for (const file of input.extra ?? []) add(file, `file:${file}`);
   const registry = buildRegistry(input.legacy, input.v2);
+  const hasSprite = (id: string) => !!registry[id];
   const missingSprites: string[] = [];
   for (const id of [...new Set(input.spriteIds)].sort()) {
     const s = registry[id];
@@ -72,7 +73,10 @@ export function usedAssets(input: AssetInputs): UsedAssets {
     // Листы героя по полу (<id>_f / <id>_m) игра выбирает сама (flow.ts heroSprite) — в данных на них ссылок нет.
     // Лист первой профессии без пола (`archer_first`) — варианты по полу называются по классу (`archer_f`).
     const byClass = id.replace(/_first$/, '');
-    for (const variant of new Set([`${id}_f`, `${id}_m`, `${byClass}_f`, `${byClass}_m`])) {
+    // Сюжетные Новички используют detail-паки с отдельными id; включаем тот же результат, что выбирает UI.
+    const resolved = [genderedSpriteId(id, 'f', hasSprite), genderedSpriteId(id, 'm', hasSprite)];
+    for (const variant of new Set([`${id}_f`, `${id}_m`, `${byClass}_f`, `${byClass}_m`, ...resolved])) {
+      if (variant === id) continue;
       add(registry[variant]?.file, `sprite:${variant}`);
       add(registry[variant]?.portrait, `sprite:${variant}`);
     }

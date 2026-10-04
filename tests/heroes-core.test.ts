@@ -147,8 +147,8 @@ describe('статы, навыки, ветки, сила навыков', () => 
 
   it('форма — по ветке: класс, роль, статы, навыки, лист; ниже фиолетового ветка не действует', () => {
     expect(activeForm(T.alan, { rarity: 'blue', branch: 'knight' }).job).toBe('swordman');
-    expect(activeForm(T.alan, { rarity: 'purple', branch: 'knight' })).toMatchObject({ job: 'knight', role: 'tank', sprite: 'knight_m', branch: 'knight' });
-    expect(activeForm(T.alan, { rarity: 'red', branch: 'crusader' })).toMatchObject({ job: 'crusader', role: 'tank', sprite: 'crusader_m' });
+    expect(activeForm(T.alan, { rarity: 'purple', branch: 'knight' })).toMatchObject({ job: 'knight', role: 'tank', sprite: 'hero_alan_knight_detail_v2', branch: 'knight' });
+    expect(activeForm(T.alan, { rarity: 'red', branch: 'crusader' })).toMatchObject({ job: 'crusader', role: 'tank', sprite: 'hero_alan_crusader_detail_v2' });
     // Вика-Монахиня — танк вместо лекаря; Грета-Алхимик — лекарь.
     expect(activeForm(T.vika, { rarity: 'purple', branch: 'monk' }).role).toBe('tank');
     expect(activeForm(T.greta, { rarity: 'purple', branch: 'alchemist' }).role).toBe('healer');
@@ -157,7 +157,7 @@ describe('статы, навыки, ветки, сила навыков', () => 
     const crusader: HeroState = { ...blue, rarity: 'purple', branch: 'crusader' };
     expect(heroSkills(knight, ctx)).toEqual({ basic: ctx.content.jobs.knight.basic, actives: ['job_knight_bowling_bash', 'job_swordman_provoke'], passives: ['job_knight_auto_counter'] });
     expect(heroSkills(crusader, ctx).basic).toBe(ctx.content.jobs.crusader.basic);
-    expect(heroSpriteOverride(knight, ctx)).toBe('knight_m');
+    expect(heroSpriteOverride(knight, ctx)).toBe('hero_alan_knight_detail_v2');
     expect(buildUnit(knight, ctx).stats.hp).not.toBe(buildUnit(crusader, ctx).stats.hp);
     expect(heroCard(knight, ctx)).toMatchObject({ job: 'knight', jobName: 'Рыцарь', branch: 'knight', needsBranch: false });
     expect(heroCard(blue, ctx)).toMatchObject({ job: 'swordman', branchAt: 'purple', needsBranch: false });

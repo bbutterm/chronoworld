@@ -77,6 +77,17 @@ describe('O: used assets (что попадает в dist)', () => {
     expect(files).not.toContain('manifest.json');
   });
 
+  it('включает оба detail-пака Новичка и их портреты, выбираемые динамически', () => {
+    const registry = buildRegistry(json('assets/sprites.legacy.json'), json('assets/sprites/sprites.json'));
+    for (const id of ['profession_novice_m_detail_v1', 'profession_novice_f_detail_v1']) {
+      expect(registry[id], id).toBeDefined();
+      expect(registry[id].portrait, id).toBeTruthy();
+      expect(files).toContain(registry[id].file);
+      expect(files).toContain(registry[id].portrait);
+      expect(used.refs[registry[id].file]).toContain(`sprite:${id}`);
+    }
+  });
+
   it('включает бюсты RO для портретов в рамке (диалоги, смена профессии)', () => {
     expect(files).toContain('ro/portraits/hero_warrior_portrait.png');
     expect(files).toContain('ro/portraits/hero_priestess_portrait.png');
