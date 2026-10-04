@@ -10,7 +10,7 @@ export const squads: { A: SquadIds; B: SquadIds } = {
 export const playbackSpeeds: number[] = phase0.playback.speeds;
 
 /** Выбранная скорость боя живёт в localStorage отдельно от сохранения игры (это настройка, не прогресс). */
-export const SPEED_KEY = 'chronoworld.battleSpeed';
+export const SPEED_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.battleSpeed' : 'chronoworld.battleSpeed');
 
 function loadSpeed(): number {
   try {
@@ -50,7 +50,7 @@ export function setPlaybackSpeed(speed: number): void {
  * R. «Авто: следующий этап» (как авто-бой в AFK-играх): после победы в кампании через AUTO_DELAY_MS
  * сам запускается следующий открытый этап. Настройка, не прогресс — живёт в localStorage.
  */
-export const AUTO_KEY = 'chronoworld.autoAdvance';
+export const AUTO_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.autoAdvance' : 'chronoworld.autoAdvance');
 export const AUTO_DELAY_MS = 2000;
 
 function loadAuto(): boolean {
@@ -87,7 +87,7 @@ export function nextPlaybackSpeed(): number {
  * U. Ограничение частоты кадров (настройка, не прогресс — localStorage): 60 — как у экрана, 30 — вдвое меньше
  * работы CPU/GPU и нагрева на слабых телефонах. Бой считается по времени, так что на 30 он не замедляется.
  */
-export const FPS_KEY = 'chronoworld.fpsCap';
+export const FPS_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.fpsCap' : 'chronoworld.fpsCap');
 export const FPS_CAPS = [60, 30] as const;
 export type FpsCap = (typeof FPS_CAPS)[number];
 
@@ -119,7 +119,7 @@ export const nextFpsCap = (): FpsCap => FPS_CAPS[(FPS_CAPS.indexOf(fps.cap) + 1)
  * «Уменьшить анимацию» (настройка, не прогресс — localStorage): без полёта наград, отсчёта чисел, пульса
  * и «выезда» списков (juice.ts). Нет сохранённого выбора — как в системе (prefers-reduced-motion).
  */
-export const MOTION_KEY = 'chronoworld.reduceMotion';
+export const MOTION_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.reduceMotion' : 'chronoworld.reduceMotion');
 
 function loadReducedMotion(): boolean {
   try {

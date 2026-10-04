@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_assassin_cross_expose",
   "name": "Открытая брешь",
-  "description": "Врагам заднего ряда (если пуст — переднего): урон 1.15 × АТК; ЗАЩ -20% на 2 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). Врагам заднего ряда (если пуст — переднего): урон 1.15 × АТК; ЗАЩ -20% на 2 хода статуса.",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {

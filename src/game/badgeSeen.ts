@@ -7,7 +7,7 @@
  * Ключи — короткие строки поводов: `lvl:<id экземпляра>:<уровень>`, `asc:<id>:<редкость>` (flow.ts heroAlertKeys).
  */
 
-export const BADGE_SEEN_KEY = 'chronoworld.badges.seen';
+export const BADGE_SEEN_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.badges.seen' : 'chronoworld.badges.seen');
 /** Сколько ключей хранить (старые вытесняются — лишь бы список не рос бесконечно). */
 export const BADGE_SEEN_MAX = 300;
 

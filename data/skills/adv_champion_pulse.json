@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_champion_pulse",
   "name": "Пульс сферы",
-  "description": "В начале хода (шанс 25%): На себя: энергия +6.",
+  "description": "Авторский навык (не оригинальный RO). В начале хода (шанс 25%): На себя: энергия +6.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

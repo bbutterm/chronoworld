@@ -1,0 +1,30 @@
+{
+  "id": "ro_whitesmith_cart_termination",
+  "name": "Cart Termination",
+  "description": "RO-сигнатура · адаптация: Тяжёлый удар телегой и оглушение на 3 хода статуса. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 2.6
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "cart_crash",
+        "name": "cart crash",
+        "turns": 3,
+        "stun": true
+      }
+    }
+  ],
+  "hits": 1,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

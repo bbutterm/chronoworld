@@ -24,8 +24,52 @@
   "basic": "basic_ranged",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_sage_earth_spike"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_mage_fire_bolt"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_sage_free_cast"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_mage_sp_recovery"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_sage_dispell"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_mage_frost_diver"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_sage_magic_rod"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_mage_energy_coat"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_sage_volcano"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_mage_thunderstorm"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_professor_counter_lattice"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_professor_mind_breaker"
     },
     {
       "jobLevel": 80,

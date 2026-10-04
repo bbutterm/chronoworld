@@ -1,3 +1,5 @@
+import { skillElement } from '../core/elements';
+import type { SkillDef } from '../core/content/schema';
 import catalog from '../../assets/effects/effects.json';
 
 import { projectAnimatedEffect, type AnimatedEffect } from '../pipeline/effects';
@@ -33,10 +35,18 @@ export const animatedEffect = (id: string): AnimatedEffect | undefined => effect
  * общие (удар, магия, лечение, щит, смерть… — всё, что не fx_job_*), эффекты навыков юнитов боя по каталогу
  * (hit/buff/cast/ground/debuff) и visual.hitFx / visual.projectile юнитов.
  */
-export function battleFxIds(skillIds: Iterable<string | undefined>, extra: Iterable<string | undefined> = []): string[] {
+export const castFxId = (skill: Pick<SkillDef, 'element'>): string => {
+  const element: string = skillElement(skill);
+  return `fx_cast_${element === 'ghost' ? 'holy' : element === 'undead' ? 'dark' : element}`;
+};
+
+export function battleFxIds(skillIds: Iterable<string | undefined>, extra: Iterable<string | undefined> = [], skills: Readonly<Record<string, SkillDef>> = {}): string[] {
   const out = new Set<string>();
-  for (const id of effects.keys()) if (!id.startsWith('fx_job_')) out.add(id);
-  for (const sk of skillIds) for (const id of Object.values(skillFx(sk) ?? {})) if (id && effects.has(id)) out.add(id);
+  for (const id of effects.keys()) if (!id.startsWith('fx_job_') && !id.startsWith('fx_cast_')) out.add(id);
+  for (const sk of skillIds) {
+    if (sk && skills[sk]) { const id = castFxId(skills[sk]); if (effects.has(id)) out.add(id); }
+    for (const id of Object.values(skillFx(sk) ?? {})) if (id && effects.has(id)) out.add(id);
+  }
   for (const id of extra) if (id && effects.has(id)) out.add(id);
   return [...out];
 }

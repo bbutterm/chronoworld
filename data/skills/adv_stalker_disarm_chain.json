@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_stalker_disarm_chain",
   "name": "Цепь обезоруживания",
-  "description": "Ближайшему врагу: урон 1.35 × АТК; АТК -22% на 2 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). Ближайшему врагу: урон 1.35 × АТК; АТК -22% на 2 хода статуса.",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {

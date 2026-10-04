@@ -25,8 +25,52 @@
   "basic": "basic_ranged",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_hunter_blitz_beat"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_archer_double_strafe"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_hunter_beast_bane"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_archer_owls_eye"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_hunter_ankle_snare"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_archer_arrow_shower"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_hunter_steel_crow"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_archer_vultures_eye"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_hunter_claymore_trap"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_archer_charge_arrow"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_sniper_falcon_mark"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_sniper_focused_arrow_strike"
     },
     {
       "jobLevel": 80,

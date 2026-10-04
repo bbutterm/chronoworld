@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_whitesmith_forge_burst",
   "name": "Всплеск горна",
-  "description": "Врагам переднего ряда (если пуст — заднего): урон 1.25 × АТК; ЗАЩ -15% на 2 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). Врагам переднего ряда (если пуст — заднего): урон 1.25 × АТК; ЗАЩ -15% на 2 хода статуса.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

@@ -82,12 +82,40 @@
             "skill": "job_wizard_jupitel_thunder"
           },
           {
+            "level": 1,
+            "skill": "job_mage_fire_bolt"
+          },
+          {
             "level": 10,
             "skill": "job_wizard_mystical_amplification"
           },
           {
+            "level": 10,
+            "skill": "job_mage_sp_recovery"
+          },
+          {
+            "level": 30,
+            "skill": "job_wizard_soul_drain"
+          },
+          {
+            "level": 30,
+            "skill": "job_mage_fire_ball"
+          },
+          {
+            "level": 50,
+            "skill": "job_wizard_meteor_storm"
+          },
+          {
+            "level": 50,
+            "skill": "job_mage_thunderstorm"
+          },
+          {
             "level": 70,
             "skill": "adv_high_wizard_convergence"
+          },
+          {
+            "level": 70,
+            "skill": "ro_high_wizard_mystical_amplification"
           },
           {
             "level": 80,
@@ -159,12 +187,36 @@
             "skill": "job_sage_earth_spike"
           },
           {
+            "level": 1,
+            "skill": "job_mage_fire_bolt"
+          },
+          {
             "level": 10,
             "skill": "job_sage_free_cast"
           },
           {
+            "level": 10,
+            "skill": "job_mage_sp_recovery"
+          },
+          {
+            "level": 30,
+            "skill": "job_mage_fire_ball"
+          },
+          {
+            "level": 50,
+            "skill": "job_sage_heavens_drive"
+          },
+          {
+            "level": 50,
+            "skill": "job_mage_thunderstorm"
+          },
+          {
             "level": 70,
             "skill": "adv_professor_counter_lattice"
+          },
+          {
+            "level": 70,
+            "skill": "ro_professor_mind_breaker"
           },
           {
             "level": 80,

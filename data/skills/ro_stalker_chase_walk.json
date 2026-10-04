@@ -1,0 +1,29 @@
+{
+  "id": "ro_stalker_chase_walk",
+  "name": "Chase Walk",
+  "description": "RO-сигнатура · адаптация: Адаптация скрытного шага: +40% скорости и снижение входящего урона на 40%; не невидимость. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "self"
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "chase_walk",
+        "name": "chase walk",
+        "turns": 3,
+        "stats": {
+          "spd": 0.4
+        },
+        "damageReduction": 0.4
+      }
+    }
+  ],
+  "hits": 1,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

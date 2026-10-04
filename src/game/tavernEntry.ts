@@ -16,8 +16,8 @@ import { lockedToast, lockLabel } from './unlockBanner';
  * строкой (tavernTile). Здесь же — buildingTile, общий вид плиток страницы «Приключения».
  */
 
-const SEEN_KEY = 'chronoworld.tavernSeen';
-const NOTICE_KEY = 'chronoworld.tavernNotice';
+const SEEN_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.tavernSeen' : 'chronoworld.tavernSeen');
+const NOTICE_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.tavernNotice' : 'chronoworld.tavernNotice');
 
 function flag(key: string): boolean {
   try {

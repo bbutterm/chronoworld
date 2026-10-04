@@ -83,12 +83,36 @@
             "skill": "job_knight_bowling_bash"
           },
           {
+            "level": 1,
+            "skill": "swordman_bash"
+          },
+          {
+            "level": 10,
+            "skill": "job_swordman_provoke"
+          },
+          {
+            "level": 10,
+            "skill": "swordman_endure"
+          },
+          {
             "level": 30,
             "skill": "job_knight_auto_counter"
           },
           {
+            "level": 30,
+            "skill": "job_swordman_hp_recovery"
+          },
+          {
+            "level": 50,
+            "skill": "job_knight_parrying"
+          },
+          {
             "level": 70,
             "skill": "adv_lord_knight_lance_line"
+          },
+          {
+            "level": 70,
+            "skill": "ro_lord_knight_spiral_pierce"
           },
           {
             "level": 80,
@@ -160,12 +184,40 @@
             "skill": "job_crusader_devotion"
           },
           {
+            "level": 1,
+            "skill": "swordman_bash"
+          },
+          {
             "level": 10,
             "skill": "job_crusader_faith"
           },
           {
+            "level": 10,
+            "skill": "swordman_endure"
+          },
+          {
+            "level": 30,
+            "skill": "job_crusader_auto_guard"
+          },
+          {
+            "level": 30,
+            "skill": "job_swordman_hp_recovery"
+          },
+          {
+            "level": 50,
+            "skill": "job_crusader_defender"
+          },
+          {
+            "level": 50,
+            "skill": "job_swordman_provoke"
+          },
+          {
             "level": 70,
             "skill": "adv_paladin_oath"
+          },
+          {
+            "level": 70,
+            "skill": "ro_paladin_pressure"
           },
           {
             "level": 80,

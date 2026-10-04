@@ -24,8 +24,56 @@
   "basic": "basic_ranged",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_dancer_slinging_arrow"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_archer_double_strafe"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_bard_scream"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_archer_owls_eye"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_bard_whistle"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_archer_arrow_shower"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_dancer_dont_forget_me"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_archer_vultures_eye"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_bard_apple_of_idun"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_archer_charge_arrow"
+    },
+    {
+      "jobLevel": 50,
+      "skill": "job_dancer_fortune_kiss"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_gypsy_burst_step"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_gypsy_marionette_control"
     },
     {
       "jobLevel": 80,

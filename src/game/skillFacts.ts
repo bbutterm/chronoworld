@@ -95,7 +95,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
   for (const e of sk.effects) {
     switch (e.type) {
       case 'damage':
-        out.push(`Урон: ${pct(e.k * power)} АТК${hits}`);
+        out.push(`Урон: ${pct(e.k * power)} АТК${hits}${e.bypassDefense ? ' · игнорирует ЗАЩ' : ''}`);
         break;
       case 'heal':
         out.push(`Лечение: ${pct(e.k * power)} АТК${hits}`);
@@ -107,6 +107,7 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
         const st = e.status;
         const parts: string[] = [];
         for (const [k, v] of Object.entries(st.stats ?? {})) if (v) parts.push(`${signed(v)} ${STAT_RU[k] ?? k}`);
+        if (st.damageReduction) parts.push(`снижение урона ${pct(st.damageReduction)}`);
         if (st.stun) parts.push('оглушение');
         if (st.taunt) parts.push('бьёт только заклинателя');
         // RN-08: бой идёт по секундам — длительность и тики статуса в секундах (combat.json statusTurnSeconds).
@@ -118,6 +119,9 @@ export function skillFacts(sk: SkillDef, o: SkillFactsOptions): string[] {
       }
       case 'energy':
         out.push(`Энергия цели: ${e.amount > 0 ? '+' : '−'}${Math.abs(e.amount)}`);
+        break;
+      case 'dispel':
+        out.push('Снимает положительные статусы цели');
         break;
       case 'dash':
         out.push('Рывок к цели');

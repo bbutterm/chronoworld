@@ -17,7 +17,7 @@ const warnings: string[] = [];
  * Сдвиг игровых часов вперёд, мс (код «12» в «Настройки → Коды», codesView.ts). Хранится отдельно от сохранения, чтобы
  * отметки времени в сохранении и «сейчас» оставались согласованными после перезагрузки.
  */
-const SHIFT_KEY = 'chronoworld.timeShift';
+const SHIFT_KEY = import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.timeShift' : 'chronoworld.timeShift';
 let timeShift = readShift();
 
 function readShift(): number {
@@ -46,7 +46,10 @@ export const now = () => Date.now() + timeShift;
 /** День игрока по локальному времени — его получают все ежедневные механики (act*-обёртки, задания). */
 export const today = () => localDay(new Date(now()));
 
+const lab = import.meta.env?.VITE_ADVANCE_LAB === '1' ? await import('./lab') : null;
+
 function boot(): SaveState {
+  if (lab && slot.storage.load() === null) slot.storage.save(JSON.stringify(lab.prepareAdvanceLab(GAME, now(), today())));
   const r = slot.boot(GAME, now(), today());
   warnings.push(...r.warnings);
   return r.save;
@@ -93,7 +96,7 @@ export function commit(save: SaveState): void {
 }
 
 /** Префикс всех ключей игры в localStorage (сохранение, его резервные копии, настройки, подсказки, «прочитано»). */
-export const GAME_KEY_PREFIX = 'chronoworld.';
+export const GAME_KEY_PREFIX = import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.' : 'chronoworld.';
 
 /**
  * Настройки устройства — не прогресс (BUG-165, решение 30.09): «Начать заново» их не трогает. Звук и «Звуки боя»,
@@ -109,6 +112,7 @@ export const SETTINGS_KEYS: readonly string[] = ['chronoworld.audio', 'chronowor
  * модулей тоже чистая, и игра открывается вступлением главы 1. Возвращает удалённые ключи (для тестов).
  */
 export function startOver(storage: Storage | null | undefined = globalThis.localStorage, reload = true): string[] {
+  if (lab) return []; // LAB resets are only available through its confirmed overlay.
   timeShift = 0;
   commit(newGame(GAME, Date.now(), today()));
   const removed: string[] = [];
@@ -166,4 +170,14 @@ slot.watch(typeof window !== 'undefined' ? window : null, showStale);
 export function restartOnNewDay(scene: { time: { addEvent(cfg: { delay: number; loop: boolean; callback: () => void }): unknown }; scene: { restart(): void } }): void {
   const day = today();
   scene.time.addEvent({ delay: 5000, loop: true, callback: () => today() !== day && scene.scene.restart() });
+}
+
+export function resetAdvanceLab(): void {
+  if (!lab) return;
+  timeShift = 0;
+  try {
+    lab.clearAdvanceLabExtras(localStorage);
+  } catch { /* unavailable storage */ }
+  commit(lab.prepareAdvanceLab(GAME, now(), today()));
+  location.reload();
 }

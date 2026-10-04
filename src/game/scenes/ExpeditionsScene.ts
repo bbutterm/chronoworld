@@ -51,7 +51,7 @@ const BAR_Y = CONTENT_TOP + 56;
 const LIST_TOP = CONTENT_TOP + 124;
 
 /** Выбранный срок (часы) — запоминается между заходами (localStorage; нет доступа — самый долгий). */
-const HOURS_KEY = 'chronoworld.expeditionHours';
+const HOURS_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.expeditionHours' : 'chronoworld.expeditionHours');
 function loadHours(): number {
   try {
     const v = Number(localStorage.getItem(HOURS_KEY));

@@ -81,8 +81,36 @@
             "skill": "job_merchant_frying_pan"
           },
           {
+            "level": 1,
+            "skill": "job_merchant_mammonite"
+          },
+          {
+            "level": 10,
+            "skill": "job_blacksmith_power_thrust"
+          },
+          {
+            "level": 10,
+            "skill": "job_merchant_crazy_uproar"
+          },
+          {
+            "level": 30,
+            "skill": "job_blacksmith_hammer_fall"
+          },
+          {
+            "level": 50,
+            "skill": "job_blacksmith_cart_termination"
+          },
+          {
+            "level": 50,
+            "skill": "job_merchant_overcharge"
+          },
+          {
             "level": 70,
             "skill": "adv_whitesmith_forge_burst"
+          },
+          {
+            "level": 70,
+            "skill": "ro_whitesmith_cart_termination"
           },
           {
             "level": 80,
@@ -155,12 +183,36 @@
             "skill": "job_alchemist_potion_pitcher"
           },
           {
+            "level": 1,
+            "skill": "job_merchant_mammonite"
+          },
+          {
             "level": 10,
             "skill": "job_alchemist_chemical_protection"
           },
           {
+            "level": 10,
+            "skill": "job_merchant_crazy_uproar"
+          },
+          {
+            "level": 30,
+            "skill": "job_merchant_frying_pan"
+          },
+          {
+            "level": 50,
+            "skill": "job_alchemist_slim_potion"
+          },
+          {
+            "level": 50,
+            "skill": "job_merchant_overcharge"
+          },
+          {
             "level": 70,
             "skill": "adv_creator_restorative"
+          },
+          {
+            "level": 70,
+            "skill": "ro_creator_acid_demonstration"
           },
           {
             "level": 80,

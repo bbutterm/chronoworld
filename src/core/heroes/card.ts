@@ -276,6 +276,14 @@ export function branchOptions(templateId: string, ctx: GameContext): BranchView[
   return t.branches.map((b) => branchView(b, ctx, t.gender));
 }
 
+/** Pure recipient preview; persisted branch remains the second-profession ID. */
+export function branchPreview(templateId: string, branch: string, ctx: GameContext, recipient?: HeroState) {
+  const hero: HeroState = { ...(recipient ?? { id: 'preview', level: 1, rarity: BRANCH_RARITY }), templateId, branch,
+    rarity: recipient && rarityIndex(recipient.rarity) >= rarityIndex(BRANCH_RARITY) ? recipient.rarity : BRANCH_RARITY };
+  const form = activeForm(heroTemplate(ctx, templateId), hero);
+  return { hero, form, card: heroCard(hero, ctx) };
+}
+
 /** Всё о герое для экранов «Герои» / «Герой» одним объектом. */
 export interface HeroCard {
   heroId: string;

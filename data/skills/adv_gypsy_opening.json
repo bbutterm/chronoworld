@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_gypsy_opening",
   "name": "Первый поворот",
-  "description": "В начале боя (шанс 100%): На себя: АТК +14% на 3 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): На себя: АТК +14% на 3 хода статуса.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

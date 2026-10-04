@@ -1,0 +1,33 @@
+{
+  "id": "ro_professor_mind_breaker",
+  "name": "Mind Breaker",
+  "description": "RO-сигнатура · адаптация: Снимает усиления, срывает каст; −45% ЗАЩ, но +15% АТК врага. Адаптация MDEF к ЗАЩ. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "dispel"
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "mind_breaker",
+        "name": "mind breaker",
+        "turns": 3,
+        "stats": {
+          "def": -0.45,
+          "atk": 0.15
+        },
+        "interrupt": true
+      }
+    }
+  ],
+  "hits": 1,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

@@ -46,6 +46,7 @@ export const StatusSchema = z.object({
   /** Длительность в «ходах»: ход = combat.json statusTurnSeconds секунд боя (одинаково для любого носителя). */
   turns: z.number().int().positive(),
   stats: StatModsSchema.optional(),
+  damageReduction: z.number().min(0).max(0.8).optional(),
   /** Пропуск хода. */
   stun: z.boolean().optional(),
   /** Урон раз в «ход» (statusTurnSeconds) после наложения: ATK наложившего × k. */
@@ -60,13 +61,14 @@ export const StatusSchema = z.object({
 });
 
 export const EffectSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('damage'), k: z.number().positive() }),
+  z.object({ type: z.literal('damage'), k: z.number().positive(), bypassDefense: z.boolean().optional() }),
   z.object({ type: z.literal('heal'), k: z.number().positive() }),
   z.object({ type: z.literal('shield'), pctMaxHp: z.number().positive() }),
   z.object({ type: z.literal('status'), status: StatusSchema, chance: z.number().min(0).max(1).default(1) }),
   z.object({ type: z.literal('energy'), amount: z.number() }),
   /** Рывок к первой цели (встать вплотную). */
   z.object({ type: z.literal('dash') }),
+  z.object({ type: z.literal('dispel') }),
   /**
    * Связь (Самопожертвование крестоносца): pct урона по цели-союзнику уходит исполнителю, пока связь жива (turns «ходов»)
    * и у исполнителя больше breakAtHpPct ОЗ. Одна связь на исполнителя; перенаправленный урон дальше не перенаправляется.

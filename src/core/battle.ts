@@ -309,6 +309,9 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   };
 
   const applyDamage = (src: Unit | null, srcUid: string, target: Unit, dmg: number, dot = false, redirect?: string, elem?: 'weak' | 'resist') => {
+    let reduction = 0;
+    for (const status of target.statuses) reduction = Math.max(reduction, status.def.damageReduction ?? 0);
+    dmg = Math.round(dmg * (1 - reduction));
     // Трус на бегу подставляет спину: урон больше (бой не затягивается от побега).
     if (fleeing.size > 0 && redirect === undefined && fleeing.has(target)) dmg = Math.round(dmg * (1 + target.bh.coward!.damageTaken));
     // Связь (Самопожертвование): доля урона по союзнику уходит защитнику; перенаправленный урон дальше не перенаправляется.
@@ -359,7 +362,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     const sp = skill && skill.id !== u.def.skills.basic ? (u.def.skillPower ?? 1) : 1;
     switch (e.type) {
       case 'damage': {
-        let dmg = rage(calcDamage(stat(u, 'atk'), e.k * sp, stat(target, 'def'), rng, cfg));
+        let dmg = rage(calcDamage(stat(u, 'atk'), e.k * sp, e.bypassDefense ? 0 : stat(target, 'def'), rng, cfg));
         // Стихии (с профилями): множитель по стихии навыка и защите цели.
         const m = elements && skill ? elementMult(elements, skillElement(skill), defenseElement(target.def)) : 1;
         if (m !== 1) dmg = Math.max(1, Math.round(dmg * m));
@@ -512,6 +515,12 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
         addEnergy(target, e.amount);
         emit({ t, type: 'energy', unit: target.uid, energy: target.energy });
         return;
+      case 'dispel': {
+        const removed = target.statuses.filter(s => !!s.def.damageReduction || Object.values(s.def.stats ?? {}).some(v => v > 0));
+        target.statuses = target.statuses.filter(s => !removed.includes(s));
+        for (const s of removed) emit({ t, type: 'status', source: u.uid, target: target.uid, status: s.def.id, name: s.def.name, turns: 0, action: 'expire' });
+        return;
+      }
       case 'dash': {
         // Встать вплотную к цели со стороны, откуда пришёл, и сражаться с ней —
         // на свободное место в пределах поля (не в другого бойца, T2-03/T2-04).

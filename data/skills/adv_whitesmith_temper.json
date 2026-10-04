@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_whitesmith_temper",
   "name": "Полевая закалка",
-  "description": "Всем союзникам, включая себя: щит 8% макс. ОЗ цели; АТК +12% на 2 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). Всем союзникам, включая себя: щит 8% макс. ОЗ цели; АТК +12% на 2 хода статуса.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

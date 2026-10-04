@@ -269,6 +269,11 @@
                           },
                           "description": "Модификаторы статов в долях: 0.2 = +20%, -0.3 = −30%"
                         },
+                        "damageReduction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.8
+                        },
                         "stun": {
                           "type": "boolean"
                         },

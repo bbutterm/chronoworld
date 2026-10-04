@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_high_wizard_ward",
   "name": "Мантия стихий",
-  "description": "В начале боя (шанс 100%): На себя: щит 12% макс. ОЗ цели.",
+  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): На себя: щит 12% макс. ОЗ цели.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

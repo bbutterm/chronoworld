@@ -24,8 +24,52 @@
   "basic": "basic_melee",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_knight_charge_attack"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "swordman_bash"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_knight_two_hand_quicken"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "swordman_endure"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_knight_two_hand_mastery"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_swordman_magnum_break"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_knight_auto_counter"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_swordman_hp_recovery"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_knight_bowling_bash"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_swordman_provoke"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_lord_knight_lance_line"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_lord_knight_spiral_pierce"
     },
     {
       "jobLevel": 80,

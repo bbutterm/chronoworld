@@ -18,7 +18,7 @@ export function validateJobs(content: Content, problems: string[]): void {
     for (const s of j.skills) {
       if (!content.skills[s.skill]) problems.push(`${where}: навык ${s.skill} не найден`);
       if (s.jobLevel > j.maxJobLevel) problems.push(`${where}: навык ${s.skill} открывается на ${s.jobLevel} > maxJobLevel ${j.maxJobLevel}`);
-      if (levels.has(s.jobLevel)) problems.push(`${where}: на джоб-уровне ${s.jobLevel} открывается больше одного навыка`);
+      if (j.tier !== 3 && levels.has(s.jobLevel)) problems.push(`${where}: на джоб-уровне ${s.jobLevel} открывается больше одного навыка`);
       levels.add(s.jobLevel);
     }
     if (j.tier === 0 && j.from.length > 0) problems.push(`${where}: у профессии tier 0 не должно быть from`);

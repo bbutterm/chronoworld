@@ -4,8 +4,8 @@
  * считается с ультами, а новичок, не знающий про касание портретов, проигрывал без них (отзыв владельца, этап 4-6:
  * тот же отряд — 40/40 в авто и 2/40 без ульт). Ручной режим — кнопкой «Авто» в бою, выбор запоминается.
  */
-const AUTO_KEY = 'chronoworld.battleAutoUlt';
-const HINT_KEY = 'chronoworld.hint.manualUlt';
+const AUTO_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.battleAutoUlt' : 'chronoworld.battleAutoUlt');
+const HINT_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.hint.manualUlt' : 'chronoworld.hint.manualUlt');
 
 function load(key: string): string | null {
   try {

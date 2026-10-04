@@ -24,8 +24,52 @@
   "basic": "basic_melee",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_blacksmith_hammer_fall"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_merchant_mammonite"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_blacksmith_adrenaline_rush"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_merchant_pushcart"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_blacksmith_power_thrust"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_merchant_cart_revolution"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_blacksmith_tempering"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_merchant_crazy_uproar"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_blacksmith_weapon_perfection"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_merchant_overcharge"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_whitesmith_forge_burst"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_whitesmith_cart_termination"
     },
     {
       "jobLevel": 80,

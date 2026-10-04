@@ -1,0 +1,32 @@
+{
+  "id": "ro_lord_knight_spiral_pierce",
+  "name": "Spiral Pierce",
+  "description": "RO-сигнатура · адаптация: Пять пробивающих ударов; замедление цели. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.48
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "spiral_pin",
+        "name": "spiral pin",
+        "turns": 3,
+        "stats": {
+          "spd": -0.25
+        }
+      }
+    }
+  ],
+  "hits": 5,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

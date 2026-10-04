@@ -194,7 +194,7 @@ export class HapticEngine {
 // ---------- настройка ----------
 
 /** Настройка, не прогресс — свой ключ localStorage. */
-export const HAPTICS_KEY = 'chronoworld.haptics';
+export const HAPTICS_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.haptics' : 'chronoworld.haptics');
 
 interface KV {
   getItem(k: string): string | null;

@@ -11,7 +11,7 @@ const full = JSON.parse(source);
 describe('build-only effects projection', () => {
   it('preserves every runtime effect and skill role without changing source provenance', () => {
     const projected = projectEffectsCatalog(full);
-    expect(projected.effects).toHaveLength(106);
+    expect(projected.effects).toHaveLength(114);
     expect(projected.effects.map(e => e.id)).toEqual(animatedFxIds());
     for (const effect of projected.effects) {
       expect(effect).toEqual(animatedEffect(effect.id));

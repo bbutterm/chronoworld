@@ -82,8 +82,36 @@
             "skill": "job_wizard_frost_nova"
           },
           {
+            "level": 1,
+            "skill": "job_mage_cold_bolt"
+          },
+          {
+            "level": 10,
+            "skill": "job_wizard_quagmire"
+          },
+          {
+            "level": 10,
+            "skill": "job_mage_energy_coat"
+          },
+          {
+            "level": 30,
+            "skill": "job_mage_frost_diver"
+          },
+          {
+            "level": 50,
+            "skill": "job_wizard_storm_gust"
+          },
+          {
+            "level": 50,
+            "skill": "job_mage_safety_wall"
+          },
+          {
             "level": 70,
             "skill": "adv_high_wizard_convergence"
+          },
+          {
+            "level": 70,
+            "skill": "ro_high_wizard_mystical_amplification"
           },
           {
             "level": 80,
@@ -156,12 +184,36 @@
             "skill": "job_sage_dispell"
           },
           {
+            "level": 1,
+            "skill": "job_mage_cold_bolt"
+          },
+          {
             "level": 10,
             "skill": "job_sage_magic_rod"
           },
           {
+            "level": 10,
+            "skill": "job_mage_energy_coat"
+          },
+          {
+            "level": 30,
+            "skill": "job_mage_safety_wall"
+          },
+          {
+            "level": 30,
+            "skill": "job_mage_frost_diver"
+          },
+          {
+            "level": 50,
+            "skill": "job_sage_volcano"
+          },
+          {
             "level": 70,
             "skill": "adv_professor_counter_lattice"
+          },
+          {
+            "level": 70,
+            "skill": "ro_professor_mind_breaker"
           },
           {
             "level": 80,

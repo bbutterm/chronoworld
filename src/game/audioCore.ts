@@ -7,7 +7,7 @@ import { SFX, type AmbienceId, type AudioCategory, type BattleTier, type MusicId
 // ---------- настройки ----------
 
 /** Настройка, не прогресс — отдельный ключ localStorage (как скорость боя и FPS). */
-export const AUDIO_KEY = 'chronoworld.audio';
+export const AUDIO_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.audio' : 'chronoworld.audio');
 
 export interface AudioSettings {
   /** Громкость музыки, 0…1. */

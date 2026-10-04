@@ -24,8 +24,52 @@
   "basic": "basic_ranged",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_alchemist_acid_terror"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_merchant_mammonite"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_alchemist_potion_pitcher"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_merchant_pushcart"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_alchemist_demonstration"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_merchant_cart_revolution"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_alchemist_chemical_protection"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_merchant_crazy_uproar"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_alchemist_acid_bomb"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_merchant_overcharge"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_creator_restorative"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_creator_acid_demonstration"
     },
     {
       "jobLevel": 80,

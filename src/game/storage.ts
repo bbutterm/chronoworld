@@ -1,6 +1,6 @@
 import { loadOrNew, MemoryStorage, saveRevision, serialize, syncOfflineClock, type GameContext, type SaveState, type SaveStorage } from '../core';
 
-export const SAVE_KEY = 'chronoworld.save.v1';
+export const SAVE_KEY = import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.save.v1' : 'chronoworld.save.v1';
 /** P11 (T4-02). Сколько резервных копий нечитаемых сохранений хранить (`<key>.backup.<время>`). */
 export const BACKUPS_KEEP = 3;
 

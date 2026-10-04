@@ -79,12 +79,40 @@
             "skill": "job_hunter_blitz_beat"
           },
           {
+            "level": 1,
+            "skill": "job_archer_double_strafe"
+          },
+          {
             "level": 10,
             "skill": "job_hunter_beast_bane"
           },
           {
+            "level": 10,
+            "skill": "job_archer_owls_eye"
+          },
+          {
+            "level": 30,
+            "skill": "job_hunter_steel_crow"
+          },
+          {
+            "level": 30,
+            "skill": "job_archer_vultures_eye"
+          },
+          {
+            "level": 50,
+            "skill": "job_hunter_falcon_assault"
+          },
+          {
+            "level": 50,
+            "skill": "job_archer_charge_arrow"
+          },
+          {
             "level": 70,
             "skill": "adv_sniper_falcon_mark"
+          },
+          {
+            "level": 70,
+            "skill": "ro_sniper_focused_arrow_strike"
           },
           {
             "level": 80,
@@ -156,12 +184,40 @@
             "skill": "job_bard_musical_strike"
           },
           {
+            "level": 1,
+            "skill": "job_archer_double_strafe"
+          },
+          {
             "level": 10,
             "skill": "job_bard_poem_of_bragi"
           },
           {
+            "level": 10,
+            "skill": "job_archer_owls_eye"
+          },
+          {
+            "level": 30,
+            "skill": "job_bard_apple_of_idun"
+          },
+          {
+            "level": 30,
+            "skill": "job_archer_vultures_eye"
+          },
+          {
+            "level": 50,
+            "skill": "job_bard_assassin_cross"
+          },
+          {
+            "level": 50,
+            "skill": "job_archer_charge_arrow"
+          },
+          {
             "level": 70,
             "skill": "adv_clown_field_song"
+          },
+          {
+            "level": 70,
+            "skill": "ro_clown_marionette_control"
           },
           {
             "level": 80,

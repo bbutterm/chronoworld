@@ -84,12 +84,36 @@
             "skill": "job_assassin_grimtooth"
           },
           {
+            "level": 1,
+            "skill": "job_thief_envenom"
+          },
+          {
             "level": 10,
             "skill": "job_assassin_enchant_poison"
           },
           {
+            "level": 10,
+            "skill": "job_thief_double_attack"
+          },
+          {
+            "level": 30,
+            "skill": "job_thief_venom_knife"
+          },
+          {
+            "level": 50,
+            "skill": "job_assassin_venom_splasher"
+          },
+          {
+            "level": 50,
+            "skill": "job_thief_improve_dodge"
+          },
+          {
             "level": 70,
             "skill": "adv_assassin_cross_cross_cut"
+          },
+          {
+            "level": 70,
+            "skill": "ro_assassin_cross_soul_breaker"
           },
           {
             "level": 80,
@@ -162,12 +186,40 @@
             "skill": "job_rogue_back_stab"
           },
           {
+            "level": 1,
+            "skill": "job_thief_envenom"
+          },
+          {
             "level": 10,
             "skill": "job_rogue_gank"
           },
           {
+            "level": 10,
+            "skill": "job_thief_double_attack"
+          },
+          {
+            "level": 30,
+            "skill": "job_thief_sand_attack"
+          },
+          {
+            "level": 30,
+            "skill": "job_thief_venom_knife"
+          },
+          {
+            "level": 50,
+            "skill": "job_rogue_strip_armor"
+          },
+          {
+            "level": 50,
+            "skill": "job_thief_improve_dodge"
+          },
+          {
             "level": 70,
             "skill": "adv_stalker_disarm_chain"
+          },
+          {
+            "level": 70,
+            "skill": "ro_stalker_chase_walk"
           },
           {
             "level": 80,

@@ -79,8 +79,36 @@
             "skill": "job_acolyte_heal"
           },
           {
+            "level": 5,
+            "skill": "job_acolyte_divine_protection"
+          },
+          {
+            "level": 10,
+            "skill": "job_priest_kyrie_eleison"
+          },
+          {
+            "level": 10,
+            "skill": "job_acolyte_blessing"
+          },
+          {
+            "level": 30,
+            "skill": "job_priest_sanctuary"
+          },
+          {
+            "level": 50,
+            "skill": "job_priest_assumptio"
+          },
+          {
+            "level": 50,
+            "skill": "job_acolyte_angelus"
+          },
+          {
             "level": 70,
             "skill": "adv_high_priest_sanctuary"
+          },
+          {
+            "level": 70,
+            "skill": "ro_high_priest_assumptio"
           },
           {
             "level": 80,
@@ -153,12 +181,36 @@
             "skill": "job_monk_blade_stop"
           },
           {
+            "level": 1,
+            "skill": "job_acolyte_heal"
+          },
+          {
             "level": 10,
             "skill": "job_monk_iron_hand"
           },
           {
+            "level": 10,
+            "skill": "job_acolyte_blessing"
+          },
+          {
+            "level": 30,
+            "skill": "job_acolyte_divine_protection"
+          },
+          {
+            "level": 50,
+            "skill": "job_monk_steel_body"
+          },
+          {
+            "level": 50,
+            "skill": "job_acolyte_angelus"
+          },
+          {
             "level": 70,
             "skill": "adv_champion_sphere_chain"
+          },
+          {
+            "level": 70,
+            "skill": "ro_champion_chain_combo"
           },
           {
             "level": 80,

@@ -12,9 +12,9 @@ it('gold level 69 knight previews its upcoming Veteran rank while other branches
   const next = current.advanced!;
   const rarity = rarityDef(ctx, next.minRarity).name;
   const tiles = veteranSkillTiles(next, rarity);
-  expect(tiles).toHaveLength(5);
+  expect(tiles).toHaveLength(6);
   expect(tiles[0]).toMatchObject({ id: 'ult_adv_alan_lord_knight', ult: true, locked: 70 });
-  expect(tiles.map(t => t.locked)).toEqual([70, 70, 80, 90, 100]);
+  expect(tiles.map(t => t.locked)).toEqual([70, 70, 70, 80, 90, 100]);
   for (const tile of tiles) {
     expect(tile.form).toBeUndefined();
     expect(skillTileStatus(tile)).toBe(`Ветеран · ${rarity} · ур. ${tile.locked}`);

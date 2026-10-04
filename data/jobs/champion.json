@@ -25,8 +25,56 @@
   "basic": "basic_melee",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_monk_triple_attack"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_acolyte_heal"
+    },
+    {
+      "jobLevel": 5,
+      "skill": "job_acolyte_divine_protection"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_monk_iron_hand"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_acolyte_blessing"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_monk_investigate"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_acolyte_holy_light"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_monk_call_spirits"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_acolyte_increase_agi"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_monk_asura_strike"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_acolyte_angelus"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_champion_sphere_chain"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_champion_chain_combo"
     },
     {
       "jobLevel": 80,

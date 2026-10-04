@@ -24,8 +24,52 @@
   "basic": "basic_melee",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_crusader_holy_cross"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "swordman_bash"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_crusader_auto_guard"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "swordman_endure"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_crusader_devotion"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_swordman_magnum_break"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_crusader_faith"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_swordman_hp_recovery"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_crusader_grand_cross"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_swordman_provoke"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_paladin_oath"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_paladin_pressure"
     },
     {
       "jobLevel": 80,

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_sniper_falcon_mark",
   "name": "Метка сокола",
-  "description": "Врагу с наименьшими ОЗ: урон 1.65 × АТК; ЗАЩ -15% на 2 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). Врагу с наименьшими ОЗ: урон 1.65 × АТК; ЗАЩ -15% на 2 хода статуса.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

@@ -55,6 +55,7 @@ export function mockMode(): boolean {
 
 /** initData Mini App или null (не Telegram / открыто без данных). */
 export function initData(): string | null {
+  if (import.meta.env?.VITE_ADVANCE_LAB === '1') return null;
   if (mockMode()) return 'mock';
   const d = tg()?.initData;
   return typeof d === 'string' && d.length > 0 ? d : null;

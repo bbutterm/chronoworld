@@ -54,7 +54,7 @@ import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
 import { navShift, topBand, unitTint } from '../screen';
-import { animatedFxKey, battleFxIds, skillFx, type SkillFx as AtlasRoles } from '../animatedFx';
+import { animatedFxKey, battleFxIds, castFxId, skillFx, type SkillFx as AtlasRoles } from '../animatedFx';
 import { holdAnimatedFx } from '../assets';
 import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
 import { flyAtlas, playAura, playBigImpact, playBossDeath, playCharge, playCrit, playProc, playSignature, playTwinkle, type SigCtx } from '../skillSigs';
@@ -675,6 +675,7 @@ export class BattleScene extends Phaser.Scene {
     const fxIds = battleFxIds(
       unitDefs.flatMap((d) => [d.skills.basic, d.skills.ult, ...d.skills.actives, ...d.skills.passives, d.charge?.skill]),
       unitDefs.flatMap((d) => [d.visual.hitFx, d.visual.projectile]),
+      GAME.content.skills,
     );
     void holdAnimatedFx(this, fxIds);
     const since = Date.now();
@@ -1723,7 +1724,7 @@ export class BattleScene extends Phaser.Scene {
         // Маг бьёт по кругу: круг на земле там, куда упадёт удар, растёт вместе с полосой каста.
         if (e.at && e.radius) this.behaviorFx?.castArea(v, fieldX(e.at[0]), e.at[1] - this.dy, e.radius * FIELD_SQUEEZE, col.main, e.duration * 1000);
         // Круг под ногами, аура и анимация каста — пока идёт каст.
-        (v.castRig ??= this.sfx.castRig(v.node, v.look.height)).show(col.main);
+        (v.castRig ??= this.sfx.castRig(v.node, v.look.height)).show(col.main, castFxId(GAME.content.skills[e.skill] ?? {}));
         this.castCue(v, e.skill);
         this.loop(v, 'cast');
         return;

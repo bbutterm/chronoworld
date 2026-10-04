@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_whitesmith_bellows",
   "name": "Мехи горна",
-  "description": "В начале хода (шанс 25%): На себя: энергия +5.",
+  "description": "Авторский навык (не оригинальный RO). В начале хода (шанс 25%): На себя: энергия +5.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

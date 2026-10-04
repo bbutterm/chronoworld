@@ -85,12 +85,40 @@
             "skill": "job_blacksmith_hammer_fall"
           },
           {
+            "level": 1,
+            "skill": "job_merchant_cart_revolution"
+          },
+          {
             "level": 10,
             "skill": "job_blacksmith_tempering"
           },
           {
+            "level": 10,
+            "skill": "job_merchant_pushcart"
+          },
+          {
+            "level": 30,
+            "skill": "job_blacksmith_adrenaline_rush"
+          },
+          {
+            "level": 30,
+            "skill": "job_merchant_mammonite"
+          },
+          {
+            "level": 50,
+            "skill": "job_blacksmith_weapon_perfection"
+          },
+          {
+            "level": 50,
+            "skill": "job_merchant_crazy_uproar"
+          },
+          {
             "level": 70,
             "skill": "adv_whitesmith_forge_burst"
+          },
+          {
+            "level": 70,
+            "skill": "ro_whitesmith_cart_termination"
           },
           {
             "level": 80,
@@ -163,8 +191,36 @@
             "skill": "job_alchemist_acid_terror"
           },
           {
+            "level": 1,
+            "skill": "job_merchant_cart_revolution"
+          },
+          {
+            "level": 10,
+            "skill": "job_alchemist_demonstration"
+          },
+          {
+            "level": 10,
+            "skill": "job_merchant_pushcart"
+          },
+          {
+            "level": 30,
+            "skill": "job_merchant_mammonite"
+          },
+          {
+            "level": 50,
+            "skill": "job_alchemist_acid_bomb"
+          },
+          {
+            "level": 50,
+            "skill": "job_merchant_crazy_uproar"
+          },
+          {
             "level": 70,
             "skill": "adv_creator_restorative"
+          },
+          {
+            "level": 70,
+            "skill": "ro_creator_acid_demonstration"
           },
           {
             "level": 80,

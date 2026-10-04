@@ -3,7 +3,7 @@ import { GAME_H, GAME_W } from './layout';
 import { clamp01, ease, Pool } from './perf';
 import type { Area, Projectile } from './skillLook';
 import type { SkillHit } from './skillVisuals';
-import { animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey } from './animatedFx';
+import { loopFrameAt, animatedEffect, animatedFrameAt, animatedFxDuration, animatedFxKey } from './animatedFx';
 import { motion } from './state';
 
 /**
@@ -1694,6 +1694,8 @@ export class CastRig {
   private readonly aura: Phaser.GameObjects.Image;
   private t = 0;
   private moteAcc = 0;
+  private sheet?: Phaser.GameObjects.Image;
+  private sheetId?: string;
   private tint = 0xffffff;
   active = false;
 
@@ -1713,7 +1715,18 @@ export class CastRig {
     node.addAt(this.ground, 0);
   }
 
-  show(tint: number): void {
+  show(tint: number, sheetId?: string): void {
+    this.sheet?.destroy();
+    this.sheet = undefined;
+    this.sheetId = sheetId;
+    const effect = sheetId ? animatedEffect(sheetId) : undefined;
+    if (effect && this.node.scene.textures.exists(animatedFxKey(effect.id))) {
+      this.sheet = this.node.scene.add.image(0, 0, animatedFxKey(effect.id), 0)
+        .setOrigin(effect.anchor[0] / effect.cell[0], effect.anchor[1] / effect.cell[1])
+        .setScale(effect.scale ?? 0.65).setAlpha(effect.alpha ?? 1)
+        .setBlendMode(effect.blend === "add" ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL);
+      this.node.addAt(this.sheet, 0);
+    }
     this.tint = tint;
     this.active = true;
     this.t = 0;
@@ -1721,11 +1734,13 @@ export class CastRig {
     this.inner.setTint(0xffffff);
     this.glowDisc.setTint(tint);
     this.aura.setTint(tint);
-    this.ground.setVisible(true).setAlpha(0);
-    this.aura.setVisible(true).setAlpha(0);
+    this.ground.setVisible(!this.sheet).setAlpha(0);
+    this.aura.setVisible(!this.sheet).setAlpha(0);
   }
 
   hide(): void {
+    this.sheet?.destroy();
+    this.sheet = undefined;
     this.active = false;
     this.ground.setVisible(false);
     this.aura.setVisible(false);
@@ -1735,6 +1750,8 @@ export class CastRig {
   step(dt: number, progress: number): void {
     if (!this.active) return;
     this.t += dt;
+    const effect = this.sheetId ? animatedEffect(this.sheetId) : undefined;
+    if (this.sheet && effect) { this.sheet.setFrame(loopFrameAt(effect, this.t)); return; }
     const fade = Math.min(1, this.t / 200);
     this.outer.rotation += dt * 0.0012;
     this.inner.rotation -= dt * 0.002;

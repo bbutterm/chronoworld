@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_lord_knight_lance_line",
   "name": "Копьё строя",
-  "description": "Врагам переднего ряда (если пуст — заднего): урон 1.35 × АТК; СКР -18% на 2 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). Врагам переднего ряда (если пуст — заднего): урон 1.35 × АТК; СКР -18% на 2 хода статуса.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

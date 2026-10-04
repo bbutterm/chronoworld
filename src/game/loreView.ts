@@ -18,7 +18,7 @@ import { C, COLOR, FAMILY, FS, M, R, S, T, TINT } from './theme';
 
 // ---------- прочитанные записи ----------
 
-const SEEN_KEY = 'chronoworld.lore.seen';
+const SEEN_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.lore.seen' : 'chronoworld.lore.seen');
 let seenCache: Set<string> | null = null;
 
 /** Ключи записей, которые игрок уже видел в «Летописи» (`<вкладка>:<id>`). Хранилища нет — живёт в памяти. */

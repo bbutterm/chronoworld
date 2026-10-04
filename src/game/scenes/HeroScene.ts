@@ -331,7 +331,7 @@ export class HeroScene extends Phaser.Scene {
       templateId: hero.templateId,
       title: change ? 'Сменить ветку' : 'Выберите ветку',
       subtitle: change
-        ? `Уровень, редкость и снаряжение сохранятся.${st.changeFree ? ' Первая смена — бесплатно.' : ''}`
+        ? `Уровень и герой сохранятся; неподходящие вещи вернутся в инвентарь.${st.changeFree ? ' Первая смена — бесплатно.' : ''}`
         : 'Выбор бесплатный; первая смена потом — тоже.',
       ...(st.branch ? { current: st.branch } : {}),
       ...(other ? { selected: other } : {}),
@@ -793,19 +793,29 @@ export class HeroScene extends Phaser.Scene {
       const gate = sk.unlocked ? null : skillRarityGate(sk.level, hero.rarity, GAME);
       tiles.push(sk.unlocked ? { id: sk.skill, note: `Открыто с ур. ${sk.level}` } : { id: sk.skill, locked: sk.level, gate: gate?.name });
     }
-    y = this.skillGrid(tiles, y, power);
+    for (const [title, group] of [
+      ['Атака и личная ульта', tiles.filter(t => t.basic || t.ult)],
+      ['Унаследованные навыки', tiles.filter(t => !t.basic && !t.ult && !t.id.startsWith('adv_') && !t.id.startsWith('ro_'))],
+      ['RO-сигнатуры · адаптации · ур. 70', tiles.filter(t => t.id.startsWith('ro_'))],
+      ['Авторское развитие · 70 / 80 · красный 90 / 100', tiles.filter(t => t.id.startsWith('adv_'))],
+    ] as [string, SkillTile[]][]) {
+      if (!group.length) continue;
+      a.add(text(this, S.l + S.s, y + 22, title, T.caption, COLOR.title).setOrigin(0, 0.5));
+      y += 44;
+      y = this.skillGrid(group, y, power);
+    }
 
     // Превью ветеранского ранга находится в прокручиваемой вкладке, не уплотняет шапку.
-    const veteranBranches = c.branch ? c.branches.filter(b => b.job === c.branch) : c.branches;
+    const veteranBranches = c.branches;
     for (const b of veteranBranches) {
       const next = b.advanced;
       if (!next) continue;
       const rarity = rarityDef(GAME, next.minRarity).name;
-      a.add(text(this, S.l + S.s, y + 22, `${c.advanced ? 'Ветеран' : 'Следующий ранг'}: ${next.jobName}`, T.caption, COLOR.title).setOrigin(0, 0.5));
+      a.add(text(this, S.l + S.s, y + 22, `${jobTitle(GAME, c.line, c.gender)} → ${b.jobName} → ${next.jobName}`, T.caption, COLOR.title).setOrigin(0, 0.5));
       y += 44;
       a.add(text(this, S.l + S.s, y + 18, `${rarity} и выше · ур. ${next.minLevel} · автоматически`, T.caption, COLOR.textSecondary).setOrigin(0, 0.5));
       y += 44;
-      if (!c.advanced) {
+      if (!c.advanced || b.job !== c.branch) {
         const preview = veteranSkillTiles(next, rarity);
         y = this.skillGrid(preview, y, power);
       }

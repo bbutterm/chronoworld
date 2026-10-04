@@ -1,0 +1,33 @@
+{
+  "id": "ro_gypsy_marionette_control",
+  "name": "Marionette Control · Gypsy",
+  "description": "RO-сигнатура · адаптация: Ансамбль ускоряет весь отряд и передаёт по 10 энергии. Адаптация передачи характеристик. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "all",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "marionette_ensemble",
+        "name": "marionette ensemble",
+        "turns": 3,
+        "stats": {
+          "spd": 0.25
+        }
+      }
+    },
+    {
+      "type": "energy",
+      "amount": 10
+    }
+  ],
+  "hits": 1,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

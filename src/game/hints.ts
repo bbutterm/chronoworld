@@ -51,7 +51,7 @@ export const TUTORIAL_CHAIN: readonly HintId[] = [
   'ascend',
 ];
 
-export const HINT_KEY = 'chronoworld.hints';
+export const HINT_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.hints' : 'chronoworld.hints');
 
 /**
  * Тексты подсказок: одна строка ≤ HINT_MAX символов голосом игры — что делать и зачем, без «нажмите…, чтобы…»
@@ -90,7 +90,7 @@ export const HINT_TEXT: Record<HintId, string> = {
  * другие шаги): показ сам помечает их (markHintShown). Указатель на самой странице функции живёт до действия.
  */
 export const ONE_SHOT_HINTS: ReadonlySet<HintId> = new Set<HintId>(['tower_open']);
-export const HINT_SHOWN_KEY = 'chronoworld.hintsShown';
+export const HINT_SHOWN_KEY = (import.meta.env?.VITE_ADVANCE_LAB === '1' ? 'chronoworld.advanceLab.hintsShown' : 'chronoworld.hintsShown');
 
 let shown: Set<HintId> | null = null;
 function shownSet(): Set<HintId> {

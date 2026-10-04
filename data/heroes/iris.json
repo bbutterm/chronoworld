@@ -86,12 +86,36 @@
             "skill": "job_knight_charge_attack"
           },
           {
+            "level": 1,
+            "skill": "job_swordman_magnum_break"
+          },
+          {
             "level": 10,
             "skill": "job_knight_two_hand_quicken"
           },
           {
+            "level": 30,
+            "skill": "job_knight_two_hand_mastery"
+          },
+          {
+            "level": 30,
+            "skill": "swordman_bash"
+          },
+          {
+            "level": 50,
+            "skill": "job_knight_spiral_pierce"
+          },
+          {
+            "level": 50,
+            "skill": "job_swordman_auto_berserk"
+          },
+          {
             "level": 70,
             "skill": "adv_lord_knight_lance_line"
+          },
+          {
+            "level": 70,
+            "skill": "ro_lord_knight_spiral_pierce"
           },
           {
             "level": 80,
@@ -164,12 +188,40 @@
             "skill": "job_crusader_holy_cross"
           },
           {
+            "level": 1,
+            "skill": "job_swordman_magnum_break"
+          },
+          {
+            "level": 10,
+            "skill": "job_crusader_shield_charge"
+          },
+          {
+            "level": 10,
+            "skill": "job_knight_two_hand_mastery"
+          },
+          {
             "level": 30,
             "skill": "job_crusader_faith"
           },
           {
+            "level": 30,
+            "skill": "swordman_bash"
+          },
+          {
+            "level": 50,
+            "skill": "job_crusader_grand_cross"
+          },
+          {
+            "level": 50,
+            "skill": "job_swordman_auto_berserk"
+          },
+          {
             "level": 70,
             "skill": "adv_paladin_oath"
+          },
+          {
+            "level": 70,
+            "skill": "ro_paladin_pressure"
           },
           {
             "level": 80,

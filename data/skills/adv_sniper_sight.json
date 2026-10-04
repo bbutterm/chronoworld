@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_sniper_sight",
   "name": "Выверенный прицел",
-  "description": "В начале боя (шанс 100%): На себя: АТК +12% на 4 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): На себя: АТК +12% на 4 хода статуса.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

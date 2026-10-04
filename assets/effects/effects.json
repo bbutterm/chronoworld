@@ -2912,12 +2912,226 @@
         "seed": 0,
         "note": "Original veteran signature; authored temporal geometry, not a captured Ragnarok effect."
       }
+    },
+    {
+      "id": "fx_cast_neutral",
+      "file": "effects/fx_cast_neutral.png",
+      "cell": [
+        372,
+        276
+      ],
+      "columns": 5,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        186.0,
+        225.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "12",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 12; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_water",
+      "file": "effects/fx_cast_water.png",
+      "cell": [
+        254,
+        712
+      ],
+      "columns": 8,
+      "frames": 16,
+      "ms": 88.54,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        127.0,
+        674.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "54",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 54; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_fire",
+      "file": "effects/fx_cast_fire.png",
+      "cell": [
+        286,
+        802
+      ],
+      "columns": 7,
+      "frames": 14,
+      "ms": 101.19,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        143.0,
+        759.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "55",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 55; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_wind",
+      "file": "effects/fx_cast_wind.png",
+      "cell": [
+        276,
+        794
+      ],
+      "columns": 7,
+      "frames": 14,
+      "ms": 101.19,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        140.0,
+        754.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "56",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 56; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_earth",
+      "file": "effects/fx_cast_earth.png",
+      "cell": [
+        286,
+        832
+      ],
+      "columns": 7,
+      "frames": 14,
+      "ms": 101.19,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        143.0,
+        790.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "57",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 57; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_holy",
+      "file": "effects/fx_cast_holy.png",
+      "cell": [
+        372,
+        276
+      ],
+      "columns": 5,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        185.0,
+        225.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "58",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 58; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_poison",
+      "file": "effects/fx_cast_poison.png",
+      "cell": [
+        240,
+        688
+      ],
+      "columns": 8,
+      "frames": 16,
+      "ms": 88.54,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        108.0,
+        647.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "59",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 0.6945,
+        "seed": 1,
+        "note": "scRO client; RO effect 59; role cast"
+      }
+    },
+    {
+      "id": "fx_cast_dark",
+      "file": "effects/fx_cast_dark.png",
+      "cell": [
+        304,
+        226
+      ],
+      "columns": 6,
+      "frames": 17,
+      "ms": 83.33,
+      "loop": false,
+      "delayMs": 0,
+      "blend": "normal",
+      "anchor": [
+        165.0,
+        182.0
+      ],
+      "attach": "caster",
+      "source": {
+        "roEffectId": "454",
+        "renderer": "roBrowserLegacy EffectViewer + scRO GRF via tools/ro_remote_client.py (local remote client)",
+        "scale": 1.0417,
+        "seed": 1,
+        "note": "scRO client; RO effect 454; role cast"
+      }
     }
   ],
   "skills": {
-    "job_alchemist_acid_terror": {"projectile": "fx_job_alchemist_acid_terror_projectile"},
-    "job_archer_arrow_shower": {"projectile": "fx_job_archer_arrow_shower_source"},
-    "job_sage_volcano": {"ground": "fx_job_sage_volcano_ground"},
+    "job_alchemist_acid_terror": {
+      "projectile": "fx_job_alchemist_acid_terror_projectile"
+    },
+    "job_archer_arrow_shower": {
+      "projectile": "fx_job_archer_arrow_shower_source"
+    },
+    "job_sage_volcano": {
+      "ground": "fx_job_sage_volcano_ground"
+    },
     "alde_clock_pendulum": {
       "hit": "fx_npc_stun_attack"
     },
@@ -3634,6 +3848,33 @@
     "ult_adv_zara_stalker": {
       "hit": "fx_job_veteran_stalker",
       "debuff": "fx_job_veteran_stalker"
+    },
+    "ro_lord_knight_spiral_pierce": {},
+    "ro_paladin_pressure": {
+      "hit": "fx_job_crusader_holy_cross"
+    },
+    "ro_sniper_focused_arrow_strike": {},
+    "ro_clown_marionette_control": {},
+    "ro_gypsy_marionette_control": {},
+    "ro_high_wizard_mystical_amplification": {
+      "cast": "fx_job_wizard_soul_drain"
+    },
+    "ro_professor_mind_breaker": {
+      "debuff": "fx_job_sage_dispell"
+    },
+    "ro_assassin_cross_soul_breaker": {
+      "hit": "fx_job_assassin_sonic_blow"
+    },
+    "ro_stalker_chase_walk": {},
+    "ro_high_priest_assumptio": {
+      "buff": "fx_job_priest_assumptio"
+    },
+    "ro_champion_chain_combo": {},
+    "ro_whitesmith_cart_termination": {
+      "ground": "fx_job_blacksmith_hammer_fall"
+    },
+    "ro_creator_acid_demonstration": {
+      "projectile": "fx_job_alchemist_acid_terror_projectile"
     }
   },
   "rejected": {

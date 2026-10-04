@@ -81,12 +81,40 @@
             "skill": "job_priest_impositio_manus"
           },
           {
+            "level": 1,
+            "skill": "job_acolyte_holy_light"
+          },
+          {
             "level": 10,
             "skill": "job_priest_magnificat"
           },
           {
+            "level": 10,
+            "skill": "job_acolyte_increase_agi"
+          },
+          {
+            "level": 30,
+            "skill": "job_priest_magnus_exorcismus"
+          },
+          {
+            "level": 30,
+            "skill": "job_acolyte_signum_crucis"
+          },
+          {
+            "level": 50,
+            "skill": "job_priest_lex_aeterna"
+          },
+          {
+            "level": 50,
+            "skill": "job_acolyte_divine_protection"
+          },
+          {
             "level": 70,
             "skill": "adv_high_priest_sanctuary"
+          },
+          {
+            "level": 70,
+            "skill": "ro_high_priest_assumptio"
           },
           {
             "level": 80,
@@ -158,12 +186,40 @@
             "skill": "job_monk_triple_attack"
           },
           {
+            "level": 1,
+            "skill": "job_acolyte_holy_light"
+          },
+          {
             "level": 10,
             "skill": "job_monk_call_spirits"
           },
           {
+            "level": 10,
+            "skill": "job_acolyte_increase_agi"
+          },
+          {
+            "level": 30,
+            "skill": "job_monk_investigate"
+          },
+          {
+            "level": 30,
+            "skill": "job_acolyte_signum_crucis"
+          },
+          {
+            "level": 50,
+            "skill": "job_monk_asura_strike"
+          },
+          {
+            "level": 50,
+            "skill": "job_acolyte_divine_protection"
+          },
+          {
             "level": 70,
             "skill": "adv_champion_sphere_chain"
+          },
+          {
+            "level": 70,
+            "skill": "ro_champion_chain_combo"
           },
           {
             "level": 80,

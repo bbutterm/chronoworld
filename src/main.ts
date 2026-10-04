@@ -118,7 +118,12 @@ game.events.once(Phaser.Core.Events.READY, () =>
 );
 
 // Онлайн фаза 1 (только в Telegram; вне его и без сети — ничего): вход, облачное сохранение, sync после побед.
-startOnline(game);
+if (import.meta.env?.VITE_ADVANCE_LAB !== '1') startOnline(game);
+if (import.meta.env?.VITE_ADVANCE_LAB === '1') {
+  const { installAdvanceLab } = await import('./game/lab');
+  const { resetAdvanceLab, session } = await import('./game/session');
+  installAdvanceLab(resetAdvanceLab, () => JSON.parse(JSON.stringify(session.save)), game);
+}
 
 // Для отладки и скриншотов (Playwright): window.__game.scene.start('Tower') и т. п. Только в dev-сборке.
 // __sprites.busy() — идёт загрузка листов юнитов (e2e/perf ждут), __sprites.stats() — кэш листов.

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_paladin_judgement",
   "name": "Сдерживающий суд",
-  "description": "Ближайшему врагу: урон 1.55 × АТК; АТК -18% на 2 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). Ближайшему врагу: урон 1.55 × АТК; АТК -18% на 2 хода статуса.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

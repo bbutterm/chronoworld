@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_champion_centering",
   "name": "Средоточие духа",
-  "description": "На себя: лечение 0.65 × АТК; щит 12% макс. ОЗ цели.",
+  "description": "Авторский навык (не оригинальный RO). На себя: лечение 0.65 × АТК; щит 12% макс. ОЗ цели.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

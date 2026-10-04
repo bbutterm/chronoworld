@@ -25,8 +25,60 @@
   "basic": "basic_heal",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_priest_magnificat"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_acolyte_heal"
+    },
+    {
+      "jobLevel": 5,
+      "skill": "job_priest_sanctuary"
+    },
+    {
+      "jobLevel": 5,
+      "skill": "job_acolyte_divine_protection"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_priest_kyrie_eleison"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_acolyte_blessing"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_priest_impositio_manus"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_acolyte_holy_light"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_priest_magnus_exorcismus"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_acolyte_increase_agi"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_priest_assumptio"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_acolyte_angelus"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_high_priest_sanctuary"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_high_priest_assumptio"
     },
     {
       "jobLevel": 80,

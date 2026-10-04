@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_clown_overture",
   "name": "Увертюра похода",
-  "description": "В начале боя (шанс 100%): Всем союзникам, включая себя: щит 7% макс. ОЗ цели.",
+  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): Всем союзникам, включая себя: щит 7% макс. ОЗ цели.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

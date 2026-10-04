@@ -83,12 +83,36 @@
             "skill": "job_assassin_sonic_blow"
           },
           {
+            "level": 1,
+            "skill": "job_thief_steal"
+          },
+          {
             "level": 10,
             "skill": "job_assassin_katar_mastery"
           },
           {
+            "level": 10,
+            "skill": "job_thief_improve_dodge"
+          },
+          {
+            "level": 30,
+            "skill": "job_thief_double_attack"
+          },
+          {
+            "level": 50,
+            "skill": "job_assassin_meteor_assault"
+          },
+          {
+            "level": 50,
+            "skill": "job_thief_sand_attack"
+          },
+          {
             "level": 70,
             "skill": "adv_assassin_cross_cross_cut"
+          },
+          {
+            "level": 70,
+            "skill": "ro_assassin_cross_soul_breaker"
           },
           {
             "level": 80,
@@ -160,12 +184,36 @@
             "skill": "job_rogue_raid"
           },
           {
+            "level": 1,
+            "skill": "job_thief_steal"
+          },
+          {
             "level": 10,
             "skill": "job_rogue_plagiarism"
           },
           {
+            "level": 30,
+            "skill": "job_thief_improve_dodge"
+          },
+          {
+            "level": 30,
+            "skill": "job_thief_double_attack"
+          },
+          {
+            "level": 50,
+            "skill": "job_rogue_strip_weapon"
+          },
+          {
+            "level": 50,
+            "skill": "job_thief_sand_attack"
+          },
+          {
             "level": 70,
             "skill": "adv_stalker_disarm_chain"
+          },
+          {
+            "level": 70,
+            "skill": "ro_stalker_chase_walk"
           },
           {
             "level": 80,

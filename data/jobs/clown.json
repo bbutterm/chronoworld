@@ -24,8 +24,52 @@
   "basic": "basic_ranged",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_bard_musical_strike"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_archer_double_strafe"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_bard_poem_of_bragi"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_archer_owls_eye"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_bard_whistle"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_archer_arrow_shower"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_bard_apple_of_idun"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_archer_vultures_eye"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_bard_frost_joker"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_archer_charge_arrow"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_clown_field_song"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_clown_marionette_control"
     },
     {
       "jobLevel": 80,

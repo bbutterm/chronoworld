@@ -1,0 +1,35 @@
+{
+  "id": "ro_creator_acid_demonstration",
+  "name": "Acid Demonstration",
+  "description": "RO-сигнатура · адаптация: Кислотный взрыв, коррозия защиты и периодический урон; адаптация без VIT и расходников. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.9
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "acid_demonstration",
+        "name": "acid demonstration",
+        "turns": 3,
+        "dot": {
+          "k": 0.35
+        },
+        "stats": {
+          "def": -0.3
+        }
+      }
+    }
+  ],
+  "hits": 1,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

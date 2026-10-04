@@ -63,10 +63,10 @@ export function validateHeroes(content: Content, problems: string[], warnings: s
         if (a.visual.sprite !== `${a.job}_${t.gender}`) problems.push(`${aw}: нужен явный лист профессии своего пола`);
         if (a.role !== b.role) problems.push(`${aw}: роль ветки должна сохраняться`);
         if (a.minLevel > DEFAULT_MAX_LEVEL[a.minRarity] || rarityIndex(a.minRarity) > rarityIndex(t.maxRarity)) problems.push(`${aw}: недостижимый порог`);
-        checkSkills(content, aw, a.skills, t.maxRarity, line, problems, warnings, 6);
+        checkSkills(content, aw, a.skills, t.maxRarity, line, problems, warnings, 13);
         checkUlt(content, aw, a.ult, a.skills, problems);
         if (!a.ult) problems.push(`${aw}: нужна личная ульта`);
-        if (a.skills.some(s => !b.skills.some(old => old.skill === s.skill) && s.level < a.minLevel)) problems.push(`${aw}: новый навык ниже порога формы`);
+        if (a.skills.some(s => ![...t.skills, ...b.skills].some(old => old.skill === s.skill) && s.level < a.minLevel)) problems.push(`${aw}: новый навык ниже порога формы`);
       }
     }
   }
@@ -171,7 +171,7 @@ function checkSkills(content: Content, where: string, skills: CardSkill[], maxRa
     if (!sk) problems.push(`${where}: навык ${s.skill} не найден`);
     if (seen.has(s.skill)) problems.push(`${where}: навык ${s.skill} указан дважды`);
     seen.add(s.skill);
-    if (s.level <= last) problems.push(`${where}: уровни открытия навыков должны строго возрастать (${s.skill} на ${s.level})`);
+    if (s.level < last || (s.level === last && maxSkills <= 4)) problems.push(`${where}: уровни открытия навыков должны строго возрастать (${s.skill} на ${s.level})`);
     last = s.level;
     if (s.level > DEFAULT_MAX_LEVEL[maxRarity]) problems.push(`${where}: навык ${s.skill} открывается на ур. ${s.level}, а предел ${maxRarity} — ${DEFAULT_MAX_LEVEL[maxRarity]}`);
     // Навык своей ветки: принадлежит профессии линии или её второй профессии (по data/jobs) либо назван job_<профессия ветки>_*.

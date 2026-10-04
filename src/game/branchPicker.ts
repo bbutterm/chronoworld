@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BRANCH_RARITY, branchOptions, heroCard, heroTemplate, type BranchView, type CardRarity, type HeroState, type SaveState } from '../core';
+import { BRANCH_RARITY, branchOptions, branchPreview, heroCard, heroTemplate, type BranchView, type CardRarity, type HeroState, type SaveState } from '../core';
 import { CONTENT, GAME } from './content';
 import { formatNumber, heroSprite, ROLE_NAMES, STAT_KEYS, STAT_LABELS } from './flow';
 import { glowTexture, iconBadge, rarityPalette } from './heroCard';
@@ -114,7 +114,9 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
 
   branches.forEach((b, i) => {
     const x = GAME_W / 2 + (i === 0 ? -1 : 1) * (PANEL_W / 2 + PANEL_GAP / 2);
-    const h = branchPanel(scene, layer, x, b, t?.gender ?? 'm', opts.templateId, b.job === opts.current, branchStats(opts, b.job));
+    const preview = branchPreview(opts.templateId, b.job, GAME, opts.save?.heroes.find(h => h.id === opts.heroId));
+    const shown = preview.card.advanced ? b.advanced! : b;
+    const h = branchPanel(scene, layer, x, { ...shown, job: b.job, jobName: preview.card.jobName }, t?.gender ?? 'm', opts.templateId, b.job === opts.current, branchStats(opts, b.job), preview.hero, b);
     highlights.push({ job: b.job, frame: h.frame, glow: h.glow, mark: h.mark });
     const pick = !opts.viewOnly && b.job !== opts.current;
     if (pick) {
@@ -164,8 +166,10 @@ function branchPanel(
   templateId: string,
   isCurrent: boolean,
   stats: BranchStats | null = null,
+  recipient?: HeroState,
+  lineage?: BranchView,
 ): { frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Image; mark: Phaser.GameObjects.Container; skillHits: { skill: string; hit: Phaser.GameObjects.Rectangle; level: number }[] } {
-  const rarity: CardRarity = BRANCH_RARITY;
+  const rarity: CardRarity = recipient?.rarity ?? BRANCH_RARITY;
   const pal = rarityPalette(rarity);
   const cy = TOP + PANEL_H / 2;
   const glow = scene.add.image(x, cy, glowTexture(scene)).setDisplaySize(PANEL_W * 1.3, PANEL_H * 1.1).setTint(0xffd84a).setAlpha(0).setBlendMode(Phaser.BlendModes.ADD);
@@ -180,7 +184,7 @@ function branchPanel(
   layer.add(scene.add.image(x, showY + 40, glowTexture(scene)).setDisplaySize(420, 360).setTint(pal.glow).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD));
   const feet = TOP + showH - 10;
   layer.add(scene.add.ellipse(x, feet + 4, 170, 34, 0x000000, 0.45));
-  const sprite = heroSprite({ id: `branch_${b.job}`, templateId, rarity, level: 1, branch: b.job } as HeroState, GAME);
+  const sprite = heroSprite(recipient ?? { id: `branch_${b.job}`, templateId, rarity, level: 1, branch: b.job }, GAME);
   unitFigure(scene, sprite, x, feet, 320, {
     maxScale: 3,
     onReady: (o) => {
@@ -222,7 +226,12 @@ function branchPanel(
   }
   // Навыки формы (по уровню открытия).
   const left = x - PANEL_W / 2 + 26;
-  const skills = [...b.skills].sort((p, q) => p.level - q.level);
+  const signature = (lineage?.advanced?.skills ?? b.skills).find(s => s.skill.startsWith('ro_'));
+  const skills = [...(signature ? [signature] : b.skills.slice(-1)), ...(b.ult ? [{ skill: b.ult, level: 1 }] : [])];
+  if (lineage?.advanced) {
+    layer.add(text(scene, x, y, `${lineage.jobName} → ${lineage.advanced.jobName}\nЗолото · ур. 70 · далее 80 / красный 90, 100\n${b.skills.length} навыков · коснитесь навыка: подробнее`, FS.caption, C.text, { wordWrap: { width: PANEL_W - 45 } }).setOrigin(0.5, 0));
+    y += 145;
+  }
   const room = TOP + PANEL_H - 20 - y;
   const rowH = Math.min(170, Math.floor(room / Math.max(1, skills.length)));
   const rows: { skill: string; y: number; level: number }[] = [];

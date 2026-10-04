@@ -1,0 +1,21 @@
+{
+  "id": "ro_champion_chain_combo",
+  "name": "Chain Combo",
+  "description": "RO-сигнатура · адаптация: Три последовательных удара по одной цели; продолжение унаследованной школы комбинаций. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 0.8
+    }
+  ],
+  "hits": 3,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

@@ -24,8 +24,52 @@
   "basic": "basic_melee",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_assassin_sonic_blow"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_thief_envenom"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_assassin_katar_mastery"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_thief_improve_dodge"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_assassin_grimtooth"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_thief_steal"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_assassin_enchant_poison"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_thief_double_attack"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_assassin_venom_splasher"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_thief_sand_attack"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_assassin_cross_cross_cut"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_assassin_cross_soul_breaker"
     },
     {
       "jobLevel": 80,

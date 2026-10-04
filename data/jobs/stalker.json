@@ -25,8 +25,52 @@
   "basic": "basic_melee",
   "skills": [
     {
+      "jobLevel": 1,
+      "skill": "job_rogue_back_stab"
+    },
+    {
+      "jobLevel": 1,
+      "skill": "job_thief_envenom"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_rogue_gank"
+    },
+    {
+      "jobLevel": 10,
+      "skill": "job_thief_improve_dodge"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_rogue_raid"
+    },
+    {
+      "jobLevel": 20,
+      "skill": "job_thief_steal"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_rogue_plagiarism"
+    },
+    {
+      "jobLevel": 30,
+      "skill": "job_thief_double_attack"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_rogue_strip_weapon"
+    },
+    {
+      "jobLevel": 40,
+      "skill": "job_thief_sand_attack"
+    },
+    {
       "jobLevel": 70,
       "skill": "adv_stalker_disarm_chain"
+    },
+    {
+      "jobLevel": 70,
+      "skill": "ro_stalker_chase_walk"
     },
     {
       "jobLevel": 80,

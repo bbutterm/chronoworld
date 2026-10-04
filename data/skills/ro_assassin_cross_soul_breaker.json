@@ -1,0 +1,26 @@
+{
+  "id": "ro_assassin_cross_soul_breaker",
+  "name": "Soul Breaker",
+  "description": "RO-сигнатура · адаптация: Два компонента: оружейный удар и духовный урон, игнорирующий ЗАЩ. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "enemy",
+    "pick": "nearest"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "k": 1.3
+    },
+    {
+      "type": "damage",
+      "k": 0.8,
+      "bypassDefense": true
+    }
+  ],
+  "hits": 1,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

@@ -84,8 +84,36 @@
             "skill": "job_hunter_ankle_snare"
           },
           {
+            "level": 1,
+            "skill": "job_archer_arrow_shower"
+          },
+          {
+            "level": 10,
+            "skill": "job_archer_improve_concentration"
+          },
+          {
+            "level": 30,
+            "skill": "job_hunter_claymore_trap"
+          },
+          {
+            "level": 30,
+            "skill": "job_archer_charge_arrow"
+          },
+          {
+            "level": 50,
+            "skill": "job_hunter_sandman"
+          },
+          {
+            "level": 50,
+            "skill": "job_archer_vultures_eye"
+          },
+          {
             "level": 70,
             "skill": "adv_sniper_falcon_mark"
+          },
+          {
+            "level": 70,
+            "skill": "ro_sniper_focused_arrow_strike"
           },
           {
             "level": 80,
@@ -159,12 +187,40 @@
             "skill": "job_dancer_slinging_arrow"
           },
           {
+            "level": 1,
+            "skill": "job_archer_arrow_shower"
+          },
+          {
+            "level": 10,
+            "skill": "job_bard_scream"
+          },
+          {
+            "level": 10,
+            "skill": "job_archer_improve_concentration"
+          },
+          {
+            "level": 30,
+            "skill": "job_dancer_dont_forget_me"
+          },
+          {
+            "level": 30,
+            "skill": "job_archer_charge_arrow"
+          },
+          {
             "level": 50,
             "skill": "job_dancer_fortune_kiss"
           },
           {
+            "level": 50,
+            "skill": "job_archer_vultures_eye"
+          },
+          {
             "level": 70,
             "skill": "adv_gypsy_burst_step"
+          },
+          {
+            "level": 70,
+            "skill": "ro_gypsy_marionette_control"
           },
           {
             "level": 80,

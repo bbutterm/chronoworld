@@ -1,0 +1,34 @@
+{
+  "id": "ro_clown_marionette_control",
+  "name": "Marionette Control · Clown",
+  "description": "RO-сигнатура · адаптация: Поддерживает раненого союзника: атака, темп и 20 энергии. Адаптация передачи характеристик. Визуальные эффекты: совместимые общие RO-эффекты (reused), не точный оригинал этого приёма.",
+  "icon": "icon_ult_mage",
+  "range": "ranged",
+  "target": {
+    "side": "ally",
+    "pick": "lowestHpPct",
+    "includeSelf": true
+  },
+  "effects": [
+    {
+      "type": "status",
+      "status": {
+        "id": "marionette_lead",
+        "name": "marionette lead",
+        "turns": 3,
+        "stats": {
+          "atk": 0.4,
+          "spd": 0.2
+        }
+      }
+    },
+    {
+      "type": "energy",
+      "amount": 20
+    }
+  ],
+  "hits": 1,
+  "cooldown": 14,
+  "castTime": 0.6,
+  "priority": 12
+}

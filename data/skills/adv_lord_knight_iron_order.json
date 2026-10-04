@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_lord_knight_iron_order",
   "name": "Железный приказ",
-  "description": "На себя: щит 16% макс. ОЗ цели; ЗАЩ +20% на 3 хода статуса.",
+  "description": "Авторский навык (не оригинальный RO). На себя: щит 16% макс. ОЗ цели; ЗАЩ +20% на 3 хода статуса.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {
