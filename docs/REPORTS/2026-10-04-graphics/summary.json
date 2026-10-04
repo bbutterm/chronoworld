@@ -1,0 +1,1000 @@
+{
+  "date": "2026-10-04",
+  "status": "pass",
+  "runtime": "Chromium / WebGL (SwiftShader), Vite5296; actual Phaser loader, packed textures and postrender observations; no device FPS claim",
+  "source": {
+    "before": "5fdae16d2e2c331057386aab18302c2646a2cdfbdf2734ce6512d939a784c1f8",
+    "after": "5fdae16d2e2c331057386aab18302c2646a2cdfbdf2734ce6512d939a784c1f8",
+    "unchanged": true,
+    "files": 2352,
+    "ready25PngHashesMatchFixture": true
+  },
+  "widths": [
+    {
+      "width": 360,
+      "sprites": 25,
+      "playableFrames": 598,
+      "animationRenderChecks": 250,
+      "missingRenderedFrames": 0,
+      "lostPixels": 0,
+      "maxAlphaDelta": 0,
+      "flipX": "all25 both orientations, mirrored anchor origin; full untrimmed cell dimensions retained across every frame",
+      "cacheHeldBytes": 19835616,
+      "cacheReleasedBytes": 16201132,
+      "cacheBudgetBytes": 16777216,
+      "sceneActiveAfterRelease": false,
+      "remainingSceneObjects": 0
+    },
+    {
+      "width": 390,
+      "sprites": 25,
+      "playableFrames": 598,
+      "animationRenderChecks": 250,
+      "missingRenderedFrames": 0,
+      "lostPixels": 0,
+      "maxAlphaDelta": 0,
+      "flipX": "all25 both orientations, mirrored anchor origin; full untrimmed cell dimensions retained across every frame",
+      "cacheHeldBytes": 19835616,
+      "cacheReleasedBytes": 16768608,
+      "cacheBudgetBytes": 16777216,
+      "sceneActiveAfterRelease": false,
+      "remainingSceneObjects": 0
+    }
+  ],
+  "sprites": [
+    {
+      "id": "melee",
+      "file": "sprites/monsters/melee.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        437,
+        386
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "ranged",
+      "file": "sprites/monsters/ranged.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        467,
+        402
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "tank",
+      "file": "sprites/monsters/tank.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        767,
+        367
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 3
+      }
+    },
+    {
+      "id": "fast",
+      "file": "sprites/monsters/fast.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        131,
+        1084
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "elite",
+      "file": "sprites/monsters/elite.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        744,
+        173
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "drops",
+      "file": "sprites/monsters/drops.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        130,
+        1074
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "poporing",
+      "file": "sprites/monsters/poporing.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        655,
+        204
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "fabre",
+      "file": "sprites/monsters/fabre.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        439,
+        180
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "lunatic",
+      "file": "sprites/monsters/lunatic.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        305,
+        211
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "rocker",
+      "file": "sprites/bosses/rocker.png",
+      "cell": [
+        256,
+        256
+      ],
+      "anchor": [
+        112,
+        216
+      ],
+      "origin": [
+        0.4375,
+        0.84375
+      ],
+      "packedSize": [
+        563,
+        596
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "raydric",
+      "file": "sprites/monsters/raydric.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        446,
+        446
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "dark_priest",
+      "file": "sprites/monsters/dark_priest.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        1488,
+        103
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "mummy",
+      "file": "sprites/monsters/mummy.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        590,
+        283
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "pirate_skel",
+      "file": "sprites/monsters/pirate_skel.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        509,
+        400
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "marin",
+      "file": "sprites/monsters/marin.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        166,
+        1096
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "owl_duke",
+      "file": "sprites/monsters_xl/owl_duke.png",
+      "cell": [
+        272,
+        330
+      ],
+      "anchor": [
+        167,
+        280
+      ],
+      "origin": [
+        0.6139705882352942,
+        0.8484848484848485
+      ],
+      "packedSize": [
+        311,
+        1300
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "ghoul",
+      "file": "sprites/monsters/ghoul.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        978,
+        179
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "verit",
+      "file": "sprites/monsters/verit.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        1923,
+        68
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "mandragora",
+      "file": "sprites/monsters/mandragora.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        864,
+        237
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "sandman",
+      "file": "sprites/monsters/sandman.png",
+      "cell": [
+        272,
+        330
+      ],
+      "anchor": [
+        167,
+        280
+      ],
+      "origin": [
+        0.6139705882352942,
+        0.8484848484848485
+      ],
+      "packedSize": [
+        780,
+        395
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "pupa",
+      "file": "sprites/monsters/pupa.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        1338,
+        54
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "boss1",
+      "file": "sprites/bosses/boss1.png",
+      "cell": [
+        256,
+        256
+      ],
+      "anchor": [
+        112,
+        216
+      ],
+      "origin": [
+        0.4375,
+        0.84375
+      ],
+      "packedSize": [
+        1045,
+        522
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "thief_bug_male",
+      "file": "sprites/monsters/thief_bug_male.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        193,
+        407
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "thief_bug_female",
+      "file": "sprites/monsters/thief_bug_female.png",
+      "cell": [
+        240,
+        224
+      ],
+      "anchor": [
+        100,
+        120
+      ],
+      "origin": [
+        0.4166666666666667,
+        0.5357142857142857
+      ],
+      "packedSize": [
+        213,
+        455
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    },
+    {
+      "id": "marduk",
+      "file": "sprites/monsters/marduk.png",
+      "cell": [
+        272,
+        330
+      ],
+      "anchor": [
+        167,
+        280
+      ],
+      "origin": [
+        0.6139705882352942,
+        0.8484848484848485
+      ],
+      "packedSize": [
+        464,
+        813
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6,
+        "attack": 6,
+        "hurt": 3,
+        "death": 5
+      }
+    }
+  ],
+  "icons": [
+    {
+      "skill": "ro_lord_knight_spiral_pierce",
+      "alias": "lk_spiralpierce",
+      "loadedKey": "skill_lk_spiralpierce",
+      "sourceType": "HTMLImageElement",
+      "nativeSize": [
+        24,
+        24
+      ],
+      "outputKey": "skill_ro_lord_knight_spiral_pierce",
+      "outputMatchesArtPixels": true,
+      "differsFromProceduralGlyphBytes": 19057
+    },
+    {
+      "skill": "ro_high_priest_assumptio",
+      "alias": "hp_assumptio",
+      "loadedKey": "skill_hp_assumptio",
+      "sourceType": "HTMLImageElement",
+      "nativeSize": [
+        24,
+        24
+      ],
+      "outputKey": "skill_ro_high_priest_assumptio",
+      "outputMatchesArtPixels": true,
+      "differsFromProceduralGlyphBytes": 19633
+    },
+    {
+      "skill": "ro_high_wizard_mystical_amplification",
+      "alias": "hw_magicpower",
+      "loadedKey": "skill_hw_magicpower",
+      "sourceType": "HTMLImageElement",
+      "nativeSize": [
+        24,
+        24
+      ],
+      "outputKey": "skill_ro_high_wizard_mystical_amplification",
+      "outputMatchesArtPixels": true,
+      "differsFromProceduralGlyphBytes": 19328
+    },
+    {
+      "skill": "ro_whitesmith_cart_termination",
+      "alias": "ws_carttermination",
+      "loadedKey": "skill_ws_carttermination",
+      "sourceType": "HTMLImageElement",
+      "nativeSize": [
+        24,
+        24
+      ],
+      "outputKey": "skill_ro_whitesmith_cart_termination",
+      "outputMatchesArtPixels": true,
+      "differsFromProceduralGlyphBytes": 19497
+    },
+    {
+      "skill": "ro_creator_acid_demonstration",
+      "alias": "cr_aciddemonstration",
+      "loadedKey": "skill_cr_aciddemonstration",
+      "sourceType": "HTMLImageElement",
+      "nativeSize": [
+        24,
+        24
+      ],
+      "outputKey": "skill_ro_creator_acid_demonstration",
+      "outputMatchesArtPixels": true,
+      "differsFromProceduralGlyphBytes": 18687
+    }
+  ],
+  "battles": [
+    {
+      "width": 360,
+      "case": "early",
+      "seed": 20261004,
+      "squadB": [
+        "mob_fabre",
+        "mob_lunatic",
+        "mob_drops",
+        "mob_rocker",
+        null
+      ],
+      "renderSamples": 366,
+      "observedStates": [
+        "attack",
+        "death",
+        "idle",
+        "walk"
+      ],
+      "newSpriteIds": [
+        "drops",
+        "fabre",
+        "lunatic",
+        "rocker"
+      ],
+      "screenshots": [
+        "battle-early-360-1s.png",
+        "battle-early-360-3s.png",
+        "battle-early-360-6s.png"
+      ],
+      "afterRelease": {
+        "sceneObjects": 0,
+        "viewList": 0,
+        "viewMap": 0,
+        "cacheBytes": 8815032,
+        "budgetSatisfied": true
+      }
+    },
+    {
+      "width": 360,
+      "case": "large",
+      "seed": 20261005,
+      "squadB": [
+        "mob_boss1",
+        "alde_owl_duke",
+        "mob3_tank",
+        "mob3_ranged",
+        "mob4_ranged"
+      ],
+      "renderSamples": 378,
+      "observedStates": [
+        "attack",
+        "death",
+        "idle",
+        "walk"
+      ],
+      "newSpriteIds": [
+        "boss1",
+        "dark_priest",
+        "marduk",
+        "owl_duke",
+        "raydric"
+      ],
+      "screenshots": [
+        "battle-large-360-1s.png",
+        "battle-large-360-3s.png",
+        "battle-large-360-6s.png"
+      ],
+      "afterRelease": {
+        "sceneObjects": 0,
+        "viewList": 0,
+        "viewMap": 0,
+        "cacheBytes": 15531840,
+        "budgetSatisfied": true
+      }
+    },
+    {
+      "width": 390,
+      "case": "early",
+      "seed": 20261004,
+      "squadB": [
+        "mob_fabre",
+        "mob_lunatic",
+        "mob_drops",
+        "mob_rocker",
+        null
+      ],
+      "renderSamples": 330,
+      "observedStates": [
+        "attack",
+        "death",
+        "idle",
+        "walk"
+      ],
+      "newSpriteIds": [
+        "drops",
+        "fabre",
+        "lunatic",
+        "rocker"
+      ],
+      "screenshots": [
+        "battle-early-390-1s.png",
+        "battle-early-390-3s.png",
+        "battle-early-390-6s.png"
+      ],
+      "afterRelease": {
+        "sceneObjects": 0,
+        "viewList": 0,
+        "viewMap": 0,
+        "cacheBytes": 8815032,
+        "budgetSatisfied": true
+      }
+    },
+    {
+      "width": 390,
+      "case": "large",
+      "seed": 20261005,
+      "squadB": [
+        "mob_boss1",
+        "alde_owl_duke",
+        "mob3_tank",
+        "mob3_ranged",
+        "mob4_ranged"
+      ],
+      "renderSamples": 336,
+      "observedStates": [
+        "attack",
+        "death",
+        "idle",
+        "walk"
+      ],
+      "newSpriteIds": [
+        "boss1",
+        "dark_priest",
+        "marduk",
+        "owl_duke",
+        "raydric"
+      ],
+      "screenshots": [
+        "battle-large-390-1s.png",
+        "battle-large-390-3s.png",
+        "battle-large-390-6s.png"
+      ],
+      "afterRelease": {
+        "sceneObjects": 0,
+        "viewList": 0,
+        "viewMap": 0,
+        "cacheBytes": 15531840,
+        "budgetSatisfied": true
+      }
+    }
+  ],
+  "normalStageTransition": {
+    "handler": "Stage(ch1_s1).fight() → startStageBattle → Battle",
+    "fixture": "starter save, browser-only previously seen chapter intro/story",
+    "consoleErrors": 0,
+    "screenshot": "battle-campaign-390.png"
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "warnings": [],
+  "initialHarnessErrors": {
+    "count": 10,
+    "messages": [
+      "Texture key already in use: portrait_archer",
+      "Texture key already in use: portrait_guard",
+      "Texture key already in use: portrait_mage",
+      "Texture key already in use: portrait_priest",
+      "Texture key already in use: portrait_warrior"
+    ],
+    "cause": "QA readiness checked !isActive(Boot), which is also true during preload. The harness could stop Boot before its pending ImageFiles reached addToCache; ensureSprites then registered portrait textures first. The corrected readiness explicitly waits for active Campaign and no pending sprite loads. Production code unchanged.",
+    "fullStacks": "portrait-diagnostic-initial.json",
+    "originalReport": "report-initial.json",
+    "correctedTestErrors": 0,
+    "normalStageErrors": 0
+  },
+  "recommendedScreenshots": [
+    "all25-idle-390.png",
+    "battle-large-390-6s.png",
+    "battle-campaign-390.png"
+  ],
+  "screenshots": [
+    "all25-idle-360.png",
+    "all25-walk-360.png",
+    "all25-attack-360.png",
+    "all25-hurt-360.png",
+    "all25-death-360.png",
+    "all25-idle-390.png",
+    "all25-walk-390.png",
+    "all25-attack-390.png",
+    "all25-hurt-390.png",
+    "all25-death-390.png",
+    "battle-early-360-1s.png",
+    "battle-early-360-3s.png",
+    "battle-early-360-6s.png",
+    "battle-large-360-1s.png",
+    "battle-large-360-3s.png",
+    "battle-large-360-6s.png",
+    "battle-early-390-1s.png",
+    "battle-early-390-3s.png",
+    "battle-early-390-6s.png",
+    "battle-large-390-1s.png",
+    "battle-large-390-3s.png",
+    "battle-large-390-6s.png",
+    "battle-campaign-390.png"
+  ],
+  "closed": {
+    "browsers": true,
+    "vite5296": true
+  },
+  "fullReport": "report.json"
+}

@@ -376,6 +376,12 @@ export const RO_SKILL_ICONS: Record<string, string> = {
   job_monk_blade_stop: 'mo_bladestop',
   job_monk_iron_hand: 'mo_ironhand',
   job_monk_steel_body: 'mo_steelbody',
+  // Сигнатуры адвансов: готовые иконки тех же навыков RO.
+  ro_lord_knight_spiral_pierce: 'lk_spiralpierce',
+  ro_high_priest_assumptio: 'hp_assumptio',
+  ro_high_wizard_mystical_amplification: 'hw_magicpower',
+  ro_whitesmith_cart_termination: 'ws_carttermination',
+  ro_creator_acid_demonstration: 'cr_aciddemonstration',
   // Ульты героев (01.10): иконка навыка RO, чья это усиленная форма.
   ult_alan_magnum_break: 'sm_magnum',
   ult_alan_brandish_spear: 'kn_brandishspear',
