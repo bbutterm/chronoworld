@@ -175,6 +175,17 @@ export type TowerUpgrade = z.infer<typeof TowerUpgradeSchema>;
 
 const Weights = z.partialRecord(BlessingRaritySchema, z.number().nonnegative());
 
+const DraftRaritySchema = z.object({ floor: Weights, elite: Weights, boss: Weights, event: Weights, start: Weights });
+
+/** Версия 1: атомарный обмен, лимит активных MVP и разовое оживление при получении. Только новые забеги. */
+export const TowerDraftRulesSchema = z.object({
+  version: z.literal(1),
+  blessingEvery: z.number().int().positive(),
+  legendaryCap: z.number().int().positive(),
+  rarity: DraftRaritySchema,
+});
+export type TowerDraftRules = z.infer<typeof TowerDraftRulesSchema>;
+
 export const TowerRunConfigSchema = z.object({
   $comment: z.string().optional(),
   /** Сила врагов к середине главы фронта кампании (с 1); новые забеги плавно приближаются к ней по этапам. */
@@ -188,6 +199,7 @@ export const TowerRunConfigSchema = z.object({
   /** Выбор карты после каждого blessingEvery-го этажа (и после элиты/босса). */
   blessingEvery: z.number().int().positive(),
   choices: z.number().int().min(2).max(5),
+  newRunDraftRules: TowerDraftRulesSchema.optional(),
   /** Лечение после боя (доля макс. ОЗ) и на отдыхе. */
   afterBattleHeal: z.number().min(0).max(1),
   restHeal: z.number().min(0).max(1),
@@ -223,6 +235,8 @@ export const TowerRunSchema = z.object({
   hp: z.record(z.string(), z.number().int().min(0).max(1000)),
   fallen: z.array(z.string()),
   cards: z.array(z.string()),
+  draftRules: TowerDraftRulesSchema.optional(),
+  consumedImmediateCards: z.array(z.string()).optional(),
   /** Развилка: варианты следующего этажа. */
   paths: z.array(TowerNodeKindSchema).min(1).max(3),
   /** Выбранный бой (ждёт штурма). */
@@ -236,6 +250,8 @@ export const TowerRunSchema = z.object({
         rolls: z.number().int().nonnegative(),
         /** Гарантия исходного выбора; отсутствует в старых сохранениях. */
         minRarity: BlessingRaritySchema.optional(),
+        exhausted: z.boolean().optional(),
+        exchange: z.object({ sourceCardId: z.string(), mode: z.enum(['last', 'mvpReplacement']) }).optional(),
       }),
       z.object({ kind: z.literal('event'), event: z.string() }),
     ])

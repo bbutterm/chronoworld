@@ -16,6 +16,8 @@ import {
   fightTowerFloor,
   newGame,
   pickTowerBlessing,
+  previewTowerBlessingChoice,
+  skipTowerBlessing,
   resolveTowerEvent,
   runConfig,
   startTowerRun,
@@ -84,6 +86,8 @@ const avgHp = (s: SaveState) => {
 /**
  * Один забег авто-игроком: путь — отдых, если раны тяжёлые, элита — если отряд свеж, событие — иначе бой; карта — самая
  * редкая (равные — первая); событие — первый доступный вариант. cards false — карты не берутся (выбор пропускается).
+ * В эксперименте v1: если лучшая карта требует замены MVP, сохраняет текущую сборку. Это фиксированная
+ * консервативная политика сравнения, не оптимальная игра и не политика прежнего исследования cap3.
  */
 export function autoRun(ctx: FullContext, save: SaveState, cards = true, maxFloors = 60): { floor: number; cards: string[]; save: SaveState } {
   const cfg = runConfig(ctx);
@@ -95,11 +99,11 @@ export function autoRun(ctx: FullContext, save: SaveState, cards = true, maxFloo
     if (run.floor >= maxFloors) break;
     if (run.pending?.kind === 'blessing') {
       if (!cards || !run.pending.options.length) {
-        s = { ...s, tower: { ...s.tower, run: { ...run, pending: undefined } } };
+        s = run.draftRules ? skipTowerBlessing(s, ctx) : { ...s, tower: { ...s.tower, run: { ...run, pending: undefined } } };
         continue;
       }
       const best = [...run.pending.options].sort((a, b) => RANK[blessingById(cfg, b)!.rarity] - RANK[blessingById(cfg, a)!.rarity])[0];
-      s = pickTowerBlessing(s, best, ctx).save;
+      s = run.draftRules && previewTowerBlessingChoice(s, best, ctx).requiresReplacement ? skipTowerBlessing(s, ctx) : pickTowerBlessing(s, best, ctx).save;
       continue;
     }
     if (run.pending?.kind === 'event') {
@@ -150,6 +154,7 @@ function main() {
   const argv = process.argv.slice(2);
   const arg = (n: string) => (argv.indexOf(`--${n}`) >= 0 ? argv[argv.indexOf(`--${n}`) + 1] : undefined);
   const ctx = loadFullContext();
+  if (runConfig(ctx).newRunDraftRules) console.log('Эксперимент v1: редкость прежде всего; при требуемой замене MVP — сохранить сборку (не оптимальная игра).');
   const n = Number(arg('n') ?? 4);
   const tiers = arg('tier') ? [Number(arg('tier'))] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   if (argv.includes('--fit')) {

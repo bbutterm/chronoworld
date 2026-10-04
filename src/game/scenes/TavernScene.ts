@@ -5,7 +5,7 @@ import { sfx, summonSound } from '../audio';
 import { haptic } from '../haptics';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
-import { formatNumber, heroSprite, stageNo } from '../flow';
+import { currentStage, formatNumber, heroSprite, stageNo } from '../flow';
 import { bump, decorTween, MOMENT_DEPTH, moment, pulse, queueRewardFly } from '../juice';
 import { GAME_H, GAME_W, BLEED_X, BLEED_Y } from '../layout';
 import { bottomSheet, cta, CONTENT_TOP, screen, unitFigure } from '../screen';
@@ -798,6 +798,12 @@ export class TavernScene extends Phaser.Scene {
     const st = summonStatus(session.save, today(), GAME);
     const btns = summonButtons(st);
     const again = state.count === 10 ? btns.ten : btns.one;
+    const next = currentStage(session.save, GAME);
+    if (next) {
+      const prep = button(this, GAME_W / 2, 1430, GAME_W - 2 * S.l, BTN_H, '', 'Собрать отряд', () => this.scene.start('Stage', { stageId: next.id }), T.heading, { variant: 'secondary' });
+      prep.container.setName('summonPrepare');
+      L2.add(prep.container);
+    }
     const wDone = 380;
     const wMore = GAME_W - 2 * S.l - S.s - wDone;
     const done = button(this, S.l + wDone / 2, DONE_Y, wDone, BTN_H, '', 'Готово', () => this.scene.restart({} satisfies TavernData), T.heading, { variant: 'secondary' });

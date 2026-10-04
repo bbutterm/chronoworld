@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_vika_asura",
   "name": "Удар Асуры",
-  "description": "Вся сила духа в один удар: ×5.",
+  "description": "Вика собирает всю силу духа в кулак и обрушивает её на ближайшего врага.",
   "icon": "icon_ult_warrior",
   "range": "melee",
   "target": {

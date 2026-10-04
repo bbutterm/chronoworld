@@ -5,6 +5,15 @@
 
 export type NodeStatus = 'locked' | 'open' | 'cleared';
 
+/** Chapter-one goal follows story milestones, never the presence of a namesake summon. */
+export function campaignObjective(chapterId: string, cleared: readonly string[]): string | null {
+  if (chapterId !== 'chapter1' || cleared.includes('ch1_s10')) return null;
+  if (cleared.includes('ch1_s15')) return 'Цель: вызволить Грету из желе';
+  if (cleared.includes('ch1_s5')) return 'Цель: найти Грету в лесу';
+  if (cleared.includes('ch1_s4')) return 'Цель: добраться до «Двух колоколов»';
+  return 'Цель: узнать, что гонит порингов к деревне';
+}
+
 /**
  * Подпись с названием — только у текущего этапа и у босса (§5 «Кампания»): пройденные — номер и галка,
  * закрытые — номер и замок. Так на участке не больше двух подписей вместо десяти.

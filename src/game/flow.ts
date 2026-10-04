@@ -368,8 +368,8 @@ export const POWER_VERDICT: Record<PowerTone, string> = { ahead: 'Сил хва�
  * Рекомендуемая мощь этапа — из баланса (`recommendedPower` ядра, `data/progression.json` → power.recommended):
  * отряд с такой мощью проходит этап с первых попыток; модель игрока не проигрывает ниже 0,85 от неё.
  */
-export function recommendedPower(stageId: string, ctx: FeatureContext): number {
-  return coreRecommendedPower(stageId, ctx);
+export function recommendedPower(stageId: string, ctx: FeatureContext, choices?: SaveState['campaignChoices']): number {
+  return coreRecommendedPower(stageId, ctx, choices);
 }
 
 // ---------- Уровни врагов (core/features/levels.ts) ----------
@@ -412,10 +412,10 @@ export type StageRecommend = RecommendedLevel & { own?: boolean; capped?: boolea
  * своей редкости), чтобы мощь отряда дошла до рекомендуемой мощи этапа. Это та же проверка, что «Сил хватает / Нужно N»,
  * только в уровнях: «Сил хватает» ⇔ средний уровень отряда ≥ этого. null — пустой отряд.
  */
-export function ownRecommendedLevel(save: Pick<SaveState, 'squad' | 'heroes'>, stageId: string, ctx: FeatureContext): { level: number; capped: boolean } | null {
+export function ownRecommendedLevel(save: Pick<SaveState, 'squad' | 'heroes' | 'campaignChoices'>, stageId: string, ctx: FeatureContext): { level: number; capped: boolean } | null {
   const squad = save.squad.map((id) => save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
   if (!squad.length) return null;
-  const need = coreRecommendedPower(stageId, ctx);
+  const need = coreRecommendedPower(stageId, ctx, save.campaignChoices);
   const full = 'inventory' in save ? (save as SaveState) : undefined;
   const powerAt = (level: number) => squad.reduce((sum, h) => sum + heroPower({ ...h, level: Math.min(level, maxLevelOf(ctx as GameContext, h.rarity)) }, ctx, full), 0);
   const top = Math.max(...squad.map((h) => maxLevelOf(ctx as GameContext, h.rarity)));
@@ -438,12 +438,12 @@ export function ownRecommendedLevel(save: Pick<SaveState, 'squad' | 'heroes'>, s
  * разница между врагами — как у ядра). Раньше на одном экране были «враги ур. 30–40», «Сил хватает 128 %» и
  * «Фиолетовые герои ур. 6» у синего отряда ур. 24. Пустой отряд — как в ядре (полоса этапа).
  */
-export function stageLevelsFor(save: Pick<SaveState, 'squad' | 'heroes'>, stageId: string, ctx: FeatureContext): StageLevels & { shift: number; recommended: StageRecommend } {
-  const base = stageLevels(stageId, ctx);
+export function stageLevelsFor(save: Pick<SaveState, 'squad' | 'heroes' | 'campaignChoices'>, stageId: string, ctx: FeatureContext): StageLevels & { shift: number; recommended: StageRecommend } {
+  const base = stageLevels(stageId, ctx, save.campaignChoices);
   const rarity = squadRarity(save);
   const own = ownRecommendedLevel(save, stageId, ctx);
   if (!rarity || !own) return { ...base, shift: 0 };
-  const raw = rarity === base.rarity ? base : { ...base, rarity, ...enemyLevels(enemySquad(stageId, ctx), rarity, ctx, recommendedFactor(stageId, ctx)) };
+  const raw = rarity === base.rarity ? base : { ...base, rarity, ...enemyLevels(enemySquad(stageId, ctx, save.campaignChoices), rarity, ctx, recommendedFactor(stageId, ctx, save.campaignChoices), save.campaignChoices) };
   // На пределах редкостей сил не хватает — враги без сдвига (честно «выше» отряда), рекомендация — «нужны копии».
   const shift = own.capped ? 0 : own.level - raw.typical;
   const lv = (l: number) => Math.max(1, l + shift);
@@ -488,7 +488,7 @@ export interface StageNeeds {
 
 export function stageNeeds(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext): StageNeeds {
   const own = squadPower(save, ctx);
-  const power = recommendedPower(stageId, ctx);
+  const power = recommendedPower(stageId, ctx, save.campaignChoices);
   const lv = stageLevelsFor(save, stageId, ctx);
   const rec = lv.recommended;
   const short = own < power && rec.own ? { level: rec.level, ...(rec.capped ? { capped: true } : {}) } : undefined;
@@ -510,7 +510,7 @@ export interface PowerCheck {
 
 export function powerCheck(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext): PowerCheck {
   const squad = squadPower(save, ctx);
-  const recommended = recommendedPower(stageId, ctx);
+  const recommended = recommendedPower(stageId, ctx, save.campaignChoices);
   const tone = powerTone(squad, recommended);
   return { squad, recommended, tone, verdict: POWER_VERDICT[tone] };
 }

@@ -22,6 +22,7 @@ export const SpeakerSchema = z.object({
 export const StoryLineSchema = z.object({
   /** Ключ из speakers. hero1..heroN — герои сохранения по порядку (имя берётся из сохранения). */
   speaker: z.string().min(1),
+  when: z.object({ choice: id, is: id }).optional(),
   text: z.string().min(1).max(STORY_LINE_MAX, `реплика длиннее ${STORY_LINE_MAX} символов`),
 });
 
@@ -37,6 +38,12 @@ export const StorySceneSchema = z.object({
   /** Баннер босса после диалога — только у beforeStage босс-этапа. */
   bossIntro: z.object({ title: z.string().min(1), subtitle: z.string().optional() }).optional(),
   lines: z.array(StoryLineSchema).min(1).max(6),
+  choice: z.object({
+    id, prompt: z.string().min(1).max(STORY_LINE_MAX),
+    options: z.array(z.object({
+      id, text: z.string().min(1).max(80), reply: z.array(StoryLineSchema).min(1).max(3),
+    })).min(2).max(3),
+  }).optional(),
 });
 
 /** data/story/<chapter>.json — сюжетные сцены главы. */

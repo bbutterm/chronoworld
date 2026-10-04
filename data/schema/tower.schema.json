@@ -169,6 +169,118 @@
           "minimum": 2,
           "maximum": 5
         },
+        "newRunDraftRules": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "number",
+              "const": 1
+            },
+            "blessingEvery": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "legendaryCap": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "rarity": {
+              "type": "object",
+              "properties": {
+                "floor": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "enum": [
+                      "common",
+                      "rare",
+                      "legendary"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "elite": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "enum": [
+                      "common",
+                      "rare",
+                      "legendary"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "boss": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "enum": [
+                      "common",
+                      "rare",
+                      "legendary"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "event": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "enum": [
+                      "common",
+                      "rare",
+                      "legendary"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "start": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "enum": [
+                      "common",
+                      "rare",
+                      "legendary"
+                    ]
+                  },
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              },
+              "required": [
+                "floor",
+                "elite",
+                "boss",
+                "event",
+                "start"
+              ]
+            }
+          },
+          "required": [
+            "version",
+            "blessingEvery",
+            "legendaryCap",
+            "rarity"
+          ]
+        },
         "afterBattleHeal": {
           "type": "number",
           "minimum": 0,

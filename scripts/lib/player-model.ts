@@ -9,6 +9,7 @@
  */
 import {
   achievementStatus,
+  campaignSceneLines,
   actAscend,
   actClaimOffline,
   actClimbTower,
@@ -1078,7 +1079,7 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
   for (const st of ctx.content.stages) {
     const lines = ctx.story.scenes
       .filter((sc) => sc.stageId === st.id || (sc.trigger === 'chapterStart' && sc.chapter === st.chapter && st.index === 0))
-      .reduce((a, sc) => a + sc.lines.length, 0);
+      .reduce((a, sc) => a + campaignSceneLines(sim.save, sc).length, 0);
     storyLines.set(st.id, lines);
   }
 

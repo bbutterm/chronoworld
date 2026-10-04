@@ -61,7 +61,7 @@ export const HINT_MAX = 40;
 export const HINT_TEXT: Record<HintId, string> = {
   home_campaign: 'Вперёд, в первый бой!',
   stage_fight: 'Отряд готов. В бой!',
-  prep_auto: 'Новички! «Авто» соберёт сильнейших',
+  prep_auto: 'Новые герои! «Авто» поможет с отрядом',
   battle_speed: 'Быстрее? Включите ×2',
   result_next: 'Победа! Дальше — следующий этап',
   result_home: 'Сундук копится — загляните в кампанию',
