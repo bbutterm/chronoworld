@@ -1,0 +1,523 @@
+{
+  "baseCommit": "d71207a90c677b74089c12159b367d24bd99da98",
+  "scope": "Private browser QA. Synthetic tower variants are not campaign-completion evidence. No real player writes.",
+  "baselineMatrix": [
+    {
+      "combo": "new-browser-390",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [
+        "shop-sheet"
+      ],
+      "lockedSkips": [],
+      "actualClicks": 11,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "late-telegram-390",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [
+        {
+          "combo": "late-telegram-390",
+          "scene": "Interactions",
+          "type": "pageerror",
+          "message": "Cannot read properties of null (reading 'glTexture')",
+          "stack": "TypeError: Cannot read properties of null (reading 'glTexture')\n    at Frame.get [as glTexture] (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:15471:23)\n    at MultiPipeline.batchSprite (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:49485:24)\n    at Image.ImageWebGLRenderer [as renderWebGL] (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:75632:17)\n    at WebGLRenderer.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:56742:11)\n    at CameraManager.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:34454:15)\n    at Systems.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:71584:17)\n    at SceneManager.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:72572:115)\n    at Game.step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:82784:15)\n    at TimeStep.step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:57982:9)\n    at step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:57360:11)"
+        }
+      ],
+      "failedAssertions": [
+        "nav_Campaign",
+        "settings-open",
+        "tavern-rates",
+        "shop-sheet",
+        "arena-start"
+      ],
+      "lockedSkips": [],
+      "actualClicks": 10,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "mid-telegram-360",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [],
+      "lockedSkips": [],
+      "actualClicks": 22,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "new-webgl1-360",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [
+        "shop-sheet"
+      ],
+      "lockedSkips": [],
+      "actualClicks": 11,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "late-canvas-360",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [
+        {
+          "combo": "late-canvas-360",
+          "scene": "Interactions",
+          "type": "pageerror",
+          "message": "Cannot read properties of null (reading 'drawImage')",
+          "stack": "TypeError: Cannot read properties of null (reading 'drawImage')\n    at Frame.get [as canvasData] (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:15550:21)\n    at CanvasRenderer.batchSprite (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:42671:19)\n    at Image.ImageCanvasRenderer [as renderCanvas] (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:75660:12)\n    at CanvasRenderer.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:42502:11)\n    at CameraManager.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:34454:15)\n    at Systems.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:71584:17)\n    at SceneManager.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:72572:115)\n    at Game.step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:82784:15)\n    at TimeStep.step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:57982:9)\n    at step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:57360:11)"
+        }
+      ],
+      "failedAssertions": [
+        "nav_Campaign",
+        "settings-open",
+        "tavern-rates",
+        "shop-sheet",
+        "arena-start"
+      ],
+      "lockedSkips": [],
+      "actualClicks": 10,
+      "renderer": 1,
+      "glVersion": null
+    }
+  ],
+  "fixedMatrix": [
+    {
+      "combo": "new-browser-390",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [],
+      "lockedSkips": [
+        {
+          "kind": "shop-sheet",
+          "skipped": true,
+          "reason": "Shop is locked in this fixture"
+        }
+      ],
+      "actualClicks": 11,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "late-telegram-390",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [],
+      "lockedSkips": [],
+      "actualClicks": 22,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "mid-telegram-360",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [],
+      "lockedSkips": [],
+      "actualClicks": 22,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "new-webgl1-360",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [],
+      "lockedSkips": [
+        {
+          "kind": "shop-sheet",
+          "skipped": true,
+          "reason": "Shop is locked in this fixture"
+        }
+      ],
+      "actualClicks": 11,
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "combo": "late-canvas-360",
+      "screenCount": 16,
+      "reached": 16,
+      "errors": [],
+      "failedAssertions": [],
+      "lockedSkips": [],
+      "actualClicks": 22,
+      "renderer": 1,
+      "glVersion": null
+    }
+  ],
+  "canonicalBaseline": {
+    "started": "2026-10-04T21:42:28.184Z",
+    "finished": "2026-10-04T21:42:58.469Z",
+    "mode": "telegram",
+    "floors": [
+      21,
+      41,
+      61
+    ],
+    "repeat": 5,
+    "maxMs": 240000,
+    "exitCode": 1,
+    "steps": 4,
+    "errors": [
+      {
+        "current": "floor21-first-Adventure",
+        "console": "QA_INVALID_FRAME {\"scene\":\"Adventure\",\"name\":\"\",\"type\":\"Image\",\"x\":540,\"y\":1504.7146618075801,\"texture\":\"skin_bg_battle_swamp\",\"frame\":\"__BASE\",\"textureSource\":[]}"
+      },
+      {
+        "current": "floor21-first-Adventure",
+        "message": "Cannot read properties of null (reading 'glTexture')",
+        "stack": "TypeError: Cannot read properties of null (reading 'glTexture')\n    at Frame.get [as glTexture] (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:15471:23)\n    at MultiPipeline.batchSprite (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:49485:24)\n    at p.batchSprite (eval at evaluate (:311:30), <anonymous>:13:22)\n    at Image.ImageWebGLRenderer [as renderWebGL] (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:75632:17)\n    at WebGLRenderer.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:56742:11)\n    at CameraManager.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:34454:15)\n    at Systems.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:71584:17)\n    at SceneManager.render (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:72572:115)\n    at Game.step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:82784:15)\n    at TimeStep.step (http://127.0.0.1:5515/@fs/workspace/chronoworld/node_modules/.cache/phaser-lite/phaser-lite-1b6ad3fdea.mjs?v=9a7cbeaa:57982:9)"
+      }
+    ],
+    "failures": [
+      {
+        "label": "floor21-first-Adventure",
+        "failures": [
+          "A live image lost its texture source",
+          "Adventure tiles or navigation are incomplete/invisible/disabled"
+        ]
+      },
+      {
+        "label": "halt-after-floor21-first-Adventure",
+        "failures": [
+          "A live image lost its texture source"
+        ]
+      }
+    ],
+    "postRenderFinal": 23,
+    "releasedCache": [],
+    "renderer": 2,
+    "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+  },
+  "canonicalFixedTelegram": {
+    "started": "2026-10-04T21:44:10.426Z",
+    "finished": "2026-10-04T21:45:19.197Z",
+    "mode": "telegram",
+    "floors": [
+      21,
+      41,
+      61
+    ],
+    "repeat": 5,
+    "maxMs": 240000,
+    "exitCode": 0,
+    "steps": 45,
+    "errors": [],
+    "failures": [],
+    "postRenderFinal": 593,
+    "releasedCache": [
+      {
+        "label": "floor21-released-cache",
+        "idle": {
+          "battle": 1,
+          "map": 1
+        },
+        "backgrounds": [
+          {
+            "key": "bg_map_ch6",
+            "kind": "map",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "skin_bg_battle_shipwreck",
+            "kind": "battle",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "bg_battle_ch6",
+            "kind": "battle",
+            "live": true,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "label": "floor41-released-cache",
+        "idle": {
+          "battle": 1,
+          "map": 1
+        },
+        "backgrounds": [
+          {
+            "key": "bg_map_ch6",
+            "kind": "map",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "skin_bg_battle_shipwreck",
+            "kind": "battle",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "bg_battle_ch6",
+            "kind": "battle",
+            "live": true,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "label": "floor61-released-cache",
+        "idle": {
+          "battle": 1,
+          "map": 1
+        },
+        "backgrounds": [
+          {
+            "key": "bg_map_ch6",
+            "kind": "map",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "skin_bg_battle_shipwreck",
+            "kind": "battle",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "bg_battle_ch6",
+            "kind": "battle",
+            "live": true,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "renderer": 2,
+    "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+  },
+  "canonicalFixedCanvas": {
+    "started": "2026-10-04T21:42:28.210Z",
+    "finished": "2026-10-04T21:43:50.361Z",
+    "mode": "canvas",
+    "floors": [
+      21,
+      41,
+      61
+    ],
+    "repeat": 5,
+    "maxMs": 240000,
+    "exitCode": 0,
+    "steps": 45,
+    "errors": [],
+    "failures": [],
+    "postRenderFinal": 525,
+    "releasedCache": [
+      {
+        "label": "floor21-released-cache",
+        "idle": {
+          "battle": 1,
+          "map": 1
+        },
+        "backgrounds": [
+          {
+            "key": "bg_map_ch6",
+            "kind": "map",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "skin_bg_battle_shipwreck",
+            "kind": "battle",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "bg_battle_ch6",
+            "kind": "battle",
+            "live": true,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "label": "floor41-released-cache",
+        "idle": {
+          "battle": 1,
+          "map": 1
+        },
+        "backgrounds": [
+          {
+            "key": "bg_map_ch6",
+            "kind": "map",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "skin_bg_battle_shipwreck",
+            "kind": "battle",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "bg_battle_ch6",
+            "kind": "battle",
+            "live": true,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "label": "floor61-released-cache",
+        "idle": {
+          "battle": 1,
+          "map": 1
+        },
+        "backgrounds": [
+          {
+            "key": "bg_map_ch6",
+            "kind": "map",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "skin_bg_battle_shipwreck",
+            "kind": "battle",
+            "live": false,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          },
+          {
+            "key": "bg_battle_ch6",
+            "kind": "battle",
+            "live": true,
+            "sources": [
+              [
+                720,
+                1280
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "renderer": 1,
+    "glVersion": null
+  },
+  "smallTelegram": {
+    "width": 360,
+    "height": 640,
+    "insetsTop": 136,
+    "insetsBottom": 34,
+    "cssScale": 0.24479166666666666,
+    "gameFieldCssWidth": 264.375,
+    "comfortTouchCssPx": 32.3125
+  },
+  "sourceSha256": {
+    "src/game/backdrops.ts": "e67506b683a00b892e7559804d52fad1e6ade8c4173ae2b5f98c55dab82ab167",
+    "src/game/backgroundCache.ts": "81f412040045c454331c830d69942775f4974c745c7fdfc054f8ee7847cbd938"
+  },
+  "screenshots": {
+    "adventure-after.png": "9c283f0dabd2ffcacc39624bc294802fc0d49da5430e93dfcccbb80c9d4e16ff",
+    "adventure-before.png": "e3d8972c1b4013bda5f3a0e665b19d57b8ccc5e3036c2cc0194d6dfb47ba6372"
+  },
+  "limitations": [
+    "Chromium uses SwiftShader; these are renderer lifecycle checks, not device FPS benchmarks.",
+    "Physical iPhone/Safari was unavailable.",
+    "Friends uses offline/empty Telegram initData; authenticated online flows were not exercised.",
+    "Mid fixture actually reaches chapter 3 stage 1, despite the previous atlas documentation mentioning chapter 4 stage 6."
+  ]
+}

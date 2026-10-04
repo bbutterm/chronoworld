@@ -22,6 +22,7 @@ import {
 } from './backdropsExtra';
 import { drawClockField, drawClockMap, drawOrcField, drawOrcMap, drawSewerField, drawSewerMap } from './backdropsRoute';
 import { bleedImage } from './viewport';
+import { BackgroundCache, type BackgroundKind } from './backgroundCache';
 
 /**
  * Фоны по темам (визуальная полировка): поле боя и карта кампании для каждой темы. Тема главы — поле theme в
@@ -35,8 +36,9 @@ import { bleedImage } from './viewport';
  *   labyrinth — Лабиринтный лес (гл. 9, пока нет): до своего рисунка — мёртвый лес топей.
  *
  * Всё рисуется кодом в canvas 720×1280 (как фоны скина), лениво — при первом показе темы. Чтобы не копить
- * видеопамять (≈ 3.7 МБ на фон), держим не больше одного ленивого фона каждого вида (бой / карта): новый вытесняет
- * прежний. Если владелец положит файл assets/backgrounds/bg_battle_ch<N>.(jpg|png|webp) или bg_map_ch<N>.*
+ * видеопамять (≈ 3.7 МБ на фон), держим не больше одного запасного фона каждого вида (бой / карта). Фоны живых
+ * изображений остаются до их удаления или замены: баннеры «Приключений» показывают разные темы одновременно.
+ * Если владелец положит файл assets/backgrounds/bg_battle_ch<N>.(jpg|png|webp) или bg_map_ch<N>.*
  * (N — номер главы на маршруте, THEME_FILE_NO), он побеждает: грузится по требованию и подменяет нарисованный.
  */
 
@@ -57,7 +59,7 @@ const THEME_FILE: Record<Theme, string> = {
 };
 /** Темы полос башни по порядку (лесной, болотный, костяной ярус, «Ярус владык»); дальше — последняя. */
 const TOWER_THEMES: readonly Theme[] = ['meadow', 'swamp', 'crypt', 'niflheim'];
-type Kind = 'battle' | 'map';
+type Kind = BackgroundKind;
 
 const FIELD_W = GAME_W;
 const FIELD_H = GAME_H;
@@ -95,18 +97,62 @@ export function themeOfBattle(o: { stageId?: string; towerFloor?: number }): The
 /** Ключ нарисованного фона темы. Луг — фоны скина, построенные при загрузке. */
 const drawnKey = (kind: Kind, t: Theme) => (t === 'meadow' ? (kind === 'battle' ? 'skin_bg_battle' : 'skin_bg_forest') : `skin_bg_${kind}_${t}`);
 
-/** Последний ленивый фон каждого вида (его и вытесняем при смене темы). */
-const lazyHeld: Record<Kind, Set<string>> = { battle: new Set(), map: new Set() };
-const loading = new Set<string>();
+/** A game owns its textures. Another game must never evict them through a shared module cache. */
+const caches = new WeakMap<Phaser.Game, BackgroundCache<Phaser.GameObjects.Image>>();
+const loading = new WeakMap<Phaser.Game, Map<string, Promise<HTMLImageElement | null>>>();
+const uses = new WeakMap<Phaser.GameObjects.Image, { generation: number; cache: BackgroundCache<Phaser.GameObjects.Image> }>();
 
 /** Фоны скина, построенные при загрузке (нужны и другим экранам) — их не вытесняем. */
 const BOOT_KEYS = new Set(['skin_bg_battle', 'skin_bg_forest', 'bg_arena']);
 
-/** Оставить из ленивых фонов вида kind только keep, прочие выгрузить. */
-function hold(scene: Phaser.Scene, kind: Kind, keep: string[]): void {
-  const tm = scene.textures;
-  for (const k of lazyHeld[kind]) if (!keep.includes(k) && tm.exists(k)) tm.remove(k);
-  lazyHeld[kind] = new Set(keep.filter((k) => !BOOT_KEYS.has(k)));
+function evict(game: Phaser.Game, keys: string[]): void {
+  for (const key of keys) if (game.textures.exists(key)) game.textures.remove(key);
+}
+
+/** Switch the image first, then release its old source; live frames must never refer to a deleted texture. */
+function useTexture(bg: Phaser.GameObjects.Image, kind: Kind, key: string): void {
+  const game = bg.scene.game;
+  let use = uses.get(bg);
+  if (!use) {
+    let cache = caches.get(game);
+    if (!cache) {
+      cache = new BackgroundCache();
+      caches.set(game, cache);
+    }
+    use = { generation: 0, cache };
+    uses.set(bg, use);
+    const own = use;
+    bg.once(Phaser.GameObjects.Events.DESTROY, () => {
+      own.generation++;
+      evict(game, own.cache.release(bg));
+      uses.delete(bg);
+    });
+  }
+  bg.setTexture(key).setDisplaySize(FIELD_W, FIELD_H);
+  evict(game, use.cache.bind(bg, kind, BOOT_KEYS.has(key) ? null : key));
+}
+
+/** All images awaiting one file share the download, then each checks its own lifetime and request generation. */
+function loadBackground(game: Phaser.Game, fileId: string): Promise<HTMLImageElement | null> {
+  let requests = loading.get(game);
+  if (!requests) {
+    requests = new Map();
+    loading.set(game, requests);
+  }
+  const existing = requests.get(fileId);
+  if (existing) return existing;
+  const own = requests;
+  const request = new Promise<HTMLImageElement | null>((resolve) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => {
+      console.warn(`Фон ${FILES[fileId]} не загрузился — остаётся нарисованный`);
+      resolve(null);
+    };
+    el.src = FILES[fileId];
+  }).finally(() => own.delete(fileId));
+  own.set(fileId, request);
+  return request;
 }
 
 function drawn(scene: Phaser.Scene, kind: Kind, t: Theme): string {
@@ -160,27 +206,19 @@ export function setThemeBackground(bg: Phaser.GameObjects.Image, kind: Kind, t: 
   const scene = bg.scene;
   const fileId = `bg_${kind}_${THEME_FILE[t]}`;
   const key = scene.textures.exists(fileId) ? fileId : drawn(scene, kind, t);
-  hold(scene, kind, [key, ...(FILES[fileId] ? [fileId] : [])]);
-  bg.setTexture(key).setDisplaySize(FIELD_W, FIELD_H);
-  if (FILES[fileId] && !scene.textures.exists(fileId) && !loading.has(fileId)) {
-    loading.add(fileId);
-    const el = new Image();
-    el.onload = () => {
-      loading.delete(fileId);
-      const tm = scene.game.textures;
+  useTexture(bg, kind, key);
+  const use = uses.get(bg)!;
+  const gen = ++use.generation;
+  if (FILES[fileId] && !scene.textures.exists(fileId)) {
+    void loadBackground(scene.game, fileId).then((el) => {
+      // A destroyed or repurposed image must not resurrect an unused texture or replace its newer theme.
+      if (!el || !bg.scene || uses.get(bg) !== use || use.generation !== gen) return;
+      const tm = bg.scene.textures;
       if (!tm.exists(fileId)) tm.addImage(fileId, el);
-      // Сцена ещё та же — подменить нарисованный фон файлом.
-      if (bg.scene) {
-        bg.setTexture(fileId).setDisplaySize(FIELD_W, FIELD_H);
-        // Поля вытянутого экрана уже продолжали прежний фон — продолжить новый.
-        if (bg.getData('bleed')) bleedImage(bg.scene, bg);
-      }
-    };
-    el.onerror = () => {
-      loading.delete(fileId);
-      console.warn(`Фон ${FILES[fileId]} не загрузился — остаётся нарисованный`);
-    };
-    el.src = FILES[fileId];
+      useTexture(bg, kind, fileId);
+      // Поля вытянутого экрана уже продолжали прежний фон — продолжить новый.
+      if (bg.getData('bleed')) bleedImage(bg.scene, bg);
+    });
   }
   return bg;
 }

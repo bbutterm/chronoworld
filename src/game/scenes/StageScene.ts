@@ -125,7 +125,7 @@ export class StageScene extends Phaser.Scene {
     const autoX = GAME_W - S.l - 260 - S.xs - 110;
     button(this, autoX, L.rosterHeadY, 220, BTN.m, '', 'Авто', () => this.auto(), T.body, { variant: 'secondary' });
     button(this, GAME_W - S.l - 130, L.rosterHeadY, 260, BTN.m, '', 'Пресеты', () =>
-      this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } } }),
+      this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } }, presets: true }),
     T.body, { variant: 'secondary' });
 
     if (first) {

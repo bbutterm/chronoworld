@@ -4,7 +4,7 @@ import { simulateBattle } from '../battle';
 import type { UnitDef } from '../content/schema';
 import type { HeroState, SaveState } from '../save/schema';
 import { buildUnit } from '../heroes/card';
-import { addHeroExp } from '../heroes/level';
+import { addHeroExp, paidHeroTraining } from '../heroes/level';
 import { addHeroCard, catchUpLevel, duplicateCardsInSquad, placeInSquad, storyHero } from '../heroes/roster';
 import { grantHeroCards, stageHeroCards } from '../heroes/cardDrops';
 import { grantTavernWelcome } from '../heroes/summon';
@@ -199,7 +199,8 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
         // на «Глава пройдена» — ур. отряда). Уровни до него — дар (grantedLevel), в отряд — на свободное место.
         const lvl = catchUpLevel(next, had.rarity, ctx);
         const raised = lvl > had.level;
-        const best: HeroState = raised ? { ...had, level: lvl, grantedLevel: Math.max(had.grantedLevel ?? 1, lvl) } : had;
+        // В старых сохранениях ledger ещё нет: зафиксировать оплату до того, как подарок поднимет её нижнюю границу.
+        const best: HeroState = raised ? { ...had, level: lvl, grantedLevel: Math.max(had.grantedLevel ?? 1, lvl), training: paidHeroTraining(had, ctx) } : had;
         const r = addHeroCard(raised ? { ...next, heroes: next.heroes.map((h) => (h.id === had.id ? best : h)) } : next, rc.template, t.baseRarity);
         next = { ...r.save, squad: placeInSquad(r.save.squad, best, r.save, ctx) };
         const benched = !next.squad.includes(best.id);
