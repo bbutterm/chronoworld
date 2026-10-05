@@ -8,20 +8,21 @@ import Phaser from 'phaser';
 import { chooseExpeditionEvent, expeditionEventViews, type EventChoiceView, type ExpeditionChoice, type ExpeditionEventView, type ExpeditionStoryLine } from '../core';
 import { GAME } from './content';
 import { formatNumber, heroSprite } from './flow';
-import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
-import { cta, popIn, portrait, unitFigure, unitTint } from './screen';
+import { GAME_W } from './layout';
+import { cta, portrait, unitFigure, unitTint } from './screen';
 import { commit, now, session } from './session';
 import { portraitKey } from './sprites';
 import { skinIcon } from './skin';
-import { COLOR, FAMILY, R, S, T, Z } from './theme';
-import { chip, clampLines, ellipsize, listRow, plate, rewardRow, tag, text, toast, type ChipSpec, type Tone } from './ui';
-import { firstTip } from './firstTips';
+import { COLOR, FAMILY, R, S, T } from './theme';
+import { chip, ellipsize, listRow, plate, rewardRow, tag, text, toast, type ChipSpec, type Tone } from './ui';
+import { adventureModePanel } from './adventureModePanel';
 
 export const EVENT_MODAL = 'expEventModal';
 const W = 960;
 const INNER = W - 2 * S.l;
 const ART_H = 300;
 const ROW_H = 132;
+type EventPanel = ReturnType<typeof adventureModePanel>;
 
 const LINE_NAME: Record<string, string> = {
   swordman: 'мечник',
@@ -97,17 +98,12 @@ export function choiceTone(c: Pick<EventChoiceView, 'hero' | 'missing'>): Tone {
  * Возвращает false, если решать нечего.
  */
 export function openExpeditionEvent(scene: Phaser.Scene, locationId: string, onClose: () => void): boolean {
+  if (scene.children.getByName(EVENT_MODAL)) return false;
   const view = expeditionEventViews(session.save, locationId, now(), GAME).find((v) => v.pending);
   if (!view) return false;
-  const layer = scene.add.container(0, 0).setDepth(Z.confirm + 50).setName(EVENT_MODAL);
-  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x000000, 0.72).setInteractive();
-  layer.add(shade);
-  const inner = scene.add.container(0, 0);
-  layer.add(inner);
-  drawEvent(scene, layer, inner, view, onClose);
-  popIn(scene, layer, shade);
-  // Первое событие экспедиции — пара слов от Греты над окном (firstTips.ts, один раз).
-  firstTip(scene, 'tip_expedition', 24, Z.confirm + 100);
+  const panel = adventureModePanel(scene, EVENT_MODAL, view.def.title, { footerH: 172, onClose });
+  panel.content.setX(0);
+  drawEvent(scene, panel, view);
   return true;
 }
 
@@ -120,9 +116,9 @@ function locationOf(id: string) {
  * её монстр справа), на ней — подпись места и заголовок. Возвращает верх тела (под картиной).
  */
 function frame(scene: Phaser.Scene, box: Phaser.GameObjects.Container, h: number, locationId: string, kicker: string, title: string, titleColor: string = COLOR.title): number {
-  const top = GAME_H / 2 - h / 2;
+  const top = 0;
   const left = GAME_W / 2 - W / 2;
-  box.add(plate(scene, GAME_W / 2, GAME_H / 2, W, h, { fill: COLOR.surfaceRaised, alpha: 0.98, border: COLOR.border, borderW: 4, r: R.xl, hl: 0.15 }).setInteractive());
+  box.add(plate(scene, GAME_W / 2, h / 2, W, h, { fill: COLOR.surfaceRaised, alpha: 0.98, border: COLOR.border, borderW: 4, r: R.xl, hl: 0.15 }));
   const loc = locationOf(locationId);
   const ax = left + S.xs;
   const aw = W - 2 * S.xs;
@@ -170,10 +166,15 @@ function choiceIcon(scene: Phaser.Scene, c: EventChoiceView): Phaser.GameObjects
   return scene.add.image(0, 0, skinIcon(name)).setDisplaySize(64, 64).setTint(Phaser.Display.Color.HexStringToColor(color).color);
 }
 
-function drawEvent(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, box: Phaser.GameObjects.Container, v: ExpeditionEventView, onClose: () => void): void {
+function drawEvent(scene: Phaser.Scene, panel: EventPanel, v: ExpeditionEventView): void {
+  const box = panel.content;
   box.removeAll(true);
+  panel.footer.removeAll(true);
+  panel.area.offset = 0;
+  panel.layer.setData('busy', false);
+  panel.setTitle(v.def.title);
+  panel.footer.add(text(scene, panel.width / 2, 80, 'Выберите действие', T.body, COLOR.textSecondary));
   const body = text(scene, 0, 0, v.text, T.body, COLOR.textPrimary, { align: 'left', wordWrap: { width: INNER, useAdvancedWrap: true } }).setOrigin(0, 0);
-  clampLines(body, 7);
   const n = v.choices.length;
   const h = S.xs + ART_H + S.l + body.height + S.l + n * ROW_H + (n - 1) * S.xs + S.l;
   const y0 = frame(scene, box, h, v.location, `${locationOf(v.location)?.name ?? v.location} · в пути`, v.def.title);
@@ -191,20 +192,23 @@ function drawEvent(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, box
       trailing,
       h: ROW_H,
       raised: !c.isDefault,
-      onTap: () => choose(scene, layer, box, v, c.id, onClose),
+      onTap: panel.area.tap(() => choose(scene, panel, v, c.id)),
     }).setName(`choice_${c.id}`);
     box.add(row);
     y += ROW_H + S.xs;
   }
+  panel.setHeight(h);
 }
 
-function choose(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, box: Phaser.GameObjects.Container, v: ExpeditionEventView, choiceId: string, onClose: () => void): void {
+function choose(scene: Phaser.Scene, panel: EventPanel, v: ExpeditionEventView, choiceId: string): void {
+  if (!panel.layer.scene || panel.layer.getData('busy')) return;
+  panel.layer.setData('busy', true);
+  const box = panel.content;
   try {
     commit(chooseExpeditionEvent(session.save, v.location, v.index, choiceId, now(), GAME));
   } catch (e) {
     toast(scene, e instanceof Error ? e.message : String(e), COLOR.negative);
-    layer.destroy();
-    onClose();
+    panel.close();
     return;
   }
   const views = expeditionEventViews(session.save, v.location, now(), GAME);
@@ -212,15 +216,15 @@ function choose(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, box: P
   const out = done?.outcome;
   const next = views.find((x) => x.pending);
   box.removeAll(true);
+  panel.footer.removeAll(true);
+  panel.area.offset = 0;
   const head = out ? (out.ok ? 'Удалось!' : 'Не вышло') : v.def.title;
   const body = text(scene, 0, 0, out?.text ?? '', T.body, COLOR.textPrimary, { align: 'left', wordWrap: { width: INNER, useAdvancedWrap: true } }).setOrigin(0, 0);
-  clampLines(body, 7);
   const chips = out ? outcomeChips(out) : [];
   const tags = out ? outcomeTags(out) : [];
   const lore = out?.lore ? text(scene, 0, 0, out.lore, T.caption, COLOR.textSecondary, { align: 'left', wordWrap: { width: INNER - 64, useAdvancedWrap: true } }).setOrigin(0, 0) : null;
-  if (lore) clampLines(lore, 3);
   const rowsH = (chips.length ? 72 + S.s : 0) + (tags.length ? 52 + S.s : 0) + (lore ? lore.height + S.s : 0);
-  const h = S.xs + ART_H + S.l + body.height + S.l + rowsH + 140 + S.l;
+  const h = S.xs + ART_H + S.l + body.height + S.l + rowsH + S.l;
   const choice = done?.choices.find((c) => c.id === choiceId)?.label ?? v.def.title;
   const y0 = frame(scene, box, h, v.location, ellipsizeLabel(choice), head, out ? (out.ok ? COLOR.positive : COLOR.negative) : COLOR.title);
   const left = GAME_W / 2 - INNER / 2;
@@ -248,15 +252,14 @@ function choose(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, box: P
     box.add(lore);
     y += lore.height + S.s;
   }
-  const btn = cta(scene, GAME_W / 2, y + 70, next ? 'Дальше' : 'Хорошо', () => {
-    if (next) drawEvent(scene, layer, box, next, onClose);
-    else {
-      layer.destroy();
-      onClose();
-    }
-  }, { w: 440, h: 122 });
+  panel.setTitle(head);
+  const btn = cta(scene, panel.width / 2, 86, next ? 'Дальше' : 'Хорошо', () => {
+    if (next) drawEvent(scene, panel, next);
+    else panel.close();
+  }, { w: 440, h: 132 });
   btn.container.setName('eventOk');
-  box.add(btn.container);
+  panel.footer.add(btn.container);
+  panel.setHeight(h);
 }
 
 /** Подпись выбора на теге картины — не длиннее строки тега. */

@@ -4,7 +4,8 @@ import { sfx } from './audio';
 import { haptic } from './haptics';
 import { GAME, LORE } from './content';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
-import { view } from './viewport';
+import { onViewChange, view } from './viewport';
+import { registerModal } from './screen';
 import { commit, session } from './session';
 import { SKIN } from './skin';
 import { divider } from './storyPage';
@@ -79,15 +80,21 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   if (fresh.size) commit(markHeroStoryRead(session.save, templateId, LORE));
   const cx = GAME_W / 2;
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(HERO_STORY_NAME);
-  if (opts.lock) opts.lock.locked = true;
+  const lockedArea = opts.lock;
+  const wasLocked = lockedArea?.locked ?? false;
+  if (lockedArea) lockedArea.locked = true;
   let closed = false;
   const close = () => {
     if (closed) return;
     closed = true;
-    if (opts.lock) opts.lock.locked = false;
     layer.destroy();
     opts.onClose?.();
   };
+  registerModal(layer, close);
+  layer.once(Phaser.GameObjects.Events.DESTROY, () => {
+    closed = true;
+    if (lockedArea) lockedArea.locked = wasLocked;
+  });
   // Фон ловит все касания: экран под страницей недоступен.
   const back = scene.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, BG, 1).setInteractive();
   layer.add(back);
@@ -95,9 +102,12 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   const v = view();
   const dt = Math.max(-BLEED_Y, Math.min(0, v.safeTop));
   const db = Math.min(BLEED_Y, Math.max(0, v.safeBottom - GAME_H));
-  const listBottom = LIST_BOTTOM + db;
-  const btnY = BTN_Y + db;
-  if (scene.textures.exists('skin_glow')) layer.add(scene.add.image(cx, 360 + dt, 'skin_glow').setDisplaySize(1300, 900).setTint(0xffc870).setAlpha(0.16).setBlendMode(Phaser.BlendModes.ADD));
+  const footerY = () => Math.min(BTN_Y + Math.min(BLEED_Y, Math.max(0, view().safeBottom - GAME_H)), view().safeBottom - Math.max(100, BTN.cta / 2 + S.m));
+  const listEnd = () => Math.min(LIST_BOTTOM + Math.min(BLEED_Y, Math.max(0, view().safeBottom - GAME_H)), footerY() - BTN.cta / 2 - S.m);
+  const listBottom = Math.min(LIST_BOTTOM + db, listEnd());
+  const btnY = footerY();
+  const glow = scene.textures.exists('skin_glow') ? scene.add.image(cx, 360 + dt, 'skin_glow').setDisplaySize(1300, 900).setTint(0xffc870).setAlpha(0.16).setBlendMode(Phaser.BlendModes.ADD) : null;
+  if (glow) layer.add(glow);
 
   const progress = heroStoryProgress(templateId);
   let y = 160 + dt;
@@ -115,13 +125,15 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   }).setOrigin(0.5, 0);
   layer.add(sub);
   y += sub.height + S.m;
-  layer.add(divider(scene, cx, y));
+  const rule = divider(scene, cx, y);
+  layer.add(rule);
 
   // Список: общие кусочки, затем разделы веток (своя — первой). Открытые — уровень, заголовок, текст; закрытые своей
   // ветки и общие — строка «Ур. N · откроется…»; закрытые другой ветки — одна строка на ветку.
   // Список — сразу под разделителем шапки (подзаголовок может занять две строки).
   const listTop = y + 56;
   const area = new ScrollArea(scene, listTop, listBottom);
+  area.content.setName('heroStoryScroll');
   let ly = 10;
   const branchName = (job: string) => jobTitle(GAME, job, t.gender);
   const nextClosed = new Map<string, HeroStoryEntry>();
@@ -216,10 +228,23 @@ export function openHeroStory(scene: Phaser.Scene, templateId: string, opts: Her
   const backBtn = button(scene, S.l + BTN.icon / 2, 70 + dt, BTN.icon, BTN.icon, '', '‹', close, T.title, { variant: 'icon' });
   backBtn.container.setName('heroStoryBack');
   layer.add([closeBtn.container, backBtn.container]);
+  let shift = dt;
+  const offView = onViewChange(scene, () => {
+    if (closed) return;
+    const v = view();
+    const nextShift = Math.max(-BLEED_Y, Math.min(0, v.safeTop));
+    for (const node of [kicker, title, sub, rule, glow, backBtn.container]) if (node) node.setY(node.y + nextShift - shift);
+    shift = nextShift;
+    back.setPosition(v.worldX + v.worldW / 2, v.worldY + v.worldH / 2).setDisplaySize(v.worldW, v.worldH);
+    closeBtn.container.setY(footerY());
+    const bottom = listEnd();
+    area.setBounds(listTop + shift - dt, bottom);
+    fade.clear().fillGradientStyle(BG, BG, BG, BG, 0, 0, 1, 1).fillRect(-BLEED_X, bottom - FADE, GAME_W + 2 * BLEED_X, FADE);
+  });
+  layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   layer.setAlpha(0);
   scene.tweens.add({ targets: layer, alpha: 1, duration: M.base });
   sfx('ui_open');
   haptic('soft');
   return layer;
 }
-

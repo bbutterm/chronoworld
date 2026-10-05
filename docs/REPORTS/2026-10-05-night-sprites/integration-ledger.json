@@ -1,0 +1,564 @@
+{
+ "archiveUrl": "https://transfiles.ru/gcod5",
+ "archiveSha256": "9d9619658c790577f736ac52b3878e989d3ec02ef1e48ff1c69c8bf336ddc8e8",
+ "archiveBytes": 23175578,
+ "manifestSha256": "3718cf0b3c1eefce204cc5a897139d41c221bc2efaa950cb793ab4371d9fa8c6",
+ "checksumFilesVerified": 202,
+ "submittedSheets": 100,
+ "replacedSheets": [
+  {
+   "id": "clock",
+   "path": "assets/sprites/monsters_xl/clock.png",
+   "beforeSha256": "9afc5b3f9ad652e136d9bcf0a4810d096272dae221b4e54179dac2496b9daf0f",
+   "afterSha256": "cdb5ce37aca4f33fff877a5fbcb9ada34e6e7fc8a15a6583fab7bb7c3d69b8f7",
+   "bytes": 515823
+  },
+  {
+   "id": "thief_bug",
+   "path": "assets/sprites/monsters/thief_bug.png",
+   "beforeSha256": "eb573668e654635062f717005f2708a55d693ce8873b6075dd87dfe6ebbf81d6",
+   "afterSha256": "e531b36ca6df831542d53fba21d7c52557bb5f819e5577501ec0107a528e2013",
+   "bytes": 26786
+  },
+  {
+   "id": "boss2",
+   "path": "assets/sprites/bosses/boss2.png",
+   "beforeSha256": "1f29ce8f16b5b84094dd9aff51677de60422ce300c633d2acd68e7a69348ad88",
+   "afterSha256": "ceb6eb74193a88d3a799a8c1f92f98d4a6b54340ca85ecff27dcd9ea02a676e0",
+   "bytes": 374077
+  },
+  {
+   "id": "thief_bug_egg",
+   "path": "assets/sprites/monsters/thief_bug_egg.png",
+   "beforeSha256": "90a88840576be3f5a353f673d807337630bdcdf5aaa08c3e243591338176367c",
+   "afterSha256": "68f64f5076040e53175dd786767eb88280e0f26ec0b1cb6b5b76ba45e9e442ce",
+   "bytes": 21470
+  },
+  {
+   "id": "rideword",
+   "path": "assets/sprites/monsters/rideword.png",
+   "beforeSha256": "38ade8ae52ab5baaaf6d0410dcfff1c2b7a4d131c707af51492cd7e923edb183",
+   "afterSha256": "503994787013e62f687980d2325eefa49087147f80e271596ba3c755ad82d629",
+   "bytes": 74409
+  },
+  {
+   "id": "scorpion",
+   "path": "assets/sprites/monsters/scorpion.png",
+   "beforeSha256": "0f187ff3c0ec6ac94e03c18ddffc98aff53c165ad693c8f2f2e12e55075fea39",
+   "afterSha256": "5c36057e584ba5b2e8181070e41086f09b8adfa1f858797c91aed8b4f0fb9df7",
+   "bytes": 165488
+  },
+  {
+   "id": "plankton",
+   "path": "assets/sprites/monsters/plankton.png",
+   "beforeSha256": "691e1f9781ccfad97f6ed8cda7c44f1d51161e9e41ce6832ef2d3634873c2a1a",
+   "afterSha256": "6e17a16df410ed463e1bbe3178d9024c3424c33c6b7ebfc10a4db364355bd14c",
+   "bytes": 41855
+  },
+  {
+   "id": "orc_lord",
+   "path": "assets/sprites/bosses/orc_lord.png",
+   "beforeSha256": "b3297ece6f4361d2e3312268e17ecbbe504af1cea679657b417c7d127d268334",
+   "afterSha256": "93a52f44651598e01b16a439a8695f5d57ae804e776fb6e53fdc082b17fba05a",
+   "bytes": 388298
+  },
+  {
+   "id": "isis",
+   "path": "assets/sprites/bosses/isis.png",
+   "beforeSha256": "83837a2edb9676e8832b1c3ee39a71d2fc6898ec703471a79b28cfdc0fd1541a",
+   "afterSha256": "7aac8cdc276e6bd59e446d9aa156026caea4ed0ae7b2086766c5a82bbc2e8c15",
+   "bytes": 404229
+  },
+  {
+   "id": "tarou",
+   "path": "assets/sprites/monsters/tarou.png",
+   "beforeSha256": "8a4c47fdbaba13c5e6987db3a39b1d9be1187256b43a7303a47f1ab953ee7acd",
+   "afterSha256": "5758871a66a0c5a15c006360877e43b2961bbd446fc7e76ba542a0822f643340",
+   "bytes": 30908
+  },
+  {
+   "id": "punk",
+   "path": "assets/sprites/monsters/punk.png",
+   "beforeSha256": "ab8c64fe1fa80cd58347df8cb813ec61d5353e57cf8ae86c478f2f2252fec5d9",
+   "afterSha256": "b2a2851548fe15bc462ef8b313c6de8a4432889c896d221d08d6a1d42bfbe351",
+   "bytes": 57661
+  },
+  {
+   "id": "mastering",
+   "path": "assets/sprites/bosses/mastering.png",
+   "beforeSha256": "598eec5685a2194775f212dd1afc2f671822333b7cf418051dbc2ee4b54aa03f",
+   "afterSha256": "a558d72b2663033ab5e53cf87334f3c819cffdac7d7cdef9d7b8ede48629dea5",
+   "bytes": 176151
+  },
+  {
+   "id": "orc_warrior",
+   "path": "assets/sprites/monsters/orc_warrior.png",
+   "beforeSha256": "35af5bf90ff9b95df5b781d080ea9b1e0527071bd99fdf79f8684c8ad7d9d174",
+   "afterSha256": "0b1378aab52b82c72e65e04939fc4ef5ba985d83595848f2e5ee07fe2c6a8245",
+   "bytes": 270798
+  },
+  {
+   "id": "ancient_mummy",
+   "path": "assets/sprites/monsters_xl/ancient_mummy.png",
+   "beforeSha256": "afe4ec6fbe01330fbad61566bf68e74dd22fd9e9efe466c0f336f02e9d3a494f",
+   "afterSha256": "a486aaa5a831ca5b70bcc751ff8cfe3940bf8086adf69a4722ad6ab4326415fb",
+   "bytes": 208365
+  },
+  {
+   "id": "familiar",
+   "path": "assets/sprites/bosses/familiar.png",
+   "beforeSha256": "f32072c7a60ef5c0854a43d79a0474d5beffd501ba96785c4017284a7d923586",
+   "afterSha256": "4ef1b2fc264e942350ab8b10818b9e021de945d17304d66f5856dc6d685ba189",
+   "bytes": 60611
+  },
+  {
+   "id": "high_orc",
+   "path": "assets/sprites/monsters/high_orc.png",
+   "beforeSha256": "d0a2a9752288d76e6cdbbf81bd8c575ceb833939b241a5fa033141ad1a11e035",
+   "afterSha256": "02e7d2e5da37002a10db10e37265df9855023f7b16b6e7e3261cc471422e0925",
+   "bytes": 323378
+  },
+  {
+   "id": "pharaoh",
+   "path": "assets/sprites/monsters_xl/pharaoh.png",
+   "beforeSha256": "a16fb5c41554d6ce180b40a3f1c71afa7fb7239cf46ff599a9f652f372231c67",
+   "afterSha256": "813a3bffda366433766f9bfb2ea616c752ae4c473d09f717ca6f5d88e80fa15c",
+   "bytes": 354560
+  },
+  {
+   "id": "smokie",
+   "path": "assets/sprites/bosses/smokie.png",
+   "beforeSha256": "d6992d189b783aaccf48e716e40dc69b70db7fe804e74fd87788b6c18b45d884",
+   "afterSha256": "d721803b51217bbeeded2e5a7b9b98b7be82b68d9dc5a9ee51c2d07890404f50",
+   "bytes": 110564
+  },
+  {
+   "id": "orc_archer",
+   "path": "assets/sprites/monsters/orc_archer.png",
+   "beforeSha256": "cc328e7897ea631014c02ffd5577bbb14299d2369a595e85b6f5036d38b0457e",
+   "afterSha256": "fea72be490fb263e72a8fc984b51210b08b1b206c72f584084990331428da830",
+   "bytes": 233350
+  },
+  {
+   "id": "amon_ra",
+   "path": "assets/sprites/monsters_xl/amon_ra.png",
+   "beforeSha256": "d3ba7cff27bc353c8c8f556b9617e3c8e28129ee73c710fc8bd4799d3220ee0b",
+   "afterSha256": "e73c679c69368b62faa31268243d66aacaa2077b5261e678503a3178c30d521a",
+   "bytes": 642843
+  },
+  {
+   "id": "elder",
+   "path": "assets/sprites/bosses/elder.png",
+   "beforeSha256": "5967f183014bdb65affa98919be319e286d2488eb656c29638429956c3bc64a2",
+   "afterSha256": "5dcb4e2819a9f34e16817351302a5c0984b20673462f64e7b299526758f60cbd",
+   "bytes": 523867
+  },
+  {
+   "id": "orc_lady",
+   "path": "assets/sprites/bosses/orc_lady.png",
+   "beforeSha256": "327dd0f024888607321fe262fe41343046635dbd80c02008a7b064dd9ae71ede",
+   "afterSha256": "0c8d5ea3047880940669751eb4d4da7d55b72bf3e39894334938ba2d3fa28d42",
+   "bytes": 255612
+  },
+  {
+   "id": "dullahan",
+   "path": "assets/sprites/bosses/dullahan.png",
+   "beforeSha256": "e4af546d1e0abdd60311d13d2076c02c8883878e8e38be5568be29d2c6b66570",
+   "afterSha256": "ce2f0579135c468cbfd753e417b85f84f19f6d48b1298a2f6757bf7f08f3e39c",
+   "bytes": 337300
+  },
+  {
+   "id": "horong",
+   "path": "assets/sprites/bosses/horong.png",
+   "beforeSha256": "81ade406edefd2baa59bd59f3569a112e32bd4d675bdd8b11a5a99bfbbd0d1fd",
+   "afterSha256": "f2c032111c3eb51ff70187f79e3b84780bdf700ee897eb2f1eaeb736b2595a86",
+   "bytes": 73251
+  },
+  {
+   "id": "orc_skeleton",
+   "path": "assets/sprites/bosses/orc_skeleton.png",
+   "beforeSha256": "fa77b1fb8955be216fddebe059f64734cc20ff0c88eb8f3290d0b20eb7c7ab8a",
+   "afterSha256": "2edd954665a5d03488eec121fca301cc20a627ea3f4fea57a5568356801f0102",
+   "bytes": 234524
+  },
+  {
+   "id": "orc_zombie",
+   "path": "assets/sprites/bosses/orc_zombie.png",
+   "beforeSha256": "46cd22abd939f8545b89fd74e9aef0ab709fa5c500ce56d68ebc607cc13ed95c",
+   "afterSha256": "ce932dc3d7d2b59886db5853495730243bbc4b2f3958fcf5ee83bb502612da4c",
+   "bytes": 273918
+  },
+  {
+   "id": "maya",
+   "path": "assets/sprites/monsters_xl/maya.png",
+   "beforeSha256": "e7d234d725028b5545a883ff781643d78baadd900b2b6ea66a24b0ec974a8f14",
+   "afterSha256": "a31c284c1adcabeb7f0d029279099fcc70b99bf71507581325360acd99b7f62b",
+   "bytes": 562578
+  },
+  {
+   "id": "gibbet",
+   "path": "assets/sprites/monsters/gibbet.png",
+   "beforeSha256": "1d9f729849ed1148ceac3e77d282ffc3d0717e68d41ee529e9221f7b2b931514",
+   "afterSha256": "0341c89f039dae67d91dc697887979c3fbcb71a447939e26ff5b860b034c1eba",
+   "bytes": 396313
+  },
+  {
+   "id": "owl_baron",
+   "path": "assets/sprites/bosses_xl/owl_baron.png",
+   "beforeSha256": "3f535540d1d3f81b6089ffc50c9387f62a0fa0a78fbf07fe439cd8df65082506",
+   "afterSha256": "9406f856dedb48703eec1f0249e6d38836235edc2033eac81513e423353a5b71",
+   "bytes": 310480
+  },
+  {
+   "id": "steel_chonchon",
+   "path": "assets/sprites/monsters/steel_chonchon.png",
+   "beforeSha256": "6858bee66a7427974271d947e232d90e8ffaa9f3033eacd183691872aeb169f0",
+   "afterSha256": "6462171e641f6e4eb1252338f25bee3336fe6b96eb3eb065228937fc55c1167c",
+   "bytes": 54280
+  },
+  {
+   "id": "ghostring",
+   "path": "assets/sprites/bosses/ghostring.png",
+   "beforeSha256": "a216a36774a114316bc1c2c0aeb7d7b2b4a415cbe6dcc33e7471ded51a0dddf7",
+   "afterSha256": "d2fe73071045b014c90c8c05c976568ebe6f895ba3aa968741fb43eaeabf5890",
+   "bytes": 90680
+  },
+  {
+   "id": "vagabond_wolf",
+   "path": "assets/sprites/bosses/vagabond_wolf.png",
+   "beforeSha256": "c6c9045acc2ece5fe8d779bef11d89dd504adcc09b325c922029c509d793f324",
+   "afterSha256": "c8715c938fb53679fef813074864960ab4d1510ee94813f9138ba158712e9029",
+   "bytes": 155467
+  },
+  {
+   "id": "banshee",
+   "path": "assets/sprites/bosses/banshee.png",
+   "beforeSha256": "65f498789a49c454ed435bf127a6bfbcb52f38c35737f8debf78f10852dd2032",
+   "afterSha256": "267f6b1d694e670b2988b137a80aeb216429eda2324c7e5d11465e44df537a69",
+   "bytes": 289834
+  },
+  {
+   "id": "hunter_fly",
+   "path": "assets/sprites/monsters/hunter_fly.png",
+   "beforeSha256": "009e90761019b5d5d9abcfe1fb86a2e79ae348cd70997ebe1a7d56fdb95b55fd",
+   "afterSha256": "8b4ce4e8909367bcb7341188997409977507b7486c97cab110d7d81da8beb0b6",
+   "bytes": 43435
+  },
+  {
+   "id": "alarm",
+   "path": "assets/sprites/bosses_xl/alarm.png",
+   "beforeSha256": "d2761213a337c006691eee03d317a47cbf9bb13f9ce88185b22ac77bcbab74ba",
+   "afterSha256": "0b2825b9c70110bc7c0d171e65fce7bbd5a0307ad4a38415d58812fbf98d516b",
+   "bytes": 480608
+  },
+  {
+   "id": "lord_of_death",
+   "path": "assets/sprites/bosses_xl/lord_of_death.png",
+   "beforeSha256": "19293c0944e6d33ba8d9cb4921bd2be6b3c5ec3d1656fd4077b2bc84a81a75ce",
+   "afterSha256": "1832f2f1567cecc6157a23ec1d613beff77b6da2a8a324e2d49a121af5776692",
+   "bytes": 1449711
+  },
+  {
+   "id": "side_winder",
+   "path": "assets/sprites/monsters/side_winder.png",
+   "beforeSha256": "97c5225d8d6eff42fa20532d39405e569f29b6a0b610ef45fc04cc7b478a1f8d",
+   "afterSha256": "82a1f806e6d3dc686e723ca531746f08d54f4bb65e9d05c9f215c80466b83693",
+   "bytes": 63447
+  },
+  {
+   "id": "bloody_murderer",
+   "path": "assets/sprites/monsters/bloody_murderer.png",
+   "beforeSha256": "b9c6000595b26e35cf32b9240309b77579ef8cc9f8177ce6bff8c32429fd35e2",
+   "afterSha256": "964418acb7d30db829eccd3ae4ee926a86f451eb91efaaa34edd9e644513429e",
+   "bytes": 491587
+  },
+  {
+   "id": "eddga",
+   "path": "assets/sprites/monsters_xl/eddga.png",
+   "beforeSha256": "ebfe18b3963d8289c9e7c6719cc740559b933833791f93ac03cbde44ef113e21",
+   "afterSha256": "53e30f0f49755a5094c6cb183c4ed9cf4237c931bc1623f3d839618caa1f4b80",
+   "bytes": 382592
+  },
+  {
+   "id": "bloody_knight",
+   "path": "assets/sprites/bosses_xl/bloody_knight.png",
+   "beforeSha256": "7cd260877916930633c906cb61b459d93489c17d2370eb8dcf24e591d3e1f5f6",
+   "afterSha256": "56497cef89cc9c9ffd12615f23c6732036c1846d16561f1d8caf4e6d0998bafe",
+   "bytes": 1045037
+  },
+  {
+   "id": "clock_tower_manager",
+   "path": "assets/sprites/bosses_xl/clock_tower_manager.png",
+   "beforeSha256": "9fec5ce432ffe647fc3af9c4f34b8fc4b6d3cf66b0ec9713b761fb6e253ceb45",
+   "afterSha256": "4f5eacb364b19e3c4b3b2fb00d774ab452b124c229ca1255c19e9a79adeca8af",
+   "bytes": 442638
+  },
+  {
+   "id": "doppelganger",
+   "path": "assets/sprites/monsters/doppelganger.png",
+   "beforeSha256": "af3c2011852b5eab433980babe37af3ec7709d87f215099ddf0ec5350a790fbd",
+   "afterSha256": "fde41d20a5a74e6b7f37338a39638b824ecb3d5133edd9181f34c04bb537f52f",
+   "bytes": 109142
+  },
+  {
+   "id": "abysmal_knight",
+   "path": "assets/sprites/bosses_xl/abysmal_knight.png",
+   "beforeSha256": "a4c53df2e32613fb6449280e2d3686555779496b1de3150443442489beb49f83",
+   "afterSha256": "15c3047abf78b61151a6476175c47dd0e61a91b63a3995caa2ff38f2a29c9997",
+   "bytes": 1630238
+  },
+  {
+   "id": "loli_ruri",
+   "path": "assets/sprites/monsters/loli_ruri.png",
+   "beforeSha256": "a4cf4acb779557cedc364d88dbda502ea5e5a10ce2fc989b25d3e53e7a859784",
+   "afterSha256": "65c6d1e618d055de8c3fd0e2d47c9e33100dd1b480cbf256667796ff4136ac45",
+   "bytes": 375587
+  },
+  {
+   "id": "mistress",
+   "path": "assets/sprites/bosses/mistress.png",
+   "beforeSha256": "29ec6ddbfbf0b2addded91180625e08d11fa758fffca3a2ca416dc7a5ee31c27",
+   "afterSha256": "3ad187586ffe173ea5a424954d9d97f9307383653f7f03c901c54ffbfa1c4d8f",
+   "bytes": 97952
+  },
+  {
+   "id": "angeling",
+   "path": "assets/sprites/monsters/angeling.png",
+   "beforeSha256": "9fed7352057b00fd5e1ec4630a3a1b7dbb5cb9a0d5146d355751af0a20b82f7d",
+   "afterSha256": "7332ab8bc66ca2cbd57af7654516a7f5715ce83edfa2dc32fea675ae8c38febd",
+   "bytes": 123647
+  },
+  {
+   "id": "dark_lord",
+   "path": "assets/sprites/bosses/dark_lord.png",
+   "beforeSha256": "aac08c65fb288f077a0dbe94d06e1b5805d14fb0c004a14b43dc6957bd0fe8e7",
+   "afterSha256": "d7daccac4481633f3611918e533b0b7c3b1ff210db84195bf14feb6c74375663",
+   "bytes": 756767
+  },
+  {
+   "id": "quve",
+   "path": "assets/sprites/monsters/quve.png",
+   "beforeSha256": "63bd214ab8d7ab1433f420acc69e38b28c0966ffe5af99016e67d3d7e16c1691",
+   "afterSha256": "bd3eee3977d5418fa1dde0fb16434dc110a99026c1fcf52cc8bb8b8c7337d963",
+   "bytes": 41804
+  },
+  {
+   "id": "osiris",
+   "path": "assets/sprites/bosses/osiris.png",
+   "beforeSha256": "af11a0887dbbab7b44b67a46c8b35db6b4b8258a606992453a5c2ba0f4af770a",
+   "afterSha256": "b3c9325eeb74f7a7415a99685cef9738fef7245a296fb9defb66409394c05940",
+   "bytes": 156625
+  },
+  {
+   "id": "mimic",
+   "path": "assets/sprites/monsters/mimic.png",
+   "beforeSha256": "a55bc086144d51b8572dd7127ce7d795a0790ba190654bf01e2841c9e4f70ef9",
+   "afterSha256": "3499c06a494a46ea0e63e11ef3ef178ec0dcece6035ae751b60f877b6d8ff206",
+   "bytes": 144499
+  },
+  {
+   "id": "archangeling",
+   "path": "assets/sprites/monsters/archangeling.png",
+   "beforeSha256": "2d8b3e58c35efdf9c02631e48562da44b0b6db8d20c2e2101b77876045194472",
+   "afterSha256": "f451be2eb30ff83b34e0c0e14e30b30ef1edf266026ec121ed5f66d8a1f84ab2",
+   "bytes": 139034
+  },
+  {
+   "id": "gargoyle",
+   "path": "assets/sprites/monsters/gargoyle.png",
+   "beforeSha256": "9bb12dda6e5a102586c402efb1c28d56787ea7f38944aa849f30f051b9bcb8ce",
+   "afterSha256": "87dbcdc9740633d1aef195e8db90c32b117df11b7bb17a53ea6e19f9d7dbe5fb",
+   "bytes": 201229
+  },
+  {
+   "id": "whisper",
+   "path": "assets/sprites/monsters/whisper.png",
+   "beforeSha256": "734c0a7b6bb781f0404c7e8bca85eb17ff121e5573b23905e55fc813dcf09cca",
+   "afterSha256": "19f93e6469ba6c6a41bd92e31af5c6af917b0ce9a424422c7ddb721f2e847db1",
+   "bytes": 84400
+  },
+  {
+   "id": "kukre",
+   "path": "assets/sprites/monsters/kukre.png",
+   "beforeSha256": "022b4e3fabd315dae4fc3a6721a570ca1132dfd9bbd8ea037961104209c3fe1f",
+   "afterSha256": "4414d1284d24665313fdce27b9e3c98d6b5a51853120eaccec91fdaf55b3d1dc",
+   "bytes": 36684
+  },
+  {
+   "id": "moonlight_flower",
+   "path": "assets/sprites/bosses/moonlight_flower.png",
+   "beforeSha256": "e036a556ee4e12a3634bc8bf7aa7cf2ed1599e1e5131acc4efa618d0a03ea8f6",
+   "afterSha256": "7e566a3a021e18db718d53a4918b18e24fd00fbf32a171d23ca305c1cced7d23",
+   "bytes": 213432
+  },
+  {
+   "id": "sohee",
+   "path": "assets/sprites/bosses/sohee.png",
+   "beforeSha256": "8146bde3714ec85527101c2f7577f6d751e2b0f1b8647bdcf195ee38f48ccc4c",
+   "afterSha256": "466a358fb1293ec6d8dae20e873a6137c97e1bf49a7ce6a7b1bd13e595694cc7",
+   "bytes": 254001
+  },
+  {
+   "id": "marse",
+   "path": "assets/sprites/monsters/marse.png",
+   "beforeSha256": "9e16ae60b21e689710985cc848e460a9c623a573bf6ab45f356019e1cd729c9b",
+   "afterSha256": "0a02b6d2bd50e24d486778ee56c3d3b51a2632dc19c655a9d900260d0bef3bce",
+   "bytes": 106386
+  },
+  {
+   "id": "dracula",
+   "path": "assets/sprites/bosses_xl/dracula.png",
+   "beforeSha256": "0923cabe80305c02f85ea18cae744c8dbea8143682f5660d5b6f6f89a9a3ddaa",
+   "afterSha256": "f745378515d8e21240e881d6eaf1868dc2e1c941a1e45ca048dea986f8eacc0a",
+   "bytes": 259938
+  },
+  {
+   "id": "swordfish",
+   "path": "assets/sprites/bosses/swordfish.png",
+   "beforeSha256": "6d42273709f1842fe04e94bd4fa840c8ec92af3dc55b53d27da5baf870c9a044",
+   "afterSha256": "a5898508452aab133d1bb72b124d8f23ac3a248d38f03cce417d43a15e54a8ca",
+   "bytes": 230008
+  },
+  {
+   "id": "eclipse",
+   "path": "assets/sprites/monsters/eclipse.png",
+   "beforeSha256": "1a2fcf8a8e8d7757cf26ef6fe5e5a4a0de4453bf23dc93671da282707afddf91",
+   "afterSha256": "277267a7a4ca1f374e8d313a461f8a66ffa64bd2bf38ce8c75789e73ff050817",
+   "bytes": 82833
+  },
+  {
+   "id": "hydra",
+   "path": "assets/sprites/monsters/hydra.png",
+   "beforeSha256": "2e29755c837276aba50a5f43f2408d93eae318645e8f14bc8913263fa3c74348",
+   "afterSha256": "01312a8ab2177740ca0eb51ed009df3f90de0e072b7542599a0f4e36611a529c",
+   "bytes": 137918
+  },
+  {
+   "id": "obeaune",
+   "path": "assets/sprites/monsters/obeaune.png",
+   "beforeSha256": "a97bd9ec0705251b9f968eb08e1304cb8ae6bd4d84a5f633c315390701080bb7",
+   "afterSha256": "7fd5b84f2c6b82cb75dc5d30cfc9526a6a5543900aeac46ca777a1fbb3721f58",
+   "bytes": 177561
+  },
+  {
+   "id": "bongun",
+   "path": "assets/sprites/monsters/bongun.png",
+   "beforeSha256": "cf1c8f673ac7746371b0343d2eedb688808f3b13ec157685d875c8b62aaaf708",
+   "afterSha256": "76ea435d870c9a6dce7c0b0ab9a1a9d7dd0a31bcf41222b4ebb8199d4a3620c4",
+   "bytes": 159424
+  },
+  {
+   "id": "turtle_general",
+   "path": "assets/sprites/monsters/turtle_general.png",
+   "beforeSha256": "017883b51f86b19ba05b203223705e9fb576318d621e9df6ab3822758ac2a09e",
+   "afterSha256": "e7e00844cc0aa6014e2dfb01f98ef05b34112431ccdfb44a8121902d36e392e3",
+   "bytes": 478457
+  },
+  {
+   "id": "penomena",
+   "path": "assets/sprites/monsters/penomena.png",
+   "beforeSha256": "bc54c5c8a5fa79bd2acdc2fe883b630b7907cd5b323d472be443e4d6960ccc3e",
+   "afterSha256": "17977fb9e3c12d8170698f29b3ad377d3402ad7b30c42fc6dbd93df4475ba3a0",
+   "bytes": 152649
+  },
+  {
+   "id": "munak",
+   "path": "assets/sprites/monsters/munak.png",
+   "beforeSha256": "c8b551ec4920912f55c05fb3e9fac3ad1ab8816a423aac5c58b4220f04a4d4c2",
+   "afterSha256": "ae6b83cc12ea16f516323d5f67549f46c40a86f2e3eda51dd6be00df8aa6ec72",
+   "bytes": 158468
+  },
+  {
+   "id": "vocal",
+   "path": "assets/sprites/bosses/vocal.png",
+   "beforeSha256": "d2dd4336a05004e05bd87372e226e42983a9d6052eda957a75eff6375d563a3d",
+   "afterSha256": "936adfd73e718dbcfaf71a8b4ce5b369025b0849f76f125a6164afe109834af9",
+   "bytes": 199309
+  },
+  {
+   "id": "mantis",
+   "path": "assets/sprites/monsters/mantis.png",
+   "beforeSha256": "b6f21669e7587c144fd62acb897c178c07efe43209eefedf8b9479b27b7b2758",
+   "afterSha256": "91de146a42cc70880a8a1aafd4d865ec57ffe217d78177a2b4d4f6e06341cd48",
+   "bytes": 96050
+  },
+  {
+   "id": "stem_worm",
+   "path": "assets/sprites/monsters/stem_worm.png",
+   "beforeSha256": "ea45132d8fdc45c3e337d457d75a74e845116c6f8d29c280540a83bc7fcd328d",
+   "afterSha256": "6c4d1fd30033077f084a5fae35577cd5c56cc15084e2aa48864cac9423af4b2e",
+   "bytes": 104832
+  },
+  {
+   "id": "elder_willow",
+   "path": "assets/sprites/monsters_xl/elder_willow.png",
+   "beforeSha256": "1727ab56ff83e3824b4222efe9426da8e70371b5bfb87d0eda2dab626260fa2e",
+   "afterSha256": "83506ea8bc0797dc1e9d134b2480d6007e1b46c44df5237b176d4eb8ffe8f177",
+   "bytes": 166403
+  },
+  {
+   "id": "nine_tail",
+   "path": "assets/sprites/monsters/nine_tail.png",
+   "beforeSha256": "b10e2ffa07617df3e974634042d7006341d05f2673b1848463bab06f49d98706",
+   "afterSha256": "45d3e28b7a71e1c6ea97ffcee380ee3a4f80a9162790aadc1153e37bb4e8572e",
+   "bytes": 155589
+  },
+  {
+   "id": "baphomet_jr",
+   "path": "assets/sprites/monsters/baphomet_jr.png",
+   "beforeSha256": "6d0ca271ff00e696ed486bfc4e698a52f9ed58b22d3527a70d7f6f11294cfa48",
+   "afterSha256": "c66d70e77e31d9deafd6acd2c77ff162f8ffe2d2fa9858a5428d99e1fd7ea0e7",
+   "bytes": 76589
+  },
+  {
+   "id": "deviruchi",
+   "path": "assets/sprites/bosses/deviruchi.png",
+   "beforeSha256": "c8496614ac86aed7a02cb6401430c3863a6ee1c4893211227cf42efb79c6c72e",
+   "afterSha256": "abd1d8b7642f4d83aff72a51103dbb9381a9873ecb76064c6454eb69cdc27320",
+   "bytes": 99014
+  },
+  {
+   "id": "drake",
+   "path": "assets/sprites/bosses/drake.png",
+   "beforeSha256": "ed917e3fe486c098b7c9f5fa2d73df8e0ed9d473111db39a67f2f3215239c9ff",
+   "afterSha256": "fa397b613e74ca663a6a204a56b2cb62103e676a5f95531b629126e79534f0c3",
+   "bytes": 288190
+  },
+  {
+   "id": "evil_druid",
+   "path": "assets/sprites/monsters_xl/evil_druid.png",
+   "beforeSha256": "2b4b2d450f5b9253aada0122c7126333d971ace984c9ea3861025dd439f4477e",
+   "afterSha256": "4bbf2b91be0d2c952abe5b4ccf7122334278f1f9f1439f53134683cfce154efd",
+   "bytes": 484388
+  }
+ ],
+ "identicalSheets": [
+  "melee",
+  "ranged",
+  "tank",
+  "fast",
+  "elite",
+  "drops",
+  "poporing",
+  "fabre",
+  "lunatic",
+  "rocker",
+  "raydric",
+  "dark_priest",
+  "mummy",
+  "pirate_skel",
+  "marin",
+  "owl_duke",
+  "ghoul",
+  "verit",
+  "mandragora",
+  "sandman",
+  "pupa",
+  "boss1",
+  "thief_bug_male",
+  "thief_bug_female",
+  "marduk"
+ ],
+ "preservedOtherEntries": 132,
+ "sourceReferenceMismatches": []
+}

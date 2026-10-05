@@ -1,0 +1,418 @@
+{
+  "status": "READY with explicit full WebGL STOP and separate tail PASS",
+  "base": "41bbcc0718060d11d64248c8d2c0028177eae785",
+  "productSourceChangedAfterCanvasStop": false,
+  "validation": {
+    "sameRegressionProtocol": {
+      "baselineFailed": 9,
+      "baselinePassed": 4,
+      "afterPassed": 13,
+      "baselineLog": "/tmp/chronoworld-night-chronicle-before-final.log",
+      "afterLog": "/tmp/chronoworld-night-chronicle-focused-final.log"
+    },
+    "typecheck": {
+      "passed": true,
+      "log": "/tmp/chronoworld-night-chronicle-tsc-final.log"
+    },
+    "uiLint": {
+      "passed": true,
+      "budgetGrowth": false,
+      "log": "/tmp/chronoworld-night-chronicle-ui-lint-final.log"
+    },
+    "compiledBuild": {
+      "passed": true,
+      "log": "/tmp/chronoworld-night-chronicle-build-final.log"
+    },
+    "rootIntegrationReceipt": {
+      "vitestFiles": 226,
+      "vitestPassed": 2371,
+      "nodePassed": 3,
+      "skips": 0,
+      "source3Exact": true
+    }
+  },
+  "fullNative": {
+    "passed": false,
+    "startedAt": "2026-10-05T05:15:40.410Z",
+    "finishedAt": "2026-10-05T05:48:49.253Z",
+    "runs": [
+      {
+        "mode": "canvas",
+        "fixture": "fresh",
+        "width": 360,
+        "height": 640,
+        "compiled": true,
+        "passed": true,
+        "snapshots": 203,
+        "cardsOpened": 38,
+        "ownedStoriesOpened": 3,
+        "actuallySeenReplaysOpened": 0,
+        "pagesOpened": 1,
+        "catalogues": [
+          {
+            "tab": "findings",
+            "total": 40,
+            "readable": 0
+          },
+          {
+            "tab": "bestiary",
+            "total": 119,
+            "readable": 0
+          },
+          {
+            "tab": "items",
+            "total": 69,
+            "readable": 24
+          },
+          {
+            "tab": "heroes",
+            "total": 12,
+            "readable": 12
+          },
+          {
+            "tab": "world",
+            "total": 12,
+            "readable": 2
+          }
+        ],
+        "minFontCssPx": 12,
+        "minTargetCssPx": 44,
+        "errors": 0,
+        "invalidTextureFrames": 0,
+        "cloudWrites": 0,
+        "saveContract": {
+          "beforeSha256": "d0338fd3a86643209b13e019301e377602fed19e75a41b6d3500ef3d92cd9975",
+          "expectedAfterSha256": "d0338fd3a86643209b13e019301e377602fed19e75a41b6d3500ef3d92cd9975",
+          "revisionBefore": 2,
+          "revisionExpectedAfter": 2,
+          "expectedHeroReadCommits": 0,
+          "fullSaveExact": true,
+          "actualAfterSha256": "d0338fd3a86643209b13e019301e377602fed19e75a41b6d3500ef3d92cd9975",
+          "revisionActualAfter": 2
+        },
+        "bundleSha256": "10103954c3b85a76de5874b615605107b3ae87e76ac1ca29db0d0e502025ef1c"
+      },
+      {
+        "mode": "canvas",
+        "fixture": "legal",
+        "width": 360,
+        "height": 640,
+        "compiled": true,
+        "passed": true,
+        "snapshots": 1605,
+        "cardsOpened": 244,
+        "ownedStoriesOpened": 12,
+        "actuallySeenReplaysOpened": 75,
+        "pagesOpened": 20,
+        "catalogues": [
+          {
+            "tab": "findings",
+            "total": 40,
+            "readable": 40
+          },
+          {
+            "tab": "bestiary",
+            "total": 119,
+            "readable": 111
+          },
+          {
+            "tab": "items",
+            "total": 69,
+            "readable": 69
+          },
+          {
+            "tab": "heroes",
+            "total": 12,
+            "readable": 12
+          },
+          {
+            "tab": "world",
+            "total": 12,
+            "readable": 12
+          }
+        ],
+        "minFontCssPx": 12,
+        "minTargetCssPx": 44,
+        "errors": 0,
+        "invalidTextureFrames": 0,
+        "cloudWrites": 0,
+        "saveContract": {
+          "beforeSha256": "7455b6ec4f6e6f195ba0798165fa1923718d787e5c6be79a83fdfa2243778087",
+          "expectedAfterSha256": "7004a941f512cb166d6ba06ab5eaa3c6353694cf89e2a22f61bbf94c0bab267d",
+          "revisionBefore": 12,
+          "revisionExpectedAfter": 24,
+          "expectedHeroReadCommits": 12,
+          "fullSaveExact": true,
+          "actualAfterSha256": "7004a941f512cb166d6ba06ab5eaa3c6353694cf89e2a22f61bbf94c0bab267d",
+          "revisionActualAfter": 24
+        },
+        "bundleSha256": "10103954c3b85a76de5874b615605107b3ae87e76ac1ca29db0d0e502025ef1c"
+      },
+      {
+        "mode": "webgl",
+        "fixture": "fresh",
+        "width": 390,
+        "height": 640,
+        "compiled": true,
+        "passed": true,
+        "snapshots": 203,
+        "cardsOpened": 38,
+        "ownedStoriesOpened": 3,
+        "actuallySeenReplaysOpened": 0,
+        "pagesOpened": 1,
+        "catalogues": [
+          {
+            "tab": "findings",
+            "total": 40,
+            "readable": 0
+          },
+          {
+            "tab": "bestiary",
+            "total": 119,
+            "readable": 0
+          },
+          {
+            "tab": "items",
+            "total": 69,
+            "readable": 24
+          },
+          {
+            "tab": "heroes",
+            "total": 12,
+            "readable": 12
+          },
+          {
+            "tab": "world",
+            "total": 12,
+            "readable": 2
+          }
+        ],
+        "minFontCssPx": 13,
+        "minTargetCssPx": 47.666666666666664,
+        "errors": 0,
+        "invalidTextureFrames": 0,
+        "cloudWrites": 0,
+        "saveContract": {
+          "beforeSha256": "d0338fd3a86643209b13e019301e377602fed19e75a41b6d3500ef3d92cd9975",
+          "expectedAfterSha256": "d0338fd3a86643209b13e019301e377602fed19e75a41b6d3500ef3d92cd9975",
+          "revisionBefore": 2,
+          "revisionExpectedAfter": 2,
+          "expectedHeroReadCommits": 0,
+          "fullSaveExact": true,
+          "actualAfterSha256": "d0338fd3a86643209b13e019301e377602fed19e75a41b6d3500ef3d92cd9975",
+          "revisionActualAfter": 2
+        },
+        "bundleSha256": "10103954c3b85a76de5874b615605107b3ae87e76ac1ca29db0d0e502025ef1c"
+      },
+      {
+        "mode": "webgl",
+        "fixture": "legal",
+        "width": 390,
+        "height": 640,
+        "compiled": true,
+        "passed": false,
+        "snapshots": 1594,
+        "cardsOpened": 244,
+        "ownedStoriesOpened": 12,
+        "actuallySeenReplaysOpened": 75,
+        "pagesOpened": 20,
+        "catalogues": [
+          {
+            "tab": "findings",
+            "total": 40,
+            "readable": 40
+          },
+          {
+            "tab": "bestiary",
+            "total": 119,
+            "readable": 111
+          },
+          {
+            "tab": "items",
+            "total": 69,
+            "readable": 69
+          },
+          {
+            "tab": "heroes",
+            "total": 12,
+            "readable": 12
+          },
+          {
+            "tab": "world",
+            "total": 12,
+            "readable": 12
+          }
+        ],
+        "minFontCssPx": 13,
+        "minTargetCssPx": 44.96549846728643,
+        "errors": 0,
+        "invalidTextureFrames": 0,
+        "cloudWrites": 0,
+        "saveContract": {
+          "beforeSha256": "9504c48d4ccc4e2e84c0f7ea01f85bcff0fe3b0e72d3b035f753dee934d6e66e",
+          "expectedAfterSha256": "c0a226db7a08597221ec88b304bb20ce8203afd1f94a94e20077b2d2f77d2a43",
+          "revisionBefore": 12,
+          "revisionExpectedAfter": 24,
+          "expectedHeroReadCommits": 12,
+          "fullSaveExact": false
+        },
+        "bundleSha256": "10103954c3b85a76de5874b615605107b3ae87e76ac1ca29db0d0e502025ef1c"
+      }
+    ],
+    "artifact": {
+      "path": "/tmp/chronoworld-night-chronicle-compiled-final-after/report.json",
+      "sha256": "0a08aaad586a30f945dcadb9933388869fa50248914832b9d62d1111d473aebe",
+      "bytes": 53775407,
+      "gzipPath": "/tmp/chronoworld-night-chronicle-compiled-final-after/report.json.gz",
+      "gzipSha256": "e9a363786e37e98bd15a3d235303ba617dc0b46ddaef84100d0e7e53bd2dafaa"
+    },
+    "error": "page.evaluate: Error: Не найден chronicleHero_alan в Chronicle\n    at eval (eval at evaluate (:290:30), <anonymous>:4:21)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at evalOnScene (/workspace/chronoworld-worktrees/night-chronicle-compact/scripts/night-chronicle-ui-qa.cjs:142:41)\n    at node (/workspace/chronoworld-worktrees/night-chronicle-compact/scripts/night-chronicle-ui-qa.cjs:152:34)\n    at tap (/workspace/chronoworld-worktrees/night-chronicle-compact/scripts/night-chronicle-ui-qa.cjs:164:21)\n    at async run (/workspace/chronoworld-worktrees/night-chronicle-compact/scripts/night-chronicle-ui-qa.cjs:360:5)\n    at async /workspace/chronoworld-worktrees/night-chronicle-compact/scripts/night-chronicle-ui-qa.cjs:404:68",
+    "diagnosis": "Fixed300ms sdkBack wait did not wait for modal DESTROY + input shield; subsequent Heroes tap remained on world. Full status not relabelled."
+  },
+  "nativeTail": {
+    "passed": true,
+    "startedAt": "2026-10-05T06:11:30.582Z",
+    "finishedAt": "2026-10-05T06:11:49.052Z",
+    "tailSetup": {
+      "publicHeroReadCommits": 12,
+      "source": "Same legal checkpoint; public reading preferences only"
+    },
+    "runs": [
+      {
+        "mode": "webgl",
+        "fixture": "legal",
+        "width": 390,
+        "height": 640,
+        "compiled": true,
+        "passed": true,
+        "snapshots": 7,
+        "cardsOpened": 0,
+        "ownedStoriesOpened": 0,
+        "actuallySeenReplaysOpened": 0,
+        "pagesOpened": 0,
+        "catalogues": [],
+        "minFontCssPx": 13,
+        "minTargetCssPx": 47.666666666666664,
+        "errors": 0,
+        "invalidTextureFrames": 0,
+        "cloudWrites": 0,
+        "saveContract": {
+          "beforeSha256": "20b475ee60f82f75caa85cc3418e98a15b8d263cffd52e4ce0663d4fba3dfadb",
+          "expectedAfterSha256": "20b475ee60f82f75caa85cc3418e98a15b8d263cffd52e4ce0663d4fba3dfadb",
+          "revisionBefore": 24,
+          "revisionExpectedAfter": 24,
+          "expectedHeroReadCommits": 0,
+          "fullSaveExact": true,
+          "actualAfterSha256": "20b475ee60f82f75caa85cc3418e98a15b8d263cffd52e4ce0663d4fba3dfadb",
+          "revisionActualAfter": 24
+        },
+        "bundleSha256": "10103954c3b85a76de5874b615605107b3ae87e76ac1ca29db0d0e502025ef1c"
+      }
+    ],
+    "artifact": {
+      "path": "/tmp/chronoworld-night-chronicle-tail-final/report.json",
+      "sha256": "b85cbaf89d2fcae2ef6a66ff395a47cdd96d7bc0a23607ed7dc2d88c08c79e96",
+      "bytes": 105841,
+      "gzipPath": "/tmp/chronoworld-night-chronicle-tail-final/report.json.gz",
+      "gzipSha256": "dcc530c07faf71dc0229aa29648279baa4dc6a27c2d6244fb59e1fd1aa2b7dee"
+    },
+    "scope": "Only chapter-detail -> SDK Back actual modal close/shield -> Heroes -> Alan story reopen; full-save/revision unchanged"
+  },
+  "originalRevisionStop": {
+    "passed": false,
+    "artifact": {
+      "path": "/tmp/chronoworld-night-chronicle-compiled-final/report.json",
+      "sha256": "ce98a4dcb0b5a86aae5d3c9386b9a6a3549123f88542c42d213330e066eb04af",
+      "bytes": 26741107,
+      "gzipPath": "/tmp/chronoworld-night-chronicle-compiled-final/report.json.gz",
+      "gzipSha256": "fdbb68c6d3034f35d19cd3eae147922a0ff9ed459209a445c0b0b101746cc1bf"
+    },
+    "error": "Initial expected contract excluded story read marks but omitted12 legitimate SaveSlot revisions12->24; preserved original false"
+  },
+  "readContract": {
+    "fieldsExcludedFromFullSaveComparison": [],
+    "publicExpectedApi": [
+      "heroStoryUnread",
+      "markHeroStoryRead",
+      "SaveSlot.write"
+    ],
+    "freshExpectedCommits": 0,
+    "legalFullExpectedCommits": 12,
+    "reopenExpectedCommits": 0,
+    "resourcesSquadCampaignJourneysGearQuestsEveningRewardsUnchangedInCompletedAssertions": true
+  },
+  "legalFixture": {
+    "sha256": "4cc658ebd5e3e26710efc40a4dda98cafa34e92ad4cf6ed62fc9f43bde1824fd",
+    "provenance": "rational DATA2 seed3, after-ch10_s18;180/180 пройдено через публичные actions, +12h только при стенах"
+  },
+  "readOnlyCoreData": {
+    "core": {
+      "files": 118,
+      "sha256": "c6a991f04211a6764171fb17c7eac4d1cb42b08f3fa81008949b16c2569d683e"
+    },
+    "data": {
+      "files": 686,
+      "sha256": "ee8dd9d5445485e083cde2ca49f95015efe87abc01411f317c7d294a789ad469"
+    }
+  },
+  "sourceHashesFull": {
+    "src/game/scenes/ChronicleScene.ts": "14d86013619082c19128e4682a07cdf1ae3c273a2a1f7981beb20bb1433d5b4b",
+    "src/game/chronicleLayout.ts": "332655ccbb686799aa01946f6eb2fd3a5aadb51a8424255dab07bc070e444511",
+    "src/game/screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+    "src/game/ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/viewLayout.ts": "7c1de213fe56cb76487721ce2f43bd2e17a0d8af57007a2c0a84e5421fdd462c",
+    "src/game/modalBack.ts": "4317689024c2af97d911974f3e9efc5535d9591e8fd36d83ab85f034e4101a56",
+    "src/game/modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d",
+    "src/game/scroll.ts": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0",
+    "src/game/loreView.ts": "75383e2a5a2605e1355aaed3f7bad1e410f57329c57c06548afb2ea57b737829",
+    "src/game/heroStoryView.ts": "a77ae3cf482cf0910388fb1eec707deb99d9bc46daca8f26743bd16b20800638",
+    "src/game/storyPage.ts": "3d971d7595fa06ee9efa5fe2bd39b0017acd20981d3a22ced2ae027ce981c4a7",
+    "src/game/dialogue.ts": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca",
+    "src/game/scenes/ChapterDoneScene.ts": "d48413026d26979dc13b4f33a92becf2c54b073e6dd67f78db9be78edd34849a",
+    "src/game/battleScreenLayout.ts": "e73dadaa2d72beb88e56bdb7414bdca1696fe2257c8b7cbdf6255ea7bbccc258",
+    "src/game/scenes/TavernEveningScene.ts": "5357d9e155485f9df1c9fb252f0d00e0500e33507326d4b7fa00c46fe5336743",
+    "src/game/compactEveningLayout.ts": "d6fad5192c16b665bcd722c7c14ae4e3180ed8998b58a1ac08600912084f8070",
+    "src/game/storage.ts": "eee57779eb36d7928147c781455e10859d11a014b337bb0dbd14c6534aec8c46",
+    "scripts/night-chronicle-ui-qa.cjs": "170a7eca4641422311475dcf68dc03f338d200f7b5cdd9613b0e68fe779f42f8"
+  },
+  "sourceHashesTail": {
+    "src/game/scenes/ChronicleScene.ts": "14d86013619082c19128e4682a07cdf1ae3c273a2a1f7981beb20bb1433d5b4b",
+    "src/game/chronicleLayout.ts": "332655ccbb686799aa01946f6eb2fd3a5aadb51a8424255dab07bc070e444511",
+    "src/game/screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+    "src/game/ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/viewLayout.ts": "7c1de213fe56cb76487721ce2f43bd2e17a0d8af57007a2c0a84e5421fdd462c",
+    "src/game/modalBack.ts": "4317689024c2af97d911974f3e9efc5535d9591e8fd36d83ab85f034e4101a56",
+    "src/game/modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d",
+    "src/game/scroll.ts": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0",
+    "src/game/loreView.ts": "75383e2a5a2605e1355aaed3f7bad1e410f57329c57c06548afb2ea57b737829",
+    "src/game/heroStoryView.ts": "a77ae3cf482cf0910388fb1eec707deb99d9bc46daca8f26743bd16b20800638",
+    "src/game/storyPage.ts": "3d971d7595fa06ee9efa5fe2bd39b0017acd20981d3a22ced2ae027ce981c4a7",
+    "src/game/dialogue.ts": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca",
+    "src/game/scenes/ChapterDoneScene.ts": "d48413026d26979dc13b4f33a92becf2c54b073e6dd67f78db9be78edd34849a",
+    "src/game/battleScreenLayout.ts": "e73dadaa2d72beb88e56bdb7414bdca1696fe2257c8b7cbdf6255ea7bbccc258",
+    "src/game/scenes/TavernEveningScene.ts": "5357d9e155485f9df1c9fb252f0d00e0500e33507326d4b7fa00c46fe5336743",
+    "src/game/compactEveningLayout.ts": "d6fad5192c16b665bcd722c7c14ae4e3180ed8998b58a1ac08600912084f8070",
+    "src/game/storage.ts": "eee57779eb36d7928147c781455e10859d11a014b337bb0dbd14c6534aec8c46",
+    "scripts/night-chronicle-ui-qa.cjs": "eb65efaa80f749dd9a15dfd89bcbf7f967e897d2f47002c61901983c408d76c1"
+  },
+  "earlierSupplementaryProof": {
+    "snapshots": 109,
+    "cardsOpened": 38,
+    "passed": true,
+    "finalSourceProof": false,
+    "reports": [
+      "/tmp/chronoworld-night-chronicle-local-fresh/report.json",
+      "/tmp/chronoworld-night-chronicle-shared-fresh/report.json"
+    ]
+  },
+  "limits": [
+    "Last full WebGL save assertion not reached; 3 full exact PASS plus separate last-transition exact tail PASS",
+    "Local native-size Chromium Canvas360/WebGL390 + fake SDK9; no real Telegram/cloud writes",
+    "Width320 global typography belongs to Runtime; own coverage360/390 heights640/760",
+    "Checkpoint has75actually seen scenes (chapter1seven),12owned hero stories; no added wins/resources",
+    "Private authorised viewLayout Chronicle-only QA overlay and Evening draft5357 readonly; policy/final evening preview owned by root/Runtime",
+    "All mirrored/shared/core/data/assets excluded from OWN patch"
+  ]
+}

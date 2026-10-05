@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { sanitizeAutobattlerSave, type AutobattlerContext } from '../autobattler/run';
 import { recoverAutobattlerState } from '../autobattler/recovery';
+import { sanitizeChapterSquads } from '../tavern/tavern';
 import { heroName, heroRole } from '../heroes/card';
 import { BRANCH_RARITY } from '../heroes/schema';
 import { migrateV3toV4 } from '../heroes/migrate';
@@ -231,6 +232,12 @@ export function sanitizeSave(
     const num = (id: string) => stageLabel(id, ctx.content);
     warnings.push(`В кампании появились новые этапы перед уже пройденными — они засчитаны пройденными (этапы ${gaps.filled.map(num).join(', ')}).`);
   }
+  const chapters = sanitizeChapterSquads(save, ctx);
+  if (chapters.save !== save) {
+    save = chapters.save;
+    changed = true;
+  }
+  warnings.push(...chapters.warnings);
   if (ctx.unlocks && !save.seenUnlocks) {
     save = initSeenUnlocks(save, ctx);
     changed = true;

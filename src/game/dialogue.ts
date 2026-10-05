@@ -6,6 +6,7 @@ import { GAME } from './content';
 import { illustKey, loadIllust } from './illust';
 import { GAME_H, GAME_W } from './layout';
 import { framedPortrait } from './portraitFrame';
+import { registerModal } from './screen';
 import { commit, session } from './session';
 import { SKIN } from './skin';
 import { isChapterFinale, speakerView } from './storyView';
@@ -182,12 +183,12 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     autoNext?.remove();
     typer = autoNext = null;
   };
-  const close = () => {
+  const close = (destroyLayer = true) => {
     if (closed) return;
     closed = true;
     stopTimers();
     scene.events.off('shutdown', shutdown);
-    layer.destroy();
+    if (destroyLayer) layer.destroy();
     onClose();
   };
   const shutdown = () => {
@@ -197,6 +198,19 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     stopTimers();
   };
   scene.events.once('shutdown', shutdown);
+  if (opts.readOnly) {
+    // Пересмотр — окно над историей: SDK Back закрывает его до перехода к родителю.
+    registerModal(layer, close);
+    layer.once(Phaser.GameObjects.Events.DESTROY, () => {
+      if (closed) return;
+      // Внешнее закрытие в живом экране снимает captured lock истории; уход с экрана не листает очередь.
+      if (scene.sys.isActive()) close(false);
+      else {
+        shutdown();
+        scene.events.off('shutdown', shutdown);
+      }
+    });
+  }
   const finishLine = () => {
     typer?.remove();
     typer = null;

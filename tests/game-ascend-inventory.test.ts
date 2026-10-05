@@ -69,7 +69,7 @@ describe('инвентарь (InventoryScene, itemIcons)', () => {
   });
 
   it('вкладки и фильтры — segmented и иконки слотов; предметы — сетка плиток', () => {
-    expect(inv).toMatch(/segmented\(this, GAME_W \/ 2, TOP \+ 52, CW, \['Снаряжение', 'Герои', 'Карты MVP'\]/);
+    expect(inv).toMatch(/segmented\(this, GAME_W \/ 2, TOP \+ touch \/ 2, CW, \['Снаряжение', 'Герои', 'Карты MVP'\]/);
     expect(inv).toMatch(/itemIconKey\(this, s\)/);
     expect(inv).toMatch(/itemTile\(this/);
     expect(icons).toMatch(/export function itemTile\(/);

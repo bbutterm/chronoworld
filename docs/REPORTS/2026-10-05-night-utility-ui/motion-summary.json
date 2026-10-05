@@ -1,0 +1,587 @@
+{
+  "passed": true,
+  "stage": "compiled-production-normal-motion-smoke",
+  "sourceHashes": {
+    "src/game/scenes/MailScene.ts": "695efd68f244abe2d8eca4e6aa8b6984b0b152322ae84aefcdd36d31bfc557b2",
+    "src/game/scenes/QuestsScene.ts": "b59f8bf990ec1aeb1a0a8cc0a198af95c8f31b4612ccf1f32b8305d08602d70c",
+    "src/game/scenes/AchievementsScene.ts": "a18e2f7488fdf864597317639bd07a0b94bf8bcbf1bd44aa19a0fac13978ea96",
+    "src/game/scenes/ShopScene.ts": "f788899d6a5900557f2b00a05e7b854db12960b206a1d3d8ff5043d780a4a3ab",
+    "src/game/utilityScreenLayout.ts": "95001f1b9dce9af05bb60d6e9f53543d5be4bde5bcf37cf85220f8cb5e48b0e5",
+    "src/game/screen.ts": "ce8df5071c956e83d8059558efd90b5e500d1589c55b740b054d1002b5159094",
+    "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+    "src/game/viewLayout.ts": "0572a4acb6240fbb27bd3be401ecea43e4e216fe61578ec57483462d7bea8574",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/scroll.ts": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0"
+  },
+  "gameSourceSha256": "a7d48feb36952608d9b5dd3b3218ed16d15cf5c75f36009b38d594db7127e3b6",
+  "bundleSha256": "80a176467ad993e01cf8a58562546f1a2302f4e3871cd5c510309755e13a0bf0",
+  "settings": {
+    "reduceMotion": false,
+    "audio": false,
+    "layoutSettlingWaitMs": 1400,
+    "note": "Settled-state acceptance; neither this wait nor script duration is a product performance requirement."
+  },
+  "inputs": [
+    {
+      "path": "/tmp/chronoworld-utility-ui-production-motion-canvas360/report.json",
+      "sha256": "c1a93a35349a0c20d2de8a62200f6aafcdf6883744b36788d6a499935c12d5c7",
+      "harnessSha256": "db7cb025d9b171d151eb1a9841c5763c5017f707d554a79dcc950e4da050b7db",
+      "originalOverallPassed": true,
+      "settings": {
+        "reducedMotion": false,
+        "audio": false,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "path": "/tmp/chronoworld-utility-ui-production-motion-webgl390-timed/report.json",
+      "sha256": "be39b296e8560f7be5493cd55786ef0780abcbea544a355bbb421ebda41ad27e",
+      "harnessSha256": "8ad3d837ecc8b9e7573edaf0eb602c529f196d601a316f477cc0032b68725aa6",
+      "originalOverallPassed": true,
+      "settings": {
+        "reducedMotion": false,
+        "audio": false,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "path": "/tmp/chronoworld-utility-ui-production-motion-webgl390-late-touch/report.json",
+      "sha256": "acadc62c9aca2fc3a942681ab2070d2feb1d7f58f6bc8bbda9a41c4a8f5de59b",
+      "harnessSha256": "0998cd15627e4a468f33073d0a451624033d47329306fe152da835803c9b8b3d",
+      "originalOverallPassed": true,
+      "settings": {
+        "reducedMotion": false,
+        "audio": false,
+        "deviceScaleFactor": 1,
+        "refreshSecondTouchMs": 500
+      }
+    }
+  ],
+  "priorFailedInputsRetained": [
+    {
+      "path": "/tmp/chronoworld-utility-ui-production-motion-webgl390/report.json",
+      "sha256": "25637aa7816b531641769da65788a10d4274cee0dc0c2c35c8591c134eb205e0",
+      "harnessSha256": "db7cb025d9b171d151eb1a9841c5763c5017f707d554a79dcc950e4da050b7db",
+      "originalOverallPassed": false,
+      "failure": "page.evaluate: Error: Не найдена кнопка «Отмена»\n    at eval (eval at evaluate (:311:30), <anonymous>:7:24)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at Object.label (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:199:33)\n    at flow (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:397:91)\n    at async file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:437:11",
+      "sourceUnchanged": true,
+      "refreshTrace": []
+    },
+    {
+      "path": "/tmp/chronoworld-utility-ui-production-motion-webgl390-diagnostic/report.json",
+      "sha256": "c424e196fc959df9999e0a909ff163d345d04b636c5bce4d4b6d147e790f00df",
+      "harnessSha256": "1da365fef1803c4938b6a91b2dfcd5c6aca614fdf0593a3d4c76a528b1aee3eb",
+      "originalOverallPassed": false,
+      "failure": "page.evaluate: Error: Не найдена кнопка «Отмена»\n    at eval (eval at evaluate (:311:30), <anonymous>:7:24)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at Object.label (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:215:33)\n    at flow (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:413:91)\n    at async file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:453:11",
+      "sourceUnchanged": true,
+      "refreshTrace": [
+        {
+          "twice": true,
+          "modals": [
+            {
+              "name": "confirmModal",
+              "closing": false
+            }
+          ],
+          "refreshes": 1,
+          "interestingTexts": [
+            "Обновить весь товар за 20 гемов?",
+            "Отмена"
+          ]
+        },
+        {
+          "twice": false,
+          "modals": [],
+          "refreshes": 1,
+          "interestingTexts": []
+        }
+      ]
+    }
+  ],
+  "diagnosis": "The first normal WebGL390 attempt found no Cancel after a subsequent tap at the refresh control. Read-only diagnostics reproduced that the earlier pair of touches had already opened the paid confirmation without a second save/charge; the subsequent touch hit its backdrop and closed it. Historical native intervals were not recorded, so their exact timing is not retrospectively asserted. The revised harness records native pointer events and only accepts an already-open paid confirmation if the second touch arrived >=400 ms after the first release, outside the unchanged input shield. A fresh timed normal profile completed with a 188.2 ms refresh interval and no extra modal. A controlled later second refresh touch (>500 ms) exercises the valid already-open-confirm path: cancellation leaves save bytes unchanged, then a fresh paid-confirm cancellation and all quest actions pass. Product UI/core/dependencies remain unchanged across the diagnostic and successful runs. The original failed reports remain false.",
+  "harnessNote": "QA-only options for normal motion, passive pointer timestamps, failure-state diagnostics, and delayed refresh-touch control were added after the primary 20-case matrix; each input retains its exact harness fingerprint. Default gameplay/UI is unchanged.",
+  "totals": {
+    "cases": 4,
+    "capturedStates": 33,
+    "actions": 31,
+    "dynamicViewportChecks": 6,
+    "minimumFontCss": 12,
+    "minimumTargetCss": 44,
+    "runtimeErrors": 0,
+    "invalidFrames": 0,
+    "externalRequests": 0
+  },
+  "cases": [
+    {
+      "key": "canvas:360x640:welcome",
+      "input": 0,
+      "index": 0,
+      "passed": true,
+      "actualRenderer": 1,
+      "compiled": true,
+      "steps": 7,
+      "actions": [
+        {
+          "name": "single-letter-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Mail",
+          "to": "Home",
+          "waitedMs": 1761
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Achievements",
+          "to": "Heroes",
+          "waitedMs": 1653
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Shop",
+          "to": "Home",
+          "waitedMs": 1595
+        },
+        {
+          "name": "locked-functions-logical-back",
+          "destinations": [
+            "Heroes",
+            "Home"
+          ]
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "minimumFontCss": 12,
+      "minimumTargetCss": 44,
+      "nativeTouchIntervals": []
+    },
+    {
+      "key": "webgl:390x844:mid",
+      "input": 1,
+      "index": 0,
+      "passed": true,
+      "actualRenderer": 2,
+      "compiled": true,
+      "steps": 11,
+      "actions": [
+        {
+          "name": "shop-one-of-two-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "unaffordable-purchase",
+          "unchanged": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Shop",
+          "to": "Shop",
+          "waitedMs": 1437
+        },
+        {
+          "name": "free-refresh-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "paid-refresh-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "quest-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "milestone-double-tap",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "quests-claim-all",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57941
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 37,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Quests",
+          "to": "Home",
+          "waitedMs": 1907
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Shop",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 745.5384615384614,
+          "afterOffset": 663.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "minimumFontCss": 13,
+      "minimumTargetCss": 47.666666666666664,
+      "nativeTouchIntervals": [
+        {
+          "target": "shopBuy",
+          "afterFirstReleaseToSecondPressMs": 333.8999999985099,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "shopRefresh",
+          "afterFirstReleaseToSecondPressMs": 188.19999999552965,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "quest_win_stages",
+          "afterFirstReleaseToSecondPressMs": 302.29999999701977,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "milestone_20",
+          "afterFirstReleaseToSecondPressMs": 174.10000000149012,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "questsClaimAll",
+          "afterFirstReleaseToSecondPressMs": 194.09999999403954,
+          "modalsAfterTouches": []
+        }
+      ]
+    },
+    {
+      "key": "webgl:390x844:achievements",
+      "input": 1,
+      "index": 1,
+      "passed": true,
+      "actualRenderer": 2,
+      "compiled": true,
+      "steps": 4,
+      "actions": [
+        {
+          "name": "achievement-double-tap",
+          "resources": {
+            "gold": 2285,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 180,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "achievements-claim-all",
+          "resources": {
+            "gold": 3385,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 200,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Achievements",
+          "to": "Heroes",
+          "waitedMs": 1705
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 2861.5384615384614,
+          "afterOffset": 2779.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "minimumFontCss": 13,
+      "minimumTargetCss": 47.666666666666664,
+      "nativeTouchIntervals": [
+        {
+          "target": "ach_first_stage",
+          "afterFirstReleaseToSecondPressMs": 163.19999999552965,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "achievementsClaimAll",
+          "afterFirstReleaseToSecondPressMs": 203.0,
+          "modalsAfterTouches": []
+        }
+      ]
+    },
+    {
+      "key": "webgl:390x844:mid:late-touch-control",
+      "input": 2,
+      "index": 0,
+      "passed": true,
+      "actualRenderer": 2,
+      "compiled": true,
+      "steps": 11,
+      "actions": [
+        {
+          "name": "shop-one-of-two-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "unaffordable-purchase",
+          "unchanged": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Shop",
+          "to": "Shop",
+          "waitedMs": 1414
+        },
+        {
+          "name": "free-refresh-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "late-second-touch-confirm-cancel",
+          "nativeTouchIntervalMs": 726.1000000014901,
+          "unchanged": true
+        },
+        {
+          "name": "paid-refresh-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "quest-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "milestone-double-tap",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "quests-claim-all",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57941
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 37,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Quests",
+          "to": "Home",
+          "waitedMs": 1850
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Shop",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 745.5384615384614,
+          "afterOffset": 663.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "minimumFontCss": 13,
+      "minimumTargetCss": 47.666666666666664,
+      "nativeTouchIntervals": [
+        {
+          "target": "shopBuy",
+          "afterFirstReleaseToSecondPressMs": 191.29999999701977,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "shopRefresh",
+          "afterFirstReleaseToSecondPressMs": 726.1000000014901,
+          "modalsAfterTouches": [
+            {
+              "name": "confirmModal",
+              "closing": false
+            }
+          ]
+        },
+        {
+          "target": "quest_win_stages",
+          "afterFirstReleaseToSecondPressMs": 182.39999999850988,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "milestone_20",
+          "afterFirstReleaseToSecondPressMs": 177.69999999552965,
+          "modalsAfterTouches": []
+        },
+        {
+          "target": "questsClaimAll",
+          "afterFirstReleaseToSecondPressMs": 119.30000000447035,
+          "modalsAfterTouches": []
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "This smoke covers the four owned scenes and core-exact reward/shop actions; the full two-renderer/two-phone matrix is the separate reduced-motion production-summary.json.",
+    "Historical failed smoke did not retain native touch timestamps; exact past delay is unknown.",
+    "Local SDK and software renderer acceptance does not measure physical iPhone FPS."
+  ]
+}

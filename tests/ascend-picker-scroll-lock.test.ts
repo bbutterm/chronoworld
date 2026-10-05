@@ -48,9 +48,10 @@ function setup(initiallyLocked = false, modal: 'picker' | 'sources' | 'confirm' 
   h.save = save;
   const req = ascendRequirement(save, hero.id, GAME)!;
   const s = new AscendScene();
+  const make = (x = 0, y = 0) => { const node = new Node(x, y); node.scene = s; return node; };
   const graphics = { clear() { return this; }, fillStyle() { return this; }, fillRect() { return this; }, createGeometryMask: () => ({}), destroy: vi.fn() };
   Object.assign(s, {
-    add: { container: (x: number, y: number) => new Node(x, y), rectangle: (x: number, y: number) => new Node(x, y) },
+    add: { container: make, rectangle: make },
     make: { graphics: () => graphics }, events: new EventEmitter(), input: new EventEmitter(),
     cameras: { main: { getWorldPoint: (x: number, y: number) => ({ x, y }) } },
   });
@@ -58,11 +59,11 @@ function setup(initiallyLocked = false, modal: 'picker' | 'sources' | 'confirm' 
   body.setContentHeight(3000); body.offset = 300; body.locked = initiallyLocked;
   s['body'] = body; s['heroId'] = hero.id; s['chosen'] = []; s['reopen'] = vi.fn();
   const taps: (() => void)[] = [];
-  vi.spyOn(cards, 'drawHeroCard').mockImplementation((_s, _x, _y, _h, opts) => { taps.push(opts!.onTap!); return new Node() as unknown as ReturnType<typeof cards.drawHeroCard>; });
-  vi.spyOn(ui, 'text').mockImplementation(() => new Node() as unknown as ReturnType<typeof ui.text>);
-  const layer = new Node(); const close = vi.fn();
+  vi.spyOn(cards, 'drawHeroCard').mockImplementation((_s, _x, _y, _h, opts) => { taps.push(opts!.onTap!); return make() as unknown as ReturnType<typeof cards.drawHeroCard>; });
+  vi.spyOn(ui, 'text').mockImplementation(() => make() as unknown as ReturnType<typeof ui.text>);
+  const layer = make(); const close = vi.fn();
   vi.spyOn(screen, 'bottomSheet').mockImplementation((_s, _title, build) => {
-    build(new Node() as unknown as Parameters<typeof build>[0], 984, close);
+    build(make() as unknown as Parameters<typeof build>[0], 984, close);
     return { layer, close } as unknown as ReturnType<typeof screen.bottomSheet>;
   });
   vi.spyOn(screen, 'noticeModal').mockImplementation(() => layer as unknown as ReturnType<typeof screen.noticeModal>);
@@ -72,7 +73,7 @@ function setup(initiallyLocked = false, modal: 'picker' | 'sources' | 'confirm' 
     getByName: (name: string) => confirmations.find(node => node.scene && node.name === name) ?? null,
   } });
   const confirm = vi.spyOn(screen, 'confirm').mockImplementation(() => {
-    confirmations.push((confirmations.length ? new Node() : layer).setName('confirmModal').setData('screenModal', true));
+    confirmations.push((confirmations.length ? make() : layer).setName('confirmModal').setData('screenModal', true));
   });
   if (modal === 'sources') s['sources'](hero);
   else if (modal === 'confirm') {

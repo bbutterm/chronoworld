@@ -169,7 +169,8 @@ export function shadeBand(scene: Phaser.Scene, top: number, bottom: number, dept
 export class HeroPanel {
   private entries = new Map<string, Entry>();
   /** Центр медальонов по высоте (PANEL_Y + сдвиг к низу вытянутого экрана). */
-  readonly y: number;
+  y: number;
+  private readonly shade: Phaser.GameObjects.Image;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -181,7 +182,7 @@ export class HeroPanel {
     ensureTextures(scene);
     const y = (this.y = PANEL_Y + shift);
     // Низ экрана темнеет к панели: медальоны читаются на любом фоне, фигуры у нижнего края не спорят с ними.
-    shadeBand(scene, y - RING_R - 80, GAME_H + BLEED_Y, depth - 1).setName('heroPanelShade');
+    this.shade = shadeBand(scene, y - RING_R - 80, GAME_H + shift + BLEED_Y, depth - 1).setName('heroPanelShade');
     const xs = cellXs(units.length);
     units.forEach((u, i) => {
       const parts: Phaser.GameObjects.GameObject[] = [];
@@ -215,6 +216,14 @@ export class HeroPanel {
       }
       this.entries.set(u.uid, { node, hp, arc, face, rim, glow, bolt, pulse: null, boltPulse: null, dead: false, ready: false, ringStep: -1, hpStep: -1, hpTone: HP_OK });
     });
+  }
+
+  /** Move existing portraits/rings, keeping current charge, pulses and input callbacks on Telegram inset changes. */
+  reflow(shift: number): void {
+    this.y = PANEL_Y + shift;
+    for (const e of this.entries.values()) e.node.setY(this.y);
+    const top = this.y - RING_R - 80;
+    this.shade.setY(top).setDisplaySize(GAME_W + 2 * BLEED_X, GAME_H + shift + BLEED_Y - top);
   }
 
   /** Ульта готова и ждёт касания (ручной режим): свечение за медальоном (пульс) и короткий «блик» масштабом. */

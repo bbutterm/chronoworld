@@ -67,15 +67,18 @@ class Node extends EventEmitter {
 
 function setup() {
   const nodes: Node[] = [];
-  const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); nodes.push(n); return n; };
+  const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); n.scene = scene; nodes.push(n); return n; };
   const graphics = { fillStyle() { return this; }, fillRect: vi.fn(() => graphics), createGeometryMask() { return {}; }, destroy: vi.fn() };
   const scene = {
     add: { container: make, rectangle: make },
     make: { graphics: () => graphics },
     input: new EventEmitter(), events: new EventEmitter(),
-    sys: { game: undefined }, tweens: { add: vi.fn((cfg: { onComplete?: () => void }) => cfg.onComplete?.()) },
+    sys: { game: undefined, isActive: () => true }, tweens: { add: vi.fn((cfg: { onComplete?: () => void }) => cfg.onComplete?.()) },
     scene: { start: vi.fn(), restart: vi.fn() },
-    children: { getByName: (name: string) => nodes.find((n) => n.scene && n.name === name) ?? null },
+    children: {
+      get list() { return nodes.filter((n) => n.scene && !n.parentContainer); },
+      getByName: (name: string) => nodes.find((n) => n.scene && n.name === name) ?? null,
+    },
     cameras: { main: { getWorldPoint: (x: number, y: number) => ({ x, y }) } },
   };
   vi.spyOn(decor, 'ribbon').mockImplementation((_sc, x, y) => make(x, y) as unknown as ReturnType<typeof decor.ribbon>);
@@ -251,6 +254,9 @@ describe('Настройки: ограниченная прокрутка и ч�
       expect(h.scene.events.listenerCount('preupdate')).toBe(2);
       (layer.getData('close') as () => void)();
       expect(h.scene.input.eventNames()).toEqual([]);
+      expect(h.scene.events.listenerCount('preupdate')).toBe(0);
+      expect(h.scene.events.listenerCount('shutdown')).toBe(1); // The scene Back manager survives a closed window.
+      h.scene.events.emit('shutdown');
       expect(h.scene.events.eventNames()).toEqual([]);
       expect(h.clip()).toBeUndefined();
     }

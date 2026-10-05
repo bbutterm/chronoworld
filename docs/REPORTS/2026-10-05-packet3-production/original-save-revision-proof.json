@@ -1,0 +1,18 @@
+{
+  "method": "Independent Node reconstruction checked against exact SHA256 of actual original browser snapshots; no browser core injection or repeated UI execution",
+  "sourceRoot": "/workspace/chronoworld-worktrees/night-published-packet3",
+  "sourceCommit": "b00888b403f2b6c0031840c89f6583fc96451e6d",
+  "sourceTree": "86fd00311cdf0d78465cb193dae9a2398aa15019",
+  "path": "bootload+page+scenes",
+  "revision": 2,
+  "beforeHash": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+  "coreHash": "5444e98c8c8bdf635d0b8632489445c3afd237fbeee077e30c1f0946125c9eb4",
+  "uiHash": "9ff61420e4c7e1b6d268263caa27eab349121d64ffaf6e9db608f23b9ebba68b",
+  "actualObservedHash": "9ff61420e4c7e1b6d268263caa27eab349121d64ffaf6e9db608f23b9ebba68b",
+  "exactUIHashMatched": true,
+  "differentFields": [
+    "revision"
+  ],
+  "pureCoreRevision": 2,
+  "UIRevision": 3
+}

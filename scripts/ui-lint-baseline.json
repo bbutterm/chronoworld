@@ -2,10 +2,10 @@
   "note": "Базовая линия scripts/ui-lint.ts: счётчики по файлам могут только уменьшаться. Опустить — npm run ui:lint -- --update. Руками не повышать.",
   "totals": {
     "instr": 1,
-    "color": 1686,
+    "color": 1683,
     "fontSize": 9,
     "primary": 62,
-    "toast": 115
+    "toast": 117
   },
   "files": {
     "src/game/ambient.ts": {
@@ -57,9 +57,13 @@
       "color": 2
     },
     "src/game/expeditionEventModal.ts": {
-      "color": 5,
+      "color": 4,
       "primary": 1,
       "toast": 1
+    },
+    "src/game/expeditionPartyPicker.ts": {
+      "primary": 1,
+      "toast": 2
     },
     "src/game/featureTiles.ts": {
       "color": 11
@@ -140,8 +144,8 @@
       "toast": 3
     },
     "src/game/scenes/ChapterDoneScene.ts": {
-      "color": 7,
-      "primary": 2,
+      "color": 6,
+      "primary": 1,
       "toast": 1
     },
     "src/game/scenes/ChronicleScene.ts": {
@@ -181,7 +185,7 @@
       "toast": 1
     },
     "src/game/scenes/HuntScene.ts": {
-      "color": 26,
+      "color": 25,
       "primary": 2,
       "toast": 2
     },

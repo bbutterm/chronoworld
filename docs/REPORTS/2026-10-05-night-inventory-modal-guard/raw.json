@@ -1,0 +1,687 @@
+{
+  "status": "AFTER_GUARD_PASS",
+  "scope": "Independent native 360x640 Canvas Inventory itemSheet→sell→confirm wheel→Cancel→ordinary wheel",
+  "fixture": {
+    "path": "/tmp/chronoworld-night-after-rational-seed2/saves/after-ch10_s18.json",
+    "sha256": "55265cc661f261aa7d55d1e9516acb6dc618e5f00e49c0329b280523f7f8f9ba",
+    "clearedStages": 180,
+    "clock": {
+      "now": 1792645582503,
+      "day": "2026-10-22"
+    }
+  },
+  "afterBuild": {
+    "dist": "/tmp/chronoworld-night-inventory-guard-dist",
+    "bundle": "index-CcYfHHcM.js",
+    "bundleSha256": "033d20f0f0edbc0fc56d7e59be58d302b6d9a6ff17280f8387a14c6a7d4d2824",
+    "source": {
+      "src/game/scenes/InventoryScene.ts": "6ea6685075b0d43f6bd035a93911334c08243d20c7ec8b4030363731c95017bf",
+      "src/game/screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+      "src/game/ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+      "src/game/modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d"
+    }
+  },
+  "beforeBuild": {
+    "origin": "http://127.0.0.1:5597",
+    "bundleHashes": {
+      "/assets/index-CIJ2Dq28.js": "25e4380898ef2b81044a7c0abe91dbfe29680e04b020119c50f39b6660c39c90"
+    },
+    "sourceSha256": "6ea6685075b0d43f6bd035a93911334c08243d20c7ec8b4030363731c95017bf"
+  },
+  "before": {
+    "wheel": {
+      "dy": 300,
+      "beforeOffset": 0,
+      "afterOffset": 300,
+      "delta": 300,
+      "confirmInnerUnchanged": true,
+      "saveUnchanged": true,
+      "writesUnchanged": true
+    },
+    "verdict": "BUG_CONFIRMED",
+    "assertions": 50
+  },
+  "after": {
+    "origin": "http://127.0.0.1:5598",
+    "nativeDate": true,
+    "forcedScenes": false,
+    "externalBlocked": [],
+    "errors": [],
+    "onboardingDismissals": 11,
+    "wheelTarget": [
+      "Image",
+      "popInner",
+      "confirmModal"
+    ],
+    "wheel": {
+      "dy": 300,
+      "beforeOffset": 0,
+      "afterOffset": 0,
+      "delta": 0,
+      "confirmInnerUnchanged": true,
+      "saveUnchanged": true,
+      "writesUnchanged": true
+    },
+    "method": "AFTER: identical native mouse wheel under live confirmation, then native Cancel; touch is not claimed by this case",
+    "lockHandoff": {
+      "itemSheetLocked": true,
+      "confirmLocked": false,
+      "afterWheelLocked": false,
+      "cancelLocked": false,
+      "ordinaryWheelDelta": 240
+    },
+    "assertions": [
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target Позже exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Позже: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"unlockBanner\"]}",
+        "passed": true
+      },
+      {
+        "label": "ordinary unlock banners dismissed by native Later",
+        "passed": true
+      },
+      {
+        "label": "native target nav_Heroes exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit nav_Heroes: {\"expected\":true,\"top\":\"nav_Heroes\",\"lineage\":[\"nav_Heroes\"]}",
+        "passed": true
+      },
+      {
+        "label": "native target inventoryBtn exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit inventoryBtn: {\"expected\":true,\"top\":\"inventoryBtn\",\"lineage\":[\"inventoryBtn\"]}",
+        "passed": true
+      },
+      {
+        "label": "production Inventory uses adaptive Canvas",
+        "passed": true
+      },
+      {
+        "label": "native target invFreeOnly exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit invFreeOnly: {\"expected\":true,\"top\":\"invFreeOnly\",\"lineage\":[\"invFreeOnly\"]}",
+        "passed": true
+      },
+      {
+        "label": "lawful unprotected free item reached with native wheel",
+        "passed": true
+      },
+      {
+        "label": "native target invItem_it240 exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit invItem_it240: {\"expected\":true,\"top\":\"invItem_it240\",\"lineage\":[\"invItem_it240\",\"inventoryScroll\"]}",
+        "passed": true
+      },
+      {
+        "label": "item sheet locks original inventory area",
+        "passed": true
+      },
+      {
+        "label": "item has visible sell action",
+        "passed": true
+      },
+      {
+        "label": "native target itemSell exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit itemSell: {\"expected\":true,\"top\":\"itemSell\",\"lineage\":[\"itemSell\",\"Container\",\"Container\",\"itemSheet\"]}",
+        "passed": true
+      },
+      {
+        "label": "confirmation fully drawn",
+        "passed": true
+      },
+      {
+        "label": "item sheet opening did not write save",
+        "passed": true
+      },
+      {
+        "label": "probe point in both original list and real confirm inner",
+        "passed": true
+      },
+      {
+        "label": "actual top wheel input belongs to confirm, not list",
+        "passed": true
+      },
+      {
+        "label": "wheel keeps real confirmation and underlying list unchanged",
+        "passed": true
+      },
+      {
+        "label": "wheel kept save/write counters unchanged",
+        "passed": true
+      },
+      {
+        "label": "native target Отмена exists",
+        "passed": true
+      },
+      {
+        "label": "actual top hit Отмена: {\"expected\":true,\"top\":\"\",\"lineage\":[\"Container\",\"popInner\",\"confirmModal\"]}",
+        "passed": true
+      },
+      {
+        "label": "cancel removes confirmation without writing save",
+        "passed": true
+      },
+      {
+        "label": "normal list remains scrollable after cancel",
+        "passed": true
+      },
+      {
+        "label": "native Date and real postrender continue",
+        "passed": true
+      },
+      {
+        "label": "lawful fixture and frozen source unchanged",
+        "passed": true
+      },
+      {
+        "label": "no console errors",
+        "passed": true
+      }
+    ]
+  },
+  "afterSteps": [
+    {
+      "label": "campaign",
+      "scene": "Campaign",
+      "createCount": 0,
+      "writes": 0,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 15,
+      "nativeTime": 1791175383838,
+      "body": null,
+      "confirm": null,
+      "saveSha256": "55265cc661f261aa7d55d1e9516acb6dc618e5f00e49c0329b280523f7f8f9ba"
+    },
+    {
+      "label": "inventory-initial",
+      "scene": "Inventory",
+      "createCount": 1,
+      "writes": 11,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 518,
+      "nativeTime": 1791175394941,
+      "body": {
+        "name": "inventoryScroll",
+        "offset": 0,
+        "locked": false,
+        "clip": [
+          482,
+          1230
+        ],
+        "height": 8848,
+        "y": 482
+      },
+      "confirm": null,
+      "saveSha256": "5a46e5e3c31798d7b2efb8ac0b6d21e2f115d545e78fc2e5a33ed886c4308407"
+    },
+    {
+      "label": "inventory-before-item",
+      "scene": "Inventory",
+      "createCount": 2,
+      "writes": 11,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 569,
+      "nativeTime": 1791175395866,
+      "body": {
+        "name": "inventoryScroll",
+        "offset": 0,
+        "locked": false,
+        "clip": [
+          482,
+          1230
+        ],
+        "height": 1168,
+        "y": 482
+      },
+      "confirm": null,
+      "saveSha256": "5a46e5e3c31798d7b2efb8ac0b6d21e2f115d545e78fc2e5a33ed886c4308407"
+    },
+    {
+      "label": "item-sheet",
+      "scene": "Inventory",
+      "createCount": 2,
+      "writes": 11,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 611,
+      "nativeTime": 1791175396749,
+      "body": {
+        "name": "inventoryScroll",
+        "offset": 0,
+        "locked": true,
+        "clip": [
+          482,
+          1230
+        ],
+        "height": 1168,
+        "y": 482
+      },
+      "confirm": null,
+      "saveSha256": "5a46e5e3c31798d7b2efb8ac0b6d21e2f115d545e78fc2e5a33ed886c4308407"
+    },
+    {
+      "label": "confirm-before-wheel",
+      "scene": "Inventory",
+      "createCount": 2,
+      "writes": 11,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 693,
+      "nativeTime": 1791175398337,
+      "body": {
+        "name": "inventoryScroll",
+        "offset": 0,
+        "locked": false,
+        "clip": [
+          482,
+          1230
+        ],
+        "height": 1168,
+        "y": 482
+      },
+      "confirm": {
+        "name": "confirmModal",
+        "depth": 9000,
+        "closing": false,
+        "alpha": 1,
+        "bounds": {
+          "left": -240,
+          "right": 1320,
+          "top": -360,
+          "bottom": 2280
+        },
+        "inner": {
+          "x": 540,
+          "y": 705,
+          "scaleX": 1,
+          "scaleY": 1,
+          "alpha": 1,
+          "bounds": {
+            "left": 90,
+            "right": 990,
+            "top": 505,
+            "bottom": 905
+          }
+        }
+      },
+      "saveSha256": "5a46e5e3c31798d7b2efb8ac0b6d21e2f115d545e78fc2e5a33ed886c4308407"
+    },
+    {
+      "label": "confirm-after-wheel",
+      "scene": "Inventory",
+      "createCount": 2,
+      "writes": 11,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 742,
+      "nativeTime": 1791175399256,
+      "body": {
+        "name": "inventoryScroll",
+        "offset": 0,
+        "locked": false,
+        "clip": [
+          482,
+          1230
+        ],
+        "height": 1168,
+        "y": 482
+      },
+      "confirm": {
+        "name": "confirmModal",
+        "depth": 9000,
+        "closing": false,
+        "alpha": 1,
+        "bounds": {
+          "left": -240,
+          "right": 1320,
+          "top": -360,
+          "bottom": 2280
+        },
+        "inner": {
+          "x": 540,
+          "y": 705,
+          "scaleX": 1,
+          "scaleY": 1,
+          "alpha": 1,
+          "bounds": {
+            "left": 90,
+            "right": 990,
+            "top": 505,
+            "bottom": 905
+          }
+        }
+      },
+      "saveSha256": "5a46e5e3c31798d7b2efb8ac0b6d21e2f115d545e78fc2e5a33ed886c4308407"
+    },
+    {
+      "label": "cancelled",
+      "scene": "Inventory",
+      "createCount": 2,
+      "writes": 11,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 790,
+      "nativeTime": 1791175400116,
+      "body": {
+        "name": "inventoryScroll",
+        "offset": 0,
+        "locked": false,
+        "clip": [
+          482,
+          1230
+        ],
+        "height": 1168,
+        "y": 482
+      },
+      "confirm": null,
+      "saveSha256": "5a46e5e3c31798d7b2efb8ac0b6d21e2f115d545e78fc2e5a33ed886c4308407"
+    },
+    {
+      "label": "after-cancel-normal-wheel",
+      "scene": "Inventory",
+      "createCount": 2,
+      "writes": 11,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "frames": 841,
+      "nativeTime": 1791175400977,
+      "body": {
+        "name": "inventoryScroll",
+        "offset": 240,
+        "locked": false,
+        "clip": [
+          482,
+          1230
+        ],
+        "height": 1168,
+        "y": 242
+      },
+      "confirm": null,
+      "saveSha256": "5a46e5e3c31798d7b2efb8ac0b6d21e2f115d545e78fc2e5a33ed886c4308407"
+    }
+  ],
+  "sameInventorySaveAsBeforeCandidate": true,
+  "readonlyQueryReview": {
+    "source": {
+      "before": null,
+      "after": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d",
+      "source": "/tmp/night-ui-runtime/shared-modal-ready-snapshot/src/game/modalInput.ts"
+    },
+    "reviewed": [
+      "exact top root modal ancestry allows its own list",
+      "nested lower/background lists rejected",
+      "closing stays blocked until DESTROY despite name clear",
+      "captured drag canceled without resumption",
+      "explicit locked unchanged",
+      "destroyed content closures rejected",
+      "input listener cleanup retained"
+    ],
+    "testNameClearActuallyPresent": true,
+    "ownerTests": "8 files / 63 tests PASS (shared-modal-after2.log)",
+    "nativeOwnNestedModalClaims": false
+  },
+  "fullReports": {
+    "before": {
+      "path": "/tmp/night-modal-inventory-sell-before-360-canvas-final/report.json",
+      "sha256": "0f6523c67bdec4ad0ac91273080ff90aa60c8f15d3226ef629d07f1122c27f83",
+      "bytes": 405872
+    },
+    "after": {
+      "path": "/tmp/night-modal-inventory-sell-after-360-canvas-final/report.json",
+      "sha256": "8688cd6754a7394097118fd34c688956bb311dd33fae760ffbe956da2c1cd549",
+      "bytes": 406344
+    }
+  },
+  "harness": {
+    "path": "/tmp/chronoworld-modal-inventory-native-after-probe.mjs",
+    "sha256": "4c7cbc6ac4a8fe7cab270d384a00eee95ba8e5c45198cf4f5d8a27eb0cb591a6"
+  },
+  "claimsExcluded": [
+    "touch/swipe acceptance",
+    "native acceptance of source-only sweep candidates",
+    "device performance",
+    "real player save changes",
+    "external writes"
+  ]
+}

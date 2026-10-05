@@ -49,6 +49,8 @@ import { nextPlaybackSpeed, playback, setPlaybackSpeed, squads } from '../state'
 import { BarkLayer, BEHAVIOR_LABEL_DEPTH, BEHAVIOR_LABEL_SIZE, clampX, DEPTH, FloatLayer, RO_HIT, RO_RISE, ULT_FX_BOOST, UltPresenter } from '../battleFx';
 import { settleSpread, spreadUnits, type SpreadUnit } from '../battleSpread';
 import { battleSpriteHitArea, battleSpritePresentation, separateBattleSprites, type BattlePresentationBounds, type BattleSpritePresentation } from '../battlePresentation';
+import { battleScreenLayout, presentedBattleY } from '../battleScreenLayout';
+import { minimumTouchSize, onViewChange, view } from '../viewport';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { BehaviorFx } from '../battleBehaviorFx';
 import { button, ellipsize, panel, text, toast, tutorialHint, type ButtonView } from '../ui';
@@ -56,7 +58,7 @@ import { audioSettings, setAudioSettings } from '../audio';
 import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
-import { navShift, topBand, unitTint } from '../screen';
+import { unitTint } from '../screen';
 import { animatedFxKey, battleFxIds, castFxId, skillFx, type SkillFx as AtlasRoles } from '../animatedFx';
 import { holdAnimatedFx } from '../assets';
 import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
@@ -230,8 +232,6 @@ const BOSS_CHARGE_W = 320;
 const TOP_MARGIN = 40;
 const TOP_BTN_H = 96;
 const SPEED_W = 104;
-const AUTO_W = 132;
-const SKIP_W = 228;
 const TOP_GAP = 12;
 /** Низ подписей под ногами (полоска, значки перезарядки) от точки ног — медальоны героев ниже с зазором. */
 const UNDER_FEET = 66;
@@ -258,6 +258,8 @@ interface UnitView extends SpreadUnit, GaitState {
   node: Phaser.GameObjects.Container;
   sprite: Phaser.GameObjects.Sprite;
   presentation: BattleSpritePresentation;
+  baseLook: SpriteView;
+  requestedScale: number;
   /** Screen projection only: core pos and formation offX/offY stay unchanged. */
   displayX: number;
   displayY: number;
@@ -498,7 +500,7 @@ export class BattleScene extends Phaser.Scene {
   /** Герои, чью ульту игрок только что нажал: её удар — с затемнением и баннером, как ульта монстра. */
   private readonly tapped = new Set<string>();
   private modeBtn: ReturnType<typeof button> | null = null;
-  private ultHintNode: Phaser.GameObjects.GameObject | null = null;
+  private ultHintNode: Phaser.GameObjects.Text | null = null;
   /** Указатель «Скорость ×2» (обучение), пока висит. */
   private speedHint: Phaser.GameObjects.Container | null = null;
   /**
@@ -511,6 +513,9 @@ export class BattleScene extends Phaser.Scene {
   private panelShift = 0;
   private dy = 0;
   private presentationBounds: BattlePresentationBounds = { minX: TOP_MARGIN, maxX: GAME_W - TOP_MARGIN, minY: 400, maxY: PANEL_TOP - UNDER_FEET };
+  private compactLayout = false;
+  private actorFactor = 1;
+  private headerObjects: { node: Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform; dy: number }[] = [];
   private speedBtn: ButtonView | null = null;
   /** Полоска HP босса: засечки фаз (доля HP) и полоса заряда под ней. */
   private bossPips: { pct: number; pip: Phaser.GameObjects.Rectangle }[] = [];
@@ -750,16 +755,7 @@ export class BattleScene extends Phaser.Scene {
   private build(title: string): void {
     this.ready = true;
     // Раскладка по видимой области: полоса — к верху безопасной области, медальоны — к низу, поле — между ними.
-    this.hudY = HUD_Y - topBand();
-    this.bossBarY = this.hudY + BOSS_BAR_DY;
-    this.panelShift = navShift();
-    this.dy = Math.max(0, SPREAD_BOUNDS.maxY + UNDER_FEET - (PANEL_TOP + this.panelShift));
-    this.presentationBounds = {
-      minX: TOP_MARGIN,
-      maxX: GAME_W - TOP_MARGIN,
-      minY: Math.max(this.hudY + 130, this.bossBarY + 150),
-      maxY: PANEL_TOP + this.panelShift - UNDER_FEET,
-    };
+    this.applyBattleLayout();
     this.bossPips = [];
     this.bossCharge = null;
     // Фон по главе/ярусу (луг, топь, склеп) и частицы под юнитами (светлячки, туман, пыль).
@@ -782,6 +778,7 @@ export class BattleScene extends Phaser.Scene {
     this.sfx.setSpeed(playback.speed);
     // Реплики боссов — не выше полоски босса (и верхней полосы).
     this.barks = new BarkLayer(this, this.bossBarY + 40);
+    this.barks.reflow(this.bossBarY + 40, this.presentationBounds.maxY);
     this.barked.clear();
     this.behaviorFx = new BehaviorFx(this);
     this.tauntIds.clear();
@@ -832,6 +829,48 @@ export class BattleScene extends Phaser.Scene {
     };
     if (this.introLeft > 0) this.later.after(this.introLeft + BOSS_OUT_MS, startBark);
     else this.later.after(500, startBark);
+    // Reflow existing views only: never replay the log, rebuild the battle, or recommit its outcome.
+    this.headerObjects = this.children.list.filter((o): o is Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform =>
+      'y' in o && 'depth' in o && (o.depth === PANEL_DEPTH || o.depth === PANEL_DEPTH - 1 || o.name === 'huntDamage' || o.name === 'huntTier') && o.name !== 'heroPanelShade' && !o.name.startsWith('heroPanel_'))
+      .map(node => ({ node, dy: node.y - this.hudY }));
+    onViewChange(this, () => {
+      if (!this.ready) return;
+      this.applyBattleLayout();
+      for (const o of this.headerObjects) if (o.node.scene) o.node.setY(this.hudY + o.dy);
+      const controls = battleScreenLayout(view().uiHeight, view().safeTop, view().safeBottom, minimumTouchSize(), !!this.rerun).controls;
+      this.speedBtn?.container.setX(controls.speed);
+      this.modeBtn?.container.setX(controls.auto);
+      (this.children.getByName('battleSound') as Phaser.GameObjects.Container | null)?.setX(controls.sound);
+      (this.children.getByName('skipBtn') as Phaser.GameObjects.Container | null)?.setX(controls.skip);
+      this.heroPanel?.reflow(this.panelShift);
+      this.barks.reflow(this.bossBarY + 40, this.presentationBounds.maxY);
+      if (this.ultHintNode) {
+        const card = this.heroPanel?.cardAt(this.ultHintNode.getData('ultHero'));
+        if (card) { this.tweens.killTweensOf(this.ultHintNode); this.ultHintNode.setY(card.y - card.h / 2 - 34); }
+      }
+      (this.children.getByName('bossBanner') as Phaser.GameObjects.Container | null)?.setY(this.bossBannerY());
+      for (const v of this.viewList) this.resizeUnit(v);
+      // Corpses keep the same core foot position too; only their screen projection changes after an inset update.
+      for (const v of this.viewList) if (!v.active) v.displayY = presentedBattleY(v.pos.y + v.offY, this.presentationBounds, this.compactLayout, this.dy);
+      this.layoutUnits(0);
+      for (const v of this.viewList) gaitReset(v, v.node.x, v.node.y);
+    });
+  }
+
+  private applyBattleLayout(): void {
+    const v = view();
+    const l = battleScreenLayout(v.uiHeight, v.safeTop, v.safeBottom, minimumTouchSize(), !!this.rerun);
+    this.hudY = l.hudY;
+    this.bossBarY = l.bossBarY;
+    this.panelShift = l.panelShift;
+    this.presentationBounds = l.arena;
+    this.compactLayout = l.compact;
+    this.actorFactor = l.actorFactor;
+    this.dy = Math.max(0, SPREAD_BOUNDS.maxY + UNDER_FEET - (PANEL_TOP + this.panelShift));
+  }
+
+  private bossBannerY(): number {
+    return this.compactLayout ? (this.presentationBounds.minY + this.presentationBounds.maxY) / 2 : BOSS_BANNER_Y;
   }
 
   /**
@@ -847,15 +886,13 @@ export class BattleScene extends Phaser.Scene {
     this.timeText.setDepth(PANEL_DEPTH);
     // Таймер виден сразу, и во время баннера босса (T2-13).
     this.showTime(0);
-    const xSkip = GAME_W - TOP_MARGIN - SKIP_W / 2;
-    const xAuto = xSkip - SKIP_W / 2 - TOP_GAP - AUTO_W / 2;
-    const xSpeed = (this.rerun ? xAuto - AUTO_W / 2 : xSkip - SKIP_W / 2) - TOP_GAP - SPEED_W / 2;
-    const xSound = xSpeed - SPEED_W / 2 - TOP_GAP - TOP_BTN_H / 2;
+    const hud = battleScreenLayout(view().uiHeight, view().safeTop, view().safeBottom, minimumTouchSize(), !!this.rerun);
+    const { skip: xSkip, auto: xAuto, speed: xSpeed, sound: xSound } = hud.controls;
     const name = text(this, TOP_MARGIN, y + 26, title, T.caption, COLOR.textSecondary, { stroke: '#000000a0', strokeThickness: 3 }).setOrigin(0, 0.5).setDepth(PANEL_DEPTH);
-    ellipsize(name, xSound - TOP_BTN_H / 2 - TOP_GAP - TOP_MARGIN);
+    ellipsize(name, xSound - hud.widths.sound / 2 - TOP_GAP - TOP_MARGIN);
     if (DEBUG) text(this, TOP_MARGIN, y + 60, `seed ${this.result.seed}`, 22, '#e0cfb0').setOrigin(0, 0.5).setDepth(PANEL_DEPTH);
 
-    const speedBtn = button(this, xSpeed, y, SPEED_W, TOP_BTN_H, '', `${playback.speed}x`, () => {
+    const speedBtn = button(this, xSpeed, y, hud.widths.speed, hud.height, '', `${playback.speed}x`, () => {
       // Выбор скорости запоминается (localStorage) и действует в следующих боях.
       setPlaybackSpeed(nextPlaybackSpeed());
       if (playback.speed > 1) {
@@ -873,11 +910,11 @@ export class BattleScene extends Phaser.Scene {
     this.speedBtn = speedBtn;
     this.paintSpeed();
     speedBtn.container.setDepth(PANEL_DEPTH).setName('speedBtn');
-    const skip = button(this, xSkip, y, SKIP_W, TOP_BTN_H, '', 'Пропустить', () => this.skip(), T.body, { variant: 'ghost' });
+    const skip = button(this, xSkip, y, hud.widths.skip, hud.height, '', 'Пропустить', () => this.skip(), T.body, { variant: 'ghost' });
     skip.container.setDepth(PANEL_DEPTH).setName('skipBtn');
     // Ульты сами / касанием (docs/design/battle-decisions.md §1): «Авто» горит золотом, выключено — тусклое.
     if (this.rerun) {
-      this.modeBtn = button(this, xAuto, y, AUTO_W, TOP_BTN_H, '', 'Авто', () => this.toggleAuto(), T.caption, { variant: 'icon', repeat: true });
+      this.modeBtn = button(this, xAuto, y, hud.widths.auto, hud.height, '', 'Авто', () => this.toggleAuto(), T.caption, { variant: 'icon', repeat: true });
       this.modeBtn.container.setName('ultModeBtn').setDepth(PANEL_DEPTH);
       this.paintMode();
     }
@@ -924,7 +961,8 @@ export class BattleScene extends Phaser.Scene {
         icon.lineBetween(11, 11, 29, -11);
       }
     };
-    const btn = button(this, x, y, TOP_BTN_H, TOP_BTN_H, '', '', () => {
+    const size = Math.max(TOP_BTN_H, minimumTouchSize());
+    const btn = button(this, x, y, size, size, '', '', () => {
       setAudioSettings({ battleSfx: !audioSettings.battleSfx });
       draw();
     }, undefined, { repeat: true, variant: 'icon' });
@@ -1000,7 +1038,7 @@ export class BattleScene extends Phaser.Scene {
     const gap = sub.width / 2 + 30;
     const lines = [-1, 1].map((d) => this.add.rectangle(d * (gap + lineW / 2), 82, lineW, 4, SKIN_TINT.gold));
     const node = this.add
-      .container(GAME_W / 2, BOSS_BANNER_Y, [band, bg, inner, title, sub, ...lines])
+      .container(GAME_W / 2, this.bossBannerY(), [band, bg, inner, title, sub, ...lines])
       .setDepth(DEPTH.banner + 10)
       .setAlpha(0)
       .setScale(1.15)
@@ -1024,8 +1062,10 @@ export class BattleScene extends Phaser.Scene {
     // visual.scale — крупнее фигура (и выше подпись/полоски): босс на листе обычного монстра.
     const base = spriteView(this, spriteId);
     const requested = crispScale(base, def.visual.scale ?? 1);
+    const native = base.def ? base.def.scale * requested : requested;
+    const scaledNative = this.actorFactor < 1 ? Math.min(native, Math.max(0.5, Math.round(native * this.actorFactor * 2) / 2)) : native;
     const presentation = base.art && base.def
-      ? battleSpritePresentation(base.def, base.def.scale * requested, this.presentationBounds)
+      ? battleSpritePresentation(base.def, scaledNative, this.presentationBounds, this.compactLayout)
       : { scale: requested, animated: { left: -90 * requested, top: -base.height * requested, right: 90 * requested, bottom: 0 }, body: { left: -90 * requested, top: -base.height * requested, right: 90 * requested, bottom: 0 }, large: false };
     const k = base.art && base.def ? presentation.scale / base.def.scale : requested;
     const look = k === 1 ? base : { ...base, size: base.size * k, height: base.height * k };
@@ -1118,6 +1158,8 @@ export class BattleScene extends Phaser.Scene {
       node,
       sprite,
       presentation,
+      baseLook: base,
+      requestedScale: native,
       displayX: fieldX(snap.x),
       displayY: snap.y - this.dy,
       shadow,
@@ -1343,7 +1385,7 @@ export class BattleScene extends Phaser.Scene {
     this.speedHint?.destroy();
     this.speedHint = null;
     // Над медальоном (панель — у нижнего края), стрелкой вниз; один раз, пока игрок не коснётся.
-    const t = text(this, card.x, card.y - card.h / 2 - 34, '▼ Коснитесь', T.caption, COLOR.gold, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setDepth(PANEL_DEPTH + 1);
+    const t = text(this, card.x, card.y - card.h / 2 - 34, '▼ Коснитесь', T.caption, COLOR.gold, { fontStyle: 'bold', stroke: '#000000', strokeThickness: 6 }).setDepth(PANEL_DEPTH + 1).setData('ultHero', uid);
     if (t.x - t.width / 2 < TOP_MARGIN) t.setX(TOP_MARGIN + t.width / 2);
     if (t.x + t.width / 2 > GAME_W - TOP_MARGIN) t.setX(GAME_W - TOP_MARGIN - t.width / 2);
     decorTween(this, { targets: t, y: t.y - 10, duration: M.slow, yoyo: true, repeat: -1, ease: E.inOut });
@@ -1486,6 +1528,21 @@ export class BattleScene extends Phaser.Scene {
     v.hitRect.setTo(h.x, h.y, h.width, h.height);
   }
 
+  private resizeUnit(v: UnitView): void {
+    const base = v.baseLook;
+    if (!base.art || !base.def) return;
+    const native = this.actorFactor < 1 ? Math.min(v.requestedScale, Math.max(0.5, Math.round(v.requestedScale * this.actorFactor * 2) / 2)) : v.requestedScale;
+    v.presentation = battleSpritePresentation(base.def, native, this.presentationBounds, this.compactLayout);
+    const k = v.presentation.scale / base.def.scale;
+    v.look = { ...base, size: base.size * k, height: base.height * k };
+    v.sprite.setScale(v.presentation.scale);
+    const footW = base.def.width ? base.def.width * base.def.scale * k : v.look.height * 0.7;
+    const shW = Phaser.Math.Clamp(footW * 1.1, 120, 360);
+    v.shadow.setDisplaySize(shW, Math.min(56, shW * 0.3));
+    v.nameY = -v.look.height - 22;
+    this.bodyHitArea(v);
+  }
+
   private placeUnit(v: UnitView): void {
     v.node.setPosition(v.displayX, v.displayY);
     if (!v.shownDead && !v.spot) v.node.setDepth(v.node.y);
@@ -1494,7 +1551,7 @@ export class BattleScene extends Phaser.Scene {
   private projectUnits(): void {
     for (const v of this.viewList) if (v.active) {
       v.displayX = fieldX(v.pos.x + v.offX);
-      v.displayY = v.pos.y + v.offY - this.dy;
+      v.displayY = presentedBattleY(v.pos.y + v.offY, this.presentationBounds, this.compactLayout, this.dy);
     }
     separateBattleSprites(this.viewList, this.presentationBounds);
   }
@@ -1539,6 +1596,7 @@ export class BattleScene extends Phaser.Scene {
     this.ambient = null;
     this.bossBar = null;
     this.heroPanel = null;
+    this.headerObjects = [];
     // Сцена-синглтон живёт всю игру: ссылка на уничтоженный текст таймера держала бы его (и canvas) до следующего боя.
     this.timeText = undefined as unknown as Phaser.GameObjects.Text;
     this.endHitStop();

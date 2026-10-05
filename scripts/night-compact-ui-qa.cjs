@@ -74,6 +74,7 @@ async function openContext(browser, mode, fixture, choice) {
       return get.call(this, name, ...args);
     };
     window.__tgEvents = {};
+    window.__tgBackHandlers = [];
     window.Telegram = { WebApp: {
       platform: 'ios', version: '9.0', initData: '', isFullscreen: true,
       safeAreaInset: { top: choice ? 0 : 47, bottom: choice ? 0 : 34, left: 0, right: 0 },
@@ -81,7 +82,11 @@ async function openContext(browser, mode, fixture, choice) {
       ready() {}, expand() {},
       onEvent(name, fn) { (window.__tgEvents[name] ??= []).push(fn); },
       offEvent(name, fn) { window.__tgEvents[name] = (window.__tgEvents[name] ?? []).filter((f) => f !== fn); },
-      BackButton: { hide() {}, show() {}, onClick() {}, offClick() {} },
+      BackButton: {
+        hide() {}, show() {},
+        onClick(fn) { if (!window.__tgBackHandlers.includes(fn)) window.__tgBackHandlers.push(fn); },
+        offClick(fn) { window.__tgBackHandlers = window.__tgBackHandlers.filter((f) => f !== fn); },
+      },
     } };
     const set = Storage.prototype.setItem;
     window.__choiceWrites = [];
@@ -165,6 +170,10 @@ function controls(page, run, fixture) {
       const title = all.find((o) => o.name === 'screenTitle');
       return {
         scene: scene.scene.key, renderer: game.renderer.type, frames: window.__qaFrames, view: v,
+        insets: {
+          top: (window.Telegram.WebApp.safeAreaInset.top ?? 0) + (window.Telegram.WebApp.contentSafeAreaInset.top ?? 0),
+          bottom: (window.Telegram.WebApp.safeAreaInset.bottom ?? 0) + (window.Telegram.WebApp.contentSafeAreaInset.bottom ?? 0),
+        },
         invalidFrames: all.filter((o) => o.frame && !o.frame.source).map((o) => o.texture?.key),
         headerAboveBleed: !title || (bg?.getData('bleed') ?? []).every((o) => scene.children.getIndex(o) < scene.children.getIndex(title)),
         controls: all.filter((o) => o.name && o.input?.hitArea).map((o) => {
@@ -187,7 +196,7 @@ function controls(page, run, fixture) {
     if (fixture.supportsAdaptiveLayout(step.scene)) {
       assert(step.view.adaptive, `${label}: adaptive policy не выбрана до create`);
       const h = page.viewportSize().height;
-      assert(Math.abs(step.view.uiHeight - (h - 170) * 3) < 0.01, `${label}: интерфейс сжат по высоте`);
+      assert(Math.abs(step.view.uiHeight - Math.min(1920, (h - step.insets.top - step.insets.bottom) * 1080 / page.viewportSize().width)) < 0.01, `${label}: интерфейс сжат по высоте`);
       for (const control of step.controls.filter((o) => o.name.startsWith('nav_') || ['currencyBalanceTarget', 'pill_gold', 'pill_gems', 'fightCta', 'chestClaim', 'campaignChoice_block', 'campaignChoice_evacuate'].includes(o.name))) {
         assert(control.height >= 43.9, `${label}: ${control.name} меньше44CSSpx`);
       }
@@ -295,7 +304,9 @@ async function choiceFlow(browser, mode, fixture) {
   } finally { await context.close(); }
 }
 
-(async () => {
+module.exports = { fixtures, openContext, controls, report, out, modes, chromium };
+
+if (require.main === module) (async () => {
   const fixture = await fixtures();
   const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_EXECUTABLE_PATH ? { executablePath: process.env.CHROME_EXECUTABLE_PATH } : {}), args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   try {

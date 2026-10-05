@@ -1,0 +1,140 @@
+{
+  "scope": "Pinned Canvas native proof for font4 c0ec/d0dd, before the separately documented automatic Text hit-area fix; normal Date/RAF, no public-site claim.",
+  "sourceManifest": {
+    "createdAt": "2026-10-05T04:55:44.030113+00:00",
+    "status": "SOURCE6 READY/FROZEN; exact source4 unchanged, NEW portable harness/doc2 added",
+    "files": {
+      "src/game/viewport.ts": {
+        "before": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+        "after": "c0ec12f488de9d4f721358c87c7b8e3474a5765e1ed1dd6190b745d4191b7942",
+        "source": "/tmp/night-ui-runtime/font-touch-source-ready/src/game/viewport.ts"
+      },
+      "src/game/responsiveUi.ts": {
+        "before": null,
+        "after": "d0dd9bdbe6456e692d9dd2fdeaf0669847f48bdce687456b033f62533fe2f0af",
+        "source": "/tmp/night-ui-runtime/font-touch-source-ready/src/game/responsiveUi.ts"
+      },
+      "tests/responsive-ui.test.ts": {
+        "before": null,
+        "after": "11192366a30134fda2a84d8651df6c4ef032281c0cd3d0ac3e68c072d2248773",
+        "source": "/tmp/night-ui-runtime/font-touch-source-ready/tests/responsive-ui.test.ts"
+      },
+      "tests/responsive-viewport.test.ts": {
+        "before": null,
+        "after": "9342d3bc72f1d61551970cf9384e15cfb2459a14c384845cb114630dc13d6a5e",
+        "source": "/tmp/night-ui-runtime/font-touch-source-ready/tests/responsive-viewport.test.ts"
+      },
+      "scripts/night-viewport-metrics-ui-qa.cjs": {
+        "before": null,
+        "after": "e5408cfc6a6a3327fcee3e3edc344a20417f25004d9c17b49e6baa7273775000",
+        "source": "/tmp/night-ui-runtime/font-touch-source-ready/scripts/night-viewport-metrics-ui-qa.cjs"
+      },
+      "docs/qa/viewport-metrics-acceptance.md": {
+        "before": null,
+        "after": "5d1d875f1948657caac9bbce66022fa3578e1b5364344a08320e3ad45571f157",
+        "source": "/tmp/night-ui-runtime/font-touch-source-ready/docs/qa/viewport-metrics-acceptance.md"
+      }
+    },
+    "readonlyDependencies": {
+      "src/game/screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+      "src/game/ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+      "src/game/modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d",
+      "src/game/modalBack.ts": "4317689024c2af97d911974f3e9efc5535d9591e8fd36d83ab85f034e4101a56"
+    },
+    "checks": {
+      "focused": "6 suites27 PASS",
+      "typecheck": "PASS",
+      "before": "responsive-viewport integration fails under original viewportd41; caption10.667/targets39.111CSS",
+      "actualBefore": "/tmp/night-ui-runtime/foundation-before-360-320/report.json",
+      "actualAfter": {
+        "passed": true,
+        "mode": "Canvas360×640→320×640→360×640/TG136+34",
+        "normalClock": true,
+        "sourceBeforeUnchanged": true,
+        "report": "/tmp/night-ui-runtime/foundation-after-360-320/report.json",
+        "sha256": "29843868391e0e2981ce1a3ac4ab80a779fb35a313f5b3241065ff68c04b7e57",
+        "bundle": "index-B4bxcymc.js",
+        "bundleHash": "55c095c7c49d93735f61e616fe20dd7334d58e6d61579b60dcdf0ebd1389ca40",
+        "captionCSS": [
+          12,
+          12.148148148148147,
+          12
+        ],
+        "skipCSS": [
+          44,
+          44.148148148148145,
+          44
+        ],
+        "sameScene": true,
+        "creates": 0,
+        "save": "byte-exact",
+        "clipOffset": "returned exactly",
+        "heartbeat": [
+          491,
+          518,
+          545
+        ],
+        "motion": "no popInner tween when reduced",
+        "errors": 0,
+        "invalidFrames": 0,
+        "visuallyInspected": [
+          "font-touch-320.png",
+          "reduced-motion-settings.png"
+        ]
+      },
+      "rootFullCheck": "REQUIRED",
+      "build": "PASS,3.14s",
+      "syntax": "node --check portable harness PASS"
+    },
+    "contracts": [
+      "Latest requested font is distinct from a temporary adaptive floor; new and existing Text agree; updated text dimensions available before owner VIEW_CHANGED",
+      "Existing Rectangle resized around its requested center without replacing Input, callback, enabled state or display origin; new chrome receives the same floor",
+      "Manual Rectangle reflow/replacement and direct TextStyle font changes remain authoritative",
+      "Resize visits active scene trees only, no SceneRestart/data/time/reward actions; classic floor stays zero"
+    ],
+    "excluded": [
+      "Shared9 frozen source",
+      "Core/data and other owner scenes",
+      "Policy allowlist"
+    ],
+    "patch": {
+      "path": "/tmp/night-ui-runtime/font-touch-source-ready.patch",
+      "sha256": "56ab05fa7a210c1421f5a581dea0de750926a41d03632d342ba5eb0ed85c6161"
+    },
+    "addonsOnly": {
+      "path": "/tmp/night-ui-runtime/font-touch-harness-doc-ready.patch",
+      "sha256": "d377c4c066e2702d2d2dcb6ad9b7e03ae31ed9ecc1c409cf9f5fd8d6a6fa7718"
+    },
+    "additionalReview": "Auto Text Rectangle after Text.updateText width/height assignment is being reviewed separately; containers and actual caption/skip proof unaffected. No unproved changes added to frozen source4."
+  },
+  "files": [
+    {
+      "file": "before-report.json.gz",
+      "source": "/tmp/night-ui-runtime/foundation-before-360-320/report.json",
+      "originalSha256": "e3ded9796ca30d5da0268f5d97ec77620e393d79fb0325290f6112fb8a4aea53",
+      "originalBytes": 5290,
+      "sha256": "56d9215ad8b2cb75f6f6a66b88896bc1914a5b858b43f29a88209d79430b41f3",
+      "storedBytes": 1622
+    },
+    {
+      "file": "after-report.json.gz",
+      "source": "/tmp/night-ui-runtime/foundation-after-360-320/report.json",
+      "originalSha256": "29843868391e0e2981ce1a3ac4ab80a779fb35a313f5b3241065ff68c04b7e57",
+      "originalBytes": 4944,
+      "sha256": "d8d0c8b3533002d344c0e43c8eb761623c7ec7f51819159de61b666d9dde542c",
+      "storedBytes": 1448
+    },
+    {
+      "file": "font-touch-320.png",
+      "source": "/tmp/night-ui-runtime/foundation-after-360-320/font-touch-320.png",
+      "sha256": "eb97a0475a75b9a737d402729c6e3aec27705332397113abcb2a87d60ade71a2",
+      "storedBytes": 124322
+    },
+    {
+      "file": "reduced-motion-settings.png",
+      "source": "/tmp/night-ui-runtime/foundation-after-360-320/reduced-motion-settings.png",
+      "sha256": "a96d8fbe0bcd07ce03acac26e357f9950a294e1f6dd130f921cb1e7e11c5a716",
+      "storedBytes": 63324
+    }
+  ]
+}

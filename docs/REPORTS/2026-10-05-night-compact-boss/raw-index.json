@@ -1,0 +1,23 @@
+{
+  "scope": "Historical separate local compiled proofs; original passed=false attempts remain unchanged. These are not a new combined-root or public-deployment claim.",
+  "files": [
+    {
+      "file": "compiled-webgl.json.gz",
+      "source": "/tmp/night-compact-lord-390-webgl-final/report.json",
+      "originalBytes": 1914257,
+      "originalSha256": "fd398464e13da9e1cdbceb53536cf6b0a225201e6ba8ad922c6a16eae2b1c45e",
+      "storedBytes": 91921,
+      "sha256": "c0b799fc9cee0750807bf1ec2a003284fbc41899737f94a98d6f7cb0b8605d1d",
+      "compression": "gzip,mtime=0; original JSON preserved byte-for-byte"
+    },
+    {
+      "file": "compiled-canvas.json.gz",
+      "source": "/tmp/night-compact-lord-360-canvas-after/report.json",
+      "originalBytes": 1911289,
+      "originalSha256": "00d9089d6a71b35a4584ac0d161379fd3c4851ecd4bf512c3c3382eda5041f69",
+      "storedBytes": 94054,
+      "sha256": "445854bd4b36706466d27f400fb561e3f4274ad3785e59e4c7fe9c8bf0005e16",
+      "compression": "gzip,mtime=0; original JSON preserved byte-for-byte"
+    }
+  ]
+}

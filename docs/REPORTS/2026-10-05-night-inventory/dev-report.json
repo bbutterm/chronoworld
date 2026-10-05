@@ -1,0 +1,1033 @@
+{
+  "url": "http://127.0.0.1:5596",
+  "privateUI": true,
+  "devCompact": true,
+  "syntheticMvpStock": true,
+  "bundleHashes": {},
+  "sourceRequests": [
+    "/@vite/client",
+    "/src/main.ts",
+    "/src/game/scenes/BootScene.ts",
+    "/src/game/scenes/HomeScene.ts",
+    "/src/game/scenes/AdventureScene.ts",
+    "/src/game/scenes/AutobattlerScene.ts",
+    "/src/game/scenes/CampaignScene.ts",
+    "/src/game/scenes/StageScene.ts",
+    "/src/game/scenes/HeroesScene.ts",
+    "/src/game/scenes/HeroScene.ts",
+    "/src/game/scenes/AscendScene.ts",
+    "/src/game/scenes/HeroPickScene.ts",
+    "/src/game/scenes/PrepScene.ts",
+    "/src/game/scenes/BattleScene.ts",
+    "/src/game/scenes/ResultScene.ts",
+    "/src/game/scenes/QuestsScene.ts",
+    "/src/game/scenes/TowerScene.ts",
+    "/src/game/scenes/HuntScene.ts",
+    "/src/game/scenes/InventoryScene.ts",
+    "/src/game/scenes/SquadScene.ts",
+    "/src/game/scenes/ExpeditionsScene.ts",
+    "/src/game/scenes/AchievementsScene.ts",
+    "/src/game/scenes/TavernScene.ts",
+    "/src/game/scenes/EventsScene.ts",
+    "/src/game/scenes/MailScene.ts",
+    "/src/game/scenes/ShopScene.ts",
+    "/src/game/scenes/ChronicleScene.ts",
+    "/src/game/scenes/FriendsScene.ts",
+    "/src/game/online/online.ts",
+    "/src/game/assets.ts",
+    "/src/game/animatedFx.ts",
+    "/src/game/assetUrl.ts",
+    "/src/game/lifecycle.ts",
+    "/src/game/sprites.ts",
+    "/src/game/state.ts",
+    "/src/game/transitions.ts",
+    "/src/game/unlockBanner.ts",
+    "/src/game/viewport.ts",
+    "/src/game/theme.ts",
+    "/src/game/skin.ts",
+    "/src/game/content.ts",
+    "/src/game/flow.ts",
+    "/src/game/session.ts",
+    "/src/game/bootLook.ts",
+    "/src/game/layout.ts",
+    "/src/game/audio.ts",
+    "/src/game/sceneAudio.ts",
+    "/src/game/codesView.ts",
+    "/src/game/hints.ts",
+    "/src/game/screen.ts",
+    "/src/game/juice.ts",
+    "/src/game/ui.ts",
+    "/src/game/tutorial.ts",
+    "/src/game/decor.ts",
+    "/src/game/haptics.ts",
+    "/src/game/audioCore.ts",
+    "/src/game/tavernEntry.ts",
+    "/src/game/shopEntry.ts",
+    "/src/game/homeBuildings.ts",
+    "/src/game/homeEvents.ts",
+    "/src/game/loreView.ts",
+    "/src/game/online/entry.ts",
+    "/src/game/idleDiorama.ts",
+    "/src/game/idleDioramaPlan.ts",
+    "/src/core/index.ts",
+    "/src/game/portraitFrame.ts",
+    "/src/game/settingsLayout.ts",
+    "/src/game/featureTiles.ts",
+    "/src/game/autobattlerEntry.ts",
+    "/src/game/huntEntry.ts",
+    "/src/core/heroes/card.ts",
+    "/src/core/autobattler/index.ts",
+    "/src/game/autobattlerView.ts",
+    "/src/game/skillFacts.ts",
+    "/src/game/storyPage.ts",
+    "/src/game/dialogue.ts",
+    "/src/game/storyView.ts",
+    "/src/game/scenes/ChapterDoneScene.ts",
+    "/src/game/frame.ts",
+    "/src/game/runtimeUiLayout.ts",
+    "/src/game/backdrops.ts",
+    "/src/game/chestView.ts",
+    "/src/game/campaignView.ts",
+    "/src/game/rewardsView.ts",
+    "/src/game/heroCard.ts",
+    "/src/game/squadEditor.ts",
+    "/src/core/behavior.ts",
+    "/src/core/elements.ts",
+    "/src/game/battleElements.ts",
+    "/src/game/scoutView.ts",
+    "/src/game/tactics.ts",
+    "/src/game/squadChoice.ts",
+    "/src/game/squadChoiceView.ts",
+    "/src/game/stageLayout.ts",
+    "/src/game/tavern.ts",
+    "/src/game/heroesView.ts",
+    "/src/game/heroStoryView.ts",
+    "/src/game/branchPicker.ts",
+    "/src/game/heroSkillTiles.ts",
+    "/src/game/skillIcons.ts",
+    "/src/game/heroJourneyView.ts",
+    "/src/game/heroTrainingView.ts",
+    "/src/game/heroUpgradeCopyPicker.ts",
+    "/src/game/skillDetail.ts",
+    "/src/game/itemIcons.ts",
+    "/src/game/ultBadge.ts",
+    "/src/game/scenes/TavernEveningScene.ts",
+    "/src/game/describe.ts",
+    "/src/game/inboxOrder.ts",
+    "/src/game/inboxRows.ts",
+    "/src/game/battleFx.ts",
+    "/src/game/battleSpread.ts",
+    "/src/game/battlePresentation.ts",
+    "/src/game/battleGait.ts",
+    "/src/game/battleBehaviorFx.ts",
+    "/src/game/perf.ts",
+    "/src/game/skillFx.ts",
+    "/src/game/skillSigs.ts",
+    "/src/game/skillVisuals.ts",
+    "/src/game/skillLook.ts",
+    "/src/game/ambient.ts",
+    "/src/game/battleAudio.ts",
+    "/src/game/firstTips.ts",
+    "/src/game/huntBattle.ts",
+    "/src/game/battlePanel.ts",
+    "/src/game/battleMode.ts",
+    "/src/game/cardArt.ts",
+    "/src/game/inventoryScreenLayout.ts",
+    "/src/game/squadPresets.ts",
+    "/src/game/expeditionEventModal.ts",
+    "/src/game/expeditionRewards.ts",
+    "/src/game/audioCatalog.ts",
+    "/src/game/tavernArt.ts",
+    "/src/game/online/api.ts",
+    "/src/game/online/logic.ts",
+    "/src/game/storage.ts",
+    "/src/pipeline/bootAssets.ts",
+    "/src/game/packedTexture.ts",
+    "/src/pipeline/sheetPack.ts",
+    "/src/game/spriteCache.ts",
+    "/src/game/numberFont.ts",
+    "/src/pipeline/effects.ts",
+    "/src/game/telegram.ts",
+    "/src/game/portraitFile.ts",
+    "/src/pipeline/sprites.ts",
+    "/src/game/spriteRegistry.ts",
+    "/src/game/tipTexts.ts",
+    "/src/game/viewLayout.ts",
+    "/src/core/config.ts",
+    "/src/game/badgeSeen.ts",
+    "/src/game/audioSynth.ts",
+    "/src/game/navBadges.ts",
+    "/src/game/modalBack.ts",
+    "/src/game/hintLayout.ts",
+    "/src/game/scroll.ts",
+    "/src/game/illust.ts",
+    "/src/core/types.ts",
+    "/src/core/rng.ts",
+    "/src/core/format.ts",
+    "/src/core/formulas.ts",
+    "/src/core/targeting.ts",
+    "/src/core/battle.ts",
+    "/src/core/stats.ts",
+    "/src/core/content/schema.ts",
+    "/src/core/content/build.ts",
+    "/src/core/progression/schema.ts",
+    "/src/core/progression/types.ts",
+    "/src/core/progression/stats.ts",
+    "/src/core/heroes/index.ts",
+    "/src/core/campaign/schema.ts",
+    "/src/core/campaign/campaign.ts",
+    "/src/core/campaign/choices.ts",
+    "/src/core/story/choices.ts",
+    "/src/core/campaign/offline.ts",
+    "/src/core/save/schema.ts",
+    "/src/core/save/save.ts",
+    "/src/core/save/migrate-expeditions.ts",
+    "/src/core/save/campaign-gaps.ts",
+    "/src/core/features/index.ts",
+    "/src/core/equipment/index.ts",
+    "/src/core/tower/index.ts",
+    "/src/core/hunt/index.ts",
+    "/src/core/meta/index.ts",
+    "/src/core/events/index.ts",
+    "/src/core/context.ts",
+    "/src/core/story/index.ts",
+    "/src/core/unlocks/index.ts",
+    "/src/core/shop/index.ts",
+    "/src/core/codes/index.ts",
+    "/src/core/lore/index.ts",
+    "/src/core/tavern/index.ts",
+    "/src/core/autobattler/schema.ts",
+    "/src/core/autobattler/run.ts",
+    "/src/core/heroes/schema.ts",
+    "/src/core/heroes/training.ts",
+    "/src/core/heroes/errors.ts",
+    "/src/game/backdropsExtra.ts",
+    "/src/game/backdropsRoute.ts",
+    "/src/game/backgroundCache.ts",
+    "/src/game/prepLayout.ts",
+    "/src/game/itemArt.ts",
+    "/src/game/monsterSounds.ts",
+    "/src/game/online/mock.ts",
+    "/src/core/combatSchema.ts",
+    "/src/core/heroes/config.ts",
+    "/src/core/heroes/level.ts",
+    "/src/core/heroes/journey.ts",
+    "/src/core/heroes/upgradeCopy.ts",
+    "/src/core/heroes/roster.ts",
+    "/src/core/heroes/cardDrops.ts",
+    "/src/core/heroes/branch.ts",
+    "/src/core/heroes/contract.ts",
+    "/src/core/heroes/merge.ts",
+    "/src/core/heroes/summon.ts",
+    "/src/core/heroes/migrate.ts",
+    "/src/core/heroes/migrate-v7.ts",
+    "/src/core/heroes/validate.ts",
+    "/src/core/campaign/validate.ts",
+    "/src/core/progression/validate.ts",
+    "/src/core/equipment/equipment.ts",
+    "/src/core/equipment/refine.ts",
+    "/src/core/tavern/tavern.ts",
+    "/src/core/features/daily.ts",
+    "/src/core/story/story.ts",
+    "/src/core/equipment/chest.ts",
+    "/src/core/tower/runSchema.ts",
+    "/src/core/autobattler/recovery.ts",
+    "/src/core/unlocks/unlocks.ts",
+    "/src/core/equipment/errors.ts",
+    "/src/core/equipment/schema.ts",
+    "/src/core/equipment/load.ts",
+    "/src/core/equipment/drops.ts",
+    "/src/core/equipment/gates.ts",
+    "/src/core/equipment/lint.ts",
+    "/src/core/equipment/cards.ts",
+    "/src/core/equipment/salvage.ts",
+    "/src/core/features/errors.ts",
+    "/src/core/features/config.ts",
+    "/src/core/features/fastRewards.ts",
+    "/src/core/features/power.ts",
+    "/src/core/features/levels.ts",
+    "/src/core/features/quests.ts",
+    "/src/core/features/skip.ts",
+    "/src/core/features/actions.ts",
+    "/src/core/features/gear.ts",
+    "/src/core/tower/schema.ts",
+    "/src/core/tower/tower.ts",
+    "/src/core/tower/blessings.ts",
+    "/src/core/tower/run.ts",
+    "/src/core/hunt/schema.ts",
+    "/src/core/hunt/hunt.ts",
+    "/src/core/meta/errors.ts",
+    "/src/core/meta/config.ts",
+    "/src/core/meta/achievements.ts",
+    "/src/core/meta/formation.ts",
+    "/src/core/meta/expeditions.ts",
+    "/src/core/meta/expedition-events.ts",
+    "/src/core/meta/expedition-events-schema.ts",
+    "/src/core/events/schema.ts",
+    "/src/core/events/rewards.ts",
+    "/src/core/events/events.ts",
+    "/src/core/events/mail.ts",
+    "/src/core/story/schema.ts",
+    "/src/core/unlocks/schema.ts",
+    "/src/core/shop/schema.ts",
+    "/src/core/shop/shop.ts",
+    "/src/core/codes/schema.ts",
+    "/src/core/codes/codes.ts",
+    "/src/core/lore/schema.ts",
+    "/src/core/lore/lore.ts",
+    "/src/core/lore/chronicle.ts",
+    "/src/core/lore/pages.ts",
+    "/src/core/lore/heroStories.ts",
+    "/src/core/tavern/schema.ts",
+    "/@vite/client",
+    "/src/main.ts",
+    "/src/game/scenes/BootScene.ts",
+    "/src/game/scenes/HomeScene.ts",
+    "/src/game/scenes/AdventureScene.ts",
+    "/src/game/scenes/AutobattlerScene.ts",
+    "/src/game/scenes/CampaignScene.ts",
+    "/src/game/scenes/StageScene.ts",
+    "/src/game/scenes/HeroesScene.ts",
+    "/src/game/scenes/HeroScene.ts",
+    "/src/game/scenes/AscendScene.ts",
+    "/src/game/scenes/HeroPickScene.ts",
+    "/src/game/scenes/PrepScene.ts",
+    "/src/game/scenes/BattleScene.ts",
+    "/src/game/scenes/ResultScene.ts",
+    "/src/game/scenes/QuestsScene.ts",
+    "/src/game/scenes/TowerScene.ts",
+    "/src/game/scenes/HuntScene.ts",
+    "/src/game/scenes/InventoryScene.ts",
+    "/src/game/scenes/SquadScene.ts",
+    "/src/game/scenes/ExpeditionsScene.ts",
+    "/src/game/scenes/AchievementsScene.ts",
+    "/src/game/scenes/TavernScene.ts",
+    "/src/game/scenes/EventsScene.ts",
+    "/src/game/scenes/MailScene.ts",
+    "/src/game/scenes/ShopScene.ts",
+    "/src/game/scenes/ChronicleScene.ts",
+    "/src/game/scenes/FriendsScene.ts",
+    "/src/game/online/online.ts",
+    "/src/game/assets.ts",
+    "/src/game/animatedFx.ts",
+    "/src/game/assetUrl.ts",
+    "/src/game/lifecycle.ts",
+    "/src/game/sprites.ts",
+    "/src/game/state.ts",
+    "/src/game/transitions.ts",
+    "/src/game/unlockBanner.ts",
+    "/src/game/viewport.ts",
+    "/src/game/theme.ts",
+    "/src/game/skin.ts",
+    "/src/game/content.ts",
+    "/src/game/flow.ts",
+    "/src/game/session.ts",
+    "/src/game/bootLook.ts",
+    "/src/game/layout.ts",
+    "/src/game/audio.ts",
+    "/src/game/sceneAudio.ts",
+    "/src/game/codesView.ts",
+    "/src/game/hints.ts",
+    "/src/game/screen.ts",
+    "/src/game/juice.ts",
+    "/src/game/ui.ts",
+    "/src/game/tutorial.ts",
+    "/src/game/decor.ts",
+    "/src/game/haptics.ts",
+    "/src/game/audioCore.ts",
+    "/src/game/tavernEntry.ts",
+    "/src/game/shopEntry.ts",
+    "/src/game/homeBuildings.ts",
+    "/src/game/homeEvents.ts",
+    "/src/game/loreView.ts",
+    "/src/game/online/entry.ts",
+    "/src/game/idleDiorama.ts",
+    "/src/game/idleDioramaPlan.ts",
+    "/src/core/index.ts",
+    "/src/game/portraitFrame.ts",
+    "/src/game/settingsLayout.ts",
+    "/src/core/heroes/card.ts",
+    "/src/core/autobattler/index.ts",
+    "/src/game/autobattlerView.ts",
+    "/src/game/skillFacts.ts",
+    "/src/game/featureTiles.ts",
+    "/src/game/autobattlerEntry.ts",
+    "/src/game/huntEntry.ts",
+    "/src/game/storyPage.ts",
+    "/src/game/dialogue.ts",
+    "/src/game/storyView.ts",
+    "/src/game/scenes/ChapterDoneScene.ts",
+    "/src/game/frame.ts",
+    "/src/game/runtimeUiLayout.ts",
+    "/src/game/backdrops.ts",
+    "/src/game/chestView.ts",
+    "/src/game/campaignView.ts",
+    "/src/game/rewardsView.ts",
+    "/src/game/branchPicker.ts",
+    "/src/game/heroCard.ts",
+    "/src/game/tavern.ts",
+    "/src/game/heroesView.ts",
+    "/src/game/heroStoryView.ts",
+    "/src/game/squadEditor.ts",
+    "/src/core/behavior.ts",
+    "/src/core/elements.ts",
+    "/src/game/battleElements.ts",
+    "/src/game/scoutView.ts",
+    "/src/game/tactics.ts",
+    "/src/game/squadChoice.ts",
+    "/src/game/squadChoiceView.ts",
+    "/src/game/stageLayout.ts",
+    "/src/game/heroSkillTiles.ts",
+    "/src/game/skillIcons.ts",
+    "/src/game/heroJourneyView.ts",
+    "/src/game/heroTrainingView.ts",
+    "/src/game/heroUpgradeCopyPicker.ts",
+    "/src/game/skillDetail.ts",
+    "/src/game/itemIcons.ts",
+    "/src/game/ultBadge.ts",
+    "/src/game/scenes/TavernEveningScene.ts",
+    "/src/game/describe.ts",
+    "/src/game/cardArt.ts",
+    "/src/game/firstTips.ts",
+    "/src/game/battleFx.ts",
+    "/src/game/battleSpread.ts",
+    "/src/game/battlePresentation.ts",
+    "/src/game/battleGait.ts",
+    "/src/game/battleBehaviorFx.ts",
+    "/src/game/perf.ts",
+    "/src/game/skillFx.ts",
+    "/src/game/skillSigs.ts",
+    "/src/game/skillVisuals.ts",
+    "/src/game/skillLook.ts",
+    "/src/game/ambient.ts",
+    "/src/game/battleAudio.ts",
+    "/src/game/huntBattle.ts",
+    "/src/game/battlePanel.ts",
+    "/src/game/battleMode.ts",
+    "/src/game/inboxOrder.ts",
+    "/src/game/inboxRows.ts",
+    "/src/game/squadPresets.ts",
+    "/src/game/audioCatalog.ts",
+    "/src/game/tavernArt.ts",
+    "/src/game/inventoryScreenLayout.ts",
+    "/src/game/expeditionEventModal.ts",
+    "/src/game/expeditionRewards.ts",
+    "/src/game/online/api.ts",
+    "/src/game/online/logic.ts",
+    "/src/pipeline/bootAssets.ts",
+    "/src/game/packedTexture.ts",
+    "/src/pipeline/sheetPack.ts",
+    "/src/game/spriteCache.ts",
+    "/src/game/numberFont.ts",
+    "/src/game/telegram.ts",
+    "/src/pipeline/effects.ts",
+    "/src/game/storage.ts",
+    "/src/game/portraitFile.ts",
+    "/src/pipeline/sprites.ts",
+    "/src/game/spriteRegistry.ts",
+    "/src/game/tipTexts.ts",
+    "/src/game/viewLayout.ts",
+    "/src/core/config.ts",
+    "/src/game/badgeSeen.ts",
+    "/src/game/audioSynth.ts",
+    "/src/game/navBadges.ts",
+    "/src/game/modalBack.ts",
+    "/src/game/hintLayout.ts",
+    "/src/game/scroll.ts",
+    "/src/game/illust.ts",
+    "/src/core/types.ts",
+    "/src/core/rng.ts",
+    "/src/core/format.ts",
+    "/src/core/formulas.ts",
+    "/src/core/targeting.ts",
+    "/src/core/battle.ts",
+    "/src/core/stats.ts",
+    "/src/core/content/schema.ts",
+    "/src/core/content/build.ts",
+    "/src/core/progression/schema.ts",
+    "/src/core/progression/types.ts",
+    "/src/core/progression/stats.ts",
+    "/src/core/heroes/index.ts",
+    "/src/core/campaign/schema.ts",
+    "/src/core/campaign/campaign.ts",
+    "/src/core/campaign/choices.ts",
+    "/src/core/story/choices.ts",
+    "/src/core/campaign/offline.ts",
+    "/src/core/save/schema.ts",
+    "/src/core/save/save.ts",
+    "/src/core/save/migrate-expeditions.ts",
+    "/src/core/save/campaign-gaps.ts",
+    "/src/core/features/index.ts",
+    "/src/core/equipment/index.ts",
+    "/src/core/tower/index.ts",
+    "/src/core/hunt/index.ts",
+    "/src/core/meta/index.ts",
+    "/src/core/events/index.ts",
+    "/src/core/context.ts",
+    "/src/core/story/index.ts",
+    "/src/core/unlocks/index.ts",
+    "/src/core/shop/index.ts",
+    "/src/core/codes/index.ts",
+    "/src/core/lore/index.ts",
+    "/src/core/tavern/index.ts",
+    "/src/core/heroes/schema.ts",
+    "/src/core/heroes/training.ts",
+    "/src/core/heroes/errors.ts",
+    "/src/core/autobattler/schema.ts",
+    "/src/core/autobattler/run.ts",
+    "/src/game/backdropsExtra.ts",
+    "/src/game/backdropsRoute.ts",
+    "/src/game/backgroundCache.ts",
+    "/src/game/prepLayout.ts",
+    "/src/game/itemArt.ts",
+    "/src/game/monsterSounds.ts",
+    "/src/game/online/mock.ts",
+    "/src/core/combatSchema.ts",
+    "/src/core/campaign/validate.ts",
+    "/src/core/heroes/validate.ts",
+    "/src/core/progression/validate.ts",
+    "/src/core/heroes/config.ts",
+    "/src/core/heroes/level.ts",
+    "/src/core/heroes/journey.ts",
+    "/src/core/heroes/upgradeCopy.ts",
+    "/src/core/heroes/roster.ts",
+    "/src/core/heroes/cardDrops.ts",
+    "/src/core/heroes/branch.ts",
+    "/src/core/heroes/contract.ts",
+    "/src/core/heroes/merge.ts",
+    "/src/core/heroes/summon.ts",
+    "/src/core/heroes/migrate.ts",
+    "/src/core/heroes/migrate-v7.ts",
+    "/src/core/equipment/equipment.ts",
+    "/src/core/equipment/refine.ts",
+    "/src/core/tavern/tavern.ts",
+    "/src/core/features/daily.ts",
+    "/src/core/story/story.ts",
+    "/src/core/equipment/chest.ts",
+    "/src/core/tower/runSchema.ts",
+    "/src/core/features/errors.ts",
+    "/src/core/features/config.ts",
+    "/src/core/features/fastRewards.ts",
+    "/src/core/features/power.ts",
+    "/src/core/features/levels.ts",
+    "/src/core/features/quests.ts",
+    "/src/core/features/skip.ts",
+    "/src/core/features/actions.ts",
+    "/src/core/features/gear.ts",
+    "/src/core/equipment/errors.ts",
+    "/src/core/equipment/schema.ts",
+    "/src/core/equipment/load.ts",
+    "/src/core/equipment/drops.ts",
+    "/src/core/equipment/gates.ts",
+    "/src/core/equipment/lint.ts",
+    "/src/core/equipment/cards.ts",
+    "/src/core/equipment/salvage.ts",
+    "/src/core/tower/schema.ts",
+    "/src/core/tower/tower.ts",
+    "/src/core/tower/blessings.ts",
+    "/src/core/tower/run.ts",
+    "/src/core/autobattler/recovery.ts",
+    "/src/core/unlocks/unlocks.ts",
+    "/src/core/hunt/schema.ts",
+    "/src/core/hunt/hunt.ts",
+    "/src/core/meta/errors.ts",
+    "/src/core/meta/config.ts",
+    "/src/core/meta/achievements.ts",
+    "/src/core/meta/formation.ts",
+    "/src/core/meta/expeditions.ts",
+    "/src/core/meta/expedition-events.ts",
+    "/src/core/meta/expedition-events-schema.ts",
+    "/src/core/events/schema.ts",
+    "/src/core/events/rewards.ts",
+    "/src/core/events/events.ts",
+    "/src/core/events/mail.ts",
+    "/src/core/story/schema.ts",
+    "/src/core/unlocks/schema.ts",
+    "/src/core/shop/schema.ts",
+    "/src/core/shop/shop.ts",
+    "/src/core/lore/schema.ts",
+    "/src/core/lore/lore.ts",
+    "/src/core/lore/chronicle.ts",
+    "/src/core/lore/pages.ts",
+    "/src/core/lore/heroStories.ts",
+    "/src/core/codes/schema.ts",
+    "/src/core/codes/codes.ts",
+    "/src/core/tavern/schema.ts"
+  ],
+  "legalFixture": "tests/fixtures/boot-late-save.json",
+  "runs": [
+    {
+      "width": 360,
+      "height": 640,
+      "mode": "canvas",
+      "phases": [
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1230
+          ],
+          "expandedClip": [
+            482,
+            1590
+          ],
+          "afterClip": [
+            482,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "modalControls": [
+            {
+              "name": "itemLock",
+              "left": 48,
+              "right": 528,
+              "top": 1058,
+              "bottom": 1190,
+              "heightCss": 44
+            },
+            {
+              "name": "itemHero",
+              "left": 48,
+              "right": 528,
+              "top": 1214,
+              "bottom": 1346,
+              "heightCss": 44
+            },
+            {
+              "name": "itemRefine",
+              "left": 552,
+              "right": 1032,
+              "top": 1214,
+              "bottom": 1346,
+              "heightCss": 44
+            }
+          ],
+          "nonOverlapping": true
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1230
+          ],
+          "expandedClip": [
+            482,
+            1590
+          ],
+          "afterClip": [
+            482,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "itemLockRoundTrip": "it156",
+          "resourcesAndPartyExact": true
+        },
+        {
+          "tap": "invTabs",
+          "part": 1
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1230
+          ],
+          "expandedClip": [
+            718,
+            1590
+          ],
+          "afterClip": [
+            718,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1230
+          ],
+          "expandedClip": [
+            718,
+            1590
+          ],
+          "afterClip": [
+            718,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tableRows": [
+            "cardsRow_meilin",
+            "cardsRow_lira",
+            "cardsRow_vika",
+            "cardsRow_dorn",
+            "cardsRow_zara",
+            "cardsRow_iris",
+            "cardsRow_kai",
+            "cardsRow_alan",
+            "cardsRow_greta",
+            "cardsRow_teo",
+            "cardsRow_bran",
+            "cardsRow_otto"
+          ],
+          "tableClip": [
+            718,
+            1230
+          ],
+          "tableOffset": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1230
+          ],
+          "expandedClip": [
+            326,
+            1590
+          ],
+          "afterClip": [
+            326,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1230
+          ],
+          "expandedClip": [
+            326,
+            1590
+          ],
+          "afterClip": [
+            326,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "cardInserted": "card_mastering",
+          "targetId": "cardTarget_it58",
+          "exactlyOneConsumed": true,
+          "publicCoreFieldsExact": true
+        }
+      ],
+      "errors": [],
+      "passed": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "mode": "webgl1",
+      "phases": [
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            482,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            482,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "modalControls": [
+            {
+              "name": "itemLock",
+              "left": 48,
+              "right": 528,
+              "top": 1514.4615478515625,
+              "bottom": 1646.4615478515625,
+              "heightCss": 47.666666666666664
+            },
+            {
+              "name": "itemHero",
+              "left": 48,
+              "right": 528,
+              "top": 1670.4615478515625,
+              "bottom": 1802.4615478515625,
+              "heightCss": 47.666666666666664
+            },
+            {
+              "name": "itemRefine",
+              "left": 552,
+              "right": 1032,
+              "top": 1670.4615478515625,
+              "bottom": 1802.4615478515625,
+              "heightCss": 47.666666666666664
+            }
+          ],
+          "nonOverlapping": true
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            482,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            482,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "itemLockRoundTrip": "it156",
+          "resourcesAndPartyExact": true
+        },
+        {
+          "tap": "invTabs",
+          "part": 1
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            718,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            718,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            718,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            718,
+            1686.4615384615386
+          ],
+          "beforeOffset": 769.5384615384614,
+          "afterOffset": 576.6153846153848,
+          "expected": 576.6153846153848
+        },
+        {
+          "tableRows": [
+            "cardsRow_meilin",
+            "cardsRow_lira",
+            "cardsRow_vika",
+            "cardsRow_dorn",
+            "cardsRow_zara",
+            "cardsRow_iris",
+            "cardsRow_kai",
+            "cardsRow_alan",
+            "cardsRow_greta",
+            "cardsRow_teo",
+            "cardsRow_bran",
+            "cardsRow_otto"
+          ],
+          "tableClip": [
+            718,
+            1686.4615384615386
+          ],
+          "tableOffset": 576.6153846153848
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            326,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            326,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            326,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            326,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "cardInserted": "card_mastering",
+          "targetId": "cardTarget_it58",
+          "exactlyOneConsumed": true,
+          "publicCoreFieldsExact": true
+        }
+      ],
+      "errors": [],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "fixtureSha256": "38cad65dbc3ebdfa72800ed742921caec379b7454ff457e28bfcaccbf53a357a",
+  "sourceHashes": {
+    "src/game/scenes/InventoryScene.ts": "6ea6685075b0d43f6bd035a93911334c08243d20c7ec8b4030363731c95017bf",
+    "src/game/inventoryScreenLayout.ts": "fb1bcee13f9f4efbcae3ccd27966e5ab66233166ab1b0812cdf690729611e5c0",
+    "src/game/screen.ts": "ce8df5071c956e83d8059558efd90b5e500d1589c55b740b054d1002b5159094",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0",
+    "src/game/viewLayout.ts": "c6a48efbd7fc92ef3732df3692e4c7ab874b9690635be4a6ecb4117c24ceb989"
+  }
+}

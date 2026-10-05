@@ -5,14 +5,17 @@ import { envelopeIcon, touchToday } from '../homeEvents';
 import { collect, queueRewardFly, staggerIn, type Point } from '../juice';
 import { GAME_W } from '../layout';
 import { rewardToast } from '../rewardsView';
-import { bottomSheet, confirm, CONTENT_TOP, cta, screen } from '../screen';
+import { bottomSheet, confirm, contentBottom, CONTENT_TOP, cta, refreshScreen, screen } from '../screen';
 import { commit, session } from '../session';
 import { framedPortrait } from '../portraitFrame';
 import { speakerView } from '../storyView';
 import { C, COLOR, COLOR_N, leading, S, T } from '../theme';
-import { button, emptyState, rewardRow, ScrollArea, text, toast } from '../ui';
+import { button, emptyState, rewardRow, ScrollArea, text, toast, shieldTaps, type ButtonView } from '../ui';
 import { groupRows, letterState, type RowState } from '../inboxOrder';
-import { bundleChips, claimAllButton, claimAllY, inboxRow, listBottom, playClaimFx, queueClaimFx, ROW_STEP } from '../inboxRows';
+import { bundleChips, claimAllButton, claimAllY, playClaimFx, queueClaimFx } from '../inboxRows';
+
+import { utilityInboxRow as inboxRow, utilityListLayout, utilityRowHeight } from '../utilityScreenLayout';
+import { onViewChange } from '../viewport';
 
 export interface MailData {
   /** Открыть письмо сразу (id). */
@@ -40,6 +43,7 @@ const AVATAR = 96;
  */
 export class MailScene extends Phaser.Scene {
   private area!: ScrollArea;
+  private claimAllControl?: ButtonView;
   /** Отправитель → ключ сюжетного спикера (портрет). */
   private speakers = new Map<string, { story: StoryDef | undefined; key: string } | null>();
 
@@ -50,35 +54,50 @@ export class MailScene extends Phaser.Scene {
   create(data: MailData = {}): void {
     touchToday();
     screen(this, 'Почта', 'Home', { to: 'Home' });
-    const st = mailStatus(session.save);
-    if (st.claimable) claimAllButton(this, () => this.claimAll(), 'mailClaimAll');
+    this.claimAllControl = undefined;
+    this.area = new ScrollArea(this, CONTENT_TOP + S.xs, contentBottom());
+    this.area.content.setName('mailScroll');
+    this.drawList(data.scroll ?? 0);
+    onViewChange(this, () => this.layoutList());
 
-    this.area = new ScrollArea(this, CONTENT_TOP + S.xs, listBottom(st.claimable > 0));
+    const open = data.open && mailStatus(session.save).letters.find((l) => l.id === data.open);
+    if (open) this.openLetter(open);
+  }
+
+  private layoutList(): void {
+    const l = utilityListLayout(CONTENT_TOP + S.xs, contentBottom(), !!this.claimAllControl);
+    this.area.setBounds(l.top, l.bottom);
+    this.claimAllControl?.container.setY(l.claimY);
+  }
+
+  private drawList(scroll = this.area.offset): void {
+    this.area.clear();
+    this.claimAllControl?.container.destroy();
+    this.claimAllControl = undefined;
+    const st = mailStatus(session.save);
+    if (st.claimable) this.claimAllControl = claimAllButton(this, () => this.claimAll(), 'mailClaimAll');
+    this.layoutList();
     if (!st.letters.length) this.area.add(emptyState(this, GAME_W / 2, 200, 'Писем нет'));
     const g = groupRows(st.letters, (l) => letterState(l, letterClaimable(l)));
     const rows: Phaser.GameObjects.GameObject[][] = [];
     let y = 0;
     const list = [...g.ready.map((l) => [l, 'ready'] as const), ...g.active.map((l) => [l, 'active'] as const), ...g.done.map((l) => [l, 'done'] as const)];
     for (const [l, state] of list) {
-      const cy = y + (ROW_STEP - S.xs) / 2;
-      rows.push(collect(this.area.content, () => this.area.add(this.row(l, state, cy))));
-      y += ROW_STEP;
+      const h = utilityRowHeight({ text: '' });
+      rows.push(collect(this.area.content, () => this.area.add(this.row(l, state, y + h / 2))));
+      y += h + S.xs;
     }
-    // Прочитанные без вложений — удалить разом (тёмная кнопка с красной подписью в конце списка).
     const removable = st.letters.filter((l) => l.read && !letterClaimable(l)).length;
     if (removable) {
-      const del = button(this, GAME_W / 2, y + 60, 520, 96, '', 'Удалить прочитанные', this.area.tap(() => this.deleteRead(removable)), T.body, { variant: 'danger' });
+      const del = button(this, GAME_W / 2, y + 66, 600, 132, '', 'Удалить прочитанные', this.area.tap(() => this.deleteRead(removable)), T.body, { variant: 'danger' });
       del.container.setName('mailDelete');
       this.area.add(del.container);
-      y += 120 + S.xs;
+      y += 132 + 2 * S.xs;
     }
     this.area.setContentHeight(y);
-    if (data.scroll) this.area.offset = data.scroll;
+    this.area.offset = scroll;
     staggerIn(this, 'Mail', rows);
     playClaimFx(this);
-
-    const open = data.open && st.letters.find((l) => l.id === data.open);
-    if (open) this.openLetter(open);
   }
 
   /** Портрет отправителя, если это персонаж сюжета (Гаррет); иначе конверт. */
@@ -126,7 +145,10 @@ export class MailScene extends Phaser.Scene {
   /** Письмо в листе снизу: от кого, текст, вложение и «Забрать». Открытие отмечает прочитанным. */
   private openLetter(l: Letter): void {
     const fresh = !l.read;
-    if (fresh) commit(readMail(session.save, l.id));
+    if (fresh) {
+      commit(readMail(session.save, l.id));
+      refreshScreen(this);
+    }
     const claimable = letterClaimable(l);
     let claiming = false;
     bottomSheet(
@@ -158,12 +180,14 @@ export class MailScene extends Phaser.Scene {
         }
         return y;
       },
-      // Прочитанное письмо уходит вниз списка — перестроить (кроме «Забрать»: тот перезапускает экран сам).
-      { onClose: () => !claiming && fresh && this.scene.restart({ scroll: this.area.offset } satisfies MailData) },
+      // Прочитанное письмо уходит вниз списка; получение вложения само обновляет строки.
+      { onClose: () => !claiming && fresh && this.drawList() },
     );
   }
 
   private claim(l: Letter, at: Point): void {
+    const current = mailStatus(session.save).letters.find((x) => x.id === l.id);
+    if (!current || !letterClaimable(current)) return;
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = claimMail(session.save, l.id, GAME);
@@ -188,7 +212,8 @@ export class MailScene extends Phaser.Scene {
   private deleteRead(n: number): void {
     confirm(this, `Удалить прочитанные письма (${n})? Письма с вложением останутся.`, 'Удалить', () => {
       commit(deleteReadMail(session.save).save);
-      this.scene.restart();
+      refreshScreen(this);
+      this.drawList();
     }, { danger: true });
   }
 
@@ -198,13 +223,15 @@ export class MailScene extends Phaser.Scene {
    */
   private after(events: readonly { type: string; name?: string }[], message: string, at: Point, chips: ReturnType<typeof bundleChips>): void {
     if (events.some((e) => e.type === 'heroPick')) {
-      this.scene.start('HeroPick', { back: { to: 'Mail' } });
+      this.scene.start('HeroPick', { back: { to: 'Mail', data: { scroll: this.area.offset } } });
       const sc = this.scene.get('HeroPick');
       sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, message, C.success, 4000));
       return;
     }
     const cards = message.split('\n').filter((s) => s.startsWith('Карта героя'));
     queueClaimFx('Mail', at, chips, cards);
-    this.scene.restart({ scroll: this.area.offset } satisfies MailData);
+    shieldTaps(this.sys?.game);
+    refreshScreen(this);
+    this.drawList();
   }
 }

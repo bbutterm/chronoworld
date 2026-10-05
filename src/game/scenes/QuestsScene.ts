@@ -3,10 +3,10 @@ import { actClaimActivity, actClaimAllQuests, actClaimQuest, questStatus, type A
 import { GAME } from '../content';
 import { describeEvents, questDestination, untilReset } from '../flow';
 import { GAME_W } from '../layout';
-import { CONTENT_TOP, screen } from '../screen';
+import { contentBottom, CONTENT_TOP, refreshScreen, screen } from '../screen';
 import { bump, collect, countUp, decorTween, juiceOn, pulse, queueRewardFly, staggerIn, type Point } from '../juice';
-import { commit, now, restartOnNewDay, session, today } from '../session';
-import { chip, emptyState, groupNum, plate, pressable, progressBar, rewardRow, ScrollArea, SURFACE, text, toast, type ChipSpec } from '../ui';
+import { commit, now, session, today } from '../session';
+import { chip, emptyState, groupNum, plate, pressable, progressBar, rewardRow, ScrollArea, shieldTaps, SURFACE, text, toast, type ButtonView, type ChipSpec } from '../ui';
 import { markHint } from '../hints';
 import { skinIcon, type SkinIcon } from '../skin';
 import { roIconImage } from '../itemIcons';
@@ -17,18 +17,17 @@ import {
   chevron,
   claimAllButton,
   claimButton,
-  FOLD_H,
   foldRow,
   glyph,
   glyphColor,
-  inboxRow,
-  listBottom,
   metaChips,
   playClaimFx,
   queueClaimFx,
-  ROW_STEP,
   ROW_W,
 } from '../inboxRows';
+
+import { utilityInboxRow as inboxRow, utilityListLayout, utilityRowHeight } from '../utilityScreenLayout';
+import { onViewChange } from '../viewport';
 
 export interface QuestsData {
   scroll?: number;
@@ -63,6 +62,9 @@ export class QuestsScene extends Phaser.Scene {
   private area!: ScrollArea;
   private open = false;
   private tip: Phaser.GameObjects.Container | null = null;
+  private claimAllControl?: ButtonView;
+  private trackParts: Phaser.GameObjects.GameObject[] = [];
+  private trackTimer?: Phaser.GameObjects.Container;
 
   constructor() {
     super('Quests');
@@ -73,36 +75,72 @@ export class QuestsScene extends Phaser.Scene {
     screen(this, 'Задания дня', 'Home', { to: 'Home' });
     // Обучение (hints.ts): последний шаг цепочки главы 1 — задания открыты и найдены.
     markHint('quests_open');
-    restartOnNewDay(this);
+    this.claimAllControl = undefined;
+    this.trackParts = [];
+    this.trackTimer = undefined;
+    this.area = new ScrollArea(this, CONTENT_TOP + S.xs + TRACK.h + S.s, contentBottom());
+    this.area.content.setName('questsScroll');
+    this.open = data.open ?? false;
+    this.drawList(data.scroll ?? 0, data.open === undefined);
+    onViewChange(this, () => this.layoutList());
+    let day = today();
+    this.time.addEvent({ delay: 5000, loop: true, callback: () => {
+      if (today() === day) return;
+      day = today();
+      refreshScreen(this);
+      this.drawList();
+    } });
+    this.time.addEvent({ delay: 30_000, loop: true, callback: () => this.drawTrackTimer() });
+  }
+
+  private layoutList(): void {
+    const l = utilityListLayout(CONTENT_TOP + S.xs + TRACK.h + S.s, contentBottom(), !!this.claimAllControl);
+    this.area.setBounds(l.top, l.bottom);
+    this.claimAllControl?.container.setY(l.claimY);
+  }
+
+  private drawList(scroll = this.area.offset, defaultFold = false): void {
+    this.tip?.destroy();
+    this.tip = null;
+    this.area.clear();
+    this.claimAllControl?.container.destroy();
+    this.claimAllControl = undefined;
+    this.trackTimer?.destroy();
+    for (const o of this.trackParts) if (o.scene) o.destroy();
     const st = questStatus(session.save, GAME, today());
-
-    const top = CONTENT_TOP + S.xs;
-    this.track(st.activity, st.maxActivity, st.milestones, top);
-
+    this.trackParts = collect(this.children, () => this.track(st.activity, st.maxActivity, st.milestones, CONTENT_TOP + S.xs));
     const ready = st.quests.filter((q) => q.done && !q.claimed).length + st.milestones.filter((m) => m.reached && !m.claimed).length;
-    if (ready) claimAllButton(this, () => this.claimAll(), 'questsClaimAll');
-
-    this.area = new ScrollArea(this, top + TRACK.h + S.s, listBottom(ready > 0));
+    if (ready) this.claimAllControl = claimAllButton(this, () => this.claimAll(), 'questsClaimAll');
+    this.layoutList();
     if (!st.quests.length) this.area.add(emptyState(this, GAME_W / 2, 160, 'На сегодня заданий нет'));
     const g = groupRows(st.quests, claimState, (q) => q.progress / q.target);
-    // Всё уже получено — список не прячем за свёрткой.
-    this.open = data.open ?? (!g.ready.length && !g.active.length);
+    if (defaultFold) this.open = !g.ready.length && !g.active.length;
     const rows: Phaser.GameObjects.GameObject[][] = [];
     let y = 0;
     const put = (h: number, build: (cy: number) => void) => {
-      const cy = y + h / 2;
-      rows.push(collect(this.area.content, () => build(cy)));
+      rows.push(collect(this.area.content, () => build(y + h / 2)));
       y += h + S.xs;
     };
-    for (const q of [...g.ready, ...g.active]) put(ROW_STEP - S.xs, (cy) => this.area.add(this.questRow(q, cy)));
+    for (const q of [...g.ready, ...g.active]) put(this.rowHeight(q), (cy) => this.area.add(this.questRow(q, cy)));
     if (g.done.length) {
-      put(FOLD_H, (cy) => this.area.add(foldRow(this, GAME_W / 2, cy, 'Выполнено', g.done.length, this.open, this.area.tap(() => this.restartKeep({ open: !this.open })))));
-      if (this.open) for (const q of g.done) put(FOLD_H, (cy) => this.area.add(this.questRow(q, cy)));
+      put(utilityRowHeight(), (cy) => this.area.add(foldRow(this, GAME_W / 2, cy, 'Выполнено', g.done.length, this.open, this.area.tap(() => this.refreshKeep({ open: !this.open }))).setSize(ROW_W, utilityRowHeight())));
+      if (this.open) for (const q of g.done) put(utilityRowHeight(), (cy) => this.area.add(this.questRow(q, cy)));
     }
     this.area.setContentHeight(y);
-    if (data.scroll) this.area.offset = data.scroll;
+    this.area.offset = scroll;
     staggerIn(this, 'Quests', rows);
     playClaimFx(this);
+  }
+
+  private rowHeight(q: QuestView): number {
+    const state = claimState(q);
+    return utilityRowHeight(state === 'done' ? undefined : state === 'ready' ? { chips: [] } : { progress: q.progress, target: q.target, key: '', chips: [{ icon: glyph('star', COLOR.accent), value: q.points }] });
+  }
+
+  private drawTrackTimer(): void {
+    this.trackTimer?.destroy();
+    const mx = S.l + S.m + TRACK.medal / 2;
+    this.trackTimer = chip(this, mx, CONTENT_TOP + S.xs + TRACK.h - 44, 'hourglass', untilReset(new Date(now())), 'neutral', { size: 's', bg: false });
   }
 
   /** Карточка активности: медальон с очками и таймером сброса, дорожка с сундуками-порогами. */
@@ -124,13 +162,7 @@ export class QuestsScene extends Phaser.Scene {
     }
     pointsBefore = null;
     // Сброс заданий: песочные часы и время — под медальоном.
-    let timer: Phaser.GameObjects.Container | null = null;
-    const tick = () => {
-      timer?.destroy();
-      timer = chip(this, mx, top + TRACK.h - 44, 'hourglass', untilReset(new Date(now())), 'neutral', { size: 's', bg: false });
-    };
-    tick();
-    this.time.addEvent({ delay: 30_000, loop: true, callback: tick });
+    this.drawTrackTimer();
 
     const ty = my;
     progressBar(this, TRACK.x0, ty, TRACK.x1 - TRACK.x0, 24, max ? activity / max : 0, COLOR_N.accent, { key: 'quests:activity' });
@@ -201,19 +233,24 @@ export class QuestsScene extends Phaser.Scene {
         onTap: this.area.tap(() => this.scene.start(questDestination(q.event))),
       }).setName(`quest_${q.id}`);
     }
-    return inboxRow(this, GAME_W / 2, cy, { state, icon: glyph(QUEST_ICON[q.event], glyphColor(state)), title: q.name, trailing: checkMark(this), h: FOLD_H }).setName(`quest_${q.id}`);
+    return inboxRow(this, GAME_W / 2, cy, { state, icon: glyph(QUEST_ICON[q.event], glyphColor(state)), title: q.name, trailing: checkMark(this), h: utilityRowHeight() }).setName(`quest_${q.id}`);
   }
 
-  private restartKeep(d: QuestsData = {}): void {
-    this.scene.restart({ scroll: this.area.offset, open: this.open, ...d } satisfies QuestsData);
+  private refreshKeep(d: QuestsData = {}): void {
+    this.open = d.open ?? this.open;
+    shieldTaps(this.sys?.game);
+    refreshScreen(this);
+    this.drawList(d.scroll ?? this.area.offset);
   }
 
   private claim(q: QuestView): void {
+    const current = questStatus(session.save, GAME, today()).quests.find((x) => x.id === q.id);
+    if (!current?.done || current.claimed) return;
     try {
       pointsBefore = questStatus(session.save, GAME, today()).activity;
       const r = actClaimQuest(session.save, today(), q.id, GAME);
       commit(r.save);
-      this.restartKeep();
+      this.refreshKeep();
     } catch (e) {
       pointsBefore = null;
       toast(this, e instanceof Error ? e.message : String(e), C.error);
@@ -221,13 +258,15 @@ export class QuestsScene extends Phaser.Scene {
   }
 
   private claimMilestone(m: MilestoneView, at: Point): void {
+    const current = questStatus(session.save, GAME, today()).milestones.find((x) => x.points === m.points);
+    if (!current?.reached || current.claimed) return;
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = actClaimActivity(session.save, today(), m.points, GAME);
       commit(r.save);
       queueRewardFly('Quests', at, before, { burst: true });
       queueClaimFx('Quests', at, metaChips(r.rewards), this.eventLines(r.events));
-      this.restartKeep();
+      this.refreshKeep();
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
@@ -239,13 +278,14 @@ export class QuestsScene extends Phaser.Scene {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       pointsBefore = questStatus(session.save, GAME, today()).activity;
       const r = actClaimAllQuests(session.save, today(), GAME);
+      if (!r.quests.length && !r.milestones.length) return;
       commit(r.save);
       const at = { x: GAME_W / 2, y: CONTENT_TOP + S.xs + TRACK.h / 2 };
       if (r.milestones.length) {
         queueRewardFly('Quests', at, before, { burst: true });
         queueClaimFx('Quests', at, metaChips(r.rewards), this.eventLines(r.events));
       }
-      this.restartKeep();
+      this.refreshKeep();
     } catch (e) {
       pointsBefore = null;
       toast(this, e instanceof Error ? e.message : String(e), C.error);

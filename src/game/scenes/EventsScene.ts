@@ -25,8 +25,9 @@ import { rewardIcon, rewardItems, rewardText, rewardToast, type RewardItem } fro
 import { CONTENT_TOP, contentBottom, dot, screen } from '../screen';
 import { commit, restartOnNewDay, session, today } from '../session';
 import { skinIcon, type SkinIcon } from '../skin';
-import { C, COLOR, COLOR_N, FAMILY, R, S, T } from '../theme';
-import { chip, listRow, mixHex, plate, pressable, progressBar, ScrollArea, segmented, SURFACE, tag, text, toast, type ChipSpec, type Tone } from '../ui';
+import { C, COLOR, COLOR_N, FAMILY, R, S, T, TOUCH_COMFORT } from '../theme';
+import { chip, listRow, mixHex, plate, pressable, progressBar, ScrollArea, segmented, shieldTaps, SURFACE, tag, text, toast, type ChipSpec, type Tone } from '../ui';
+import { onViewChange } from '../viewport';
 
 export type EventsTab = 'login' | 'newbie';
 
@@ -34,6 +35,8 @@ export interface EventsData {
   tab?: EventsTab;
   /** «7 дней новичка»: выбранный день (1…7). */
   day?: number;
+  /** После получения награды или смены дня остаёмся на том же месте страницы. */
+  offset?: number;
 }
 
 /** Раскладка (поле 1080): баннер события, вкладки (если событий два), содержимое вкладки. */
@@ -41,12 +44,12 @@ export const EV_L = {
   w: GAME_W - 2 * S.l,
   top: CONTENT_TOP + S.xs,
   bannerH: 360,
-  segH: 88,
+  segH: TOUCH_COMFORT,
   /** Вход: плитки дней 4 в ряд, день 7 — на две колонки. */
   cols: 4,
   tileH: 300,
   /** Новичок: узел вехи на дорожке, строка задания. */
-  node: 104,
+  node: TOUCH_COMFORT,
   rowH: 136,
 } as const;
 const TILE_W = (EV_L.w - (EV_L.cols - 1) * S.s) / EV_L.cols;
@@ -165,6 +168,7 @@ export class EventsScene extends Phaser.Scene {
   private tab: EventsTab = 'login';
   private day = 1;
   private area?: ScrollArea;
+  private claiming = false;
 
   constructor() {
     super('Events');
@@ -172,6 +176,7 @@ export class EventsScene extends Phaser.Scene {
 
   create(data: EventsData = {}): void {
     this.area = undefined;
+    this.claiming = false;
     touchToday();
     restartOnNewDay(this);
     const d = today();
@@ -186,20 +191,28 @@ export class EventsScene extends Phaser.Scene {
     this.day = Phaser.Math.Clamp(data.day ?? Math.min(nb.eventDay, nb.days.length), 1, nb.days.length);
 
     screen(this, 'События', 'Home', { to: 'Home' });
-    let y = EV_L.top;
-    if (this.tab === 'login') this.banner(login.name, login.days[login.days.length - 1], { label: `День ${login.loginDays} из ${login.days.length}`, tone: 'neutral' }, y);
-    else {
-      const final = nb.milestones[nb.milestones.length - 1];
-      const when = !nb.active ? { label: 'Последний шанс', tone: 'warning' as Tone } : { label: nb.daysLeft === 0 ? 'Последний день' : daysText(nb.daysLeft), tone: 'neutral' as Tone };
-      this.banner(nb.name, final ? { claimed: final.claimed, rewards: final.rewards } : undefined, when, y, true);
-    }
-    y += EV_L.bannerH + S.m;
-    if (tabs.length > 1) {
-      this.tabs(tabs, y + EV_L.segH / 2, { login: login.claimable > 0, newbie: nb.open && nb.claimable > 0 });
-      y += EV_L.segH + S.m;
-    }
-    if (this.tab === 'login') this.loginTab(login, y);
-    else this.newbieTab(nb, y);
+    this.area = new ScrollArea(this, EV_L.top, contentBottom() + S.xs);
+    this.area.content.setName('eventsScroll');
+    let height = 0;
+    const parts = collect(this.children, () => {
+      let y = 0;
+      if (this.tab === 'login') this.banner(login.name, login.days[login.days.length - 1], { label: `День ${login.loginDays} из ${login.days.length}`, tone: 'neutral' }, y);
+      else {
+        const final = nb.milestones[nb.milestones.length - 1];
+        const when = !nb.active ? { label: 'Последний шанс', tone: 'warning' as Tone } : { label: nb.daysLeft === 0 ? 'Последний день' : daysText(nb.daysLeft), tone: 'neutral' as Tone };
+        this.banner(nb.name, final ? { claimed: final.claimed, rewards: final.rewards } : undefined, when, y, true);
+      }
+      y += EV_L.bannerH + S.m;
+      if (tabs.length > 1) {
+        this.tabs(tabs, y + EV_L.segH / 2, { login: login.claimable > 0, newbie: nb.open && nb.claimable > 0 });
+        y += EV_L.segH + S.m;
+      }
+      height = this.tab === 'login' ? this.loginTab(login, y) : this.newbieTab(nb, y);
+    });
+    parts.forEach(part => this.area!.add(part));
+    this.area.setContentHeight(height);
+    this.area.offset = data.offset ?? 0;
+    onViewChange(this, () => this.area?.setBounds(EV_L.top, contentBottom() + S.xs));
   }
 
   /** Баннер: картинка, название и чип срока слева, главный приз справа (с лучами, пока не получен). */
@@ -223,20 +236,21 @@ export class EventsScene extends Phaser.Scene {
     const names: Record<EventsTab, string> = { login: 'Вход', newbie: 'Новичок' };
     const specs = tabs.map((t) => ({ label: names[t], dot: ready[t] }));
     const seg = segmented(this, GAME_W / 2, y, EV_L.w, specs, tabs.indexOf(this.tab), (i) => {
-      this.scene.restart({ tab: tabs[i], day: this.day });
-    });
+      this.area!.tap(() => this.scene.restart({ tab: tabs[i], day: this.day }))();
+    }, { h: EV_L.segH });
     seg.container.setName('eventsTabs');
   }
 
   // ---------- «Вход 7 дней» ----------
 
-  private loginTab(st: LoginStatus, top: number): void {
+  private loginTab(st: LoginStatus, top: number): number {
     const rows: Phaser.GameObjects.GameObject[][] = [[], []];
     for (const d of st.days) {
       const pos = loginTilePos(d.day, top);
       rows[d.day <= EV_L.cols ? 0 : 1].push(...collect(this.children, () => this.dayTile(d, st, pos.x, pos.y, pos.w)));
     }
     staggerIn(this, 'Events:login', rows);
+    return top + Math.ceil(st.days.length / EV_L.cols) * (EV_L.tileH + S.s);
   }
 
   /** Плитка дня: «День N», награды чипами (день 7 — контракт), низ — «Забрать» / «Завтра» / галка. */
@@ -276,30 +290,34 @@ export class EventsScene extends Phaser.Scene {
     } else if (d.day === st.loginDays + 1) {
       text(this, x, by, 'Завтра', T.caption, COLOR.textTertiary);
     }
-    pressable(this, bg, w, h, () => this.claimDay(d, { x, y }));
+    pressable(this, bg, w, h, this.area!.tap(() => this.claimDay(d, { x, y })));
   }
 
   private claimDay(d: LoginDayView, at: Point): void {
+    if (this.claiming) return;
+    d = loginStatus(session.save, today(), GAME).days.find(day => day.day === d.day) ?? d;
     if (d.claimed) return toast(this, 'Эта награда уже получена');
     if (!d.reached) {
       const n = d.day - loginStatus(session.save, today(), GAME).loginDays;
       return toast(this, n === 1 ? 'Награда откроется завтра' : `Награда откроется через ${daysText(n)} входа`);
     }
+    this.claiming = true;
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = claimLogin(session.save, today(), d.day, GAME);
       commit(r.save);
-      queueRewardFly('Events', at, before, { burst: true });
+      queueRewardFly('Events', this.rewardPoint(at), before, { burst: true });
       if (this.toContract(rewardToast(`День ${d.day}`, r.rewards, r.events), r.events, { tab: 'login' })) return;
       this.restartWithToast(rewardToast(`День ${d.day}`, r.rewards, r.events), { tab: 'login' });
     } catch (e) {
+      this.claiming = false;
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
 
   // ---------- «7 дней новичка» ----------
 
-  private newbieTab(st: NewbieStatus, top: number): void {
+  private newbieTab(st: NewbieStatus, top: number): number {
     // Дорожка очков: слева — очки, вехи — узлы на полосе, под каждым — главная награда чипом.
     const final = st.milestones[st.milestones.length - 1];
     const span = Math.max(1, final?.points ?? st.maxPoints);
@@ -314,16 +332,15 @@ export class EventsScene extends Phaser.Scene {
     // Дни заданий: вкладки 1…7; в дне есть что забрать — точка.
     const segY = barY + EV_L.node / 2 + S.s + 56 + S.m + EV_L.segH / 2;
     const days = st.days.map((d) => ({ label: `${d.day}`, dot: d.tasks.some((t) => t.ready), lock: d.locked }));
-    const seg = segmented(this, GAME_W / 2, segY, EV_L.w, days, this.day - 1, (i) => this.scene.restart({ tab: 'newbie', day: i + 1 }));
+    const seg = segmented(this, GAME_W / 2, segY, EV_L.w, days, this.day - 1, (i) => this.area!.tap(() => this.scene.restart({ tab: 'newbie', day: i + 1, offset: this.area!.offset }))(), { h: EV_L.segH });
     seg.container.setName('nbDays');
 
     const day = st.days[this.day - 1];
     const listTop = segY + EV_L.segH / 2 + S.m;
-    this.area = new ScrollArea(this, listTop, contentBottom() + 10);
-    let ly = 0;
+    let ly = listTop;
     if (day.locked) {
       const left = this.day - st.eventDay;
-      this.area.add(text(this, GAME_W / 2, T.body / 2, left === 1 ? 'Откроется завтра' : `Откроется через ${daysText(left)}`, T.body, COLOR.textSecondary));
+      this.area!.add(text(this, GAME_W / 2, ly + T.body / 2, left === 1 ? 'Откроется завтра' : `Откроется через ${daysText(left)}`, T.body, COLOR.textSecondary).setName('nbLockedDay'));
       ly += T.body + S.s;
     }
     const rows = sortTasks(day.tasks).map((t) => {
@@ -331,8 +348,8 @@ export class EventsScene extends Phaser.Scene {
       ly += EV_L.rowH + S.xs;
       return objs;
     });
-    this.area.setContentHeight(ly + S.xs);
     staggerIn(this, 'Events:newbie', rows);
+    return ly + S.xs;
   }
 
   /** Веха на дорожке: узел (очки), под ним — главная награда; готова — золотой с точкой, получена — тусклый с галкой. */
@@ -362,7 +379,7 @@ export class EventsScene extends Phaser.Scene {
       dot(this, x + s / 2 - 10, y - s / 2 + 10);
       if (juiceOn()) pulse(this, bg, 1.06, 700);
     }
-    pressable(this, bg, s, s, () => this.claimChest(m, { x, y }));
+    pressable(this, bg, s, s, this.area!.tap(() => this.claimChest(m, { x, y })));
   }
 
   /** Задание строкой списка: иконка по счётчику, название, прогресс и очки; справа — «Забрать», «Перейти», галка или замок. */
@@ -404,26 +421,33 @@ export class EventsScene extends Phaser.Scene {
   }
 
   private claimTask(t: NewbieTaskView): void {
+    if (this.claiming) return;
+    this.claiming = true;
     try {
       const r = claimNewbieTask(session.save, today(), t.id, GAME);
       commit(r.save);
       this.restartWithToast(`+${r.points} очков`, { tab: 'newbie', day: this.day }, false);
     } catch (e) {
+      this.claiming = false;
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
 
   private claimChest(m: NewbieMilestoneView, at: Point): void {
+    if (this.claiming) return;
+    m = newbieStatus(session.save, today(), GAME).milestones.find(milestone => milestone.points === m.points) ?? m;
     if (m.claimed) return toast(this, 'Эта награда уже получена');
     if (!m.reached) return toast(this, `${m.points} очков: ${rewardText(m.rewards)}`);
+    this.claiming = true;
     try {
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = claimNewbieMilestone(session.save, today(), m.points, GAME);
       commit(r.save);
-      queueRewardFly('Events', at, before, { burst: true });
+      queueRewardFly('Events', this.rewardPoint(at), before, { burst: true });
       if (this.toContract(rewardToast(`${m.points} очков`, r.rewards, r.events), r.events, { tab: 'newbie', day: this.day })) return;
       this.restartWithToast(rewardToast(`${m.points} очков`, r.rewards, r.events), { tab: 'newbie', day: this.day });
     } catch (e) {
+      this.claiming = false;
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
@@ -431,15 +455,22 @@ export class EventsScene extends Phaser.Scene {
   /** В награде «Контракт героя» — сразу экран выбора героя (назад — сюда же). true — ушли. */
   private toContract(message: string, events: readonly { type: string }[], data: EventsData): boolean {
     if (!events.some((e) => e.type === 'heroPick')) return false;
-    this.scene.start('HeroPick', { back: { to: 'Events', data } });
+    shieldTaps(this.sys.game);
+    this.scene.start('HeroPick', { back: { to: 'Events', data: { ...data, offset: this.area?.offset ?? 0 } } });
     const sc = this.scene.get('HeroPick');
     sc.events.once(Phaser.Scenes.Events.CREATE, () => toast(sc, message, C.success, 4000));
     return true;
   }
 
   private restartWithToast(message: string, data: EventsData, fly = true): void {
-    this.scene.restart(data);
+    shieldTaps(this.sys.game);
+    this.scene.restart({ day: this.day, ...data, offset: this.area?.offset ?? 0 });
     this.events.once(Phaser.Scenes.Events.CREATE, () => (fly ? afterRewardFly(this, () => toast(this, message, C.success, 4500)) : toast(this, message, C.success, 2500)));
+  }
+
+  /** Награда летит из видимой плитки, включая текущий сдвиг всей страницы. */
+  private rewardPoint(at: Point): Point {
+    return { x: at.x, y: at.y + (this.area?.content.y ?? 0) };
   }
 }
 

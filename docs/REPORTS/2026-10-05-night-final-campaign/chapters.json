@@ -1,0 +1,122 @@
+[
+  {
+    "chapter": "chapter1",
+    "stages": 18,
+    "clearedHour": 0.083,
+    "attempts": 18,
+    "waits": 0,
+    "losses": 0,
+    "timeouts": 0,
+    "meanDuration": 20.267,
+    "meanAults": 2.5,
+    "meanFirstAult": 18.431
+  },
+  {
+    "chapter": "chapter2",
+    "stages": 18,
+    "clearedHour": 25.108,
+    "attempts": 62,
+    "waits": 2,
+    "losses": 44,
+    "timeouts": 0,
+    "meanDuration": 32.044,
+    "meanAults": 3.548,
+    "meanFirstAult": 18.525
+  },
+  {
+    "chapter": "chapter3",
+    "stages": 18,
+    "clearedHour": 25.209,
+    "attempts": 19,
+    "waits": 0,
+    "losses": 1,
+    "timeouts": 0,
+    "meanDuration": 27.753,
+    "meanAults": 3.842,
+    "meanFirstAult": 17.247
+  },
+  {
+    "chapter": "chapter4",
+    "stages": 18,
+    "clearedHour": 49.938,
+    "attempts": 52,
+    "waits": 2,
+    "losses": 34,
+    "timeouts": 0,
+    "meanDuration": 41.671,
+    "meanAults": 6.827,
+    "meanFirstAult": 17.058
+  },
+  {
+    "chapter": "chapter5",
+    "stages": 18,
+    "clearedHour": 100.33,
+    "attempts": 80,
+    "waits": 4,
+    "losses": 62,
+    "timeouts": 0,
+    "meanDuration": 62.121,
+    "meanAults": 11.925,
+    "meanFirstAult": 16.891
+  },
+  {
+    "chapter": "chapter6",
+    "stages": 18,
+    "clearedHour": 113.828,
+    "attempts": 50,
+    "waits": 1,
+    "losses": 32,
+    "timeouts": 1,
+    "meanDuration": 68.972,
+    "meanAults": 13.52,
+    "meanFirstAult": 17.14
+  },
+  {
+    "chapter": "chapter7",
+    "stages": 18,
+    "clearedHour": 152.028,
+    "attempts": 74,
+    "waits": 3,
+    "losses": 56,
+    "timeouts": 0,
+    "meanDuration": 74.796,
+    "meanAults": 15.905,
+    "meanFirstAult": 17.054
+  },
+  {
+    "chapter": "chapter8",
+    "stages": 18,
+    "clearedHour": 152.524,
+    "attempts": 20,
+    "waits": 0,
+    "losses": 2,
+    "timeouts": 0,
+    "meanDuration": 70.595,
+    "meanAults": 15.05,
+    "meanFirstAult": 15.745
+  },
+  {
+    "chapter": "chapter9",
+    "stages": 18,
+    "clearedHour": 190.442,
+    "attempts": 61,
+    "waits": 3,
+    "losses": 43,
+    "timeouts": 35,
+    "meanDuration": 95.705,
+    "meanAults": 18.803,
+    "meanFirstAult": 15.844
+  },
+  {
+    "chapter": "chapter10",
+    "stages": 18,
+    "clearedHour": 279.026,
+    "attempts": 125,
+    "waits": 7,
+    "losses": 107,
+    "timeouts": 68,
+    "meanDuration": 95.143,
+    "meanAults": 19.056,
+    "meanFirstAult": 15.831
+  }
+]

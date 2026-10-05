@@ -1,0 +1,25 @@
+{
+  "status": "READY",
+  "productFilesEdited": [],
+  "nativeResult": "AFTER_GUARD_PASS / 50 assertions / 0 console errors",
+  "files": {
+    "docs/REPORTS/2026-10-05-night-inventory-modal-guard/README.md": {
+      "sha256": "c8f95577bccb29594780d8bfcd648f0e14029d5bac205a8995f34bb450f7dbb7",
+      "bytes": 3464
+    },
+    "docs/REPORTS/2026-10-05-night-inventory-modal-guard/raw.json": {
+      "sha256": "59ab89d2a17aebb1d8c88e3be78bb6af3977ebf3dabb6006ddc880be3992028e",
+      "bytes": 18692
+    }
+  },
+  "fullAfterReport": {
+    "path": "/tmp/night-modal-inventory-sell-after-360-canvas-final/report.json",
+    "sha256": "8688cd6754a7394097118fd34c688956bb311dd33fae760ffbe956da2c1cd549",
+    "bytes": 406344
+  },
+  "harness": {
+    "path": "/tmp/chronoworld-modal-inventory-native-after-probe.mjs",
+    "sha256": "4c7cbc6ac4a8fe7cab270d384a00eee95ba8e5c45198cf4f5d8a27eb0cb591a6"
+  },
+  "scope": "Only README.md/raw.json/READY.json in this new report folder; no frozen source files"
+}

@@ -1,0 +1,10 @@
+{
+  "passed": false,
+  "exitCode": 1,
+  "rawReport": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/report.initial-stop.json",
+  "rawSha256": "83d1eeef3680035fb58933fe3f61a960b55ad8734df9ea294dce7a95ca2681ce",
+  "log": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/initial-stop.log",
+  "logSha256": "26505d70115ad805c22925a681ae61ca85db4e096a5e3060996b90706ef88484",
+  "failure": "Resize lost parent offset",
+  "status": "original strict unchanged-offset assertion; precise max clamp correction pending; no product edits"
+}

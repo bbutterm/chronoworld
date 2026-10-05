@@ -4,6 +4,7 @@ import { GAME, LORE } from './content';
 import { itemStatsText, RARITY_COLORS, RARITY_NAMES, ROLE_NAMES, SLOT_NAMES } from './flow';
 import { hasCollectionArt, itemCell, itemIconKey, loadCollectionArt, refineBadge, roIconImage } from './itemIcons';
 import { GAME_H, GAME_W } from './layout';
+import { minimumTouchSize, onViewChange, view } from './viewport';
 import { popIn, registerModal, unitFigure, unitTint } from './screen';
 import { session } from './session';
 import { SKIN_TINT } from './skin';
@@ -144,12 +145,20 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
   const cx = GAME_W / 2;
   const layer = scene.add.container(0, 0).setDepth(9000).setName('loreModal');
   const shade = scene.add.rectangle(cx, GAME_H / 2, GAME_W * 2, GAME_H * 2, 0x000000, 0.72).setInteractive();
-  if (o.lock) o.lock.locked = true;
+  const lockedArea = o.lock;
+  const wasLocked = lockedArea?.locked ?? false;
+  if (lockedArea) lockedArea.locked = true;
+  let closed = false;
   const close = () => {
-    if (o.lock) o.lock.locked = false;
+    if (closed) return;
+    closed = true;
     layer.destroy();
   };
   registerModal(layer, close);
+  layer.once(Phaser.GameObjects.Events.DESTROY, () => {
+    closed = true;
+    if (lockedArea) lockedArea.locked = wasLocked;
+  });
   shade.on('pointerup', close);
 
   const tw = BOX_W - 2 * PAD;
@@ -168,55 +177,73 @@ export function loreModal(scene: Phaser.Scene, o: LoreModalOptions): Phaser.Game
         ...(b.bold && (b.size ?? 0) >= T.heading ? { fontFamily: FAMILY.heading } : {}),
       }).setOrigin(0, 0),
     }));
-  const bodyH = blocks.reduce((s, { b, t }) => s + t.height + (b.gap ?? S.s), 0);
-  const headH = S.l + title.height + (sub ? sub.height + S.xxs : 0) + (o.art ? ART_H : S.s);
-  const footH = 190;
-  const viewH = Math.min(bodyH, MAX_H - headH - footH);
-  const boxH = headH + viewH + footH;
-  const top = GAME_H / 2 - boxH / 2;
-  // Само окно тоже ловит нажатия — иначе касание по нему закрыло бы окно.
-  const bg = plate(scene, cx, GAME_H / 2, BOX_W, boxH, { ...SURFACE.raised, alpha: 0.99, r: R.xl }).setInteractive();
-  layer.add([shade, bg]);
-  title.setY(top + S.l);
-  layer.add(title);
-  let y = title.y + title.height + S.xxs;
+  const touchH = Math.max(BTN.l, minimumTouchSize());
+  const footH = Math.max(190, touchH + 2 * S.m);
+  const fullHeight = title.height + S.xxs + (sub ? sub.height + S.xxs : 0) + (o.art ? ART_H : S.s)
+    + blocks.reduce((sum, { b, t }) => sum + t.height + (b.gap ?? S.s), 0);
+  const geometry = () => {
+    const v = view();
+    const boxH = Math.min(fullHeight + S.l + footH, MAX_H, v.safeBottom - v.safeTop - 2 * S.s);
+    return { boxH, top: (v.safeTop + v.safeBottom - boxH) / 2 };
+  };
+  const initial = geometry();
+  const chrome = scene.add.container(0, 0);
+  const bg = plate(scene, cx, 0, BOX_W, MAX_H, { ...SURFACE.raised, alpha: 0.99, r: R.xl }).setInteractive();
+  chrome.add(bg);
+  layer.add([shade, chrome]);
+  // Заголовок и иллюстрация тоже входят в полосу: длинная шапка не вытесняет текст с короткого экрана.
+  const area = new ScrollArea(scene, initial.top + S.l, initial.top + initial.boxH - footH, { left: cx - BOX_W / 2, right: cx + BOX_W / 2 });
+  area.content.setName('loreModalScroll');
+  area.add(title);
+  let y = title.height + S.xxs;
   if (sub) {
     sub.setY(y);
-    layer.add(sub);
+    area.add(sub);
     y += sub.height + S.xxs;
   }
   if (o.art) {
-    o.art((obj) => layer.add(obj), cx, y + ART_H / 2 - 10);
+    const art = scene.add.container(0, 0);
+    o.art((obj) => art.add(obj), cx, y + ART_H / 2 - 10);
+    area.add(art);
     y += ART_H;
   } else y += S.s;
-  const area = new ScrollArea(scene, y, y + viewH);
-  let by = 0;
   for (const { b, t } of blocks) {
-    t.setY(by);
+    t.setY(y);
     area.add(t);
-    by += t.height + (b.gap ?? S.s);
+    y += t.height + (b.gap ?? S.s);
   }
-  area.setContentHeight(bodyH);
-  const btnY = top + boxH - 100;
+  area.setContentHeight(y);
+  const buttons: Phaser.GameObjects.Container[] = [];
   if (o.extra) {
     const ex = o.extra;
-    const eb = button(scene, cx + 210, btnY, 520, BTN.l, 'ui_btn_primary', ex.label, () => {
+    const eb = button(scene, cx + 210, 0, 520, touchH, 'ui_btn_primary', ex.label, () => {
+      if (closed) return;
       close();
       ex.onTap();
     }, T.body);
     eb.container.setName('loreModalExtra');
-    // Длинная подпись («История героя · 12/15») — ужать под кнопку, а не вылезать за края.
     ellipsize(eb.label, 520 - 2 * S.m);
-    if (ex.dot) eb.container.add(goldDot(scene, 260 - 14, -BTN.l / 2 + 14));
-    layer.add(eb.container);
-    layer.add(button(scene, cx - 290, btnY, 340, BTN.l, '', 'Закрыть', close, T.body, { variant: 'secondary' }).container);
-  } else layer.add(button(scene, cx, btnY, 400, BTN.l, '', 'Закрыть', close, T.body, { variant: 'secondary' }).container);
+    if (ex.dot) eb.container.add(goldDot(scene, 260 - 14, -touchH / 2 + 14));
+    buttons.push(eb.container);
+    buttons.push(button(scene, cx - 290, 0, 340, touchH, '', 'Закрыть', close, T.body, { variant: 'secondary' }).container.setName('loreModalClose'));
+  } else buttons.push(button(scene, cx, 0, 400, touchH, '', 'Закрыть', close, T.body, { variant: 'secondary' }).container.setName('loreModalClose'));
+  chrome.add(buttons);
+  const reflow = () => {
+    if (closed) return;
+    const { boxH, top } = geometry();
+    bg.setPosition(cx, top + boxH / 2).setSize(BOX_W, boxH);
+    const btnY = top + boxH - footH / 2;
+    for (const b of buttons) b.setY(btnY);
+    area.setBounds(top + S.l, top + boxH - footH);
+  };
+  bg.setPosition(cx, initial.top + initial.boxH / 2).setSize(BOX_W, initial.boxH);
+  for (const b of buttons) b.setY(initial.top + initial.boxH - footH / 2);
   popIn(scene, layer, shade);
-  // Текст с прокруткой — в слой ПОСЛЕ popIn: popIn переносит детей слоя во внутренний контейнер со сдвигом на центр
-  // экрана, а ScrollArea считает границы прокрутки в координатах мира. Раньше первое же движение пальцем по длинной
-  // истории героя (Летопись → Герои → окно героя) отбрасывало текст на полэкрана вниз — «история отображается криво».
+  // ScrollArea использует координаты мира; его части не должны попасть во внутренний контейнер popIn.
   layer.add(area.parts);
   scene.tweens.add({ targets: area.content, alpha: { from: 0, to: 1 }, duration: M.base });
+  const offView = onViewChange(scene, reflow);
+  layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   return layer;
 }
 

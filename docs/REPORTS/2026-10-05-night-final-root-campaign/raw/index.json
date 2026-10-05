@@ -1,0 +1,80 @@
+{
+  "format": "deterministic gzip, mtime0; exact original bytes and SHA retained",
+  "files": [
+    {
+      "path": "raw/driver-report.json.gz",
+      "sha256": "4a877e50a84005cebab30f3a43eea549779366014f0acbf1c9b4b3eeb45102bb",
+      "bytes": 7609,
+      "originalPath": "/tmp/chronoworld-night-final-root-companions-seed1/report.json",
+      "originalSha256": "0c68b46fa6c4ffce9e390d3dda30d28884e6da42e38ff27b002bb25d307bf03a",
+      "originalBytes": 100366
+    },
+    {
+      "path": "raw/first-win-integrity-proof.json.gz",
+      "sha256": "f5c92d1bc6456816333e79ce7f87579af6db471b3bbbed20e75c426b717adb30",
+      "bytes": 21030,
+      "originalPath": "/tmp/chronoworld-night-final-root-companions-seed1/first-win-integrity-proof.json",
+      "originalSha256": "570b3518d623f1d916081a21083a34e88303f4c8674e6f1cee028240fff2c8ca",
+      "originalBytes": 94117
+    },
+    {
+      "path": "raw/source-before-ledger.json.gz",
+      "sha256": "2ac40a5712ff19c2428c66edf6de02ac0c3cf2650b7f26e14a06dd2a143e9aaa",
+      "bytes": 39091,
+      "originalPath": "/tmp/chronoworld-night-final-root-source-before.json",
+      "originalSha256": "936bdb08ca55bfe7d461408231db9e37a39e7f8999928302dd9b65e9e47057d6",
+      "originalBytes": 88014
+    },
+    {
+      "path": "raw/attempts.jsonl.gz",
+      "sha256": "5ad740ee7aa22045c776bfbfa9a5794c6d18549a1fb0061cc9c7429635f883e4",
+      "bytes": 22122,
+      "originalPath": "/tmp/chronoworld-night-final-root-companions-seed1/attempts.jsonl",
+      "originalSha256": "c273f444096294b158ef16859375133f2caf74d7a747fa928faa908d154e8422",
+      "originalBytes": 280516
+    },
+    {
+      "path": "raw/final-save.json.gz",
+      "sha256": "775a58f7a4e6061a26fc9c9e9d8836a82d6ae2de82f69d2c92881de646f89716",
+      "bytes": 7918,
+      "originalPath": "/tmp/chronoworld-night-final-root-companions-seed1/final-save.json",
+      "originalSha256": "8c46e614e29ab691a29b972f3806fafee4de29dde6277ff91930fb37af54cc4f",
+      "originalBytes": 38638
+    },
+    {
+      "path": "raw/final-clock.json.gz",
+      "sha256": "d81d4c61a433742e6d42840c4b5a0d54ba4b85dc98084f00cfd4f3c19a327cb9",
+      "bytes": 60,
+      "originalPath": "/tmp/chronoworld-night-final-root-companions-seed1/final-clock.json",
+      "originalSha256": "ed2f9bd43fb210ebb3e9dbfdc51fce25771691ad2d3e4f4c1037bb51444d5001",
+      "originalBytes": 40
+    },
+    {
+      "path": "raw/before-first-win-ch10_s18.json.gz",
+      "sha256": "f3c1aa7782507868941d871c750cd4536825ebedee2cffe5637d2ccda68761ad",
+      "bytes": 7890,
+      "originalPath": "/tmp/chronoworld-night-final-root-companions-seed1/saves/before-first-win-ch10_s18.json",
+      "originalSha256": "763414651b6e30221df73b6ee1aaa6d918d393b6fc1a3e69f4352501201c7e52",
+      "originalBytes": 38475
+    },
+    {
+      "path": "raw/before-first-win-ch10_s18.clock.json.gz",
+      "sha256": "66dbc92b90ec29587efe094637f7eb1a5b76f7985adaf7fc1c104219957060a4",
+      "bytes": 87,
+      "originalPath": "/tmp/chronoworld-night-final-root-companions-seed1/saves/before-first-win-ch10_s18.clock.json",
+      "originalSha256": "9bd7a6b5770859f7088403657f4d2a446decf9af757f7511c353c859872232d3",
+      "originalBytes": 71
+    },
+    {
+      "path": "raw/public-root-proof.ts.gz",
+      "sha256": "064fd074f1a574fa8d54e39d124c6cf55df5b4ab5de2cd29f0e41cf55da79a26",
+      "bytes": 1994,
+      "originalPath": "/tmp/chronoworld-night-final-root-proof.ts",
+      "originalSha256": "6702e491f3d5326b112d0f7a2a2f1a214dec0be17f883cb668290d5ecaba7969",
+      "originalBytes": 5418
+    }
+  ],
+  "all180FirstWinPairs": "raw/first-win-integrity-proof.json.gz",
+  "sourceBefore807Files": "raw/source-before-ledger.json.gz",
+  "sourceAfter807ExactComparison": "source-after-verification.json"
+}

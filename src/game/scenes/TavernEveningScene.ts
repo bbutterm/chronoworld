@@ -5,6 +5,7 @@ import {
   bondView,
   chooseOption,
   chosenOption,
+  eveningSquadHeroes,
   eveningStatus,
   findEvening,
   finishEvening,
@@ -28,7 +29,7 @@ import { GAME } from '../content';
 import { heroSprite } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
 import { framedPortrait } from '../portraitFrame';
-import { bottomSheet, CONTENT_TOP, contentBottom, popIn, registerModal, screen } from '../screen';
+import { bottomSheet, closeTopModal, CONTENT_TOP, contentBottom, popIn, registerModal, screen } from '../screen';
 import { commit, session } from '../session';
 import { SKIN } from '../skin';
 import { speakerView } from '../storyView';
@@ -41,6 +42,9 @@ import { firstTip } from '../firstTips';
 import { counterText, dialogueCounter, dialoguePanel, speakerName } from '../dialogue';
 import { goldDot } from '../homeBuildings';
 import { staggerIn } from '../juice';
+import { minimumTouchSize, onViewChange, view, worldPoint } from '../viewport';
+import { setTgBack } from '../telegram';
+import { eveningChoiceBounds, eveningCreditPreview, eveningDialogueLayout, eveningModalLayout, eveningPreviewRowHeight, eveningSectionLayout } from '../compactEveningLayout';
 
 export const TAVERN_EVENING = 'TavernEvening';
 /** Имя слоя плашки вечера (e2e и скриншоты). Не 'dialogue' — дымовые прогоны листают только сюжетные сцены. */
@@ -109,10 +113,8 @@ const chapterNo = (e: EveningDef) => GAME.content.chapters.find((c) => c.id === 
 
 /** Панель реплик (как в сюжетных сценах: dialogue.ts). */
 const PANEL_W = 1040;
-const PANEL_H = 460;
 /** Подсказка первого вечера: верх экрана (над заставкой и столом). */
 const TIP_Y = 40;
-const PANEL_Y = GAME_H - 30 - PANEL_H / 2;
 const PORTRAIT = 250;
 const BODY_FS = 42;
 const BODY_LEADING = Math.round(BODY_FS * 0.4);
@@ -161,6 +163,11 @@ export class TavernEveningScene extends Phaser.Scene {
     const bg = this.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest');
     setTavernBackground(bg);
     this.ambience();
+    const offBack = setTgBack(() => {
+      if (!this.sys.isActive()) return;
+      if (!closeTopModal(this)) this.leave();
+    });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, offBack);
   }
 
   private ambience(): void {
@@ -188,7 +195,7 @@ export class TavernEveningScene extends Phaser.Scene {
     this.hall();
     this.play(e.steps, { kicker: `Вечер в «Двух колоколах» · глава ${chapterNo(e)}`, title: e.title, subtitle: e.subtitle }, (gains) => {
       const r = finishEvening(session.save, e.id, GAME);
-      commit(r.save);
+      if (r.save !== session.save) commit(r.save);
       for (const [h, d] of Object.entries(r.gains)) gains[h] = (gains[h] ?? 0) + d;
       this.summary(replay ? 'Вечер пересмотрен' : 'Вечер окончен', gains, before, r.gains);
     });
@@ -198,7 +205,8 @@ export class TavernEveningScene extends Phaser.Scene {
     const before = this.bondsNow();
     this.hall();
     this.play(v.scene.steps, { kicker: `Личная сцена · ${heroName(v.templateId)}`, title: v.scene.title }, (gains) => {
-      commit(finishPersonalScene(session.save, v.scene.id));
+      const finished = finishPersonalScene(session.save, v.scene.id);
+      if (finished !== session.save) commit(finished);
       this.summary('Сцена окончена', gains, before);
     });
   }
@@ -220,26 +228,43 @@ export class TavernEveningScene extends Phaser.Scene {
     const table = this.table(cast);
 
     const layer = this.add.container(0, 0).setDepth(100).setName(EVENING_LAYER);
-    const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.001).setInteractive();
-    const top = PANEL_Y - PANEL_H / 2;
+    const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.001).setInteractive().setName('eveningAdvance');
+    const initial = eveningDialogueLayout(view().safeBottom);
+    const top = initial.top;
     const left = GAME_W / 2 - PANEL_W / 2;
-    const box = dialoguePanel(this, PANEL_Y);
+    const box = dialoguePanel(this, initial.panelY);
     const px = left + 40 + PORTRAIT / 2;
     const py = top - 20;
     const face = this.add.container(px, py);
-    const nameText = speakerName(this, px + PORTRAIT / 2 + 40, top + 52);
+    const nameText = speakerName(this, px + PORTRAIT / 2 + 40, top + 52).setName('eveningSpeaker');
     const trim = this.add.image(px + PORTRAIT / 2 + 40, top + 96, 'skin_trim').setOrigin(0, 0.5).setDisplaySize(PANEL_W - PORTRAIT - 150, 8).setAlpha(0.7);
-    const body = text(this, left + 50, top + 132, '', BODY_FS, SKIN.cream, { wordWrap: { width: PANEL_W - 100, useAdvancedWrap: true }, lineSpacing: BODY_LEADING, align: 'left' }).setOrigin(0, 0);
-    const more = counterText(this, GAME_W / 2 + PANEL_W / 2 - S.l, PANEL_Y + PANEL_H / 2 - S.l);
+    const body = text(this, left + 50, 0, '', BODY_FS, SKIN.cream, { wordWrap: { width: PANEL_W - 100, useAdvancedWrap: true }, lineSpacing: BODY_LEADING, align: 'left' }).setOrigin(0, 0).setName('eveningBodyText');
+    const bodyArea = new ScrollArea(this, initial.bodyTop, initial.bodyBottom);
+    bodyArea.content.setName('eveningBody');
+    bodyArea.add(body);
+    const more = counterText(this, GAME_W / 2 + PANEL_W / 2 - S.l, initial.safeBottom - 30 - S.l).setName('eveningCounter');
     // BUG-194: «Пропустить» — в правом верхнем углу: над плашкой он касался третьего ответа выбора (360×640).
     const skip = button(this, GAME_W - S.l - 130, 130, 260, BTN.m, '', 'Пропустить', () => end(), T.body, { variant: 'secondary' });
     skip.container.setName('eveningSkip');
-    const choiceLayer = this.add.container(0, 0);
-    layer.add([shade, box, face, nameText, trim, body, more, skip.container, choiceLayer]);
+    const chrome = this.add.container(0, 0, [box, face, nameText, trim, more]);
+    const firstChoice = eveningChoiceBounds(top, 0);
+    const choiceArea = new ScrollArea(this, firstChoice.top, firstChoice.bottom);
+    const choiceLayer = choiceArea.content.setName('eveningChoices');
+    let choiceHeight = 0;
+    layer.add([shade, chrome, ...bodyArea.parts, skip.container, ...choiceArea.parts]);
+    const reflow = () => {
+      const next = eveningDialogueLayout(view().safeBottom);
+      chrome.y = next.safeBottom - initial.safeBottom;
+      bodyArea.setBounds(next.bodyTop, next.bodyBottom);
+      const choices = eveningChoiceBounds(next.top, choiceHeight);
+      choiceArea.setBounds(choices.top, choices.bottom);
+    };
+    const offView = onViewChange(this, reflow);
+    layer.once(Phaser.GameObjects.Events.DESTROY, offView);
 
     // Заставка: название вечера поверх зала; касание или 1.8 с — к репликам.
-    const intro = this.add.container(0, 0).setDepth(120);
-    const introShade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x0a0604, 0.55).setInteractive();
+    const intro = this.add.container(0, 0).setDepth(120).setName('eveningIntro');
+    const introShade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x0a0604, 0.55).setInteractive().setName('eveningIntroStart');
     const k = text(this, GAME_W / 2, 330, head.kicker.toUpperCase(), T.caption, SKIN.goldLight, { fontStyle: 'bold', wordWrap: { width: 960 } });
     k.setLetterSpacing?.(4);
     const t = text(this, GAME_W / 2, 430, head.title, T.display, C.title, { fontFamily: FAMILY.heading, fontStyle: 'bold', wordWrap: { width: 980 } });
@@ -271,6 +296,7 @@ export class TavernEveningScene extends Phaser.Scene {
     let typer: Phaser.Time.TimerEvent | null = null;
     let lineAt = performance.now();
     let armed = false;
+    let pressFrom: { x: number; y: number } | null = null;
     let closed = false;
     let choosing = false;
     let faceOf: string | null | undefined;
@@ -301,6 +327,7 @@ export class TavernEveningScene extends Phaser.Scene {
       typer = null;
       shown = full.length;
       body.setText(full);
+      bodyArea.setContentHeight(body.height);
       more.setText(dialogueCounter(count - 1, Math.max(total, count)));
     };
     const showLine = (l: TavernLine) => {
@@ -323,6 +350,8 @@ export class TavernEveningScene extends Phaser.Scene {
       if (lineChimes(full)) sfx('bell_chime', { delay: 0.2 });
       shown = 0;
       body.setText('');
+      bodyArea.offset = 0;
+      bodyArea.setContentHeight(0);
       more.setText('');
       typer?.remove();
       const t0 = this.time.now;
@@ -332,6 +361,7 @@ export class TavernEveningScene extends Phaser.Scene {
         callback: () => {
           shown = Math.max(shown + 1, Math.floor((this.time.now - t0) / TYPE_MS));
           body.setText(full.slice(0, shown));
+          bodyArea.setContentHeight(body.height);
           if (shown >= full.length) finishLine();
         },
       });
@@ -365,20 +395,26 @@ export class TavernEveningScene extends Phaser.Scene {
       full = c.prompt;
       shown = full.length;
       body.setText(full);
+      bodyArea.offset = 0;
+      bodyArea.setContentHeight(body.height);
       more.setText('');
-      const OPT_H = 128;
+      const OPT_H = Math.max(128, minimumTouchSize());
       const GAP = S.xs;
+      choiceHeight = 0;
       c.options.forEach((o, i) => {
-        const y = top - 170 - (c.options.length - 1 - i) * (OPT_H + GAP);
+        const label = text(this, GAME_W / 2 - 490 + S.l + S.m, 0, o.text, T.body, COLOR.textPrimary, { fontStyle: 'bold', wordWrap: { width: 980 - 2 * S.l - S.m, useAdvancedWrap: true }, align: 'left', lineSpacing: 6 }).setOrigin(0, 0.5);
+        const height = Math.max(OPT_H, label.height + 2 * S.xs);
+        const y = choiceHeight + height / 2;
+        choiceHeight += height + GAP;
+        label.setY(y);
         // Ответ — кнопка: поднятая плашка с золотистой кромкой, подпись по левому краю после маркера.
-        const bg = plate(this, GAME_W / 2, y, 980, OPT_H, { ...SURFACE.raised, alpha: 0.97, border: mixHex(COLOR.border, COLOR.accent, 0.6), r: R.l });
+        const bg = plate(this, GAME_W / 2, y, 980, height, { ...SURFACE.raised, alpha: 0.97, border: mixHex(COLOR.border, COLOR.accent, 0.6), r: R.l });
         const mark = this.add.circle(GAME_W / 2 - 490 + S.l, y, 10, COLOR_N.accent);
-        const label = text(this, GAME_W / 2 - 490 + S.l + S.m, y, o.text, T.body, COLOR.textPrimary, { fontStyle: 'bold', wordWrap: { width: 980 - 2 * S.l - S.m, useAdvancedWrap: true }, align: 'left', lineSpacing: 6 }).setOrigin(0, 0.5);
         bg.setName(`eveningOption_${o.id}`);
         choiceLayer.add([bg, mark, label]);
         for (const obj of [bg, mark, label]) obj.setAlpha(0);
         this.tweens.add({ targets: [bg, mark, label], alpha: 1, duration: M.base, delay: 80 * i });
-        pressable(this, bg, 980, OPT_H, () => {
+        pressable(this, bg, 980, height, choiceArea.tap(() => {
           if (!choosing) return;
           choosing = false;
           const r = chooseOption(session.save, c.id, o.id, GAME);
@@ -386,22 +422,38 @@ export class TavernEveningScene extends Phaser.Scene {
           // Близость — маленький чип с сердцем над плашкой (а не тост на весь экран).
           Object.entries(r.gains).forEach(([h, d], gi) => {
             gains[h] = (gains[h] ?? 0) + d;
-            this.heartPop(`${heroName(h)} +${d}`, top - 60 - gi * 80);
+            this.heartPop(`${heroName(h)} +${d}`, eveningDialogueLayout(view().safeBottom).top - 60 - gi * 80);
           });
           choiceLayer.removeAll(true);
+          choiceHeight = 0;
+          choiceArea.setContentHeight(0);
           total += o.reply.length;
           queue.push(...o.reply);
           next();
-        });
+        }));
       });
+      choiceHeight = Math.max(0, choiceHeight - GAP);
+      choiceArea.setContentHeight(choiceHeight);
+      reflow();
     };
+    const cancelPress = () => { armed = false; };
+    this.input.on('ui-cancel-press', cancelPress);
+    layer.once(Phaser.GameObjects.Events.DESTROY, () => this.input.off('ui-cancel-press', cancelPress));
     shade.on('pointerdown', (p: Phaser.Input.Pointer) => {
       const ts = (p.event as Event | undefined)?.timeStamp;
       armed = (typeof ts === 'number' && ts > 0 ? ts : performance.now()) - lineAt >= LINE_GUARD_MS;
+      pressFrom = worldPoint(this, p);
     });
-    shade.on('pointerup', () => {
+    shade.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (!armed || !p.isDown || !pressFrom) return;
+      const moved = worldPoint(this, p);
+      if (Math.hypot(moved.x - pressFrom.x, moved.y - pressFrom.y) > 14) armed = false;
+    });
+    shade.on('pointerup', (p: Phaser.Input.Pointer) => {
       if (!armed || choosing || closed) return;
       armed = false;
+      const released = worldPoint(this, p);
+      if (!pressFrom || Math.hypot(released.x - pressFrom.x, released.y - pressFrom.y) > 14) return;
       if (shown < full.length) finishLine();
       else next();
     });
@@ -453,14 +505,14 @@ export class TavernEveningScene extends Phaser.Scene {
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.6).setInteractive();
     const W = 960;
     const RW = W - 2 * S.l;
-    const ROW = 128;
+    const ROW = view().adaptive ? 256 : 128;
     type Row = { hero?: string; title: string; sub: string; gain?: number; unlock?: boolean };
     const rows: Row[] = [];
     for (const [h, d] of Object.entries(gains)) {
       const v = bondView(session.save, h, GAME);
       // BUG-194: откуда близость — ответ в вечере и/или «прошли главу вместе в отряде».
       const fromSquad = squad[h] ?? 0;
-      const why = [d - fromSquad > 0 ? `ответ +${d - fromSquad}` : '', fromSquad > 0 ? `в отряде +${fromSquad}` : ''].filter(Boolean).join(' · ');
+      const why = [d - fromSquad > 0 ? `ответ +${d - fromSquad}` : '', fromSquad > 0 ? `за главу +${fromSquad}` : ''].filter(Boolean).join(' · ');
       const actual = Math.max(0, (v?.points ?? 0) - (before[h] ?? 0));
       const source = actual > 0 ? why : 'Близость достигла максимума';
       rows.push({ hero: h, title: heroName(h), sub: `${v?.points ?? '?'} из ${v?.max ?? '?'}${source ? ` · ${source}` : ''}`, gain: actual });
@@ -470,10 +522,10 @@ export class TavernEveningScene extends Phaser.Scene {
       }
     }
     const listH = rows.length ? rows.length * (ROW + S.xs) - S.xs : 60;
-    const h = Math.min(GAME_H - 240, 150 + listH + S.l + BTN.l + S.l);
-    const y0 = GAME_H / 2 - h / 2;
-    const box = plate(this, GAME_W / 2, GAME_H / 2, W, h, { ...SURFACE.raised, alpha: 0.99, r: R.xl });
-    const head = text(this, GAME_W / 2, y0 + 80, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
+    const initial = eveningModalLayout(view().uiHeight, listH);
+    const y0 = initial.top;
+    const box = plate(this, GAME_W / 2, initial.centerY, W, initial.height, { ...SURFACE.raised, alpha: 0.99, r: R.xl });
+    const head = text(this, GAME_W / 2, y0 + 80, title, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('eveningSummaryTitle');
     layer.add([shade, box, head]);
     let completed = false;
     const done = (toHub = false) => {
@@ -483,8 +535,9 @@ export class TavernEveningScene extends Phaser.Scene {
       else this.leave();
     };
     registerModal(layer, () => done());
-    const btnY = y0 + h - S.l - BTN.l / 2;
-    const area = new ScrollArea(this, y0 + 150, btnY - BTN.l / 2 - S.s, { left: GAME_W / 2 - W / 2 + S.l, right: GAME_W / 2 + W / 2 - S.l });
+    const btnY = initial.buttonY;
+    const area = new ScrollArea(this, initial.bodyTop, initial.bodyBottom, { left: GAME_W / 2 - W / 2 + S.l, right: GAME_W / 2 + W / 2 - S.l });
+    area.content.setName('eveningSummaryScroll');
     if (!rows.length) area.add(text(this, GAME_W / 2, 30, 'Близость не изменилась', T.body, COLOR.textSecondary));
     rows.forEach((r, i) => {
       const y = i * (ROW + S.xs) + ROW / 2;
@@ -495,6 +548,7 @@ export class TavernEveningScene extends Phaser.Scene {
         subtitle: r.sub,
         ...(r.gain ? { trailing: heartChip(this, 0, 0, `+${r.gain}`) } : r.unlock ? { trailing: tag(this, 0, 0, 'открыто', 'accent', { solid: true }) } : {}),
         h: ROW,
+        subtitleFullWidth: view().adaptive,
       });
       area.add(row);
     });
@@ -503,13 +557,22 @@ export class TavernEveningScene extends Phaser.Scene {
     const go = button(this, toHub ? GAME_W / 2 + 200 : GAME_W / 2, btnY, toHub ? 380 : 480, BTN.l, 'ui_btn_primary', 'Дальше', () => done(), T.heading);
     go.container.setName('eveningDone');
     layer.add(go.container);
-    if (toHub) {
-      const hub = button(this, GAME_W / 2 - 200, btnY, 380, BTN.l, '', 'Близость', () => done(true), T.body, { variant: 'secondary' });
-      layer.add(hub.container);
-    }
+    const hub = toHub ? button(this, GAME_W / 2 - 200, btnY, 380, BTN.l, '', 'Близость', () => done(true), T.body, { variant: 'secondary' }) : null;
+    if (hub) layer.add(hub.container);
     if (Object.keys(gains).length) sfx('quest_done');
     popIn(this, layer, shade);
     layer.add(area.parts);
+    const inner = layer.getByName('popInner') as Phaser.GameObjects.Container;
+    const offView = onViewChange(this, () => {
+      const next = eveningModalLayout(view().uiHeight, listH);
+      inner.y = next.centerY;
+      box.setSize(W, next.height).setY(0);
+      head.y = next.top + 80 - next.centerY;
+      go.container.y = next.buttonY - next.centerY;
+      if (hub) hub.container.y = next.buttonY - next.centerY;
+      area.setBounds(next.bodyTop, next.bodyBottom);
+    });
+    layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   }
 
   private leave(): void {
@@ -526,6 +589,11 @@ export class TavernEveningScene extends Phaser.Scene {
     this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x0a0604, 0.45);
     const t = tavern();
     const area = new ScrollArea(this, CONTENT_TOP + S.s, contentBottom());
+    area.content.setName('eveningHubScroll');
+    onViewChange(this, () => area.setBounds(CONTENT_TOP + S.s, contentBottom()));
+    const lock = () => { area.locked = this.children.list.some((o) => !!o.getData?.('screenModal')); };
+    this.events.on(Phaser.Scenes.Events.PRE_UPDATE, lock);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off(Phaser.Scenes.Events.PRE_UPDATE, lock));
     if (!t) {
       area.add(text(this, GAME_W / 2, 200, 'Вечеров пока нет', T.body, COLOR.textSecondary));
       return;
@@ -535,9 +603,10 @@ export class TavernEveningScene extends Phaser.Scene {
     const groups: Phaser.GameObjects.GameObject[][] = [];
     /** Заголовок секции (заголовочная гарнитура) и «i» — правила за ней, а не абзацем на экране. */
     const headline = (s: string, info: { title: string; text: string }) => {
-      area.add(text(this, S.l + S.xxs, y + 36, s, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5));
-      area.add(infoButton(this, GAME_W - S.l - 40, y + 36, area.tap(() => this.infoSheet(area, info.title, info.text))));
-      y += 72 + S.xs;
+      const section = eveningSectionLayout(y, minimumTouchSize());
+      area.add(text(this, S.l + S.xxs, section.headingY, s, T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5));
+      area.add(infoButton(this, GAME_W - S.l - 40, section.headingY, area.tap(() => this.infoSheet(area, info.title, info.text))).setName(`eveningInfo_${groups.length}`));
+      y = section.nextTop;
     };
     // Вечера — первыми (там новое), затем близость героев.
     headline('Вечера', { title: 'Вечера в «Двух колоколах»', text: 'После каждой главы отряд собирается в таверне. Пропущенный выбор можно сделать при пересмотре.' });
@@ -546,8 +615,9 @@ export class TavernEveningScene extends Phaser.Scene {
     const firstNew = t.evenings.find((e) => eveningStatus(session.save, e, GAME) === 'new')?.id;
     const shown = firstLocked < 0 ? t.evenings : t.evenings.slice(0, firstLocked + 1);
     for (const e of shown) {
-      groups.push([this.eveningRow(area, e, y, self, e.id === firstNew)]);
-      y += ROW_H + S.xs;
+      const row = this.eveningRow(area, e, y, self, e.id === firstNew);
+      groups.push([row]);
+      y += row.height + S.xs;
     }
     const rest = t.evenings.length - shown.length;
     if (rest > 0) {
@@ -666,19 +736,29 @@ export class TavernEveningScene extends Phaser.Scene {
       trailing = b.container;
     }
     // BUG-194: закрытый вечер — без подзаголовка («После капитана Дрейка» — спойлер босса).
-    const row = listRow(this, GAME_W / 2, top + ROW_H / 2, CW_, {
+    const subtitle = locked || !e.subtitle ? `Глава ${n}` : e.subtitle;
+    const preview = fresh ? `${subtitle}\n${eveningCreditPreview(eveningSquadHeroes(session.save, e.id, GAME).map(heroName), tavern()?.bond.squadGain ?? 0)}` : subtitle;
+    let height = ROW_H;
+    if (fresh) {
+      const measure = text(this, 0, 0, preview, T.caption, COLOR.textSecondary, { wordWrap: { width: CW_ - 2 * S.s }, lineSpacing: 0 });
+      height = eveningPreviewRowHeight(measure.height);
+      measure.destroy();
+    }
+    const row = listRow(this, GAME_W / 2, top + height / 2, CW_, {
       icon: (sc, x, y, size) => {
         const ring = sc.add.circle(0, 0, size * 0.6, locked ? COLOR_N.surfaceSunken : COLOR_N.surfaceRaised).setStrokeStyle(4, locked ? COLOR_N.border : hexNum(mixHex(COLOR.border, COLOR.accent, 0.6)));
         const num = text(sc, 0, 2, String(n), T.title, locked ? COLOR.textTertiary : COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
         return sc.add.container(x, y, [ring, num]);
       },
       title: locked ? '???' : e.title,
-      subtitle: locked || !e.subtitle ? `Глава ${n}` : e.subtitle,
+      subtitle: preview,
+      subtitleFullWidth: fresh,
       trailing,
       dim: locked,
       raised: main,
-      h: ROW_H,
+      h: height,
     });
+    if (fresh) (row.list.at(-1) as Phaser.GameObjects.Text).setName(`eveningCredit_${e.id}`);
     area.add(row);
     return row;
   }
@@ -686,13 +766,14 @@ export class TavernEveningScene extends Phaser.Scene {
   /** Личное задание: условие, награда чипами, «В бой» — бой считает ядро, итог — здесь же. */
   private questModal(area: ScrollArea, v: BondView): void {
     area.locked = true;
-    const layer = this.add.container(0, 0).setDepth(300);
+    const layer = this.add.container(0, 0).setDepth(300).setName('bondQuestModal');
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
     const q = v.quest;
     const W = 960;
     layer.add(shade);
     const body = this.add.container(0, 0);
     const close = () => {
+      if (!layer.scene) return;
       area.locked = false;
       layer.destroy();
     };
@@ -721,14 +802,20 @@ export class TavernEveningScene extends Phaser.Scene {
       y += row.height + S.s;
     }
     add(`${heroName(v.templateId)} — в отряде · враги сильнее обычного`, T.caption, COLOR.textSecondary);
-    const H = y + BTN.l + S.l + S.s;
-    const top = GAME_H / 2 - H / 2;
-    body.setY(top);
-    layer.add([plate(this, GAME_W / 2, GAME_H / 2, W, H, { ...SURFACE.raised, alpha: 0.99, r: R.xl }), body]);
-    const btnY = top + H - S.l - BTN.l / 2;
+    const initial = eveningModalLayout(view().uiHeight, y, 0);
+    const box = plate(this, GAME_W / 2, initial.centerY, W, initial.height, { ...SURFACE.raised, alpha: 0.99, r: R.xl }).setInteractive();
+    layer.add(box);
+    const modalBody = new ScrollArea(this, initial.bodyTop, initial.bodyBottom, { left: GAME_W / 2 - W / 2, right: GAME_W / 2 + W / 2 });
+    modalBody.content.setName('bondQuestScroll');
+    modalBody.add(body);
+    modalBody.setContentHeight(y);
+    registerModal(layer, close);
+    const btnY = initial.buttonY;
+    let launching = false;
     // BUG-188: «В бой» — настоящий бой в BattleScene (режим bond: тот же расчёт ядра fightBondQuest, ульта вручную),
     // итог — окном здесь же после боя. Условия проверяются сразу, без расчёта боя (касание отвечает мгновенно).
     const go = button(this, GAME_W / 2 + 190, btnY, 400, BTN.l, 'ui_btn_primary', 'В бой', () => {
+      if (launching) return;
       const why = !q.open
         ? `Задание откроется на близости ${q.at}`
         : !q.stageCleared
@@ -741,9 +828,11 @@ export class TavernEveningScene extends Phaser.Scene {
         return;
       }
       // Отклик сразу: кнопка гаснет и пишет «Бой…», пока строится сцена боя.
+      launching = true;
       go.setLabel('Бой…');
       go.setEnabled(false);
       this.time.delayedCall(30, () => {
+        if (!layer.scene || !this.sys.isActive()) return;
         close();
         this.scene.start('Battle', { mode: 'bond', templateId: v.templateId, back: this.back });
       });
@@ -751,12 +840,23 @@ export class TavernEveningScene extends Phaser.Scene {
     go.label.setFontFamily(FAMILY.heading);
     go.container.setName('bondQuestGo');
     const cancel = button(this, GAME_W / 2 - 230, btnY, 300, BTN.l, '', 'Назад', close, T.body, { variant: 'secondary' });
+    cancel.container.setName('bondQuestCancel');
     layer.add([go.container, cancel.container]);
     popIn(this, layer, shade);
+    layer.add(modalBody.parts);
+    const inner = layer.getByName('popInner') as Phaser.GameObjects.Container;
+    const offView = onViewChange(this, () => {
+      const next = eveningModalLayout(view().uiHeight, y, 0);
+      inner.y = next.centerY;
+      box.setSize(W, next.height).setY(0);
+      go.container.y = cancel.container.y = next.buttonY - next.centerY;
+      modalBody.setBounds(next.bodyTop, next.bodyBottom);
+    });
+    layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   }
 
   private questResult(v: BondView, win: boolean, goal: boolean, firstTime: boolean, fallen: string[], duration: number): void {
-    const layer = this.add.container(0, 0).setDepth(300);
+    const layer = this.add.container(0, 0).setDepth(300).setName('bondQuestResult');
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
     const W = 960;
     layer.add(shade);
@@ -780,14 +880,34 @@ export class TavernEveningScene extends Phaser.Scene {
     }
     if (!goal) add('Усильте отряд или поменяйте расстановку', T.body, COLOR.textPrimary);
     sfx(goal ? 'victory' : 'defeat');
-    const H = y + BTN.l + S.l;
-    const top = GAME_H / 2 - H / 2;
-    body.setY(top);
-    layer.add([plate(this, GAME_W / 2, GAME_H / 2, W, H, { ...SURFACE.raised, alpha: 0.99, r: R.xl }), body]);
-    const ok = button(this, GAME_W / 2, top + H - S.l - BTN.l / 2, 420, BTN.l, 'ui_btn_primary', 'Дальше', () => this.scene.restart({ mode: 'hub', back: this.back } satisfies TavernEveningData), T.heading);
+    const initial = eveningModalLayout(view().uiHeight, y, 0);
+    const box = plate(this, GAME_W / 2, initial.centerY, W, initial.height, { ...SURFACE.raised, alpha: 0.99, r: R.xl });
+    layer.add(box);
+    const modalBody = new ScrollArea(this, initial.bodyTop, initial.bodyBottom, { left: GAME_W / 2 - W / 2, right: GAME_W / 2 + W / 2 });
+    modalBody.content.setName('bondQuestResultScroll');
+    modalBody.add(body);
+    modalBody.setContentHeight(y);
+    let completed = false;
+    const done = () => {
+      if (completed) return;
+      completed = true;
+      this.scene.restart({ mode: 'hub', back: this.back } satisfies TavernEveningData);
+    };
+    registerModal(layer, done);
+    const ok = button(this, GAME_W / 2, initial.buttonY, 420, BTN.l, 'ui_btn_primary', 'Дальше', done, T.heading);
     ok.container.setName('bondQuestDone');
     layer.add(ok.container);
     popIn(this, layer, shade);
+    layer.add(modalBody.parts);
+    const inner = layer.getByName('popInner') as Phaser.GameObjects.Container;
+    const offView = onViewChange(this, () => {
+      const next = eveningModalLayout(view().uiHeight, y, 0);
+      inner.y = next.centerY;
+      box.setSize(W, next.height).setY(0);
+      ok.container.y = next.buttonY - next.centerY;
+      modalBody.setBounds(next.bodyTop, next.bodyBottom);
+    });
+    layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   }
 }
 

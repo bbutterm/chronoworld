@@ -1,0 +1,760 @@
+{
+  "status": "4/4 native agreed helpers PASS before new art and metadata delta; final art native tail pending",
+  "bundle": {
+    "name": "index-aeWRfDQ3.js",
+    "sha256": "5f0f322c713807b33620b0cc4a91fcfc03afd154573ca37e7be5137d1cf3b6ad",
+    "sourceFiles": 975
+  },
+  "helpers": {
+    "scripts/night-auto-text-hit-ui-qa.cjs": "38bc410f1718276bb5c280c6a18b5e080b693b37da05761aebbaa1e71a1d5959",
+    "scripts/night-viewport-metrics-ui-qa.cjs": "0d8f1640d7440645b5f6ef6216f3cb793cacd1ee7a46764a45befd38c6b76a6d"
+  },
+  "source": {
+    "src/game/viewport.ts": "fe0e7c7058c5d0ef23f4fdf8ab70288c8e3d40165013cacf16e2f35ed00b92f7",
+    "src/game/responsiveUi.ts": "393b59a21712449e41aeff98106362860d61b5905d63b3d37a84df1e3234643f",
+    "src/game/screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+    "src/game/ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4"
+  },
+  "beforeResultMetaSource": "9c296280cddb19d6be3a5b3ec48eb4751c50573849d7d7cadd74ab2169a4eee8",
+  "resultMetaDelta": {
+    "status": "ROOT applied and frozen; fullcheck2/native final art tail pending parent",
+    "files": {
+      "src/game/scenes/ResultScene.ts": {
+        "before": "9c296280cddb19d6be3a5b3ec48eb4751c50573849d7d7cadd74ab2169a4eee8",
+        "after": "273bbb9201fed6ec41ed576fb5116e270f68b32a22a0cfe90ede88d4c9d23d3a",
+        "source": "/tmp/night-ui-runtime/result-meta-ready/src/game/scenes/ResultScene.ts"
+      },
+      "tests/runtime-ui-layout.test.ts": {
+        "before": "81f0b3b638234e6104614e7d9f67226f75e13f2d76ad060b5291b4b0c0ba857c",
+        "after": "cee84604693b9a22147b849838bd5e42f931fe912ab34b7906ca8e16ca35dd0c",
+        "source": "/tmp/night-ui-runtime/result-meta-ready/tests/runtime-ui-layout.test.ts"
+      }
+    },
+    "patch": {
+      "path": "/tmp/night-ui-runtime/result-meta-ready.patch",
+      "sha256": "491fb6907c8b7b56a9249b9991070bebb4e8de7ff101a01c121fb3c1479e8809"
+    },
+    "beforeFocused": {
+      "newFail": 3,
+      "oldPass": 10
+    },
+    "afterFocused": {
+      "pass": 13
+    },
+    "testTypeAnnotation": "Parent corrected typeof only after initial TSC FAIL; final rootcheck pending",
+    "nativeAfter": "Pending final art bundle320→360 only"
+  },
+  "cases": [
+    {
+      "helper": "metrics-canvas",
+      "mode": "canvas",
+      "passed": true,
+      "bundleSha256": "5f0f322c713807b33620b0cc4a91fcfc03afd154573ca37e7be5137d1cf3b6ad",
+      "startedAt": "2026-10-05T06:08:21.719Z",
+      "finishedAt": "2026-10-05T06:08:36.121Z",
+      "errors": 0,
+      "widthProbe": [
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "captionText": "1/14  ›",
+          "captionWorldFont": 36,
+          "captionCSS": 12,
+          "skipCSS": {
+            "width": 86.66666666666666,
+            "height": 44
+          },
+          "sameScene": true,
+          "creates": 0,
+          "frames": 490,
+          "invalidFrames": [],
+          "clip": [
+            1052,
+            1294
+          ],
+          "bodyY": 1052
+        },
+        {
+          "width": 320,
+          "view": {
+            "uiHeight": 1586.25,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 29.33333333333337,
+            "cssW": 320,
+            "cssH": 610.6666666666666,
+            "backW": 320,
+            "backH": 611,
+            "density": 1,
+            "zoom": 0.2962962962962963,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2061,
+            "safeTop": 0,
+            "safeBottom": 1586.25
+          },
+          "captionText": "1/14  ›",
+          "captionWorldFont": 41,
+          "captionCSS": 12.148148148148147,
+          "skipCSS": {
+            "width": 77.03703703703704,
+            "height": 44.148148148148145
+          },
+          "sameScene": true,
+          "creates": 0,
+          "frames": 519,
+          "invalidFrames": [],
+          "clip": [
+            1228.25,
+            1470.25
+          ],
+          "bodyY": 1228.25
+        },
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "captionText": "1/14  ›",
+          "captionWorldFont": 36,
+          "captionCSS": 12,
+          "skipCSS": {
+            "width": 86.66666666666666,
+            "height": 44
+          },
+          "sameScene": true,
+          "creates": 0,
+          "frames": 548,
+          "invalidFrames": [],
+          "clip": [
+            1052,
+            1294
+          ],
+          "bodyY": 1052
+        }
+      ],
+      "motion": {
+        "preference": "1",
+        "innerScale": 1,
+        "innerAlpha": 1,
+        "addedTweens": [
+          {
+            "targets": [
+              "settings"
+            ],
+            "scale": 0.94,
+            "duration": 80
+          },
+          {
+            "targets": [
+              "settings"
+            ],
+            "scale": 1,
+            "duration": 120
+          }
+        ]
+      },
+      "fixtureCore": {
+        "saveFile": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/final-save.json.gz",
+        "fileSha256": "775a58f7a4e6061a26fc9c9e9d8836a82d6ae2de82f69d2c92881de646f89716",
+        "lawfulClears": 180,
+        "preparedSaveHash": "3a0bcbcf87689c33327a808d8a3b64123351bfc963c367f013d19cbaeb34e600",
+        "fabricatedResources": false,
+        "fabricatedVictories": false,
+        "normalBrowserClock": true
+      }
+    },
+    {
+      "helper": "metrics-webgl1",
+      "mode": "webgl1",
+      "passed": true,
+      "bundleSha256": "5f0f322c713807b33620b0cc4a91fcfc03afd154573ca37e7be5137d1cf3b6ad",
+      "startedAt": "2026-10-05T06:08:52.805Z",
+      "finishedAt": "2026-10-05T06:09:14.177Z",
+      "errors": 0,
+      "widthProbe": [
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "captionText": "1/14  ›",
+          "captionWorldFont": 36,
+          "captionCSS": 12,
+          "skipCSS": {
+            "width": 86.66666666666666,
+            "height": 44
+          },
+          "sameScene": true,
+          "creates": 0,
+          "frames": 160,
+          "invalidFrames": [],
+          "clip": [
+            1052,
+            1294
+          ],
+          "bodyY": 1052
+        },
+        {
+          "width": 320,
+          "view": {
+            "uiHeight": 1586.25,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 29.33333333333337,
+            "cssW": 320,
+            "cssH": 610.6666666666666,
+            "backW": 320,
+            "backH": 611,
+            "density": 1,
+            "zoom": 0.2962962962962963,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2061,
+            "safeTop": 0,
+            "safeBottom": 1586.25
+          },
+          "captionText": "1/14  ›",
+          "captionWorldFont": 41,
+          "captionCSS": 12.148148148148147,
+          "skipCSS": {
+            "width": 77.03703703703704,
+            "height": 44.148148148148145
+          },
+          "sameScene": true,
+          "creates": 0,
+          "frames": 178,
+          "invalidFrames": [],
+          "clip": [
+            1228.25,
+            1470.25
+          ],
+          "bodyY": 1228.25
+        },
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "captionText": "1/14  ›",
+          "captionWorldFont": 36,
+          "captionCSS": 12,
+          "skipCSS": {
+            "width": 86.66666666666666,
+            "height": 44
+          },
+          "sameScene": true,
+          "creates": 0,
+          "frames": 196,
+          "invalidFrames": [],
+          "clip": [
+            1052,
+            1294
+          ],
+          "bodyY": 1052
+        }
+      ],
+      "motion": {
+        "preference": "1",
+        "innerScale": 1,
+        "innerAlpha": 1,
+        "addedTweens": [
+          {
+            "targets": [
+              "settings"
+            ],
+            "scale": 0.94,
+            "duration": 80
+          },
+          {
+            "targets": [
+              "settings"
+            ],
+            "scale": 1,
+            "duration": 120
+          }
+        ]
+      },
+      "fixtureCore": {
+        "saveFile": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/final-save.json.gz",
+        "fileSha256": "775a58f7a4e6061a26fc9c9e9d8836a82d6ae2de82f69d2c92881de646f89716",
+        "lawfulClears": 180,
+        "preparedSaveHash": "3a0bcbcf87689c33327a808d8a3b64123351bfc963c367f013d19cbaeb34e600",
+        "fabricatedResources": false,
+        "fabricatedVictories": false,
+        "normalBrowserClock": true
+      }
+    },
+    {
+      "helper": "result-auto-text",
+      "mode": "canvas",
+      "passed": true,
+      "bundleSha256": "5f0f322c713807b33620b0cc4a91fcfc03afd154573ca37e7be5137d1cf3b6ad",
+      "startedAt": "2026-10-05T06:10:02.779Z",
+      "finishedAt": "2026-10-05T06:10:26.245Z",
+      "errors": 0,
+      "widthProbe": [
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "renderer": 1,
+          "text": "Хватает опыта на новый уровень ›",
+          "fontCSS": 12,
+          "hitCSS": {
+            "width": 211,
+            "height": 44
+          },
+          "centerDelta": {
+            "x": 0,
+            "y": 0
+          },
+          "auto": true,
+          "sceneSame": true,
+          "labelSame": true,
+          "inputSame": true,
+          "rectSame": true,
+          "callbackSame": true,
+          "enabledSame": true,
+          "creates": 0,
+          "saveSame": true,
+          "writesSame": true,
+          "frames": 260,
+          "clip": [
+            330,
+            992
+          ],
+          "invalidFrames": []
+        },
+        {
+          "width": 320,
+          "view": {
+            "uiHeight": 1586.25,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 29.33333333333337,
+            "cssW": 320,
+            "cssH": 610.6666666666666,
+            "backW": 320,
+            "backH": 611,
+            "density": 1,
+            "zoom": 0.2962962962962963,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2061,
+            "safeTop": 0,
+            "safeBottom": 1586.25
+          },
+          "renderer": 1,
+          "text": "Хватает опыта на новый уровень ›",
+          "fontCSS": 12.148148148148147,
+          "hitCSS": {
+            "width": 213.33333333333331,
+            "height": 44.148148148148145
+          },
+          "centerDelta": {
+            "x": 0,
+            "y": 0
+          },
+          "auto": true,
+          "sceneSame": true,
+          "labelSame": true,
+          "inputSame": true,
+          "rectSame": true,
+          "callbackSame": true,
+          "enabledSame": true,
+          "creates": 0,
+          "saveSame": true,
+          "writesSame": true,
+          "frames": 293,
+          "clip": [
+            330,
+            1168.25
+          ],
+          "invalidFrames": []
+        },
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "renderer": 1,
+          "text": "Хватает опыта на новый уровень ›",
+          "fontCSS": 12,
+          "hitCSS": {
+            "width": 211,
+            "height": 44
+          },
+          "centerDelta": {
+            "x": 0,
+            "y": 0
+          },
+          "auto": true,
+          "sceneSame": true,
+          "labelSame": true,
+          "inputSame": true,
+          "rectSame": true,
+          "callbackSame": true,
+          "enabledSame": true,
+          "creates": 0,
+          "saveSame": true,
+          "writesSame": true,
+          "frames": 324,
+          "clip": [
+            330,
+            992
+          ],
+          "invalidFrames": []
+        }
+      ],
+      "final": {
+        "saveSame": true,
+        "writesSame": true,
+        "active": "Heroes"
+      },
+      "fixtureCore": {
+        "creation": "newGame(now−12h)",
+        "firstBattle": {
+          "stageId": "ch1_s1",
+          "seed": 7,
+          "winner": "A"
+        },
+        "idle": {
+          "minutes": 720,
+          "gold": 3600,
+          "jobExp": 432
+        },
+        "preparedSaveHash": "ab993f0fd3bad675f7266104e3fd9cb94c90a45793500ad2381755d131778c71",
+        "fabricatedResources": false,
+        "fabricatedVictories": false,
+        "normalBrowserClock": true
+      }
+    },
+    {
+      "helper": "result-auto-text",
+      "mode": "webgl1",
+      "passed": true,
+      "bundleSha256": "5f0f322c713807b33620b0cc4a91fcfc03afd154573ca37e7be5137d1cf3b6ad",
+      "startedAt": "2026-10-05T06:10:02.779Z",
+      "finishedAt": "2026-10-05T06:10:26.245Z",
+      "errors": 0,
+      "widthProbe": [
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "renderer": 2,
+          "text": "Хватает опыта на новый уровень ›",
+          "fontCSS": 12,
+          "hitCSS": {
+            "width": 211,
+            "height": 44
+          },
+          "centerDelta": {
+            "x": 0,
+            "y": 0
+          },
+          "auto": true,
+          "sceneSame": true,
+          "labelSame": true,
+          "inputSame": true,
+          "rectSame": true,
+          "callbackSame": true,
+          "enabledSame": true,
+          "creates": 0,
+          "saveSame": true,
+          "writesSame": true,
+          "frames": 180,
+          "clip": [
+            330,
+            992
+          ],
+          "invalidFrames": []
+        },
+        {
+          "width": 320,
+          "view": {
+            "uiHeight": 1586.25,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 29.33333333333337,
+            "cssW": 320,
+            "cssH": 610.6666666666666,
+            "backW": 320,
+            "backH": 611,
+            "density": 1,
+            "zoom": 0.2962962962962963,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2061,
+            "safeTop": 0,
+            "safeBottom": 1586.25
+          },
+          "renderer": 2,
+          "text": "Хватает опыта на новый уровень ›",
+          "fontCSS": 12.148148148148147,
+          "hitCSS": {
+            "width": 213.33333333333331,
+            "height": 44.148148148148145
+          },
+          "centerDelta": {
+            "x": 0,
+            "y": 0
+          },
+          "auto": true,
+          "sceneSame": true,
+          "labelSame": true,
+          "inputSame": true,
+          "rectSame": true,
+          "callbackSame": true,
+          "enabledSame": true,
+          "creates": 0,
+          "saveSame": true,
+          "writesSame": true,
+          "frames": 217,
+          "clip": [
+            330,
+            1168.25
+          ],
+          "invalidFrames": []
+        },
+        {
+          "width": 360,
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "renderer": 2,
+          "text": "Хватает опыта на новый уровень ›",
+          "fontCSS": 12,
+          "hitCSS": {
+            "width": 211,
+            "height": 44
+          },
+          "centerDelta": {
+            "x": 0,
+            "y": 0
+          },
+          "auto": true,
+          "sceneSame": true,
+          "labelSame": true,
+          "inputSame": true,
+          "rectSame": true,
+          "callbackSame": true,
+          "enabledSame": true,
+          "creates": 0,
+          "saveSame": true,
+          "writesSame": true,
+          "frames": 251,
+          "clip": [
+            330,
+            992
+          ],
+          "invalidFrames": []
+        }
+      ],
+      "final": {
+        "saveSame": true,
+        "writesSame": true,
+        "active": "Heroes"
+      },
+      "fixtureCore": {
+        "creation": "newGame(now−12h)",
+        "firstBattle": {
+          "stageId": "ch1_s1",
+          "seed": 7,
+          "winner": "A"
+        },
+        "idle": {
+          "minutes": 720,
+          "gold": 3600,
+          "jobExp": 432
+        },
+        "preparedSaveHash": "ab993f0fd3bad675f7266104e3fd9cb94c90a45793500ad2381755d131778c71",
+        "fabricatedResources": false,
+        "fabricatedVictories": false,
+        "normalBrowserClock": true
+      }
+    }
+  ],
+  "scope": "Local compiled/normal Boot/public lawful fixtures/native actions; normal Date/RAF; no browser imports/scene forcing/cloud writes",
+  "closed": true,
+  "pngReview": "Both evening320 and Result320 PNGs inspected; text/native target PASS, metadata overlap led to separately frozen correction",
+  "files": {
+    "docs/REPORTS/2026-10-05-night-font-touch-final/metrics-canvas.json.gz": {
+      "sha256": "fc3de7fd8f7dcd5a0dcb61d848f41e8965fa9cd5d1c84c5c1b2d59d7af467c85",
+      "bytes": 1677
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/metrics-webgl1.json.gz": {
+      "sha256": "38ddce8ecf65a97e5a70b03a01146826f7839f62a0607a0ea2e60cdefb8eacf3",
+      "bytes": 1679
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/result-auto-text.json.gz": {
+      "sha256": "00904bdf22902e33751174e01bfb1455980a9f21d0838fc06bf97385a34d1937",
+      "bytes": 1760
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/evening-320-canvas.png": {
+      "sha256": "f2715b7243f92b4208d4cc9ba279a28441e5b73cf57354d7cf48ffce8d7e2c57",
+      "bytes": 124170
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/evening-320-webgl1.png": {
+      "sha256": "1a7b05ba84a65664e2de938b1d1d37602e5dfa2659ef821cef9330d60c12c2b6",
+      "bytes": 131943
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/result-320-canvas-before-meta-reflow.png": {
+      "sha256": "37e711ead9592bfa87dc919ea53b0759edfee7a7ca0857bdccaf8f91718cb991",
+      "bytes": 203376
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/result-320-webgl1-before-meta-reflow.png": {
+      "sha256": "e44c8c9200f0c8e3edc7a9440a86685ee384751727edc4044fece0849be71ce2",
+      "bytes": 237173
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/metadata-before-regression.log.gz": {
+      "sha256": "e0867109e20672558988d212ef19ce55ac14518cba72854c990afbaa42ef4fd9",
+      "bytes": 7025
+    },
+    "docs/REPORTS/2026-10-05-night-font-touch-final/metadata-after-regression.log.gz": {
+      "sha256": "54fa574f335723b57a05f82be4e3b371774e3713174591089c0e57ee94fde2e0",
+      "bytes": 6161
+    }
+  }
+}

@@ -40,26 +40,31 @@ import { plural } from '../skillFacts';
 import { GAME } from '../content';
 import { formatNumber, heroSprite, stageNo } from '../flow';
 import { GAME_H, GAME_W } from '../layout';
-import { bottomSheet, confirm, cta, CONTENT_TOP, NAV_H, popIn, portrait, powerCompare, screen, unitTint } from '../screen';
+import { bottomSheet, confirm, contentBottom, cta, CONTENT_TOP, portrait, powerCompare, screen, unitTint } from '../screen';
 import { screenBackground, setThemeBackground, themeOfTowerFloor } from '../backdrops';
 import { showCardArt } from '../cardArt';
 import { framedPortrait } from '../portraitFrame';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
-import { type Panel, BTN, button, chip, clampLines, ellipsize, iconOf, infoButton, plate, pressable, rewardRow, SURFACE, tag, text, toast, type ButtonView, type ChipSpec, type Tone } from '../ui';
+import { type Panel, BTN, button, chip, clampLines, ellipsize, iconOf, infoButton, plate, pressable, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ButtonView, type ChipSpec, type Tone } from '../ui';
 import { ctaShine, glow } from '../decor';
 import { skinIcon, type SkinIcon } from '../skin';
-import { C, COLOR, COLOR_N, FAMILY, hexNum, R, RARITY, S, T, TOUCH, Z } from '../theme';
+import { C, COLOR, COLOR_N, FAMILY, hexNum, R, RARITY, S, T, TOUCH } from '../theme';
 import { sfx } from '../audio';
 import { firstTip } from '../firstTips';
 import { haptic } from '../haptics';
 import { motion } from '../state';
+import { adventureModeLayout } from '../adventureModeLayout';
+import { adventureModePanel } from '../adventureModePanel';
+import { collect } from '../juice';
+import { onViewChange } from '../viewport';
 
 /** Что вернул бой этажа (BattleScene → Tower). */
 export interface TowerSceneData {
   fight?: { floor: number; win: boolean; events: TowerRunEvent[] };
   /** Открыть лист улучшений (после покупки). */
   upgrades?: boolean;
+  scroll?: number;
 }
 
 /**
@@ -86,7 +91,6 @@ const L = {
   /** Забег: превью пути и отряд с ранами. */
   previewY: 1150,
   runSquadY: 1420,
-  ctaY: GAME_H - NAV_H - 110,
 } as const;
 
 /** Первая реплика Гаррета — на месте «прошлого забега», которого при первом входе ещё нет. */
@@ -104,7 +108,6 @@ const SOURCE: Record<string, string> = {
   upgrade: 'Дар Башни',
 };
 const W = GAME_W - 2 * S.l;
-const OVERLAY_DEPTH = Z.modal;
 
 /**
  * Башня испытаний — забег-рогалик (docs/design/tower-roguelite.md) в духе «Башни королей» AFK: фон этажа, лестница
@@ -120,6 +123,10 @@ export class TowerScene extends Phaser.Scene {
   private picking = false;
   /** Старые обработчики карточек не переживают смену режима/перезапуск сцены. */
   private draftRevision = 0;
+  private area?: ScrollArea;
+  private panel?: ReturnType<typeof adventureModePanel>;
+  private sheetRevision = 0;
+  private get layout() { return adventureModeLayout(contentBottom(), CONTENT_TOP); }
 
   constructor() {
     super('Tower');
@@ -132,17 +139,19 @@ export class TowerScene extends Phaser.Scene {
     screen(this, 'Башня испытаний', 'Adventure', { to: 'Adventure' });
     markHint('tower_open');
     this.picking = false;
+    this.panel = undefined;
+    this.sheetRevision++;
     this.draftRevision++;
     const st = towerRunStatus(session.save, GAME, today());
     this.backdrop(st.run ? st.run.floor + 1 : Math.max(1, st.best));
-    if (!st.unlocked) return this.locked(st.unlockAfterStage);
+    if (!st.unlocked) return this.body(() => this.locked(st.unlockAfterStage), data.scroll);
     if (data.fight) {
       this.sel = 0;
       this.afterFight(data.fight);
     }
     const run = st.run;
     if (!run) {
-      this.lobby();
+      this.body(() => this.lobby(), data.scroll);
       if (data.upgrades) this.upgradesSheet();
       else if (st.last && !st.last.seen) this.summary();
       // Первый вход в Башню-рогалик: Гаррет — о тропах и павших (firstTips.ts, один раз).
@@ -151,9 +160,29 @@ export class TowerScene extends Phaser.Scene {
     }
     if (run.node) this.sel = Math.max(0, run.paths.indexOf(run.node));
     else if (this.sel >= run.paths.length) this.sel = 0;
-    this.runView(run);
+    this.body(() => this.runView(run), data.scroll);
     if (run.pending?.kind === 'blessing') this.blessingOverlay(run);
     else if (run.pending?.kind === 'event') this.eventOverlay(run);
+  }
+
+  /** Preserve the readable route and squad; only the main actions remain outside the world-space scroll mask. */
+  private body(draw: () => void, offset = 0): void {
+    const layout = this.layout;
+    const area = this.area = new ScrollArea(this, layout.bodyTop, layout.bodyBottom);
+    area.content.setName('towerScroll');
+    const rows = collect(this.children, draw);
+    const actions = rows.filter(o => ['towerStart', 'towerUpgradesBtn', 'towerGo', 'towerUnlockGo'].includes(o.name));
+    const rest = rows.filter(o => !actions.includes(o));
+    const bottom = Math.max(layout.bodyTop, ...rest.map(o => (o as unknown as { getBounds?: () => Phaser.Geom.Rectangle }).getBounds?.().bottom ?? layout.bodyTop));
+    const body = this.add.container(0, -layout.bodyTop, rest);
+    area.add(body); area.setContentHeight(bottom + S.l - layout.bodyTop); area.offset = offset;
+    const footer = this.add.container(0, layout.footerY).setName('towerFooter');
+    footer.add(this.add.rectangle(GAME_W / 2, 0, GAME_W, 208, COLOR_N.surface).setInteractive());
+    for (const o of actions) {
+      const item = o as Phaser.GameObjects.Container;
+      item.setY(item.y - layout.footerY); footer.add(item);
+    }
+    onViewChange(this, () => { const next = this.layout; area.setBounds(next.bodyTop, next.bodyBottom); footer.setY(next.footerY); });
   }
 
   /** Фон — поле боя этажа (тема полосы этажей, как в бою), притушенный: узлы и чипы читаются поверх. */
@@ -178,7 +207,7 @@ export class TowerScene extends Phaser.Scene {
       wordWrap: { width: W - 2 * S.m },
       align: 'center',
     });
-    cta(this, GAME_W / 2, L.ctaY, 'В кампанию', () => this.scene.start('Campaign'));
+    cta(this, GAME_W / 2, this.layout.footerY, 'В кампанию', () => this.scene.start('Campaign')).container.setName('towerUnlockGo');
   }
 
   /** Сообщения после боя этажа: этаж, павшие, рекорд, руда. Итог забега — окно summary. */
@@ -288,9 +317,9 @@ export class TowerScene extends Phaser.Scene {
     this.lootRow(st.lootFloorToday);
 
     const upW = 340;
-    button(this, S.l + upW / 2, L.ctaY, upW, BTN.cta, '', 'Улучшения', () => this.upgradesSheet(), T.heading, { variant: 'secondary' }).container.setName('towerUpgradesBtn');
+    button(this, S.l + upW / 2, this.layout.footerY, upW, BTN.cta, '', 'Улучшения', () => this.upgradesSheet(), T.heading, { variant: 'secondary' }).container.setName('towerUpgradesBtn');
     const goW = W - upW - S.s;
-    const go = cta(this, GAME_W - S.l - goW / 2, L.ctaY, 'Начать забег', () => this.start(), { w: goW });
+    const go = cta(this, GAME_W - S.l - goW / 2, this.layout.footerY, 'Начать забег', () => this.start(), { w: goW });
     go.container.setName('towerStart');
     ctaShine(this, go.container, goW, 140);
   }
@@ -345,7 +374,7 @@ export class TowerScene extends Phaser.Scene {
   private start(): void {
     const save = session.save;
     if (!save.squad.some(Boolean)) return this.editSquad();
-    this.act(() => commit(startTowerRun(save, save.squad, GAME)));
+    if (!this.act(() => commit(startTowerRun(save, save.squad, GAME)))) return;
     this.scene.restart();
   }
 
@@ -384,8 +413,8 @@ export class TowerScene extends Phaser.Scene {
     this.preview(run, kind);
     this.runSquad(run);
 
-    const label = isBattleNode(kind) ? `${NODE_NAMES[kind]} · этаж ${next}` : kind === 'rest' ? 'Отдохнуть' : 'Войти';
-    const go = cta(this, GAME_W / 2, L.ctaY, label, () => this.go(), { w: 640 });
+    const label = run.pending ? (run.pending.kind === 'blessing' ? 'Выбрать карту' : 'Продолжить встречу') : isBattleNode(kind) ? `${NODE_NAMES[kind]} · этаж ${next}` : kind === 'rest' ? 'Отдохнуть' : 'Войти';
+    const go = cta(this, GAME_W / 2, this.layout.footerY, label, () => this.go(), { w: 640 });
     go.container.setName('towerGo');
     ctaShine(this, go.container, 640, 140);
   }
@@ -427,7 +456,7 @@ export class TowerScene extends Phaser.Scene {
         pressable(this, this.add.zone(x, cy, cardW, cardH), cardW, cardH, () => {
           if (this.sel === i) return;
           this.sel = i;
-          this.scene.restart();
+          this.scene.restart({ scroll: this.area?.offset } satisfies TowerSceneData);
         }).setName(`towerPath${i}`);
     });
   }
@@ -517,8 +546,11 @@ export class TowerScene extends Phaser.Scene {
   }
 
   private go(): void {
+    if (this.area?.locked) return;
     const save = session.save;
     const run = save.tower.run!;
+    if (run.pending?.kind === 'blessing') return this.blessingOverlay(run);
+    if (run.pending?.kind === 'event') return this.eventOverlay(run);
     const kind = run.paths[this.sel];
     if (!run.node) {
       if (!this.act(() => commit(chooseTowerPath(save, this.sel, GAME)))) return;
@@ -574,7 +606,7 @@ export class TowerScene extends Phaser.Scene {
       }
       c.setName('towerRules');
       return y - S.m;
-    });
+    }, { onClose: this.lockSheet() });
   }
 
   /** Карты забега и бонусы видов — лист снизу. */
@@ -618,7 +650,7 @@ export class TowerScene extends Phaser.Scene {
         }
       }
       return y;
-    });
+    }, { onClose: this.lockSheet() });
   }
 
   /** Постоянные улучшения за осколки: строки с уровнем и ценой; покупка — на месте, экран обновится при закрытии. */
@@ -670,17 +702,48 @@ export class TowerScene extends Phaser.Scene {
         });
         return 104 + cfg.upgrades.length * (rowH + S.xxs) - S.xxs;
       },
-      { onClose: () => bought && this.scene.restart() },
+      { onClose: this.lockSheet(() => { if (bought) this.scene.restart({ scroll: this.area?.offset } satisfies TowerSceneData); }) },
     );
+  }
+
+  private lockSheet(onClose?: () => void): () => void {
+    const area = this.area, revision = ++this.sheetRevision;
+    if (area) area.locked = true;
+    return () => {
+      if (this.area !== area || this.sheetRevision !== revision) return;
+      if (area) area.locked = false;
+      onClose?.();
+    };
   }
 
   // ---------- окна ----------
 
   /** Затемнение и слой окна поверх экрана. */
-  private overlay(): Phaser.GameObjects.Container {
-    const layer = this.add.container(0, 0).setDepth(OVERLAY_DEPTH);
-    layer.add(this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W * 3, GAME_H * 3, COLOR_N.bg, 0.82).setInteractive());
-    return layer;
+  private overlay(name: string, title: string): ReturnType<typeof adventureModePanel> {
+    if (this.area) this.area.locked = true;
+    const panel = this.panel = adventureModePanel(this, name, title, { footerH: 180, onClose: () => {
+      if (this.area) this.area.locked = false;
+      this.draftRevision++;
+      if (name === 'towerSummary' && session.save.tower.last && !session.save.tower.last.seen) commit(markTowerSummarySeen(session.save));
+    } });
+    panel.content.setX(0);
+    const back = button(this, panel.width / 2, 90, 720, 132, '', 'Вернуться к забегу', panel.close, T.body, { variant: 'secondary' });
+    panel.footer.add(back.container.setName('towerModalBack'));
+    return panel;
+  }
+
+  private panelHeight(content: Phaser.GameObjects.Container): void {
+    const h = Math.max(0, ...content.list.map(o => (o as unknown as { getBounds?: () => Phaser.Geom.Rectangle }).getBounds?.().bottom ?? 0));
+    const m = content.getWorldTransformMatrix();
+    this.panel?.setHeight(h - m.ty + S.l);
+  }
+
+  private panelAction(button: ButtonView): void {
+    if (!this.panel) return;
+    this.panel.footer.removeAll(true);
+    button.container.parentContainer?.remove(button.container);
+    button.container.setPosition(this.panel.width / 2, 90);
+    this.panel.footer.add(button.container);
   }
 
   /** В живом отряде забега есть лекарь (роль healer). */
@@ -708,7 +771,8 @@ export class TowerScene extends Phaser.Scene {
     const p = run.pending;
     if (p?.kind !== 'blessing') return;
     if (run.draftRules) return this.draftOverlay();
-    const layer = this.overlay().setName('towerBlessing');
+    const modal = this.overlay('towerBlessing', 'Выберите карту');
+    const layer = modal.content;
     const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (layer.add(o), o);
     add(text(this, GAME_W / 2, 250, 'Выберите карту', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' })).setShadow(0, 3, 'rgba(0,0,0,0.8)', 6, false, true);
     add(text(this, GAME_W / 2, 320, SOURCE[p.source] ?? '', T.body, COLOR.textSecondary));
@@ -791,7 +855,7 @@ export class TowerScene extends Phaser.Scene {
       b.container.setName('towerReroll');
       layer.add(b.container);
     }
-    popIn(this, layer, layer.list[0]);
+    this.panelHeight(layer);
   }
 
   /** Подпись временных MVP-карт: предел относится только к текущему забегу. */
@@ -813,11 +877,10 @@ export class TowerScene extends Phaser.Scene {
 
   /** Одна оболочка выбора: сравнение заменяет содержимое, не создавая второе модальное окно. */
   private draftOverlay(): void {
-    const layer = this.overlay().setName('towerBlessing');
+    const modal = this.overlay('towerBlessing', 'Выберите карту');
     const content = this.add.container(0, 0).setName('towerDraftContent');
-    layer.add(content);
+    modal.content.add(content);
     this.draftChoices(content);
-    popIn(this, layer, layer.list[0]);
   }
 
   /** Защита от касания старого выбора после перетасовки, смены режима или обновления сохранения. */
@@ -903,6 +966,8 @@ export class TowerScene extends Phaser.Scene {
     }
     const keep = button(this, GAME_W / 2, 1750, 840, BTN.l, '', 'Оставить текущую сборку', () => { if (ready()) this.keepDraft(content); }, T.body, { variant: 'secondary' });
     add(keep.container.setName('towerDraftKeep'));
+    this.panelAction(keep);
+    this.panelHeight(content);
   }
 
   /** Сравнение входящей и явно выбранной уходящей карты с итоговыми бонусами видов. */
@@ -969,6 +1034,8 @@ export class TowerScene extends Phaser.Scene {
     add(back.container.setName('towerDraftBack'));
     const keep = button(this, GAME_W / 2, 1830, 840, BTN.l, '', 'Оставить текущую сборку', () => { if (ready()) this.keepDraft(content); }, T.body, { variant: 'secondary' });
     add(keep.container.setName('towerDraftKeep'));
+    this.panelAction(accept);
+    this.panelHeight(content);
   }
 
   /**
@@ -990,7 +1057,8 @@ export class TowerScene extends Phaser.Scene {
     const ev = towerEventDef(session.save, GAME);
     if (!ev) return;
     const ready = run.draftRules ? this.draftGuard(run) : () => true;
-    const layer = this.overlay().setName('towerEvent');
+    const modal = this.overlay('towerEvent', ev.title);
+    const layer = modal.content;
     const parts: Phaser.GameObjects.GameObject[] = [];
     const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (parts.push(o), o);
     const inner = W - 2 * S.l;
@@ -1012,9 +1080,8 @@ export class TowerScene extends Phaser.Scene {
     const optsH = ev.options.reduce((n, _o, i) => n + optH + hints[i] + optGap, 0) - optGap;
     const artH = 200;
     const h = S.l + artH + S.s + 70 + S.s + body.height + S.l + optsH + S.l;
-    const top = GAME_H / 2 - h / 2;
-    const card = plate(this, GAME_W / 2, GAME_H / 2, W, h, { fill: COLOR.surfaceRaised, border: COLOR.accent, borderW: 4, r: R.xl, hl: 0.15 });
-    card.setInteractive();
+    const top = 0;
+    const card = plate(this, GAME_W / 2, h / 2, W, h, { fill: COLOR.surfaceRaised, border: COLOR.accent, borderW: 4, r: R.xl, hl: 0.15 });
     parts.unshift(card);
     let y = top + S.l + artH / 2;
     const u = ev.monster ? GAME.content.units[ev.monster] : undefined;
@@ -1063,16 +1130,15 @@ export class TowerScene extends Phaser.Scene {
       y += optGap;
     });
     layer.add(parts);
-    popIn(this, layer, layer.list[0]);
+    this.panelHeight(layer);
   }
 
   /** Итог забега: этаж крупно, рекорд, награды чипами, «Дальше». */
   private summary(): void {
     const l = session.save.tower.last!;
-    const layer = this.overlay().setName('towerSummary');
-    const shade = layer.list[0];
+    const modal = this.overlay('towerSummary', 'Итог забега');
+    const layer = modal.content;
     const add = <O extends Phaser.GameObjects.GameObject>(o: O) => (layer.add(o), o);
-    const cy = GAME_H / 2;
     const items: ChipSpec[] = [{ icon: 'tower', value: `+${l.shards}`, tone: 'gem' }];
     if (l.gold) items.push({ icon: 'gold', value: `+${formatNumber(l.gold)}`, tone: 'gold' });
     if (l.jobExp) items.push({ icon: 'hero_exp', value: `+${formatNumber(l.jobExp)}` });
@@ -1080,8 +1146,8 @@ export class TowerScene extends Phaser.Scene {
     const noLoot = !l.gold && !l.jobExp;
     const chipsY = l.record ? 500 : 440;
     const h = chipsY + (noLoot ? 80 : 0) + 250;
-    const top = cy - h / 2;
-    add(plate(this, GAME_W / 2, cy, W - 40, h, { fill: COLOR.surfaceRaised, border: l.record ? COLOR.accent : COLOR.border, borderW: 4, r: R.xl, hl: 0.15 }).setInteractive());
+    const top = 0;
+    add(plate(this, GAME_W / 2, h / 2, W - 40, h, { fill: COLOR.surfaceRaised, border: l.record ? COLOR.accent : COLOR.border, borderW: 4, r: R.xl, hl: 0.15 }));
     add(text(this, GAME_W / 2, top + 90, l.won ? 'Вершина взята!' : 'Забег окончен', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }));
     // BUG-196: чем кончился забег и сколько пройдено — «пройдено этажей: 3», рекорд — в тех же единицах, что «Лучший этаж».
     const why = l.end === 'defeat' ? `Поражение на этаже ${l.floor + 1}` : l.end === 'surrender' ? `Вы сдались на этаже ${l.floor + 1}` : l.won ? 'Все этажи пройдены' : '';
@@ -1098,7 +1164,8 @@ export class TowerScene extends Phaser.Scene {
     }, { w: 520 });
     b.container.setName('towerSummaryOk');
     layer.add(b.container);
-    popIn(this, layer, shade);
+    this.panelAction(b);
+    this.panelHeight(layer);
   }
 }
 

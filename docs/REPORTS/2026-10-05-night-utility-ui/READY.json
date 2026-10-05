@@ -1,0 +1,366 @@
+{
+  "ready": true,
+  "packet": "night-utility-four-scenes",
+  "createdAtUtc": "2026-10-05",
+  "worktree": "/workspace/chronoworld-worktrees/night-utility-ui",
+  "baseGitCommit": "41bbcc0718060d11d64248c8d2c0028177eae785",
+  "sourceFrozen": true,
+  "ownedProduct": {
+    "src/game/scenes/MailScene.ts": "695efd68f244abe2d8eca4e6aa8b6984b0b152322ae84aefcdd36d31bfc557b2",
+    "src/game/scenes/QuestsScene.ts": "b59f8bf990ec1aeb1a0a8cc0a198af95c8f31b4612ccf1f32b8305d08602d70c",
+    "src/game/scenes/AchievementsScene.ts": "a18e2f7488fdf864597317639bd07a0b94bf8bcbf1bd44aa19a0fac13978ea96",
+    "src/game/scenes/ShopScene.ts": "f788899d6a5900557f2b00a05e7b854db12960b206a1d3d8ff5043d780a4a3ab",
+    "src/game/utilityScreenLayout.ts": "95001f1b9dce9af05bb60d6e9f53543d5be4bde5bcf37cf85220f8cb5e48b0e5"
+  },
+  "selectivePatch": "/tmp/chronoworld-night-utility-ready.patch",
+  "files": [
+    {
+      "path": "src/game/scenes/MailScene.ts",
+      "sha256": "695efd68f244abe2d8eca4e6aa8b6984b0b152322ae84aefcdd36d31bfc557b2",
+      "bytes": 11227,
+      "kind": "product"
+    },
+    {
+      "path": "src/game/scenes/QuestsScene.ts",
+      "sha256": "b59f8bf990ec1aeb1a0a8cc0a198af95c8f31b4612ccf1f32b8305d08602d70c",
+      "bytes": 14863,
+      "kind": "product"
+    },
+    {
+      "path": "src/game/scenes/AchievementsScene.ts",
+      "sha256": "a18e2f7488fdf864597317639bd07a0b94bf8bcbf1bd44aa19a0fac13978ea96",
+      "bytes": 7893,
+      "kind": "product"
+    },
+    {
+      "path": "src/game/scenes/ShopScene.ts",
+      "sha256": "f788899d6a5900557f2b00a05e7b854db12960b206a1d3d8ff5043d780a4a3ab",
+      "bytes": 18483,
+      "kind": "product"
+    },
+    {
+      "path": "src/game/utilityScreenLayout.ts",
+      "sha256": "95001f1b9dce9af05bb60d6e9f53543d5be4bde5bcf37cf85220f8cb5e48b0e5",
+      "bytes": 4481,
+      "kind": "product"
+    },
+    {
+      "path": "tests/utility-screen-layout.test.ts",
+      "sha256": "a1c6605d087653c67750b4af8f97db2698792b1b5c56d131e974a1d1e308216c",
+      "bytes": 4366,
+      "kind": "test"
+    },
+    {
+      "path": "tests/utility-screen-actions.test.ts",
+      "sha256": "ff7553019e7b4210ec215db3190414ea26072c93feddca64b693a7bb55687e10",
+      "bytes": 7584,
+      "kind": "test"
+    },
+    {
+      "path": "scripts/night-utility-ui-qa.mjs",
+      "sha256": "0998cd15627e4a468f33073d0a451624033d47329306fe152da835803c9b8b3d",
+      "bytes": 35035,
+      "kind": "harness"
+    },
+    {
+      "path": "docs/qa/night-utility-ui-2026-10-05.md",
+      "sha256": "67d865e745fda8674bbf94768ed2909b37cefbbafd11ce7150f0f3493b000f2e",
+      "bytes": 16465,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/baseline-summary.json",
+      "sha256": "d7460c4491f28b96bd7dda897f1a226cfff0805201ad464f926495450203bb78",
+      "bytes": 23986,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/checks/focused-tests.json",
+      "sha256": "940e8d936a6f1131fccb3ded4d42010865fcd134cbddbf649d6531d4476c925b",
+      "bytes": 27955,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/checks/harness-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/checks/typecheck.log",
+      "sha256": "553ac4aa8053d0b6071fff7591693121ca806ce1ab8ad18f74f565481f51e593",
+      "bytes": 49,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/dev-summary.json",
+      "sha256": "7de29a6a876ee8562262adde6fae00f3e93fcf4d7a2fbcb9107729688593b085",
+      "bytes": 133975,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/fixtures/early-before-ch1_s9.clock.json",
+      "sha256": "3ae3c3da477f0c40db8185f1eeb13271b4b1387369a59654f5f30d5f3863471c",
+      "bytes": 67,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/fixtures/early-before-ch1_s9.json",
+      "sha256": "29ccf105708a4c2b2a45bde8d2cce6bf8828f12a0173c42ddd7627b212d7a0dc",
+      "bytes": 4449,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/fixtures/mid-before-ch2_s18.clock.json",
+      "sha256": "bd9907ce9067b264ff47243d05ffcf163d3254db167f06d2f4305ac469211d1f",
+      "bytes": 69,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/fixtures/mid-before-ch2_s18.json",
+      "sha256": "f37acefeb829c84079001fd5743a398593da87b379899d169c20ffa6bbe3640f",
+      "bytes": 12558,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/motion-summary.json",
+      "sha256": "e57cc71dbc1753265bb487dc9bc739b2b496e86b024343b92952c36bf3053eaa",
+      "bytes": 18796,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/production-summary.json",
+      "sha256": "a4b0c1974e9848f35d72608c94de3a8db2949d940f1f45c43c480f005f962386",
+      "bytes": 143062,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-dev-final-clean.report.json.gz",
+      "sha256": "ad086740bb465ac163fd53fcaf7cb8a4e69209ac8371346682d71b648e918d1d",
+      "bytes": 31229,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-dev-webgl390-final.report.json.gz",
+      "sha256": "ae31931084aad4c48fcc7288efbe6a898332c67d8474d79cf37643c24c3ed857",
+      "bytes": 12038,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-canvas390-final.report.json.gz",
+      "sha256": "3b09c8bbe1e3f9f32f87f1fadcaab13cd8d085ca760411f39d3d614757abeea7",
+      "bytes": 8617,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-final.report.json.gz",
+      "sha256": "0ebe2beca476b3633890fe174a9498762557e54711385c875f2932dc857ef792",
+      "bytes": 17299,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-motion-canvas360.report.json.gz",
+      "sha256": "519fb7e6075b1b5617f3a4f94df80acaa9f2ecdf08029cda1ce3a406225d789b",
+      "bytes": 3573,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-motion-webgl390-diagnostic.report.json.gz",
+      "sha256": "df251e05339c1725dee6566210378c6bbc70fd18aba5f729de6669be5cd46587",
+      "bytes": 11039,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-motion-webgl390-late-touch.report.json.gz",
+      "sha256": "858570e160e436cc73a9f7cdd9349d3906f80c1a731df175b048ab8c0a275fe9",
+      "bytes": 10079,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-motion-webgl390-timed.report.json.gz",
+      "sha256": "3042155b7a4af8a4d12d758fd9b1c168ab2003011b6f91a30e7149d3bbdf6d3c",
+      "bytes": 14115,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-motion-webgl390.report.json.gz",
+      "sha256": "4c2b53a33b4f7ce4937633cc1979df2247267d39e089d11e43de4328d93e48e1",
+      "bytes": 4022,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/chronoworld-utility-ui-production-webgl-final.report.json.gz",
+      "sha256": "25c2944cad971c2cbcba240fd1dba58c4e62f24c5c3b1a847dbbf408abed7166",
+      "bytes": 21436,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/harness-primary-c7deba0c.mjs.gz",
+      "sha256": "b7615e39228d081af74fa90776752cf2d9f059445d5bf32e864f8b8f58f7b490",
+      "bytes": 9319,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/raw/index.json",
+      "sha256": "a94e9aec3705aa93ed18c9ba32930161f707d01dee8578e6b77824b7bcad7c26",
+      "bytes": 10064,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/screens/achievements-last-tg360.png",
+      "sha256": "2809bb4b88e3d2bf609e29ed2d614e7a291fe1f63887a047a25ccfb6f85807ad",
+      "bytes": 73118,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/screens/mail-letter-tg360.png",
+      "sha256": "af92d99872562c6ed1fea7caf5962fc80f991c90ce9263400a9493b3e077e05c",
+      "bytes": 61731,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/screens/quests-last-tg360.png",
+      "sha256": "c00061de125f417c8423fdf94d739da886c3d8fa13719d7fc8a9cc9da3b523ef",
+      "bytes": 68375,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/screens/shop-confirmation-tg390.png",
+      "sha256": "b97a31a1718270a7651c670d61da9a3011fd568b8ef9f46935673c9d13c25a24",
+      "bytes": 77428,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/screens/shop-last-tg360.png",
+      "sha256": "395b2161562be6b7ebb497d9ee92b3759ea7ead19d73dcc331d76d1f52866f74",
+      "bytes": 64614,
+      "kind": "qa"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-utility-ui/screenshots.json",
+      "sha256": "fb29b7decfbf52383b42d207f8ac72e09063bd01c258510508f29fd5111d3a8f",
+      "bytes": 2086,
+      "kind": "qa"
+    }
+  ],
+  "manifestSelfHash": "Not included recursively; externally compute sha256sum READY.json. READY.json itself is part of the selective patch.",
+  "readOnlyDependenciesExcludedFromPacket": {
+    "src/game/screen.ts": "ce8df5071c956e83d8059558efd90b5e500d1589c55b740b054d1002b5159094",
+    "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+    "src/game/viewLayout.ts": "0572a4acb6240fbb27bd3be401ecea43e4e216fe61578ec57483462d7bea8574",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/scroll.ts": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0"
+  },
+  "excludedScope": [
+    "All other src/game files, including the private compiled viewLayout policy and shared screen/modalBack/viewport/ui/scroll dependencies",
+    "All src/core and data files",
+    "All assets/raw/sprite/registry files",
+    "All existing tests and fixtures not explicitly listed in files",
+    "dist and node_modules; no production output or cloud writes"
+  ],
+  "coreFingerprintAtMeasurement": {
+    "sha256": "a7d48feb36952608d9b5dd3b3218ed16d15cf5c75f36009b38d594db7127e3b6",
+    "files": 804,
+    "algorithm": "Sorted git ls-files --cached --others --exclude-standard src/core data; SHA256 over path+NUL+fileSHA joined by newline. Includes untracked runtime source; excludes UI and player models. Do not equate with other algorithms by name alone."
+  },
+  "checks": {
+    "typecheck": {
+      "passed": true,
+      "exitCode": 0,
+      "command": "npm run typecheck",
+      "log": "checks/typecheck.log",
+      "sha256": "553ac4aa8053d0b6071fff7591693121ca806ce1ab8ad18f74f565481f51e593"
+    },
+    "focused": {
+      "passed": true,
+      "exitCode": 0,
+      "files": 6,
+      "tests": 53,
+      "newMeaningfulTests": 10,
+      "historicalEarlierSubsetTests": 46,
+      "command": "npx vitest run tests/utility-screen-layout.test.ts tests/utility-screen-actions.test.ts tests/inbox-rows.test.ts tests/shop.test.ts tests/shop-events-ui.test.ts tests/ui-lint.test.ts --maxWorkers=1 --reporter=json",
+      "report": "checks/focused-tests.json",
+      "sha256": "940e8d936a6f1131fccb3ded4d42010865fcd134cbddbf649d6531d4476c925b"
+    },
+    "harnessSyntax": {
+      "passed": true,
+      "exitCode": 0,
+      "command": "node --check scripts/night-utility-ui-qa.mjs",
+      "harnessSha256": "0998cd15627e4a468f33073d0a451624033d47329306fe152da835803c9b8b3d"
+    },
+    "build": {
+      "passed": true,
+      "command": "npm run build",
+      "privateOwnerPolicy": "0572a4acb6240fbb27bd3be401ecea43e4e216fe61578ec57483462d7bea8574",
+      "bundle": {
+        "file": "dist/assets/index-DxT3NsMR.js",
+        "sha256": "80a176467ad993e01cf8a58562546f1a2302f4e3871cd5c510309755e13a0bf0",
+        "probe": "Only private response appends game/view QA references; build file and game behavior unchanged"
+      }
+    },
+    "rootFullCheck": {
+      "status": "pending after integration; performed by root before commit/publication",
+      "budgetsRaised": false
+    }
+  },
+  "browser": {
+    "dev": {
+      "passed": true,
+      "cases": 20,
+      "report": "dev-summary.json"
+    },
+    "compiled": {
+      "cases": 20,
+      "capturedStates": 164,
+      "actions": 120,
+      "dynamicViewportChecks": 32,
+      "minimumFontCss": 12,
+      "minimumTargetCss": 44,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "externalRequests": 0,
+      "passed": true,
+      "report": "production-summary.json"
+    },
+    "normalMotionSmoke": {
+      "cases": 4,
+      "capturedStates": 33,
+      "actions": 31,
+      "dynamicViewportChecks": 6,
+      "minimumFontCss": 12,
+      "minimumTargetCss": 44,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "externalRequests": 0,
+      "passed": true,
+      "report": "motion-summary.json"
+    },
+    "priorInterruptedAndFailedOverallReports": "Retained with their original false flags and reasons in summaries and complete deterministic raw gzip; incomplete cases are excluded, never relabelled PASS.",
+    "productionActivation": "Shared policy owner applies conditional Utility allowlist after Combat → City → Adventure4. Private owner policy is excluded from this packet."
+  },
+  "reports": {
+    "baseline-summary.json": "d7460c4491f28b96bd7dda897f1a226cfff0805201ad464f926495450203bb78",
+    "dev-summary.json": "7de29a6a876ee8562262adde6fae00f3e93fcf4d7a2fbcb9107729688593b085",
+    "production-summary.json": "a4b0c1974e9848f35d72608c94de3a8db2949d940f1f45c43c480f005f962386",
+    "motion-summary.json": "e57cc71dbc1753265bb487dc9bc739b2b496e86b024343b92952c36bf3053eaa",
+    "raw/index.json": "a94e9aec3705aa93ed18c9ba32930161f707d01dee8578e6b77824b7bcad7c26",
+    "screenshots.json": "fb29b7decfbf52383b42d207f8ac72e09063bd01c258510508f29fd5111d3a8f"
+  },
+  "artifactTotals": {
+    "listedFilesExcludingManifest": 38,
+    "listedBytes": 985545,
+    "rawJsonReports": {
+      "files": 10,
+      "compressedBytes": 133447,
+      "originalBytes": 3261864
+    },
+    "illustrativeUneditedPngBytes": 345266
+  },
+  "limits": [
+    "Local web SDK/Canvas/WebGL acceptance, not physical iPhone FPS.",
+    "The existing 6,337,211-byte initial sprite payload still exceeds the unchanged 3 MB budget.",
+    "No final-core fresh companion campaign is included: root hands off that separate task after applying coreA2/Chapter7/Tower.",
+    "No new sprites, sends to friends, cloud writes, commit or push performed."
+  ]
+}

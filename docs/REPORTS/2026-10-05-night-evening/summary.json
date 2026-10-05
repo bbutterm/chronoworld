@@ -1,0 +1,162 @@
+{
+  "createdAt": "2026-10-05T03:50:10.541683+00:00",
+  "acceptedCompiledContexts": 10,
+  "acceptedStates": 174,
+  "acceptedNativeTaps": 142,
+  "runtimeErrors": 0,
+  "invalidFrames": 0,
+  "accepted": [
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-canvas/report.json",
+      "mode": "canvas",
+      "fixture": "вечера/first/360×640",
+      "passed": true,
+      "states": 20,
+      "nativeTaps": 25,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-canvas/report.json",
+      "mode": "canvas",
+      "fixture": "вечера/late/360×640",
+      "passed": true,
+      "states": 22,
+      "nativeTaps": 19,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-canvas/report.json",
+      "mode": "canvas",
+      "fixture": "вечера/captured/360×640",
+      "passed": true,
+      "states": 15,
+      "nativeTaps": 9,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-canvas/report.json",
+      "mode": "canvas",
+      "fixture": "вечера/legacy/360×640",
+      "passed": true,
+      "states": 15,
+      "nativeTaps": 9,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-canvas-empty/report.json",
+      "mode": "canvas",
+      "fixture": "вечера/empty/360×640",
+      "passed": true,
+      "states": 15,
+      "nativeTaps": 9,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-webgl/report.json",
+      "mode": "webgl1",
+      "fixture": "вечера/first/390×844",
+      "passed": true,
+      "states": 20,
+      "nativeTaps": 25,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-webgl/report.json",
+      "mode": "webgl1",
+      "fixture": "вечера/late/390×844",
+      "passed": true,
+      "states": 22,
+      "nativeTaps": 19,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-webgl/report.json",
+      "mode": "webgl1",
+      "fixture": "вечера/captured/390×844",
+      "passed": true,
+      "states": 15,
+      "nativeTaps": 9,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-webgl/report.json",
+      "mode": "webgl1",
+      "fixture": "вечера/legacy/390×844",
+      "passed": true,
+      "states": 15,
+      "nativeTaps": 9,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    },
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-webgl/report.json",
+      "mode": "webgl1",
+      "fixture": "вечера/empty/390×844",
+      "passed": true,
+      "states": 15,
+      "nativeTaps": 9,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    }
+  ],
+  "historicalFailed": [
+    {
+      "report": "/tmp/night-ui-runtime/evening-final-compiled-canvas/report.json",
+      "mode": "canvas",
+      "fixture": "вечера/empty/360×640",
+      "passed": false,
+      "states": 4,
+      "nativeTaps": 3,
+      "runtimeErrors": 0,
+      "invalidFrames": 0,
+      "bundleHash": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+    }
+  ],
+  "rawReports": [
+    {
+      "path": "/tmp/night-ui-runtime/evening-final-compiled-canvas/report.json",
+      "sha256": "e1aebd6b54219d24ba566560f928bc50f0c83431d784dca0e876be907fd85584",
+      "overallPassed": false
+    },
+    {
+      "path": "/tmp/night-ui-runtime/evening-final-compiled-canvas-empty/report.json",
+      "sha256": "fdab4af9bb812aefd99a403b97a0a5d19a520ee8de909aeb38d88fac9e62f7c1",
+      "overallPassed": true
+    },
+    {
+      "path": "/tmp/night-ui-runtime/evening-final-compiled-webgl/report.json",
+      "sha256": "34abeca6b096235f4aa8efc8958ada4e4ca224ba9128b93ad7de24ee84870f76",
+      "overallPassed": true
+    }
+  ],
+  "bundle": {
+    "filename": "index-CBJcwC1d.js",
+    "sha256": "365449e43c18fa06430c2c6e39a0180363b68801de51ec198b3ce319b439e1c4"
+  },
+  "sourceHashes": {
+    "src/game/scenes/TavernEveningScene.ts": "e0afaec567f510ff13611ecbbd4c1eaa24e797b2550b8da0377718d1aa393ac0",
+    "src/game/compactEveningLayout.ts": "ccf3826990f0a8a1c101026796e49ab4464c7639d3f0bfa41214e00fa10be121",
+    "scripts/night-evening-compact-ui-qa.cjs": "494ad2fa44006d1e6080ae0e38e163f6b1c3149d843afea9f10b6728d139275b"
+  },
+  "proofSharedScreen": "ce8df5071c956e83d8059558efd90b5e500d1589c55b740b054d1002b5159094",
+  "rootCombinedProof": "REQUIRED after Chapter7 candidate/shared foundation/source/policy integration",
+  "fixtureScope": "Public actPlayStage ch1_s10 seed20 from approved pre-victory checkpoint, public setSquad(Лира); UI-only canonical profiles and optional legacy/explicit-empty metadata compatibility, not a gameplay-completion claim. No external writes, no Date/RAF freeze or browser source imports."
+}

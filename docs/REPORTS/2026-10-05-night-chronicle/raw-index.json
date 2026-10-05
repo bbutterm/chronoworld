@@ -1,0 +1,55 @@
+{
+  "truth": {
+    "fullMatrixPassed": false,
+    "fullContextsPassed": 3,
+    "lastWebGlOriginalStopPreserved": true,
+    "lastWebGlGeometryAll244Cards12Stories75Replays20PagesCompleted": true,
+    "separateNativeTailPassed": true,
+    "tailFullSaveExact": true,
+    "tailRevisionBefore": 24,
+    "tailRevisionAfter": 24,
+    "errors": 0,
+    "cloudWrites": 0,
+    "allBrowsersClosed": true
+  },
+  "artifacts": [
+    {
+      "file": "originalRevisionStop.json.gz",
+      "sha256": "fdbb68c6d3034f35d19cd3eae147922a0ff9ed459209a445c0b0b101746cc1bf",
+      "rawSHA256": "ce98a4dcb0b5a86aae5d3c9386b9a6a3549123f88542c42d213330e066eb04af",
+      "rawBytes": 26741107,
+      "passed": false,
+      "note": null
+    },
+    {
+      "file": "fullNative.json.gz",
+      "sha256": "e9a363786e37e98bd15a3d235303ba617dc0b46ddaef84100d0e7e53bd2dafaa",
+      "rawSHA256": "0a08aaad586a30f945dcadb9933388869fa50248914832b9d62d1111d473aebe",
+      "rawBytes": 53775407,
+      "passed": false,
+      "note": "fullNative contains 3 passed contexts and 1 original STOP; fullMatrixPassed remains false"
+    },
+    {
+      "file": "nativeTail.json.gz",
+      "sha256": "dcc530c07faf71dc0229aa29648279baa4dc6a27c2d6244fb59e1fd1aa2b7dee",
+      "rawSHA256": "b85cbaf89d2fcae2ef6a66ff395a47cdd96d7bc0a23607ed7dc2d88c08c79e96",
+      "rawBytes": 105841,
+      "passed": true,
+      "note": null
+    }
+  ],
+  "productSource3": [
+    {
+      "path": "src/game/scenes/ChronicleScene.ts",
+      "sha256": "14d86013619082c19128e4682a07cdf1ae3c273a2a1f7981beb20bb1433d5b4b"
+    },
+    {
+      "path": "src/game/chronicleLayout.ts",
+      "sha256": "332655ccbb686799aa01946f6eb2fd3a5aadb51a8424255dab07bc070e444511"
+    },
+    {
+      "path": "tests/chronicle-compact.test.ts",
+      "sha256": "1e9d298e6fa4faf409657d327dc5971d215213087aa415dddc837d0ff32688c9"
+    }
+  ]
+}

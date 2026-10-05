@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "actualPublicBundle": {
+    "path": "/assets/index-D71usCSU.js",
+    "sha256": "ee67ba54d6a6a48657c97fdc4289c0c41702cd685c00d2eb5e55d2099c89cd56"
+  },
+  "main": "8265a7309b7483287644957fd2ba825e59dc789e",
+  "sourceCommit": "b00888b403f2b6c0031840c89f6583fc96451e6d",
+  "sourceTree": "86fd00311cdf0d78465cb193dae9a2398aa15019",
+  "sourceHashes": {
+    "src/game/viewLayout.ts": "250786f0cba0edcd9653751934e6c5e7938e59f538047d1a8cbe631c1e3917c4",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/screen.ts": "a1773c9a391ad6ec89699122cd51d75f20d22213143166e625b66380eaf64881",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0",
+    "src/game/scenes/HeroesScene.ts": "b9e26fb8342357a4be649135b84983f9a4bc3a791e1fb1878753cad5599b2b8e",
+    "src/game/scenes/HeroScene.ts": "aeeaad46e6e71cb5509242b75e7ec4947896948a6f5208ead87fccc9d633791f",
+    "src/game/scenes/AscendScene.ts": "2719a740c319c9b29c03415f1d812284d6e69d3bd9096f599ca56da18634f57b",
+    "src/game/scenes/HeroPickScene.ts": "fffd6072b5609332c44a9b104204d56897cf81e548f53fcccd217d638cd325b1",
+    "src/game/scenes/StageScene.ts": "fb7f64372665e9920a4aeaddc61d40c3f5b60dc8e7a03afaa11cd10720466580",
+    "src/game/scenes/SquadScene.ts": "3a300bd3918c06188b0fdaca03e44794c5aa1a9b296507d2e499a2d2d4a16223",
+    "src/game/squadEditor.ts": "ce615cd949bbc7f05674c7b3e8ec2b732c7fa9d368f4179a0f92867df226840e",
+    "src/game/squadPresets.ts": "51263473f6bce0d75b26618c2ef17ad604a19455edbe4580c68ef4970007f672",
+    "src/game/prepLayout.ts": "55fedc46e63e89ec4ba72fc7c77519864446be475e649831bb5e117262c7b1d3"
+  },
+  "adapterSha256": "4868635b41989bae84a549f4941e3bcc25afa8b29d013317cd222ee90b6df11b",
+  "originalStopReport": {
+    "file": "original-full-canvas-stop.json.gz",
+    "uncompressedSha256": "dc63e2365e4d7a94796a0012b8449eb3296045cf8f7af72ed8acbd5b4ea1fb92",
+    "uncompressedBytes": 159945,
+    "status": "FAIL at helper pure-core revision expectation; Stage/Squad not reached in original run"
+  },
+  "aggregate": {
+    "checks": 1605,
+    "phases": 58,
+    "errors": 0,
+    "sourceRequests": 0,
+    "blockedRequests": 0
+  },
+  "runs": [
+    {
+      "file": "public-full-canvas-360.json",
+      "checks": 614,
+      "phases": 23,
+      "stock": true,
+      "campaignClears": 36,
+      "fixtureSha256": "07dc747363ab806c1085df21612c3903e0d981adb1a32c215b3e69a6547f2d53",
+      "minimumVisibleTextCSS": 12,
+      "start": "2026-10-05T05:09:19.464Z",
+      "finish": "2026-10-05T05:09:53.210Z",
+      "pass": true
+    },
+    {
+      "file": "public-full-webgl-390.json",
+      "checks": 615,
+      "phases": 25,
+      "stock": true,
+      "campaignClears": 36,
+      "fixtureSha256": "07dc747363ab806c1085df21612c3903e0d981adb1a32c215b3e69a6547f2d53",
+      "minimumVisibleTextCSS": 13,
+      "start": "2026-10-05T05:10:19.429Z",
+      "finish": "2026-10-05T05:11:13.287Z",
+      "pass": true
+    },
+    {
+      "file": "public-late-canvas-360.json",
+      "checks": 188,
+      "phases": 5,
+      "stock": false,
+      "campaignClears": 180,
+      "fixtureSha256": "86ca2cc997e037e259fc25a5199d74987fa22be471ca0d9835f413f35029fb92",
+      "minimumVisibleTextCSS": 12,
+      "start": "2026-10-05T05:11:49.917Z",
+      "finish": "2026-10-05T05:12:02.723Z",
+      "pass": true
+    },
+    {
+      "file": "public-late-webgl-390.json",
+      "checks": 188,
+      "phases": 5,
+      "stock": false,
+      "campaignClears": 180,
+      "fixtureSha256": "86ca2cc997e037e259fc25a5199d74987fa22be471ca0d9835f413f35029fb92",
+      "minimumVisibleTextCSS": 13,
+      "start": "2026-10-05T05:13:12.330Z",
+      "finish": "2026-10-05T05:13:29.642Z",
+      "pass": true
+    }
+  ],
+  "physicalSafariTested": false,
+  "noNewGPUAfter": "2026-10-05T05:13:29.642Z",
+  "screenshots": "Two settled UI captures only. Early Stage Loading overlay PNG is preserved in original /tmp run and is not used as visual acceptance."
+}

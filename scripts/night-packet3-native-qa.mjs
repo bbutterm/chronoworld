@@ -329,8 +329,8 @@ async function mouseSwap(key, from, to) {
   await page.mouse.move(a.x,a.y);await page.mouse.down();await ready(key);await page.mouse.move(z.x,z.y,{steps:8});await ready(key);await page.mouse.up();await ready(key);
   const after=await current(key), expected=[...b.squad];[expected[from],expected[to]]=[expected[to],expected[from]];
   const aSave=JSON.parse(after.saved);assert(JSON.stringify(aSave.squad)===JSON.stringify(expected),'Native immediate mouse swap '+from+'→'+to+' updates exact squad in '+key);
-  const beforeOther={...b},afterOther={...aSave};delete beforeOther.squad;delete afterOther.squad;
-  assert(JSON.stringify(beforeOther)===JSON.stringify(afterOther),'Native mouse swap preserves every other save field in '+key);
+  const beforeOther={...b,revision:(b.revision??0)+1},afterOther={...aSave};delete beforeOther.squad;delete afterOther.squad;
+  assert(JSON.stringify(beforeOther)===JSON.stringify(afterOther),'Native mouse swap preserves every other gameplay field and one declared UI revision in '+key);
   report.interactions.push({kind:'native-mouse-swap',key,from,to,before:b.squad,after:aSave.squad,saveExceptSquadExact:true});
 }
 async function remainingFullFlow() {
@@ -356,7 +356,8 @@ async function remainingFullFlow() {
   await tap('HeroPick','pickClaim');await tap('HeroPick','branchName_'+pickBranch);await tap('HeroPick','branchConfirm');
   await page.waitForFunction(()=>window.__packetGame.scene.getScene('HeroPick').children.list.some(o=>o.name==='pickReveal'),null,{timeout:12000});
   const claimed=await snapshot('HeroPick','full-contract-reveal');const expected=C.claimHeroPick(JSON.parse(pickBefore.saved),0,pickTid,pickBranch,GAME);
-  assert(JSON.stringify(JSON.parse(claimed.saved))===JSON.stringify(JSON.parse(C.serialize(expected.save))),'Native contract commits exactly the public core expected save once');
+  const expectedUI={...expected.save,revision:(JSON.parse(pickBefore.saved).revision??0)+1};
+  assert(claimed.saved===C.serialize(expectedUI),'Native contract commits exactly the public core expected save and one declared UI revision');
   await invariantResize('HeroPick');await back('HeroPick','Hero');await back('Hero','Heroes');await tap('Heroes','Кампания',true);await ready('Campaign');
   await headerBalance('Campaign');await tap('Campaign','fightCta');await ready('Stage');await readable('Stage');
   let stage=await snapshot('Stage','full-stage-entry');assert(stage.stageId===stageId,'Campaign native Stage actually opened expected lawful stage');

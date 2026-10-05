@@ -3,9 +3,10 @@ import { compactNumber } from '../frame';
 import { GAME_W } from '../layout';
 import { contentBottom, CONTENT_TOP, screen } from '../screen';
 import { button, BTN, chip, ellipsize, listRow, mixHex, plate, ScrollArea, segmented, SURFACE, text, toast, type ButtonView } from '../ui';
-import { COLOR, COLOR_N, FAMILY, R, S, T } from '../theme';
+import { COLOR, COLOR_N, FAMILY, R, S, T, TOUCH_COMFORT } from '../theme';
 import { haptic } from '../haptics';
-import { staggerIn } from '../juice';
+import { collect, staggerIn } from '../juice';
+import { onViewChange } from '../viewport';
 import { api, onlineAvailable, openTgLink } from '../online/api';
 import { appLink, bellIcon } from '../online/entry';
 import {
@@ -34,7 +35,11 @@ export interface FriendsData {
   tab?: FriendsTab;
   board?: BoardKind;
   scope?: BoardScope;
+  /** После получения колокольчиков сохраняем положение списка. */
+  offset?: number;
 }
+
+type FriendsSelection = Required<Omit<FriendsData, 'offset'>>;
 
 /** Ответы сервера живут минуту: переключение вкладок не дёргает сеть. */
 const CACHE_MS = 60_000;
@@ -44,7 +49,7 @@ const cache = {
 };
 const fresh = (at: number) => Date.now() - at < CACHE_MS;
 
-let last: Required<FriendsData> = { tab: 'friends', board: 'power', scope: 'all' };
+let last: FriendsSelection = { tab: 'friends', board: 'power', scope: 'all' };
 
 /** Ширина контента: поля экрана S.l. */
 const CW = GAME_W - 2 * S.l;
@@ -61,7 +66,8 @@ const SCOPES: { id: BoardScope; label: string }[] = [
 ];
 /** Строка друга и доски. */
 const FRIEND_H = 136;
-const ROW_H = 120;
+const ROW_H = FRIEND_H;
+const OFFLINE_H = 840;
 /** Цвета медалей мест 1–3: золото, серебро, бронза. */
 const MEDAL = ['#f0c040', '#c9d2dc', '#cd8a52'] as const;
 /** Цвет кружка-аватара по имени (тёплая гамма, без кислотных). */
@@ -85,34 +91,50 @@ export const friendWhere = (chapter: number, stage: number): string => (chapter 
  */
 export class FriendsScene extends Phaser.Scene {
   private area!: ScrollArea;
-  private opts: Required<FriendsData> = last;
+  private opts: FriendsSelection = last;
   /** Номер показа: ответ, пришедший после перезапуска экрана, не рисуется. */
   private gen = 0;
   private status: Phaser.GameObjects.GameObject[] = [];
   /** Верх содержимого вкладки (под сегментом). */
   private top = 0;
+  private listTop = 0;
+  private restoreOffset = 0;
+  private recordsBody = false;
+  private mine?: Phaser.GameObjects.Container;
 
   constructor() {
     super('Friends');
   }
 
   create(data: FriendsData = {}): void {
-    this.opts = { ...last, ...data };
+    const { offset, ...selection } = data;
+    this.opts = { ...last, ...selection };
     last = this.opts;
     this.gen++;
+    this.busy = false;
     this.status = [];
+    this.mine = undefined;
+    this.restoreOffset = offset ?? 0;
+    this.recordsBody = false;
     screen(this, 'Друзья и рекорды', 'Home', { to: 'Home' });
+    this.listTop = CONTENT_TOP + S.s;
+    this.area = new ScrollArea(this, this.listTop, contentBottom() + S.xs);
+    this.area.content.setName('friendsScroll');
+    onViewChange(this, () => this.reflow());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.gen++; });
     if (!onlineAvailable()) {
-      this.offline();
+      const parts = collect(this.children, () => this.offline());
+      parts.forEach(part => this.area.add(part));
+      this.area.setContentHeight(OFFLINE_H + S.s);
       return;
     }
-    const ty = CONTENT_TOP + S.s + 44;
+    const ty = CONTENT_TOP + S.s + TOUCH_COMFORT / 2;
     const index = Math.max(0, TABS.findIndex((t) => t.id === this.opts.tab));
     // Колокольчики ждут, а открыты «Рекорды» — точка на вкладке «Друзья» (число — на самой карточке колокольчиков).
     const gifts = onlineState.giftsWaiting > 0;
-    const seg = segmented(this, GAME_W / 2, ty, CW, TABS.map((t) => ({ label: t.label, dot: t.id === 'friends' && gifts })), index, (i) => this.scene.restart({ tab: TABS[i].id } satisfies FriendsData));
+    const seg = segmented(this, GAME_W / 2, ty, CW, TABS.map((t) => ({ label: t.label, dot: t.id === 'friends' && gifts })), index, (i) => this.scene.restart({ tab: TABS[i].id } satisfies FriendsData), { h: TOUCH_COMFORT });
     seg.container.setName('friendsTabs');
-    this.top = ty + 44 + S.s;
+    this.top = ty + TOUCH_COMFORT / 2 + S.s;
     if (this.opts.tab === 'friends') this.friendsTab();
     else this.recordsTab();
   }
@@ -123,6 +145,12 @@ export class FriendsScene extends Phaser.Scene {
     return gen === this.gen && this.sys.isActive();
   }
 
+  /** Перемещаем существующие виды, не повторяя загрузку, получение наград или вход в сцену. */
+  private reflow(): void {
+    this.mine?.setY(contentBottom() - ROW_H / 2);
+    this.area.setBounds(this.listTop, this.recordsBody ? contentBottom() - ROW_H - S.xs : contentBottom() + S.xs);
+  }
+
   private clearStatus(): void {
     for (const o of this.status) o.destroy();
     this.status = [];
@@ -131,8 +159,10 @@ export class FriendsScene extends Phaser.Scene {
   /** «Загружаем…» — тихая строка; «Нет связи» — карточка с «Повторить» (вторичная кнопка). */
   private showStatus(y: number, msg: string, retry?: () => void): void {
     this.clearStatus();
+    this.area.clear();
     if (!retry) {
-      this.status.push(text(this, GAME_W / 2, y, msg, T.body, COLOR.textTertiary).setName('friendsLoading'));
+      this.status.push(this.area.add(text(this, GAME_W / 2, y, msg, T.body, COLOR.textTertiary).setName('friendsLoading')));
+      this.area.setContentHeight(y + T.body + S.s);
       return;
     }
     const h = 300;
@@ -141,13 +171,15 @@ export class FriendsScene extends Phaser.Scene {
     const b = button(this, GAME_W / 2, y + 70, 360, BTN.m, '', 'Повторить', retry, T.body, { variant: 'secondary' });
     b.container.setName('friendsRetry');
     this.status.push(b.container);
+    this.status.forEach(part => this.area.add(part));
+    this.area.setContentHeight(y + h / 2 + S.s);
   }
 
   /** Вне Telegram: иллюстрация (колокол в тёплом свете), одна строка и кнопка бота. */
   private offline(): void {
-    const cy = (CONTENT_TOP + contentBottom()) / 2 - 40;
-    const h = 840;
-    const top = cy - h / 2;
+    const h = OFFLINE_H;
+    const cy = h / 2;
+    const top = 0;
     plate(this, GAME_W / 2, cy, CW, h, { ...SURFACE.raised, r: R.l }).setName('friendsOffline');
     const artY = top + 230;
     this.add.image(GAME_W / 2, artY, 'skin_glow').setDisplaySize(620, 420).setTint(COLOR_N.accent).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD);
@@ -177,7 +209,7 @@ export class FriendsScene extends Phaser.Scene {
       const tw = c.width + S.xs + 240;
       c.setX(-tw / 2 + c.width / 2);
       b.container.setX(tw / 2 - 120);
-      trail.add([c, b.container]).setSize(tw, BTN.m);
+      trail.add([c, b.container]).setSize(tw, TOUCH_COMFORT);
       const row = listRow(this, GAME_W / 2, y + FRIEND_H / 2, CW, {
         icon: (s, x, iy, size) => bellIcon(s, x, iy, size, COLOR_N.accent),
         title: `Колокольчики ×${n}`,
@@ -190,19 +222,27 @@ export class FriendsScene extends Phaser.Scene {
       y += FRIEND_H + S.s;
     }
     const link = appLink();
-    this.area = new ScrollArea(this, y, contentBottom() + 10);
+    this.listTop = y;
+    this.reflow();
     const gen = this.gen;
     const draw = (list: FriendInfo[]) => {
-      if (!this.alive(gen)) return;
+      if (gen !== this.gen) return;
+      const offset = Math.max(this.restoreOffset, this.area.offset);
       this.clearStatus();
       this.area.clear();
       this.drawFriends(list, link);
+      this.area.offset = offset;
+      this.restoreOffset = 0;
     };
-    const statusY = y + 200;
+    const statusY = 200;
+    let loading = false;
     const load = async () => {
+      if (loading || gen !== this.gen) return;
+      loading = true;
       this.showStatus(statusY, 'Загружаем друзей…');
       const list = await api.friends();
       if (!this.alive(gen)) return;
+      loading = false;
       if (!list) {
         this.showStatus(statusY, 'Нет связи с сервером.\nИгра работает как обычно.', () => void load());
         return;
@@ -211,7 +251,7 @@ export class FriendsScene extends Phaser.Scene {
       const waiting = list.filter((f) => f.giftWaiting).length;
       if (waiting !== onlineState.giftsWaiting) {
         setGiftsWaiting(waiting);
-        this.scene.restart();
+        this.scene.restart({ offset: this.area.offset } satisfies FriendsData);
         return;
       }
       draw(list);
@@ -277,17 +317,17 @@ export class FriendsScene extends Phaser.Scene {
       }
     }
     // Бот: уведомления о сундуке, экспедиции и колокольчиках.
-    const bot = listRow(this, x, y + 112 / 2, CW, {
+    const bot = listRow(this, x, y + TOUCH_COMFORT / 2, CW, {
       icon: (s, ix, iy, size) => bellIcon(s, ix, iy, size * 0.8, COLOR_N.textSecondary),
       title: 'Уведомления в боте',
       subtitle: '@Chronoworldbot',
       trailing: '›',
-      h: 112,
+      h: TOUCH_COMFORT,
       onTap: a.tap(() => openTgLink(BOT_LINK)),
     }).setName('openBot');
     a.add(bot);
     groups.push([bot]);
-    y += 112;
+    y += TOUCH_COMFORT;
     a.setContentHeight(y + S.s);
     staggerIn(this, 'friends', groups);
   }
@@ -306,7 +346,7 @@ export class FriendsScene extends Phaser.Scene {
       p.setX(cx + p.width / 2);
       cx += p.width + S.xs;
     }
-    trail.add(parts).setSize(w, BTN.m);
+    trail.add(parts).setSize(w, TOUCH_COMFORT);
     const row = listRow(this, GAME_W / 2, y, CW, {
       icon: (s, x, iy, size) => avatar(s, x, iy, size, f.name, f.giftWaiting),
       title: f.name,
@@ -326,10 +366,16 @@ export class FriendsScene extends Phaser.Scene {
       return;
     }
     if (this.busy) return;
+    const gen = this.gen;
     this.busy = true;
+    b.setBusy(true);
     const ok = await api.giftSend(f.id);
+    if (!this.alive(gen)) {
+      if (ok) cache.friends = null;
+      return;
+    }
     this.busy = false;
-    if (!this.sys.isActive()) return;
+    b.setBusy(false);
     if (!ok) {
       toast(this, 'Не дозвонились — нет связи', COLOR.negative);
       return;
@@ -342,18 +388,19 @@ export class FriendsScene extends Phaser.Scene {
 
   private async claim(b: ButtonView): Promise<void> {
     if (this.busy) return;
+    const gen = this.gen;
     this.busy = true;
     b.setEnabled(false);
     const n = await claimBells();
+    if (n !== null) cache.friends = null;
+    if (!this.alive(gen)) return;
     this.busy = false;
-    if (!this.sys.isActive()) return;
     if (n === null) {
       b.setEnabled(true);
       toast(this, 'Нет связи с сервером — колокольчики подождут', COLOR.negative);
       return;
     }
-    cache.friends = null;
-    this.scene.restart();
+    this.scene.restart({ offset: this.area.offset } satisfies FriendsData);
     this.events.once(Phaser.Scenes.Events.CREATE, () =>
       toast(this, n > 0 ? `+${BELL_GEMS * n} гемов от друзей` : `На сегодня максимум — ${BELLS_PER_DAY}. Остальные — завтра`, n > 0 ? COLOR.gem : COLOR.title),
     );
@@ -367,34 +414,42 @@ export class FriendsScene extends Phaser.Scene {
     // Доски — один сегмент со значками; под ним — «Все игроки / Друзья» и неделя (у недельных досок).
     const kinds = BOARD_KINDS.map((k) => k.id);
     const bi = Math.max(0, kinds.indexOf(board));
-    const bseg = segmented(this, GAME_W / 2, y + 44, CW, kinds.map((k) => ({ label: BOARD_SHORT[k], icon: BOARD_ICON[k] })), bi, (i) => this.scene.restart({ board: kinds[i] } satisfies FriendsData));
+    const bseg = segmented(this, GAME_W / 2, y + TOUCH_COMFORT / 2, CW, kinds.map((k) => ({ label: BOARD_SHORT[k], icon: BOARD_ICON[k] })), bi, (i) => this.scene.restart({ board: kinds[i] } satisfies FriendsData), { h: TOUCH_COMFORT });
     bseg.container.setName('boardTabs');
-    y += 88 + S.xs;
+    y += TOUCH_COMFORT + S.xs;
     const si = Math.max(0, SCOPES.findIndex((s) => s.id === scope));
-    const sseg = segmented(this, S.l + 260, y + 40, 520, SCOPES.map((s) => s.label), si, (i) => this.scene.restart({ scope: SCOPES[i].id } satisfies FriendsData), { h: 80 });
+    const sseg = segmented(this, S.l + 260, y + TOUCH_COMFORT / 2, 520, SCOPES.map((s) => s.label), si, (i) => this.scene.restart({ scope: SCOPES[i].id } satisfies FriendsData), { h: TOUCH_COMFORT });
     sseg.container.setName('scopeTabs');
-    const weekY = y + 40;
-    y += 80 + S.s;
+    const weekY = y + TOUCH_COMFORT / 2;
+    y += TOUCH_COMFORT + S.s;
     // Внизу — моё место (плашка), над ней — список.
-    const bottom = contentBottom();
-    const mineY = bottom - ROW_H / 2;
     const listTop = y;
-    this.area = new ScrollArea(this, listTop, mineY - ROW_H / 2 - S.xs);
+    this.listTop = listTop;
+    this.recordsBody = true;
+    this.area.content.setName('boardScroll');
+    this.reflow();
     const gen = this.gen;
     const key = `${board}:${scope}`;
     const draw = (d: BoardResp) => {
-      if (!this.alive(gen)) return;
+      if (gen !== this.gen) return;
+      const offset = Math.max(this.restoreOffset, this.area.offset);
       this.clearStatus();
       this.area.clear();
       const week = weekLabel(d.week);
       if (week) text(this, GAME_W - S.l, weekY, week, T.caption, COLOR.textSecondary, { fontStyle: 'bold' }).setOrigin(1, 0.5).setName('boardWeek');
-      this.drawBoard(d, mineY);
+      this.drawBoard(d, contentBottom() - ROW_H / 2);
+      this.area.offset = offset;
+      this.restoreOffset = 0;
     };
-    const statusY = Math.round((listTop + mineY) / 2) - 60;
+    const statusY = 200;
+    let loading = false;
     const load = async () => {
+      if (loading || gen !== this.gen) return;
+      loading = true;
       this.showStatus(statusY, 'Загружаем рекорды…');
       const d = await api.board(board, scope);
       if (!this.alive(gen)) return;
+      loading = false;
       if (!d) {
         this.showStatus(statusY, 'Нет связи с сервером.\nРекорды подождут.', () => void load());
         return;
@@ -429,7 +484,8 @@ export class FriendsScene extends Phaser.Scene {
       staggerIn(this, 'board', groups);
     }
     // Моё место — всегда видно внизу.
-    mineRow(this, kind, d.mine, mineY);
+    this.mine?.destroy();
+    this.mine = mineRow(this, kind, d.mine, mineY);
   }
 }
 
@@ -457,22 +513,23 @@ function avatar(scene: Phaser.Scene, x: number, y: number, size: number, name: s
 interface BellButton {
   container: Phaser.GameObjects.Container;
   setSent: (sent: boolean) => void;
+  setBusy: (busy: boolean) => void;
 }
 
-/** Кнопка-колокольчик 96×96: позвонить; позвонили сегодня — приглушённая галка. */
+/** Кнопка-колокольчик: цель44CSSpx; позвонили сегодня — приглушённая галка с пояснением. */
 function bellButton(scene: Phaser.Scene, sent: boolean, onTap: () => void): BellButton {
-  const b = button(scene, 0, 0, BTN.icon, BTN.icon, '', '', onTap, T.body, { variant: 'icon' });
+  const b = button(scene, 0, 0, TOUCH_COMFORT, TOUCH_COMFORT, '', '', onTap, T.body, { variant: 'icon' });
   const glyph = scene.add.container(0, -2);
   b.container.add(glyph);
   const setSent = (s: boolean) => {
+    sent = s;
     glyph.removeAll(true);
     if (s) glyph.add(scene.add.image(0, 0, 'skin_ico_check').setDisplaySize(44, 44).setTint(COLOR_N.textTertiary));
     else glyph.add(bellIcon(scene, 0, 0, 50, COLOR_N.accent));
     b.setEnabled(!s);
   };
   setSent(sent);
-  b.container.setSize(BTN.icon, BTN.icon);
-  return { container: b.container, setSent };
+  return { container: b.container, setSent, setBusy: busy => b.setEnabled(!sent && !busy) };
 }
 
 /** Чипы в ряд по центру x (контейнер). */
@@ -533,7 +590,7 @@ function boardRow(scene: Phaser.Scene, kind: BoardKind, r: BoardRow, y: number):
 }
 
 /** «Ваше место» внизу: место и значение или короткая подсказка, как попасть на доску. */
-function mineRow(scene: Phaser.Scene, kind: BoardKind, mine: BoardMine | null, y: number): void {
+function mineRow(scene: Phaser.Scene, kind: BoardKind, mine: BoardMine | null, y: number): Phaser.GameObjects.Container {
   const how: Record<BoardKind, string> = { power: 'Пройдите этап', progress: 'Пройдите этап', tower: 'Поднимитесь в Башне', mvp: 'Сразитесь с MVP' };
   const row = listRow(scene, GAME_W / 2, y, CW, {
     icon: mine ? (s, x, iy, size) => placeBadge(s, x, iy, size, mine.place) : 'flag',
@@ -545,4 +602,5 @@ function mineRow(scene: Phaser.Scene, kind: BoardKind, mine: BoardMine | null, y
   });
   if (mine) meGlow(scene, row);
   row.setName('myPlace');
+  return row;
 }

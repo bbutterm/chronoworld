@@ -1,0 +1,156 @@
+{
+  "ready": true,
+  "createdAt": "2026-10-05T06:41:14.196360+00:00",
+  "scope": "ONE Canvas final-art native320→360 only; bothPNGinspected; no new matrix",
+  "bundle": {
+    "name": "index-BPki5j24.js",
+    "sha256": "98bf58903ae72dd2200f6710bf995401d3a64910f5e52b5a587cf5249ffdf7c5"
+  },
+  "runtimeResultSha256": "273bbb9201fed6ec41ed576fb5116e270f68b32a22a0cfe90ede88d4c9d23d3a",
+  "fixtureTestSha256": "cee84604693b9a22147b849838bd5e42f931fe912ab34b7906ca8e16ca35dd0c",
+  "helperSha256": "5c8f1e2ba1e3a2e3b03e9081a74083a247b59b66ce2d6f58d09397ebfdf3589c",
+  "widths": [
+    {
+      "width": 320,
+      "view": {
+        "uiHeight": 1586.25,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 29.33333333333337,
+        "cssW": 320,
+        "cssH": 610.6666666666666,
+        "backW": 320,
+        "backH": 611,
+        "density": 1,
+        "zoom": 0.2962962962962963,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 2061,
+        "safeTop": 0,
+        "safeBottom": 1586.25
+      },
+      "renderer": 1,
+      "text": "Хватает опыта на новый уровень ›",
+      "metadata": {
+        "sameContainer": true,
+        "gapWorld": 32,
+        "gapCSS": 9.481481481481481,
+        "plateWidth": 347,
+        "glyphWidth": 315,
+        "stage": "Этап 1-2 · 7,8 с",
+        "tag": "Первая победа"
+      },
+      "fontCSS": 12.148148148148147,
+      "hitCSS": {
+        "width": 213.33333333333331,
+        "height": 44.148148148148145
+      },
+      "centerDelta": {
+        "x": 0,
+        "y": 0
+      },
+      "auto": true,
+      "sceneSame": true,
+      "labelSame": true,
+      "inputSame": true,
+      "rectSame": true,
+      "callbackSame": true,
+      "enabledSame": true,
+      "creates": 0,
+      "saveSame": true,
+      "writesSame": true,
+      "frames": 252,
+      "clip": [
+        330,
+        1168.25
+      ],
+      "invalidFrames": []
+    },
+    {
+      "width": 360,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "renderer": 1,
+      "text": "Хватает опыта на новый уровень ›",
+      "metadata": {
+        "sameContainer": true,
+        "gapWorld": 32,
+        "gapCSS": 10.666666666666666,
+        "plateWidth": 309,
+        "glyphWidth": 277,
+        "stage": "Этап 1-2 · 7,8 с",
+        "tag": "Первая победа"
+      },
+      "fontCSS": 12,
+      "hitCSS": {
+        "width": 211,
+        "height": 44
+      },
+      "centerDelta": {
+        "x": 0,
+        "y": 0
+      },
+      "auto": true,
+      "sceneSame": true,
+      "labelSame": true,
+      "inputSame": true,
+      "rectSame": true,
+      "callbackSame": true,
+      "enabledSame": true,
+      "creates": 0,
+      "saveSame": true,
+      "writesSame": true,
+      "frames": 283,
+      "clip": [
+        330,
+        992
+      ],
+      "invalidFrames": []
+    }
+  ],
+  "final": {
+    "saveSame": true,
+    "writesSame": true,
+    "active": "Heroes"
+  },
+  "errors": [],
+  "closed": true,
+  "files": {
+    "docs/REPORTS/2026-10-05-night-result-meta-final-art/raw.json.gz": {
+      "sha256": "105052fbdecfdd2cbc84df8421fb5930785ee41a655f8ae348146998f9cadee7",
+      "bytes": 1805
+    },
+    "docs/REPORTS/2026-10-05-night-result-meta-final-art/result-320.png": {
+      "sha256": "849a9470547ece5986b4fe4b40b6f18b6dac858343ea1f1fa94163ebfaff8ad9",
+      "bytes": 202962
+    },
+    "docs/REPORTS/2026-10-05-night-result-meta-final-art/result-360.png": {
+      "sha256": "2cd287a1f0fbf3c0d439a8fb725979a2d9b33696eeeb5c9efc8157be883990de",
+      "bytes": 227159
+    },
+    "docs/qa/result-meta-final-art-acceptance.md": {
+      "sha256": "ec15ad029759282f5f943438e8f85bee4eb4fe1fa8b17a0a5e492a564abbc3d8",
+      "bytes": 3539
+    }
+  },
+  "historicalProof": "docs/REPORTS/2026-10-05-night-font-touch-final/summary.json; exact aeWR5f0f/source9c296,4/4PASS beforeart/reflow"
+}

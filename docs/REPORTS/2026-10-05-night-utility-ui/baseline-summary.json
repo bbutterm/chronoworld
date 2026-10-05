@@ -1,0 +1,1087 @@
+{
+  "status": "diagnostic-before-owned-utility-changes",
+  "sourceBaseline": "/tmp/chronoworld-utility-ui-source-baseline.json",
+  "measurements": [
+    {
+      "size": [
+        360,
+        640
+      ],
+      "scene": "Mail",
+      "before": {
+        "scene": "Mail",
+        "uiHeight": 1410,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1230
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "letter_m5",
+            "y": 285,
+            "height": 150
+          },
+          {
+            "name": "letter_m4",
+            "y": 451,
+            "height": 150
+          },
+          {
+            "name": "letter_m3",
+            "y": 617,
+            "height": 150
+          },
+          {
+            "name": "letter_m2",
+            "y": 783,
+            "height": 150
+          },
+          {
+            "name": "letter_m1",
+            "y": 949,
+            "height": 150
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Mail",
+        "uiHeight": 1170,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1230
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "letter_m5",
+            "y": 285,
+            "height": 150
+          },
+          {
+            "name": "letter_m4",
+            "y": 451,
+            "height": 150
+          },
+          {
+            "name": "letter_m3",
+            "y": 617,
+            "height": 150
+          },
+          {
+            "name": "letter_m2",
+            "y": 783,
+            "height": 150
+          },
+          {
+            "name": "letter_m1",
+            "y": 949,
+            "height": 150
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "runtimeErrors": []
+    },
+    {
+      "size": [
+        360,
+        640
+      ],
+      "scene": "Quests",
+      "before": {
+        "scene": "Quests",
+        "uiHeight": 1410,
+        "scrolls": [
+          {
+            "clip": [
+              470,
+              1230
+            ],
+            "y": 470
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 550,
+            "height": 112
+          },
+          {
+            "name": "quest_win_stages",
+            "y": 678,
+            "height": 112
+          },
+          {
+            "name": "quest_fight",
+            "y": 806,
+            "height": 112
+          },
+          {
+            "name": "quest_offline_chest",
+            "y": 934,
+            "height": 112
+          },
+          {
+            "name": "quest_fast_rewards",
+            "y": 1062,
+            "height": 112
+          },
+          {
+            "name": "quest_level_ups",
+            "y": 1190,
+            "height": 112
+          },
+          {
+            "name": "quest_summon",
+            "y": 1318,
+            "height": 112
+          },
+          {
+            "name": "quest_tower",
+            "y": 1446,
+            "height": 112
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Quests",
+        "uiHeight": 1170,
+        "scrolls": [
+          {
+            "clip": [
+              470,
+              1230
+            ],
+            "y": 470
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 550,
+            "height": 112
+          },
+          {
+            "name": "quest_win_stages",
+            "y": 678,
+            "height": 112
+          },
+          {
+            "name": "quest_fight",
+            "y": 806,
+            "height": 112
+          },
+          {
+            "name": "quest_offline_chest",
+            "y": 934,
+            "height": 112
+          },
+          {
+            "name": "quest_fast_rewards",
+            "y": 1062,
+            "height": 112
+          },
+          {
+            "name": "quest_level_ups",
+            "y": 1190,
+            "height": 112
+          },
+          {
+            "name": "quest_summon",
+            "y": 1318,
+            "height": 112
+          },
+          {
+            "name": "quest_tower",
+            "y": 1446,
+            "height": 112
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "runtimeErrors": []
+    },
+    {
+      "size": [
+        360,
+        640
+      ],
+      "scene": "Achievements",
+      "before": {
+        "scene": "Achievements",
+        "uiHeight": 1410,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1230
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 266,
+            "height": 112
+          },
+          {
+            "name": "ach_first_stage",
+            "y": 394,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_10",
+            "y": 522,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_30",
+            "y": 650,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_10",
+            "y": 778,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_100",
+            "y": 906,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_5",
+            "y": 1034,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_20",
+            "y": 1162,
+            "height": 112
+          },
+          {
+            "name": "ach_first_summon",
+            "y": 1290,
+            "height": 112
+          },
+          {
+            "name": "ach_summons_30",
+            "y": 1418,
+            "height": 112
+          },
+          {
+            "name": "ach_first_ascend",
+            "y": 1546,
+            "height": 112
+          },
+          {
+            "name": "ach_first_equip",
+            "y": 1674,
+            "height": 112
+          },
+          {
+            "name": "ach_equip_10",
+            "y": 1802,
+            "height": 112
+          },
+          {
+            "name": "ach_first_bounty",
+            "y": 1930,
+            "height": 112
+          },
+          {
+            "name": "ach_bounties_20",
+            "y": 2058,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_10",
+            "y": 2186,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_40",
+            "y": 2314,
+            "height": 112
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Achievements",
+        "uiHeight": 1170,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1230
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 266,
+            "height": 112
+          },
+          {
+            "name": "ach_first_stage",
+            "y": 394,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_10",
+            "y": 522,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_30",
+            "y": 650,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_10",
+            "y": 778,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_100",
+            "y": 906,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_5",
+            "y": 1034,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_20",
+            "y": 1162,
+            "height": 112
+          },
+          {
+            "name": "ach_first_summon",
+            "y": 1290,
+            "height": 112
+          },
+          {
+            "name": "ach_summons_30",
+            "y": 1418,
+            "height": 112
+          },
+          {
+            "name": "ach_first_ascend",
+            "y": 1546,
+            "height": 112
+          },
+          {
+            "name": "ach_first_equip",
+            "y": 1674,
+            "height": 112
+          },
+          {
+            "name": "ach_equip_10",
+            "y": 1802,
+            "height": 112
+          },
+          {
+            "name": "ach_first_bounty",
+            "y": 1930,
+            "height": 112
+          },
+          {
+            "name": "ach_bounties_20",
+            "y": 2058,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_10",
+            "y": 2186,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_40",
+            "y": 2314,
+            "height": 112
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "runtimeErrors": []
+    },
+    {
+      "size": [
+        360,
+        640
+      ],
+      "scene": "Shop",
+      "before": {
+        "scene": "Shop",
+        "uiHeight": 1410,
+        "scrolls": [],
+        "rows": [
+          {
+            "name": "shopSlot0",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot1",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot2",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot3",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot4",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot5",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot6",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot7",
+            "y": 1306,
+            "height": 400
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Shop",
+        "uiHeight": 1170,
+        "scrolls": [],
+        "rows": [
+          {
+            "name": "shopSlot0",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot1",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot2",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot3",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot4",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot5",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot6",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot7",
+            "y": 1306,
+            "height": 400
+          }
+        ],
+        "minFontCss": 12,
+        "minTargetCss": 44
+      },
+      "runtimeErrors": []
+    },
+    {
+      "size": [
+        390,
+        844
+      ],
+      "scene": "Mail",
+      "before": {
+        "scene": "Mail",
+        "uiHeight": 1866.4615384615386,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1686.4615384615386
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "letter_m5",
+            "y": 285,
+            "height": 150
+          },
+          {
+            "name": "letter_m4",
+            "y": 451,
+            "height": 150
+          },
+          {
+            "name": "letter_m3",
+            "y": 617,
+            "height": 150
+          },
+          {
+            "name": "letter_m2",
+            "y": 783,
+            "height": 150
+          },
+          {
+            "name": "letter_m1",
+            "y": 949,
+            "height": 150
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Mail",
+        "uiHeight": 1644.923076923077,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1686.4615384615386
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "letter_m5",
+            "y": 285,
+            "height": 150
+          },
+          {
+            "name": "letter_m4",
+            "y": 451,
+            "height": 150
+          },
+          {
+            "name": "letter_m3",
+            "y": 617,
+            "height": 150
+          },
+          {
+            "name": "letter_m2",
+            "y": 783,
+            "height": 150
+          },
+          {
+            "name": "letter_m1",
+            "y": 949,
+            "height": 150
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "runtimeErrors": []
+    },
+    {
+      "size": [
+        390,
+        844
+      ],
+      "scene": "Quests",
+      "before": {
+        "scene": "Quests",
+        "uiHeight": 1866.4615384615386,
+        "scrolls": [
+          {
+            "clip": [
+              470,
+              1686.4615384615386
+            ],
+            "y": 470
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 550,
+            "height": 112
+          },
+          {
+            "name": "quest_win_stages",
+            "y": 678,
+            "height": 112
+          },
+          {
+            "name": "quest_fight",
+            "y": 806,
+            "height": 112
+          },
+          {
+            "name": "quest_offline_chest",
+            "y": 934,
+            "height": 112
+          },
+          {
+            "name": "quest_fast_rewards",
+            "y": 1062,
+            "height": 112
+          },
+          {
+            "name": "quest_level_ups",
+            "y": 1190,
+            "height": 112
+          },
+          {
+            "name": "quest_summon",
+            "y": 1318,
+            "height": 112
+          },
+          {
+            "name": "quest_tower",
+            "y": 1446,
+            "height": 112
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Quests",
+        "uiHeight": 1644.923076923077,
+        "scrolls": [
+          {
+            "clip": [
+              470,
+              1686.4615384615386
+            ],
+            "y": 470
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 550,
+            "height": 112
+          },
+          {
+            "name": "quest_win_stages",
+            "y": 678,
+            "height": 112
+          },
+          {
+            "name": "quest_fight",
+            "y": 806,
+            "height": 112
+          },
+          {
+            "name": "quest_offline_chest",
+            "y": 934,
+            "height": 112
+          },
+          {
+            "name": "quest_fast_rewards",
+            "y": 1062,
+            "height": 112
+          },
+          {
+            "name": "quest_level_ups",
+            "y": 1190,
+            "height": 112
+          },
+          {
+            "name": "quest_summon",
+            "y": 1318,
+            "height": 112
+          },
+          {
+            "name": "quest_tower",
+            "y": 1446,
+            "height": 112
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "runtimeErrors": []
+    },
+    {
+      "size": [
+        390,
+        844
+      ],
+      "scene": "Achievements",
+      "before": {
+        "scene": "Achievements",
+        "uiHeight": 1866.4615384615386,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1686.4615384615386
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 266,
+            "height": 112
+          },
+          {
+            "name": "ach_first_stage",
+            "y": 394,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_10",
+            "y": 522,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_30",
+            "y": 650,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_10",
+            "y": 778,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_100",
+            "y": 906,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_5",
+            "y": 1034,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_20",
+            "y": 1162,
+            "height": 112
+          },
+          {
+            "name": "ach_first_summon",
+            "y": 1290,
+            "height": 112
+          },
+          {
+            "name": "ach_summons_30",
+            "y": 1418,
+            "height": 112
+          },
+          {
+            "name": "ach_first_ascend",
+            "y": 1546,
+            "height": 112
+          },
+          {
+            "name": "ach_first_equip",
+            "y": 1674,
+            "height": 112
+          },
+          {
+            "name": "ach_equip_10",
+            "y": 1802,
+            "height": 112
+          },
+          {
+            "name": "ach_first_bounty",
+            "y": 1930,
+            "height": 112
+          },
+          {
+            "name": "ach_bounties_20",
+            "y": 2058,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_10",
+            "y": 2186,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_40",
+            "y": 2314,
+            "height": 112
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Achievements",
+        "uiHeight": 1644.923076923077,
+        "scrolls": [
+          {
+            "clip": [
+              186,
+              1686.4615384615386
+            ],
+            "y": 186
+          }
+        ],
+        "rows": [
+          {
+            "name": "fold",
+            "y": 266,
+            "height": 112
+          },
+          {
+            "name": "ach_first_stage",
+            "y": 394,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_10",
+            "y": 522,
+            "height": 112
+          },
+          {
+            "name": "ach_stages_30",
+            "y": 650,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_10",
+            "y": 778,
+            "height": 112
+          },
+          {
+            "name": "ach_battles_100",
+            "y": 906,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_5",
+            "y": 1034,
+            "height": 112
+          },
+          {
+            "name": "ach_tower_20",
+            "y": 1162,
+            "height": 112
+          },
+          {
+            "name": "ach_first_summon",
+            "y": 1290,
+            "height": 112
+          },
+          {
+            "name": "ach_summons_30",
+            "y": 1418,
+            "height": 112
+          },
+          {
+            "name": "ach_first_ascend",
+            "y": 1546,
+            "height": 112
+          },
+          {
+            "name": "ach_first_equip",
+            "y": 1674,
+            "height": 112
+          },
+          {
+            "name": "ach_equip_10",
+            "y": 1802,
+            "height": 112
+          },
+          {
+            "name": "ach_first_bounty",
+            "y": 1930,
+            "height": 112
+          },
+          {
+            "name": "ach_bounties_20",
+            "y": 2058,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_10",
+            "y": 2186,
+            "height": 112
+          },
+          {
+            "name": "ach_job_level_40",
+            "y": 2314,
+            "height": 112
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "runtimeErrors": []
+    },
+    {
+      "size": [
+        390,
+        844
+      ],
+      "scene": "Shop",
+      "before": {
+        "scene": "Shop",
+        "uiHeight": 1866.4615384615386,
+        "scrolls": [],
+        "rows": [
+          {
+            "name": "shopSlot0",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot1",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot2",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot3",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot4",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot5",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot6",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot7",
+            "y": 1306,
+            "height": 400
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "afterTopInsetPlus80": {
+        "scene": "Shop",
+        "uiHeight": 1644.923076923077,
+        "scrolls": [],
+        "rows": [
+          {
+            "name": "shopSlot0",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot1",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot2",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot3",
+            "y": 882,
+            "height": 400
+          },
+          {
+            "name": "shopSlot4",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot5",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot6",
+            "y": 1306,
+            "height": 400
+          },
+          {
+            "name": "shopSlot7",
+            "y": 1306,
+            "height": 400
+          }
+        ],
+        "minFontCss": 13,
+        "minTargetCss": 47.666666666666664
+      },
+      "runtimeErrors": []
+    }
+  ],
+  "limitations": [
+    "Only correctly selected actual scenes are included; preliminary scene-selection mistakes were discarded.",
+    "Initial Shop diagnostic screenshots had unfinished first-visit animation; geometry of actual objects is retained, those screenshots are not visual acceptance.",
+    "No physical-device FPS or timing claim."
+  ],
+  "baseCommit": "41bbcc0718060d11d64248c8d2c0028177eae785",
+  "sourceHashesBeforeOwnedChanges": {
+    "src/game/scenes/AchievementsScene.ts": "dc9f6dfb713b106c7b6842a13d1382ea0ed9e639e24c17e4be25b147074bf9c0",
+    "src/game/scenes/MailScene.ts": "c6214ac28833b883319618f188b76cc98565ee060cf0b7edb731f546dc1ff906",
+    "src/game/scenes/QuestsScene.ts": "2b82e28e492fd66c449b37f350a4e58bd4924f352a290eda0b9bd0bdbdb23d99",
+    "src/game/scenes/ShopScene.ts": "c8edafa323cffeae3b075a661b024143c6ba0b897fdf3ca8e868a64b45a23b11",
+    "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+    "src/game/scroll.ts": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0",
+    "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+    "src/game/viewLayout.ts": "043427e76c832fc378e6acca068229125172236590128180458524fcd00d4360",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+  }
+}

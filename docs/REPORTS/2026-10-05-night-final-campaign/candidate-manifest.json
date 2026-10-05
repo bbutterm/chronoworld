@@ -1,0 +1,28 @@
+{
+  "worktree": "/workspace/chronoworld-worktrees/night-root-core-candidate",
+  "base": "2689d9e0bd9bffd0909448f35aa7baa5047a6e9e",
+  "status": "Immutable combined core candidate; no commits; 152 focused PASS and typecheck PASS",
+  "coreSha256": {
+    "src/core/autobattler/run.ts": "20dfd2bef1cf36b3f1de415808a7970783a985f3f41c7f0169c73205d8bc9812",
+    "src/core/campaign/campaign.ts": "1087910cc4da5985f3f40f3d15cdd5bdbd6ca2ea3fa77153d3fd9bfa22579199",
+    "src/core/save/save.ts": "a6f3675ca2e00a18a958b3e0650ad4441fb19c439d8bb4db590512032c13acda",
+    "src/core/save/schema.ts": "cd004fb658f2f16b559b8ac9371e762c4a4d9c50d4fa8118af438d6bf0aedc2b",
+    "src/core/tavern/tavern.ts": "5d42008db1532d2d9c0c04df507eb682f3d18762e591c677714ad38e316b53a9",
+    "src/core/tower/run.ts": "501e8dcaa7f06bc6c336e821b929830fdcc70451c945f2a843d206a11668d1b9"
+  },
+  "dataSha256": {
+    "data/campaign/chapter1.json": "07e99323ce2bbd70ced1fa4fa21663cc57ee56034eadd74f1ed52ddc26231ee6",
+    "data/progression.json": "fd7bccc9f745ffd56d5d2a0e0d6276d3921ff66568ae643b036a122a8f3af638"
+  },
+  "driverSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "driverFileSha256": {
+    "scripts/night-playthrough.ts": "06b79a7f9b260aabcf857b9a5503ad65e742a5eba0acb71f9cc5f9a351fc359c",
+    "scripts/lib/night-player.ts": "0eb6b5e8309d6685491ab4ded19f78ccaf36e3576bb7135d1be5e995285dc21e"
+  },
+  "manifests": [
+    "/tmp/chronoworld-night-arena2-manifest.json",
+    "/tmp/chronoworld-night-chapter-companions-manifest.json",
+    "/tmp/chronoworld-night-tower-bond-links-manifest.json",
+    "/tmp/chronoworld-night-design-docs-v2-manifest.json"
+  ]
+}

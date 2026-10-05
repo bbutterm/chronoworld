@@ -15,6 +15,7 @@ import { animateCurrency, heartbeat, juiceOn, type CurrencyPill } from './juice'
 import { sfx } from './audio';
 import { haptic } from './haptics';
 import { ModalBack } from './modalBack';
+import { MODAL_DATA, topModal } from './modalInput';
 import { isLeaving } from './transitions';
 import { BACK, BADGE, badgeLabel, compactNumber, GEAR, HEADER_CY, navTabCenter, parseGrouped, PILL, powerShortfall, titleLeft } from './frame';
 
@@ -53,10 +54,24 @@ export const CONTENT_BOTTOM = GAME_H - NAV_H - 20;
 /** Куда ведёт «‹» в шапке (и кнопка «назад» Telegram). */
 export type BackTarget = { label?: string; to: string; data?: object };
 
-/** Стабильный признак модального слоя: name экран может менять для поиска и QA. */
-const MODAL_DATA = 'screenModal';
 const modalBacks = new WeakMap<Phaser.Scene, ModalBack>();
 const screenFrames = new WeakMap<Phaser.Scene, () => void>();
+
+/** Plain сцена тоже получает Back при первом окне; поздний каркас сохраняет стек и одну подписку. */
+function sceneModalBack(scene: Phaser.Scene, goBack: (() => void) | null = null): ModalBack {
+  const existing = modalBacks.get(scene);
+  if (existing) {
+    existing.setFallback(goBack);
+    return existing;
+  }
+  const modalBack = new ModalBack(goBack, () => { if (!isLeaving(scene)) closeTopModal(scene); }, () => scene.sys.isActive());
+  modalBacks.set(scene, modalBack);
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    modalBack.destroy();
+    if (modalBacks.get(scene) === modalBack) modalBacks.delete(scene);
+  });
+  return modalBack;
+}
 
 /** Обновить баланс и chrome после награды без перезапуска содержимого, списка или модального окна. */
 export function refreshScreen(scene: Phaser.Scene): void {
@@ -86,13 +101,7 @@ export function screen(
   scene.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
   const fullW = GAME_W + 2 * BLEED_X;
   const goBack = back ? backAction(scene, back) : null;
-  modalBacks.get(scene)?.destroy();
-  const modalBack = new ModalBack(goBack, () => { if (!isLeaving(scene)) closeTopModal(scene); }, () => scene.sys.isActive());
-  modalBacks.set(scene, modalBack);
-  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-    modalBack.destroy();
-    if (modalBacks.get(scene) === modalBack) modalBacks.delete(scene);
-  });
+  sceneModalBack(scene, goBack);
   let frame: Phaser.GameObjects.GameObject[] = [];
   const frameIndex = scene.children.length;
   const drawFrame = () => {
@@ -168,24 +177,20 @@ function backAction(scene: Phaser.Scene, back: BackTarget): () => void {
 /** Зарегистрировать окно для Back независимо от его имени; close сохраняет очистку самого окна. */
 export function registerModal(layer: Phaser.GameObjects.Container, close: () => void): void {
   layer.setData(MODAL_DATA, true).setData('close', close);
-  const back = modalBacks.get(layer.scene);
-  if (back) layer.once(Phaser.GameObjects.Events.DESTROY, back.opened(layer));
+  const back = modalBacks.get(layer.scene) ?? sceneModalBack(layer.scene);
+  layer.once(Phaser.GameObjects.Events.DESTROY, back.opened(layer));
 }
 
 /** Закрыть верхнее зарегистрированное окно. Закрывающийся слой тоже перехватывает Back. */
 export function closeTopModal(scene: Phaser.Scene): boolean {
-  const list = scene.children.list;
-  for (let i = list.length - 1; i >= 0; i--) {
-    const o = list[i];
-    if (!o.getData?.(MODAL_DATA)) continue;
-    // Анимация закрытия ещё перекрывает экран: повторный Back не уводит под неё.
-    if (o.getData('closing')) return true;
-    const close = o.getData?.('close') as (() => void) | undefined;
-    if (close) close();
-    else o.destroy();
-    return true;
-  }
-  return false;
+  const o = topModal(scene);
+  if (!o) return false;
+  // Анимация закрытия ещё перекрывает экран: повторный Back не уводит под неё.
+  if (o.getData('closing')) return true;
+  const close = o.getData('close') as (() => void) | undefined;
+  if (close) close();
+  else o.destroy();
+  return true;
 }
 
 /** Кромка панели (шапки — по низу, навигации — по верху): тёмная бронза и тонкий золотой блик. */
@@ -876,7 +881,11 @@ export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, 
   const game = scene.sys.game;
   layer.once(Phaser.GameObjects.Events.DESTROY, () => shieldTaps(game));
   const rest = layer.list.filter((o) => o !== shade) as unknown as (Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Alpha)[];
-  if (shade) scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: M.base, ease: E.out });
+  const animated = juiceOn();
+  if (shade) {
+    if (animated) scene.tweens.add({ targets: shade, alpha: { from: 0, to: 1 }, duration: M.base, ease: E.out });
+    else (shade as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Alpha).setAlpha(1);
+  }
   // Масштаб контейнера — от центра экрана: сдвигаем начало координат в центр.
   const cy = view().uiHeight / 2;
   const inner = scene.add.container(GAME_W / 2, cy).setName('popInner');
@@ -886,6 +895,7 @@ export function popIn(scene: Phaser.Scene, layer: Phaser.GameObjects.Container, 
     inner.add(o as unknown as Phaser.GameObjects.GameObject);
   }
   layer.add(inner);
+  if (!animated) return;
   inner.setScale(0.92).setAlpha(0);
   scene.tweens.add({ targets: inner, scale: 1, alpha: 1, duration: M.base, ease: E.pop });
 }

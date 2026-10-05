@@ -1,0 +1,160 @@
+{
+  "scope": "No product changes. OWN Story3, HeroReturn and ChapterDone tiny sources remain frozen; shared4/dialogue/Chronicle/policy/core/data/assets excluded. Font320 candidate not in this compiled build. No published-production claim.",
+  "portability": "Private /tmp adapters depend on the isolated worktree and existing helpers; not a portable repository script. Browser receives compiled JS only; Node core/content imports prepare lawful fixture.",
+  "summary": {
+    "compiledPassed": true,
+    "exitCode": 0,
+    "contexts": 2,
+    "flows": 2,
+    "viewportSizes": [
+      {
+        "width": 360,
+        "height": 640
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "nativeTaps": 6,
+    "wheelActions": 4,
+    "sdkBackClosures": 6,
+    "resizeChecks": 10,
+    "errors": [],
+    "browserUIimports": [],
+    "clock": "normal Date and RAF",
+    "url": "http://127.0.0.1:5518/",
+    "queryFlags": false,
+    "bundleHashes": {
+      "/assets/index-CYhTrHqJ.js": "1706442af527d8d6885037db4bc0398ec700c466573f8afde2d63d3d4495d2fe"
+    },
+    "initialStopPreserved": true,
+    "correctedExpectation": "min(previousOffset, newMaxOffset)",
+    "pageReadRevision": [
+      {
+        "size": {
+          "width": 360,
+          "height": 640
+        },
+        "revision": [
+          1,
+          2
+        ]
+      },
+      {
+        "size": {
+          "width": 390,
+          "height": 844
+        },
+        "revision": [
+          1,
+          2
+        ]
+      }
+    ],
+    "fixtureBaseSha256": "4cc658ebd5e3e26710efc40a4dda98cafa34e92ad4cf6ed62fc9f43bde1824fd",
+    "fixtureSha256": "91ce49a3322d17b39d7d17d653e2c18d0067ca9585453a1b70be4878f2a78d44"
+  },
+  "sourceHashes": {
+    "scenes/ChapterDoneScene.ts": "d48413026d26979dc13b4f33a92becf2c54b073e6dd67f78db9be78edd34849a",
+    "storyPage.ts": "3d971d7595fa06ee9efa5fe2bd39b0017acd20981d3a22ced2ae027ce981c4a7",
+    "screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+    "modalBack.ts": "4317689024c2af97d911974f3e9efc5535d9591e8fd36d83ab85f034e4101a56",
+    "modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d",
+    "ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+    "viewLayout.ts": "0099638f93f5b007b2f2583d1b3fbaa0bc2f7b499e02911a31dba7f35b4407ab",
+    "dialogue.ts": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca"
+  },
+  "files": [
+    {
+      "file": "chapter-done-compiled-report.json.gz",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/report.json.gz",
+      "originalSha256": "3c284cb2a649235b82edffc9bf70133ddda79dfc9c5f881d62704ee7b10466b1",
+      "originalBytes": 371023,
+      "sha256": "3c284cb2a649235b82edffc9bf70133ddda79dfc9c5f881d62704ee7b10466b1",
+      "storedBytes": 371023,
+      "portable": null
+    },
+    {
+      "file": "clamp-summary.json",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/clamp-summary.json",
+      "originalSha256": "ba3b21073b93f9c2b2fc70dd36331f68adf4d1a1b5fcafc8b10e2a586b7c96e4",
+      "originalBytes": 3169,
+      "sha256": "ba3b21073b93f9c2b2fc70dd36331f68adf4d1a1b5fcafc8b10e2a586b7c96e4",
+      "storedBytes": 3169,
+      "portable": null
+    },
+    {
+      "file": "legal180-endpoint-fixture.json.gz",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/legal180-endpoint-fixture.json",
+      "originalSha256": "dab7e692b578c19de905548b97cf50e1b551d7585fd11308c25f25a5b5b48b9f",
+      "originalBytes": 49381,
+      "sha256": "7f1842f5cf83bbd77586dfdd356bce0632228e0f6e15d729fa8109be329eb2d5",
+      "storedBytes": 8994,
+      "portable": null
+    },
+    {
+      "file": "chapter-done-final-compiled-clamp.log",
+      "source": "/tmp/chronoworld-night-story-ui/chapter-done-final-compiled-clamp.log",
+      "originalSha256": "6d2c1b6c1c4ff314d63045341bbb5262b4662286ce40845958907bbf66ef2a52",
+      "originalBytes": 312,
+      "sha256": "6d2c1b6c1c4ff314d63045341bbb5262b4662286ce40845958907bbf66ef2a52",
+      "storedBytes": 312,
+      "portable": null
+    },
+    {
+      "file": "chapter-done-final-compiled.cjs",
+      "source": "/tmp/chronoworld-night-story-ui/chapter-done-final-compiled.cjs",
+      "originalSha256": "e39893c2d7e4f5c93824b2cca821ba3941de44fb64230709f56422c0517a865f",
+      "originalBytes": 6662,
+      "sha256": "e39893c2d7e4f5c93824b2cca821ba3941de44fb64230709f56422c0517a865f",
+      "storedBytes": 6662,
+      "portable": false
+    },
+    {
+      "file": "report.initial-stop.json",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/report.initial-stop.json",
+      "originalSha256": "83d1eeef3680035fb58933fe3f61a960b55ad8734df9ea294dce7a95ca2681ce",
+      "originalBytes": 1506,
+      "sha256": "83d1eeef3680035fb58933fe3f61a960b55ad8734df9ea294dce7a95ca2681ce",
+      "storedBytes": 1506,
+      "portable": null
+    },
+    {
+      "file": "initial-stop.log",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/initial-stop.log",
+      "originalSha256": "26505d70115ad805c22925a681ae61ca85db4e096a5e3060996b90706ef88484",
+      "originalBytes": 368,
+      "sha256": "26505d70115ad805c22925a681ae61ca85db4e096a5e3060996b90706ef88484",
+      "storedBytes": 368,
+      "portable": null
+    },
+    {
+      "file": "initial-stop-summary.json",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/initial-stop-summary.json",
+      "originalSha256": "53ff400c55733590e60db6a8d5848d5ad57226c500adca5155168ea16763baef",
+      "originalBytes": 541,
+      "sha256": "53ff400c55733590e60db6a8d5848d5ad57226c500adca5155168ea16763baef",
+      "storedBytes": 541,
+      "portable": null
+    },
+    {
+      "file": "pages-360.png",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/pages-360.png",
+      "originalSha256": "0f7f2613ce16d787858a0b6548614a2c33dc0298b122da62ef70f0ba35fabdea",
+      "originalBytes": 317055,
+      "sha256": "0f7f2613ce16d787858a0b6548614a2c33dc0298b122da62ef70f0ba35fabdea",
+      "storedBytes": 317055,
+      "portable": null
+    },
+    {
+      "file": "history-390.png",
+      "source": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/history-390.png",
+      "originalSha256": "d17b168c135bc2289701b71c4eab1eeb0aa2d6c543e2e7b8f3cffb86d4e81b1b",
+      "originalBytes": 140181,
+      "sha256": "d17b168c135bc2289701b71c4eab1eeb0aa2d6c543e2e7b8f3cffb86d4e81b1b",
+      "storedBytes": 140181,
+      "portable": null
+    }
+  ]
+}

@@ -65,12 +65,12 @@ const scaled = (b: BattleSpriteBounds, scale: number): BattleSpriteBounds => ({ 
  * Ordinary figures retain their current scale. Oversized art uses the largest half-step that fits its share of the
  * visible arena, keeping a large boss and space for the party at the same time.
  */
-export function battleSpritePresentation(def: SpriteDef, requestedScale: number, arena: BattlePresentationBounds): BattleSpritePresentation {
+export function battleSpritePresentation(def: SpriteDef, requestedScale: number, arena: BattlePresentationBounds, compact = false): BattleSpritePresentation {
   const animated = sourceBounds(def, Object.keys(def.anims));
   const body = sourceBounds(def, ['idle', 'walk', 'hurt']);
   const maxScale = Math.min(
     (arena.maxX - arena.minX) * MAX_WIDTH_PART / Math.max(1, animated.right - animated.left),
-    (arena.maxY - arena.minY) * MAX_HEIGHT_PART / Math.max(1, animated.bottom - animated.top),
+    (arena.maxY - arena.minY) * (compact ? 0.9 : MAX_HEIGHT_PART) / Math.max(1, animated.bottom - animated.top),
   );
   // A wide blade/death effect needs fitting, but does not turn an ordinary fighter into a giant footprint.
   const large = (body.right - body.left) * requestedScale > (arena.maxX - arena.minX) * LARGE_BODY_WIDTH_PART

@@ -1,0 +1,28 @@
+{
+  "flows": [],
+  "errors": [],
+  "clock": "normal Date and RAF",
+  "fixture": "legal180 + public markPageSeen/markUnlocksSeen/queueChapterDone only; wins/resources/heroes unchanged",
+  "adapterSha256": "f03df23b35d848716c3631e69550a1a7b87fe61495409774a3834c91a75e8b04",
+  "parentAdapterSha256": "9ef145c5e36de204bfd359e9adfae1a614acc3c35edc7a1a4c152bd22d39523f",
+  "sourceHashes": {
+    "scenes/ChapterDoneScene.ts": "d48413026d26979dc13b4f33a92becf2c54b073e6dd67f78db9be78edd34849a",
+    "storyPage.ts": "3d971d7595fa06ee9efa5fe2bd39b0017acd20981d3a22ced2ae027ce981c4a7",
+    "screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+    "modalBack.ts": "4317689024c2af97d911974f3e9efc5535d9591e8fd36d83ab85f034e4101a56",
+    "modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d",
+    "ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+    "viewLayout.ts": "0099638f93f5b007b2f2583d1b3fbaa0bc2f7b499e02911a31dba7f35b4407ab",
+    "dialogue.ts": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca"
+  },
+  "fixtureSha256": "91ce49a3322d17b39d7d17d653e2c18d0067ca9585453a1b70be4878f2a78d44",
+  "baseFixtureSha256": "4cc658ebd5e3e26710efc40a4dda98cafa34e92ad4cf6ed62fc9f43bde1824fd",
+  "compiledInstrumentation": {
+    "bundleHashes": {
+      "/assets/index-CYhTrHqJ.js": "1706442af527d8d6885037db4bc0398ec700c466573f8afde2d63d3d4495d2fe"
+    },
+    "sourceRequests": [],
+    "taps": 1,
+    "resizeChecks": 2
+  }
+}

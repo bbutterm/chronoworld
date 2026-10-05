@@ -1,0 +1,23 @@
+{
+  "scope": "Historical separate local compiled proofs; original passed=false attempts remain unchanged. These are not a new combined-root or public-deployment claim.",
+  "files": [
+    {
+      "file": "compiled-canvas.json.gz",
+      "source": "/tmp/night-ui-runtime/city-final-compiled-canvas/report.json",
+      "originalBytes": 94225,
+      "originalSha256": "b676ee03e6e8dcb962a8d4e0696cc0b91e69f1798df074eb3998713332fb6a37",
+      "storedBytes": 5194,
+      "sha256": "3b49ea51f856b36851b7d94f51793ea3d40ec072c83b48403c050b5f3c4bdbdc",
+      "compression": "gzip,mtime=0; original JSON preserved byte-for-byte"
+    },
+    {
+      "file": "compiled-webgl.json.gz",
+      "source": "/tmp/night-ui-runtime/city-final-compiled-webgl/report.json",
+      "originalBytes": 104341,
+      "originalSha256": "32297ee718c7835c889c7b40d62c056fc1a29fbc8489e7113336c30d7a930405",
+      "storedBytes": 6616,
+      "sha256": "9979cd852cf13559f2c3007d85347ee168218f6a89dbe725fdc5664eff0e0c2c",
+      "compression": "gzip,mtime=0; original JSON preserved byte-for-byte"
+    }
+  ]
+}

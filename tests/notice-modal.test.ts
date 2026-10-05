@@ -83,7 +83,7 @@ class Node extends EventEmitter {
 
 function setup() {
   const nodes: Node[] = [];
-  const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); nodes.push(n); return n; };
+  const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); n.scene = scene; nodes.push(n); return n; };
   const masks: { x: number; y: number; width: number; height: number }[] = [];
   const graphics = { clear() { return this; }, fillStyle() { return this; },
     fillRect(x: number, y: number, width: number, height: number) { masks.push({ x, y, width, height }); return this; },
@@ -93,7 +93,7 @@ function setup() {
     children: { get list() { return nodes.filter((n) => n.scene && !n.parentContainer); } },
     make: { graphics: () => graphics },
     input: new EventEmitter(), events: new EventEmitter(),
-    sys: { game: undefined }, tweens: { add: vi.fn() },
+    sys: { game: undefined, isActive: () => true }, tweens: { add: vi.fn() },
     scene: { start: vi.fn() },
     cameras: { main: { getWorldPoint: (x: number, y: number) => ({ x, y }) } },
   };
@@ -251,6 +251,9 @@ describe('noticeModal: читаемый текст без уменьшения �
     expect(h.worldY(h.buttons[0].node)).toBe(footer);
     h.buttons[0].tap();
     expect(h.scene.input.eventNames()).toEqual([]);
+    expect(h.scene.events.listenerCount('preupdate')).toBe(0);
+    expect(h.scene.events.listenerCount('shutdown')).toBe(1); // Scene Back owns its hook until scene shutdown.
+    h.scene.events.emit('shutdown');
     expect(h.scene.events.eventNames()).toEqual([]);
   });
 
@@ -295,11 +298,14 @@ describe('noticeModal: читаемый текст без уменьшения �
       const layer = h.open(longParagraphs);
       expect(h.scene.input.listenerCount('wheel')).toBe(1);
       expect(h.scene.events.listenerCount('preupdate')).toBe(1);
-      expect(h.scene.events.listenerCount('shutdown')).toBe(1);
+      expect(h.scene.events.listenerCount('shutdown')).toBe(2); // ScrollArea + lazy scene Back, both bounded.
       if (i % 2) h.scene.events.emit('shutdown');
       (layer.getData('close') as () => void)();
       layer.destroy(); // Explicit close and scene teardown remain idempotent.
       expect(h.scene.input.eventNames()).toEqual([]);
+      expect(h.scene.events.listenerCount('preupdate')).toBe(0);
+      expect(h.scene.events.listenerCount('shutdown')).toBe(i % 2 ? 0 : 1);
+      h.scene.events.emit('shutdown');
       expect(h.scene.events.eventNames()).toEqual([]);
       expect(h.clip()).toBeUndefined();
     }
@@ -381,6 +387,9 @@ describe('Back: стабильная идентичность модальных
     expect(closeTopModal(scene)).toBe(true);
     expect(lock.locked).toBe(false);
     expect(h.scene.input.eventNames()).toEqual([]);
+    expect(h.scene.events.listenerCount('preupdate')).toBe(0);
+    expect(h.scene.events.listenerCount('shutdown')).toBe(1);
+    h.scene.events.emit('shutdown');
     expect(h.scene.events.eventNames()).toEqual([]);
   });
 

@@ -1,8 +1,8 @@
 import { openCodes } from '../codesView';
 import Phaser from 'phaser';
-import { resetHints } from '../hints';
+import { hintDone, resetHints } from '../hints';
 import { GAME_H, GAME_W, HEADER_H } from '../layout';
-import { confirm, confirmOpen, contentBottom, popIn, screen } from '../screen';
+import { confirm, confirmOpen, contentBottom, popIn, registerModal, screen } from '../screen';
 import { collect, staggerIn } from '../juice';
 import { restartOnNewDay, session, startOver, today } from '../session';
 import { clearToasts, button, dangerButton, ellipsize, panel, ScrollArea, text, toast, tutorialHint } from '../ui';
@@ -23,12 +23,13 @@ import { homeEventIcons, touchToday } from '../homeEvents';
 import { chronicleButton } from '../loreView';
 import { friendsButton } from '../online/entry';
 import { idleDiorama } from '../idleDiorama';
-import { DIORAMA_H } from '../idleDioramaPlan';
 import { achievementStatus, heroGender, questStatus } from '../../core';
 import { GAME } from '../content';
 import { campLevel, claimableAchievements, claimableCount, heroSprite, leadHero } from '../flow';
 import { framedPortrait } from '../portraitFrame';
-import { SETTINGS_LAYOUT as SL, settingsRowLayout } from '../settingsLayout';
+import { SETTINGS_LAYOUT as SL, settingsLayout, settingsRowLayout } from '../settingsLayout';
+import { homeLayout } from '../homeLayout';
+import { onViewChange, view } from '../viewport';
 
 /**
  * Страница «Город» (вкладка нижней навигации, сцена Home) — живой лагерь, как главная AFK Arena:
@@ -40,18 +41,7 @@ import { SETTINGS_LAYOUT as SL, settingsRowLayout } from '../settingsLayout';
  *   Задания и Достижения — небольшие входы. Без строк-пояснений: состояние — тегом, полоской или числом.
  * Сундук, быстрые награды и «В бой» — на странице «Кампания», Башня, экспедиции и охота — «Приключения».
  */
-const L = {
-  /** Колонки «зданий»: поля S.l, между карточками S.s. */
-  left: S.l,
-  width: GAME_W - 2 * S.l,
-  gap: S.s,
-  /** Доля ширины ряда у Таверны (Лавка — остальное). */
-  tavernShare: 0.6,
-  /** Высота небольших входов (Задания, Достижения) и пределы высоты витрин. */
-  compactH: 168,
-  bigMin: 520,
-  bigMax: 760,
-} as const;
+const L = { left: S.l } as const;
 
 /** Инструменты разработчика (тестовый бой): dev-сборка или ?dev=1 в адресе. */
 function devTools(): boolean {
@@ -70,47 +60,73 @@ export class HomeScene extends Phaser.Scene {
     // Название в шапке не пишем: вкладка «Город» и так подсвечена; место — плашке игрока (playerPlate ниже).
     screen(this, '', 'Home', undefined, { settings: () => this.openSettings() });
     // События, контракт героя и почта — круглые иконки в шапке слева от шестерёнки (homeEvents.ts).
-    const iconsLeft = homeEventIcons(this);
-    this.playerPlate(iconsLeft - S.xs);
+    let header: Phaser.GameObjects.GameObject[] = [];
+    const drawHeader = () => {
+      for (const o of header) if (o.scene) o.destroy();
+      header = collect(this.children, () => this.playerPlate(homeEventIcons(this) - S.xs));
+    };
+    drawHeader();
+
+    // Список существует до прихода insets Telegram: диорама и все входы остаются доступны без restart.
+    const area = new ScrollArea(this, HEADER_H, contentBottom());
+    area.content.setName('homeScroll');
 
     // Отряд в походе: idle-бой с волнами монстров текущего этапа (касание — к сундуку на «Кампании»).
-    const dTop = HEADER_H;
-    idleDiorama(this, 0, dTop, { onTap: () => this.scene.start('Campaign') });
+    const dTop = 0;
+    const diorama = collect(this.children, () => idleDiorama(this, 0, dTop, { onTap: area.tap(() => this.scene.start('Campaign')) }));
+    for (const o of diorama) area.add(o);
     // «Летопись» (лор мира) — круглая иконка в левом верхнем углу диорамы; «Друзья и рекорды» (только в Telegram) — рядом.
     const iy = dTop + S.s + ROUND_ICON.size / 2;
-    chronicleButton(this, L.left + ROUND_ICON.size / 2 - 8, iy);
-    friendsButton(this, L.left + ROUND_ICON.size + S.s + 130 - 8, iy, 260, 96);
-
-    // «Здания»: высота витрин — по месту до навигации (вытянутый экран — выше), лишнее — поровну в отступы.
-    const top = dTop + DIORAMA_H + S.xxs;
-    const bottom = contentBottom();
-    const free = bottom - top - L.compactH - L.gap;
-    const bigH = Phaser.Math.Clamp(free, L.bigMin, L.bigMax);
-    const pad = Math.max(0, (free - bigH) / 3);
-    const bigY = top + pad + bigH / 2;
-    const tw = Math.round((L.width - L.gap) * L.tavernShare);
-    const sw = L.width - L.gap - tw;
-    const tavern = { x: L.left + tw / 2, y: bigY, w: tw, h: bigH };
-    const cw = (L.width - L.gap) / 2;
-    const cy = bigY + bigH / 2 + L.gap + pad + L.compactH / 2;
-    const quests = { x: L.left + cw / 2, y: cy, w: cw, h: L.compactH };
-    const rows = [
-      collect(this.children, () => {
-        tavernTile(this, tavern.x, tavern.y, tavern.w, tavern.h);
-        shopTile(this, GAME_W - L.left - sw / 2, bigY, sw, bigH);
-      }),
-      collect(this.children, () => {
-        this.questsEntry(quests.x, cy, cw, L.compactH);
-        this.achievementsEntry(GAME_W - L.left - cw / 2, cy, cw, L.compactH);
-      }),
-    ];
-    staggerIn(this, 'Home', rows);
+    const links = collect(this.children, () => {
+      chronicleButton(this, L.left + ROUND_ICON.size / 2 - 8, iy);
+      friendsButton(this, L.left + ROUND_ICON.size + S.s + 130 - 8, iy, 260, 132);
+    });
+    for (const o of links) area.add(o);
+    const buildings = area.add(this.add.container(0, 0).setName('homeBuildings'));
+    let layout = homeLayout(contentBottom());
+    const drawBuildings = (animate = false) => {
+      buildings.removeAll(true);
+      layout = homeLayout(contentBottom());
+      const { tavern, shop, quests, achievements } = layout;
+      const rows = [
+        collect(this.children, () => {
+          tavernTile(this, tavern.x, tavern.y, tavern.w, tavern.h);
+          shopTile(this, shop.x, shop.y, shop.w, shop.h);
+        }),
+        collect(this.children, () => {
+          this.questsEntry(quests.x, quests.y, quests.w, quests.h);
+          this.achievementsEntry(achievements.x, achievements.y, achievements.w, achievements.h);
+        }),
+      ];
+      rows.forEach((row) => buildings.add(row));
+      area.setContentHeight(layout.bodyHeight);
+      if (animate) staggerIn(this, 'Home', rows);
+    };
+    drawBuildings(true);
+    let tutorialStarted = false;
+    const hint = () => {
+      if (!tutorialStarted) return;
+      const id = cityHint(session.save);
+      const target = id === 'tavern_summon' ? layout.tavern : id === 'quests_open' ? layout.quests : null;
+      if (!target || !id || hintDone(id)) return;
+      const visibleHeight = contentBottom() - HEADER_H;
+      area.offset = Math.max(area.offset, target.y + target.h / 2 - visibleHeight);
+      tutorialHint(this, id, target.x, area.content.y + target.y, 'above', { w: target.w, h: target.h });
+    };
+    onViewChange(this, () => {
+      drawHeader();
+      area.setBounds(HEADER_H, contentBottom());
+      drawBuildings();
+      hint();
+    });
+    const lock = () => { area.locked = this.children.list.some((o) => o.name === 'settingsModal' || !!o.getData?.('screenModal')); };
+    this.events.on(Phaser.Scenes.Events.PRE_UPDATE, lock);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off(Phaser.Scenes.Events.PRE_UPDATE, lock));
     // Открылась новая функция (data/unlocks.json) — баннер «Новая функция!», один раз.
     // Ведущее обучение (tutorial.ts): Таверна ×10, затем задания — указатель на «здание» (после баннера).
     showUnlockBanners(this, () => {
-      const id = cityHint(session.save);
-      if (id === 'tavern_summon') tutorialHint(this, id, tavern.x, tavern.y, 'above', { w: tavern.w, h: tavern.h });
-      if (id === 'quests_open') tutorialHint(this, id, quests.x, quests.y, 'above', { w: quests.w, h: quests.h });
+      tutorialStarted = true;
+      hint();
     });
   }
 
@@ -188,18 +204,20 @@ export class HomeScene extends Phaser.Scene {
     if (this.children.getByName('settingsModal')) return;
     clearToasts(this);
     const cx = GAME_W / 2;
-    const cy = GAME_H / 2;
+    const cy = view().uiHeight / 2;
+    const chrome = settingsLayout(view().uiHeight);
     const bw = SL.contentW;
     const layer = this.add.container(0, 0).setDepth(8500).setName('settingsModal');
     const close = () => { if (!confirmOpen(this) && !area.locked) layer.destroy(); };
-    layer.setData('close', close);
-    const shade = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
+    registerModal(layer, close);
+    const shade = this.add.rectangle(cx, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
     shade.on('pointerup', close);
-    const box = panel(this, cx, cy, SL.panelW, SL.panelH, 'ui_panel').setInteractive();
+    const box = panel(this, cx, cy, chrome.panelW, chrome.panelH, 'ui_panel').setInteractive();
     layer.add([shade, box]);
-    layer.add(ribbon(this, cx, SL.titleY, 'Настройки', { size: T.heading, minW: 460 }));
+    const title = ribbon(this, cx, chrome.titleY, 'Настройки', { size: T.heading, minW: 460 });
+    layer.add(title);
 
-    const area = new ScrollArea(this, SL.bodyTop, SL.bodyBottom, {
+    const area = new ScrollArea(this, chrome.bodyTop, chrome.bodyBottom, {
       left: cx - bw / 2 - S.s, right: cx + bw / 2 + S.s,
     });
     area.content.setName('settingsContent');
@@ -284,13 +302,27 @@ export class HomeScene extends Phaser.Scene {
       syncLock();
     }, true);
     area.setContentHeight(y);
-    layer.add(text(this, cx, SL.hintY, 'Листайте ↕', T.caption, C.muted));
-    layer.add(text(this, cx, SL.versionY, devTools() ? `Версия ${version} · сборка ${import.meta.env.MODE}` : `Chronoworld · версия ${version}`, T.caption, C.dim));
-    const closeBtn = button(this, cx, SL.closeY, 460, SL.hitH, 'ui_btn_primary', 'Закрыть', close, T.body);
+    const hintText = text(this, cx, chrome.hintY, 'Листайте ↕', T.caption, C.muted);
+    const versionText = text(this, cx, chrome.versionY, devTools() ? `Версия ${version} · сборка ${import.meta.env.MODE}` : `Chronoworld · версия ${version}`, T.caption, C.dim);
+    layer.add([hintText, versionText]);
+    const closeBtn = button(this, cx, chrome.closeY, 460, SL.hitH, 'ui_btn_primary', 'Закрыть', close, T.body);
     closeBtn.container.setName('settingsClose');
     layer.add(closeBtn.container);
     popIn(this, layer, shade);
     // After popIn: keep mask, content and scroll bounds in world coordinates.
     layer.add(area.parts);
+    const offResize = onViewChange(this, (next) => {
+      const chrome = settingsLayout(next.uiHeight);
+      const center = next.uiHeight / 2;
+      const inner = layer.getByName('popInner') as Phaser.GameObjects.Container;
+      inner.setY(center);
+      box.setSize(chrome.panelW, chrome.panelH).setY(0);
+      title.setY(chrome.titleY - center);
+      hintText.setY(chrome.hintY - center);
+      versionText.setY(chrome.versionY - center);
+      closeBtn.container.setY(chrome.closeY - center);
+      area.setBounds(chrome.bodyTop, chrome.bodyBottom);
+    });
+    layer.once(Phaser.GameObjects.Events.DESTROY, offResize);
   }
 }

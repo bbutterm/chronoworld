@@ -1,0 +1,5805 @@
+{
+  "passed": true,
+  "stage": "dev-compact-policy-override",
+  "policy": "?compact=1; production policy remains owner controlled until compiled proof",
+  "sourceHashes": {
+    "src/game/scenes/MailScene.ts": "695efd68f244abe2d8eca4e6aa8b6984b0b152322ae84aefcdd36d31bfc557b2",
+    "src/game/scenes/QuestsScene.ts": "b59f8bf990ec1aeb1a0a8cc0a198af95c8f31b4612ccf1f32b8305d08602d70c",
+    "src/game/scenes/AchievementsScene.ts": "a18e2f7488fdf864597317639bd07a0b94bf8bcbf1bd44aa19a0fac13978ea96",
+    "src/game/scenes/ShopScene.ts": "f788899d6a5900557f2b00a05e7b854db12960b206a1d3d8ff5043d780a4a3ab",
+    "src/game/utilityScreenLayout.ts": "95001f1b9dce9af05bb60d6e9f53543d5be4bde5bcf37cf85220f8cb5e48b0e5",
+    "src/game/screen.ts": "ce8df5071c956e83d8059558efd90b5e500d1589c55b740b054d1002b5159094",
+    "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+    "src/game/viewLayout.ts": "250786f0cba0edcd9653751934e6c5e7938e59f538047d1a8cbe631c1e3917c4",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/scroll.ts": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0"
+  },
+  "gameSourceSha256": "a7d48feb36952608d9b5dd3b3218ed16d15cf5c75f36009b38d594db7127e3b6",
+  "fixtureEvidence": {
+    "early": {
+      "inputSha256": "29ccf105708a4c2b2a45bde8d2cce6bf8828f12a0173c42ddd7627b212d7a0dc",
+      "inputClock": {
+        "now": 1791158602200,
+        "day": "2026-10-05",
+        "seed": 14,
+        "stage": "ch1_s9"
+      },
+      "actualWinner": "A",
+      "actualDuration": 25.8,
+      "cleared": 14
+    },
+    "mid": {
+      "inputSha256": "f37acefeb829c84079001fd5743a398593da87b379899d169c20ffa6bbe3640f",
+      "inputClock": {
+        "now": 1791249342600,
+        "day": "2026-10-06",
+        "seed": 197,
+        "stage": "ch2_s18"
+      },
+      "waitedHours": 48,
+      "offlineCapAppliedByCore": true,
+      "replaySeeds": [
+        900,
+        901,
+        902,
+        903,
+        904
+      ],
+      "replayStage": "ch1_s1",
+      "now": 1791422151600,
+      "day": "2026-10-08",
+      "resources": {
+        "gold": 33581,
+        "heroExp": 51641
+      },
+      "currency": {
+        "blessedOre": 11,
+        "gems": 7,
+        "scrolls": 0
+      }
+    },
+    "late": {
+      "inputSha256": "300b70cae13432daf4385d864ff33df8f7fbb620fc93ca3002735f0e25807701",
+      "now": 1792756800000,
+      "cleared": 179,
+      "heroes": 52,
+      "inventory": 238
+    }
+  },
+  "inputs": [
+    {
+      "path": "/tmp/chronoworld-utility-ui-dev-final-clean/report.json",
+      "sha256": "3cd7e8f67f9c19c57ba20caac2c3ae8e943376a955037933c62908ded78cd606",
+      "harnessSha256": "b63f35bbdd007c01621a39929f5027de86be30ebd95a0f956350c767e592207d",
+      "originalOverallPassed": false,
+      "selectedFinishedCases": 15,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n'Mail' !== 'Home'\n\n    at flow (file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:359:67)\n    at async file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:425:11"
+    },
+    {
+      "path": "/tmp/chronoworld-utility-ui-dev-webgl390-final/report.json",
+      "sha256": "2c7abb4d46be79a2d1f2627897f6fe185a84c7f71c17fdcbb914173e4e5611c5",
+      "harnessSha256": "c7deba0c5153ff6c2fc79b0edb81cf890fa72c4cfb69f0dbf25775059e8e3b5e",
+      "originalOverallPassed": true,
+      "selectedFinishedCases": 5,
+      "failure": null
+    }
+  ],
+  "methodNote": "Only finished passed cases are selected. The initial 20-context sequence finished16 before a premature Back target assertion at WebGL390 mailAll. New explicit targetScene waiting verified all5 fresh WebGL390 profiles with identical product source hashes; one duplicate welcome is replaced. The previous failed overall report is retained and never relabelled PASS.",
+  "cases": [
+    {
+      "key": "canvas:360x640:welcome",
+      "input": 0,
+      "index": 0,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "welcome",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 7,
+      "actions": [
+        {
+          "name": "single-letter-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "locked-functions-logical-back",
+          "destinations": [
+            "Heroes",
+            "Home"
+          ]
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-ready",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-letter",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                481,
+                1378
+              ],
+              "y": 481
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                816
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                370,
+                1138
+              ],
+              "y": 370
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1176
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                601,
+                1498
+              ],
+              "y": 601
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-claimed",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "achievements-locked",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "shop-locked",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:360x640:mail_all",
+      "input": 0,
+      "index": 1,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "mail_all",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 3,
+      "actions": [
+        {
+          "name": "mail-claim-all-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-approved",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        }
+      ],
+      "lifecycle": [],
+      "geometry": [
+        {
+          "name": "mail-all-ready",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-all-claimed",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-empty",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:360x640:achievements",
+      "input": 0,
+      "index": 2,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "achievements",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 4,
+      "actions": [
+        {
+          "name": "achievement-double-tap",
+          "resources": {
+            "gold": 2285,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 180,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "achievements-claim-all",
+          "resources": {
+            "gold": 3385,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 200,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 3318,
+          "afterOffset": 3198,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "achievements-ready",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_bounties_20",
+            "y": 4726,
+            "height": 296
+          },
+          "resources": {
+            "gold": "2 185",
+            "gems": "180"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -3132
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -3132
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -3012
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1244,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:360x640:mid",
+      "input": 0,
+      "index": 3,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "mid",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 11,
+      "actions": [
+        {
+          "name": "shop-one-of-two-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "unaffordable-purchase",
+          "unchanged": true
+        },
+        {
+          "name": "free-refresh-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "paid-refresh-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "quest-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "milestone-double-tap",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "quests-claim-all",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57941
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 37,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Shop",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1202,
+          "afterOffset": 1082,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "shop-ready",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-sheet",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                860,
+                1378
+              ],
+              "y": 860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                620,
+                1138
+              ],
+              "y": 620
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                980,
+                1498
+              ],
+              "y": 980
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-bought",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-insufficient",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -860
+            },
+            {
+              "name": "",
+              "clip": [
+                802,
+                1378
+              ],
+              "y": 802
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-ready",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1056
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2346,
+            "height": 296
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1220
+              ],
+              "y": -732
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                980
+              ],
+              "y": -732
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1340
+              ],
+              "y": -612
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1244,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:360x640:late",
+      "input": 0,
+      "index": 4,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "late",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 16,
+      "actions": [
+        {
+          "name": "done-fold-open",
+          "tapped": false
+        },
+        {
+          "name": "late-free-refresh",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 173,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "late-paid-refresh-double-tap",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 153,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 450,
+          "afterOffset": 330,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1434,
+          "afterOffset": 1314,
+          "clampedOffsetCorrect": true,
+          "foldOpen": false
+        },
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1958,
+          "afterOffset": 1838,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        },
+        {
+          "scene": "Shop",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1046,
+          "afterOffset": 926,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-late",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "mail-last",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -264
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1122,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -264
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1122,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -144
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1242,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-late",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1220
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2490,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1220
+              ],
+              "y": -964
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1056,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                980
+              ],
+              "y": -964
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1056,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1340
+              ],
+              "y": -844
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1176,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-late",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 3082,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -1772
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -1772
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -1652
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1244,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-late",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -740
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1124,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:390x844:welcome",
+      "input": 0,
+      "index": 5,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "welcome",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 7,
+      "actions": [
+        {
+          "name": "single-letter-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "locked-functions-logical-back",
+          "destinations": [
+            "Heroes",
+            "Home"
+          ]
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-ready",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-letter",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                937.4615384615386,
+                1834.4615384615386
+              ],
+              "y": 937.4615384615386
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1290.923076923077
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                715.9230769230769,
+                1612.923076923077
+              ],
+              "y": 715.9230769230769
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1594.6153846153848
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1019.6153846153848,
+                1916.6153846153848
+              ],
+              "y": 1019.6153846153848
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-claimed",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "achievements-locked",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "shop-locked",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:390x844:mail_all",
+      "input": 0,
+      "index": 6,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "mail_all",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 3,
+      "actions": [
+        {
+          "name": "mail-claim-all-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-approved",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        }
+      ],
+      "lifecycle": [],
+      "geometry": [
+        {
+          "name": "mail-all-ready",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-all-claimed",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-empty",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:390x844:achievements",
+      "input": 0,
+      "index": 7,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "achievements",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 4,
+      "actions": [
+        {
+          "name": "achievement-double-tap",
+          "resources": {
+            "gold": 2285,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 180,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "achievements-claim-all",
+          "resources": {
+            "gold": 3385,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 200,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 2861.5384615384614,
+          "afterOffset": 2779.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "achievements-ready",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_bounties_20",
+            "y": 4726,
+            "height": 296
+          },
+          "resources": {
+            "gold": "2 185",
+            "gems": "180"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -2675.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1580.46142578125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": -2675.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1580.46142578125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": -2593.3846153846152
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1662.615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:390x844:mid",
+      "input": 0,
+      "index": 8,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "mid",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 11,
+      "actions": [
+        {
+          "name": "shop-one-of-two-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "unaffordable-purchase",
+          "unchanged": true
+        },
+        {
+          "name": "free-refresh-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "paid-refresh-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "quest-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "milestone-double-tap",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "quests-claim-all",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57941
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 37,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Shop",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 745.5384615384614,
+          "afterOffset": 663.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "shop-ready",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-sheet",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1316.4615384615386,
+                1834.4615384615386
+              ],
+              "y": 1316.4615384615386
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1094.923076923077,
+                1612.923076923077
+              ],
+              "y": 1094.923076923077
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1398.6153846153848,
+                1916.6153846153848
+              ],
+              "y": 1398.6153846153848
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-bought",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -403.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-insufficient",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -403.53846153846143
+            },
+            {
+              "name": "",
+              "clip": [
+                1258.4615384615386,
+                1834.4615384615386
+              ],
+              "y": 1258.4615384615386
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-ready",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1512.4615384615386
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2346,
+            "height": 296
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1676.4615384615386
+              ],
+              "y": -275.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1454.923076923077
+              ],
+              "y": -275.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1758.6153846153848
+              ],
+              "y": -193.38461538461524
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1662.6153564453125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        }
+      ]
+    },
+    {
+      "key": "canvas:390x844:late",
+      "input": 0,
+      "index": 9,
+      "passed": true,
+      "mode": "canvas",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "late",
+      "actualRenderers": [
+        1
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 16,
+      "actions": [
+        {
+          "name": "done-fold-open",
+          "tapped": false
+        },
+        {
+          "name": "late-free-refresh",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 173,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "late-paid-refresh-double-tap",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 153,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 977.5384615384614,
+          "afterOffset": 895.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": false
+        },
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1501.5384615384614,
+          "afterOffset": 1419.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        },
+        {
+          "scene": "Shop",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 589.5384615384614,
+          "afterOffset": 507.38461538461524,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-late",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "mail-last",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-late",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1676.4615384615386
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2490,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1676.4615384615386
+              ],
+              "y": -507.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1512.4615478515625,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1454.923076923077
+              ],
+              "y": -507.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1512.4615478515625,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1758.6153846153848
+              ],
+              "y": -425.38461538461524
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1594.6153564453125,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-late",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 3082,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -1315.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": -1315.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": -1233.3846153846152
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1662.6153564453125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-late",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -403.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": -403.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": -321.38461538461524
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1542.6153564453125,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:360x640:welcome",
+      "input": 0,
+      "index": 10,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "welcome",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 7,
+      "actions": [
+        {
+          "name": "single-letter-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "locked-functions-logical-back",
+          "destinations": [
+            "Heroes",
+            "Home"
+          ]
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-ready",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-letter",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                481,
+                1378
+              ],
+              "y": 481
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                816
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                370,
+                1138
+              ],
+              "y": 370
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1176
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                601,
+                1498
+              ],
+              "y": 601
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-claimed",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "achievements-locked",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "shop-locked",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:360x640:mail_all",
+      "input": 0,
+      "index": 11,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "mail_all",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 3,
+      "actions": [
+        {
+          "name": "mail-claim-all-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-approved",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        }
+      ],
+      "lifecycle": [],
+      "geometry": [
+        {
+          "name": "mail-all-ready",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-all-claimed",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-empty",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:360x640:achievements",
+      "input": 0,
+      "index": 12,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "achievements",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 4,
+      "actions": [
+        {
+          "name": "achievement-double-tap",
+          "resources": {
+            "gold": 2285,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 180,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "achievements-claim-all",
+          "resources": {
+            "gold": 3385,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 200,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 3318,
+          "afterOffset": 3198,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "achievements-ready",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1056
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_bounties_20",
+            "y": 4726,
+            "height": 296
+          },
+          "resources": {
+            "gold": "2 185",
+            "gems": "180"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -3132
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -3132
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -3012
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1244,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:360x640:mid",
+      "input": 0,
+      "index": 13,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "mid",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 11,
+      "actions": [
+        {
+          "name": "shop-one-of-two-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "unaffordable-purchase",
+          "unchanged": true
+        },
+        {
+          "name": "free-refresh-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "paid-refresh-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "quest-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "milestone-double-tap",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "quests-claim-all",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57941
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 37,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Shop",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1202,
+          "afterOffset": 1082,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "shop-ready",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-sheet",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                860,
+                1378
+              ],
+              "y": 860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                620,
+                1138
+              ],
+              "y": 620
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                980,
+                1498
+              ],
+              "y": 980
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-bought",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-insufficient",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -860
+            },
+            {
+              "name": "",
+              "clip": [
+                802,
+                1378
+              ],
+              "y": 802
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-ready",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1056
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2346,
+            "height": 296
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1220
+              ],
+              "y": -732
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                980
+              ],
+              "y": -732
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1340
+              ],
+              "y": -612
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1244,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:360x640:late",
+      "input": 0,
+      "index": 14,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        360,
+        640
+      ],
+      "scenario": "late",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 12,
+      "minTargetCss": 44,
+      "steps": 16,
+      "actions": [
+        {
+          "name": "done-fold-open",
+          "tapped": false
+        },
+        {
+          "name": "late-free-refresh",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 173,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "late-paid-refresh-double-tap",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 153,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 450,
+          "afterOffset": 330,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1434,
+          "afterOffset": 1314,
+          "clampedOffsetCorrect": true,
+          "foldOpen": false
+        },
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1958,
+          "afterOffset": 1838,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        },
+        {
+          "scene": "Shop",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1046,
+          "afterOffset": 926,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-late",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "mail-last",
+          "scene": "Mail",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -264
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1122,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -264
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1122,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -144
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1242,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-late",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1220
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2490,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1220
+              ],
+              "y": -964
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1056,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                980
+              ],
+              "y": -964
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1056,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1340
+              ],
+              "y": -844
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1176,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-late",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 3082,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -1772
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -1772
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1124,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -1652
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1244,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-late",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1410,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1220
+              ],
+              "y": -860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1170,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                980
+              ],
+              "y": -860
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1004,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1530,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1340
+              ],
+              "y": -740
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1124,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:390x844:welcome",
+      "input": 1,
+      "index": 0,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "welcome",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 7,
+      "actions": [
+        {
+          "name": "single-letter-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Mail",
+          "to": "Home",
+          "waitedMs": 684
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Achievements",
+          "to": "Heroes",
+          "waitedMs": 502
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Shop",
+          "to": "Home",
+          "waitedMs": 474
+        },
+        {
+          "name": "locked-functions-logical-back",
+          "destinations": [
+            "Heroes",
+            "Home"
+          ]
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-ready",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-letter",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                937.4615384615386,
+                1834.4615384615386
+              ],
+              "y": 937.4615384615386
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1290.923076923077
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                715.9230769230769,
+                1612.923076923077
+              ],
+              "y": 715.9230769230769
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1594.6153846153848
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1019.6153846153848,
+                1916.6153846153848
+              ],
+              "y": 1019.6153846153848
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-claimed",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "achievements-locked",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "shop-locked",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:390x844:mail_all",
+      "input": 1,
+      "index": 1,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "mail_all",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 3,
+      "actions": [
+        {
+          "name": "mail-claim-all-double-tap",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "delete-read-approved",
+          "resources": {
+            "gold": 500,
+            "heroExp": 500
+          },
+          "currency": {
+            "gems": 0,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Mail",
+          "to": "Home",
+          "waitedMs": 574
+        }
+      ],
+      "lifecycle": [],
+      "geometry": [
+        {
+          "name": "mail-all-ready",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "letter_m1",
+            "y": 310,
+            "height": 248
+          },
+          "resources": {
+            "gold": "0",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-all-claimed",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 516,
+            "height": 132
+          },
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        },
+        {
+          "name": "mail-empty",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "resources": {
+            "gold": "500",
+            "gems": "0"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:390x844:achievements",
+      "input": 1,
+      "index": 2,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "achievements",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 4,
+      "actions": [
+        {
+          "name": "achievement-double-tap",
+          "resources": {
+            "gold": 2285,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 180,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "achievements-claim-all",
+          "resources": {
+            "gold": 3385,
+            "heroExp": 1105
+          },
+          "currency": {
+            "gems": 200,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Achievements",
+          "to": "Heroes",
+          "waitedMs": 543
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 2861.5384615384614,
+          "afterOffset": 2779.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "achievements-ready",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1512.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_bounties_20",
+            "y": 4726,
+            "height": 296
+          },
+          "resources": {
+            "gold": "2 185",
+            "gems": "180"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -2675.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1580.46142578125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": -2675.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1580.46142578125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": -2593.3846153846152
+            }
+          ],
+          "tail": {
+            "name": "ach_equip_10",
+            "y": 1662.615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "3 385",
+            "gems": "200"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:390x844:mid",
+      "input": 1,
+      "index": 3,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "mid",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 11,
+      "actions": [
+        {
+          "name": "shop-one-of-two-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "unaffordable-purchase",
+          "unchanged": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Shop",
+          "to": "Shop",
+          "waitedMs": 444
+        },
+        {
+          "name": "free-refresh-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "paid-refresh-cancel",
+          "unchanged": true
+        },
+        {
+          "name": "quest-double-tap",
+          "resources": {
+            "gold": 27581,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "milestone-double-tap",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57641
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 7,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "quests-claim-all",
+          "resources": {
+            "gold": 27781,
+            "heroExp": 57941
+          },
+          "currency": {
+            "blessedOre": 11,
+            "gems": 37,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Quests",
+          "to": "Home",
+          "waitedMs": 616
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Shop",
+          "modal": true,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 745.5384615384614,
+          "afterOffset": 663.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "shop-ready",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-sheet",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1316.4615384615386,
+                1834.4615384615386
+              ],
+              "y": 1316.4615384615386
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1094.923076923077,
+                1612.923076923077
+              ],
+              "y": 1094.923076923077
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": 186
+            },
+            {
+              "name": "",
+              "clip": [
+                1398.6153846153848,
+                1916.6153846153848
+              ],
+              "y": 1398.6153846153848
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "33 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-bought",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -403.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "shop-insufficient",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -403.53846153846143
+            },
+            {
+              "name": "",
+              "clip": [
+                1258.4615384615386,
+                1834.4615384615386
+              ],
+              "y": 1258.4615384615386
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-ready",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1512.4615384615386
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2346,
+            "height": 296
+          },
+          "resources": {
+            "gold": "27 581",
+            "gems": "7"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1676.4615384615386
+              ],
+              "y": -275.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1454.923076923077
+              ],
+              "y": -275.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1758.6153846153848
+              ],
+              "y": -193.38461538461524
+            }
+          ],
+          "tail": {
+            "name": "quest_offline_chest",
+            "y": 1662.6153564453125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "27 781",
+            "gems": "37"
+          }
+        }
+      ]
+    },
+    {
+      "key": "webgl:390x844:late",
+      "input": 1,
+      "index": 4,
+      "passed": true,
+      "mode": "webgl",
+      "size": [
+        390,
+        844
+      ],
+      "scenario": "late",
+      "actualRenderers": [
+        2
+      ],
+      "minFontCss": 13,
+      "minTargetCss": 47.666666666666664,
+      "steps": 16,
+      "actions": [
+        {
+          "name": "physical-sdk-back",
+          "from": "Mail",
+          "to": "Home",
+          "waitedMs": 559
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Quests",
+          "to": "Home",
+          "waitedMs": 505
+        },
+        {
+          "name": "done-fold-open",
+          "tapped": false
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Achievements",
+          "to": "Home",
+          "waitedMs": 462
+        },
+        {
+          "name": "late-free-refresh",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 173,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "late-paid-refresh-double-tap",
+          "resources": {
+            "gold": 505414,
+            "heroExp": 47048463
+          },
+          "currency": {
+            "blessedOre": 0,
+            "gems": 153,
+            "scrolls": 0
+          },
+          "exactCoreState": true
+        },
+        {
+          "name": "physical-sdk-back",
+          "from": "Shop",
+          "to": "Home",
+          "waitedMs": 513
+        }
+      ],
+      "lifecycle": [
+        {
+          "scene": "Mail",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "clampedOffsetCorrect": true
+        },
+        {
+          "scene": "Quests",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 977.5384615384614,
+          "afterOffset": 895.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": false
+        },
+        {
+          "scene": "Achievements",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 1501.5384615384614,
+          "afterOffset": 1419.3846153846152,
+          "clampedOffsetCorrect": true,
+          "foldOpen": true
+        },
+        {
+          "scene": "Shop",
+          "modal": false,
+          "sameScene": true,
+          "sameArea": true,
+          "sameModal": true,
+          "noCreate": true,
+          "noSaveWrite": true,
+          "beforeOffset": 589.5384615384614,
+          "afterOffset": 507.38461538461524,
+          "clampedOffsetCorrect": true
+        }
+      ],
+      "geometry": [
+        {
+          "name": "mail-late",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "mail-last",
+          "scene": "Mail",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Mail",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Mail",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "mailScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "mailDelete",
+            "y": 1572,
+            "height": 132
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-late",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1676.4615384615386
+              ],
+              "y": 470
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 2490,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "quests-last",
+          "scene": "Quests",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1676.4615384615386
+              ],
+              "y": -507.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1512.4615478515625,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Quests",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1454.923076923077
+              ],
+              "y": -507.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1512.4615478515625,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Quests",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "questsScroll",
+              "clip": [
+                470,
+                1758.6153846153848
+              ],
+              "y": -425.38461538461524
+            }
+          ],
+          "tail": {
+            "name": "quest_tower",
+            "y": 1594.6153564453125,
+            "height": 296
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-late",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 3082,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "achievements-last",
+          "scene": "Achievements",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -1315.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Achievements",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": -1315.5384615384614
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1580.4615478515625,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Achievements",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "achievementsScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": -1233.3846153846152
+            }
+          ],
+          "tail": {
+            "name": "ach_job_level_40",
+            "y": 1662.6153564453125,
+            "height": 160
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-late",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": 186
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 2050,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "shop-last",
+          "scene": "Shop",
+          "uiHeight": 1866.4615384615386,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1676.4615384615386
+              ],
+              "y": -403.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "insets-small",
+          "scene": "Shop",
+          "uiHeight": 1644.923076923077,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1454.923076923077
+              ],
+              "y": -403.53846153846143
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1460.4615478515625,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        },
+        {
+          "name": "resize-tall",
+          "scene": "Shop",
+          "uiHeight": 1920,
+          "scrolls": [
+            {
+              "name": "shopScroll",
+              "clip": [
+                186,
+                1758.6153846153848
+              ],
+              "y": -321.38461538461524
+            }
+          ],
+          "tail": {
+            "name": "shopSlot7",
+            "y": 1542.6153564453125,
+            "height": 400
+          },
+          "resources": {
+            "gold": "505K",
+            "gems": "173"
+          }
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "cases": 20,
+    "capturedStates": 164,
+    "actions": 87,
+    "lifecycle": 32,
+    "errors": 0,
+    "invalidFrames": 0,
+    "externalGameRequests": 0,
+    "minFontCss": 12,
+    "minTargetCss": 44
+  },
+  "limitations": [
+    "Browser behavior and geometry, not physical iPhone FPS.",
+    "All dev cases used reduced-motion setting to isolate layout and actions.",
+    "Global 3MB initial sprite budget debt is unchanged."
+  ]
+}

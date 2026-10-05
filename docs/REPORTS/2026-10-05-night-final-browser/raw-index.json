@@ -1,0 +1,89 @@
+{
+  "scope": "Original all26 pre-art UI checks and exact final owner100 art build; each original FAIL is preserved. final-build.json pins source975, archive and final JS. Only check-final-sprites-pass proves current2374+3.",
+  "files": [
+    {
+      "file": "smoke-original-nested-selector-fail.log.gz",
+      "passed": false,
+      "rawSHA256": "f8df4500f98381b6ed23dd95ebb808089a04f2d03313ea2b2b5f2700396914fa",
+      "gzipSHA256": "029fd93ee17f3b8b1a3c3b2c8f5597ad29fdac56d0b3f7efb2cf1eae24c34036",
+      "rawBytes": 859
+    },
+    {
+      "file": "smoke-original-stale-showcase-tap-fail.log.gz",
+      "passed": false,
+      "rawSHA256": "789a8afed739e45a4971c33a77dc1b1325add9fae20b1e2a27b590050639de05",
+      "gzipSHA256": "3eedf44e7f59b26df2f569c642448bb32b20f9319222deb994d97c7de4000c69",
+      "rawBytes": 4570
+    },
+    {
+      "file": "smoke-final-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "98e76b7b9ae7375b22fb2d77b03310f69a46f0f495dc710e96859e8d735cf178",
+      "gzipSHA256": "27159614bad91d17b6a419e76a7e975d4b1ee545919e17e664be5a93e845fd5b",
+      "rawBytes": 4718
+    },
+    {
+      "file": "chapter1-final-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "d5de2b2013af3bf6c33096b000d9681518e01732c8100174b5b23e2ef98f08d9",
+      "gzipSHA256": "175123fb8ae3000fff6d9c7a5b7f55968176a7e07fff948afd4e553567f71a63",
+      "rawBytes": 10313
+    },
+    {
+      "file": "check-before-art-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "0f4e92e3210904093517d014cfc70bcbda3ced5e4f5866d43ae8a1d095e34e42",
+      "gzipSHA256": "66315414bdfc06a4f7ac829afe2d78d207eca36df6ad50aeed70d711919da5b2",
+      "rawBytes": 73992
+    },
+    {
+      "file": "build-before-art-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "bea5e8d0b162fde400b047c7cd5f5ea93c56620328cecc2a9f5a0012538c4ac9",
+      "gzipSHA256": "ec95a2d23cf76721c31ea1f48d37b93acb6d85b8ee1862262319e0512e0fe088",
+      "rawBytes": 239584
+    },
+    {
+      "file": "check-type-annotation-fail.log.gz",
+      "passed": false,
+      "rawSHA256": "8ed397c0b034586e0e86abbd51ac5412274e2cf9ae7225e90759a40ca5022ce4",
+      "gzipSHA256": "e59650c0ef745d8c1fd047325b7c3b4f7215c5ab2d2a8ec5283f85988b406289",
+      "rawBytes": 1789
+    },
+    {
+      "file": "check-old-art-fixtures-fail.log.gz",
+      "passed": false,
+      "rawSHA256": "29f03d87ac50fadb49c5bd9af4f9a3930b3c2a74826b23588930fabb39fea229",
+      "gzipSHA256": "54b1b776c4cb2a6d540741f1b366764c65ab2c4de4b3ee39c1709b91a87b6b18",
+      "rawBytes": 77377
+    },
+    {
+      "file": "check-final-sprites-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "a6d63422111f3a88b615990b75d7b4f3e442663637bd34510ff53a3bdce53b62",
+      "gzipSHA256": "11a1031ac2635ddb20305954a8c4d5ead6d5ecbefb7d18f431d46dc01b5c146c",
+      "rawBytes": 73991
+    },
+    {
+      "file": "sprite-fixtures-final-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "94da575430669e0428af28e27a8ca3676fda9826aaeea3ca1b0aa9f238799d6d",
+      "gzipSHA256": "093f51616ac9d215857fc08d5825d6c309771e13e1c80443e417397a49d5b089",
+      "rawBytes": 71859
+    },
+    {
+      "file": "build-final-sprites-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "bdc67cad0c429a3750e6ca1ffd8b4642da5ec644330a0a84ea0ce5a5b9327fd9",
+      "gzipSHA256": "d87d7444ce7057c2c46f41215b97541a26faec183150191a7d5937f3cc51a1f0",
+      "rawBytes": 239584
+    },
+    {
+      "file": "ui-lint-final-sprites-pass.log.gz",
+      "passed": true,
+      "rawSHA256": "a7a8b03ebeec0843bcc68fa9e15ca074d30863a80480dc9ed2cbb711940a567f",
+      "gzipSHA256": "2a95661215283ac8cbdc8e74903275785d12424c27ed9e436540037d4953c640",
+      "rawBytes": 1340
+    }
+  ]
+}

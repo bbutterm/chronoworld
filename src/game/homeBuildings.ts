@@ -6,6 +6,7 @@ import { SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { COLOR, COLOR_N, FAMILY, R, S, T } from './theme';
 import { ellipsize, plate, pressable, pressFeedback, SURFACE, tag, text, TONE_COLOR, type Tone } from './ui';
 import { lockedToast, lockLabel } from './unlockBanner';
+import { minimumTouchSize } from './viewport';
 
 /**
  * «Здания» страницы «Город» (HomeScene): у каждого входа свой вид и размер по важности, без строк-пояснений.
@@ -238,7 +239,8 @@ export function roundIcon(
   draw(false);
   const box = scene.add.container(x, y, [g, glyph(size * 0.62)]).setName(name);
   // Своя цель нажатия (без прямоугольного затемнения pressable — у круга отклик кромкой и сжатием).
-  const hit = scene.add.zone(x, y, ROUND_ICON.hit, ROUND_ICON.hit).setInteractive({ useHandCursor: true });
+  const hitSize = Math.max(ROUND_ICON.hit, minimumTouchSize());
+  const hit = scene.add.zone(x, y, hitSize, hitSize).setName(`${name}Hit`).setInteractive({ useHandCursor: true });
   let armed = false;
   let last = -Infinity;
   const set = (p: boolean) => {
@@ -259,6 +261,13 @@ export function roundIcon(
     haptic('tap');
     onTap();
   });
-  box.once(Phaser.GameObjects.Events.DESTROY, () => hit.scene && hit.destroy());
+  const release = () => set(false);
+  scene.input.on('ui-cancel-press', release);
+  scene.input.on('pointerup', release);
+  box.once(Phaser.GameObjects.Events.DESTROY, () => {
+    scene.input.off('ui-cancel-press', release);
+    scene.input.off('pointerup', release);
+    if (hit.scene) hit.destroy();
+  });
   return box;
 }

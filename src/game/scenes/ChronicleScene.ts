@@ -18,8 +18,10 @@ import { bottomSheet, CONTENT_TOP, contentBottom, portrait, screen, unitTint } f
 import { session } from '../session';
 import { portraitKey } from '../sprites';
 import { ensureTavernTextures, TAVERN_BG, TAVERN_BG_FILE } from '../tavernArt';
-import { BTN, button, chip, ellipsize, listRow, mixHex, plate, pressable, ScrollArea, segmented, SURFACE, tag, text } from '../ui';
+import { button, chip, ellipsize, listRow, mixHex, plate, pressable, ScrollArea, segmented, SURFACE, tag, text } from '../ui';
 import { C, COLOR, COLOR_N, FAMILY, FS, R, S, T } from '../theme';
+import { chronicleLayout } from '../chronicleLayout';
+import { minimumFontSize, minimumTouchSize, onViewChange } from '../viewport';
 
 const TABS: { id: ChronicleTab; label: string }[] = [
   { id: 'world', label: 'Мир' },
@@ -31,10 +33,11 @@ const TABS: { id: ChronicleTab; label: string }[] = [
 
 /** Последняя открытая вкладка (в пределах сессии). */
 let lastTab: ChronicleTab = 'world';
+let lastOffsets: Partial<Record<ChronicleTab, number>> = {};
 
 export interface ChronicleData {
   tab?: ChronicleTab;
-  /** Прокрутка списка после перезапуска (закрыли историю героя — список остаётся на том же месте, BUG-155). */
+  /** Положение списка при возврате с другого экрана, например после вечера в таверне. */
   scroll?: number;
 }
 
@@ -46,7 +49,6 @@ const GAP = S.s;
 const TILE_W = (CW - (COLS - 1) * GAP) / COLS;
 const colX = (i: number) => S.l + TILE_W / 2 + i * (TILE_W + GAP);
 /** Строка списка (запись мира, находка, предмет). */
-const ROW_H = 136;
 /** Карточка «Вечера в „Двух колоколах“» — арт зала таверны. */
 const TAVERN_H = 300;
 
@@ -63,6 +65,24 @@ export class ChronicleScene extends Phaser.Scene {
   private seen = new Set<string>();
   /** Записи вкладки, которые считаются «новыми», пока не прочитаны (открытые, с текстом лора). */
   private readable = new Set<string>();
+  private offsets: Partial<Record<ChronicleTab, number>> = {};
+  private tabs!: Phaser.GameObjects.Container;
+  private summaryText?: Phaser.GameObjects.Text;
+
+  private layout() {
+    return chronicleLayout(CONTENT_TOP, contentBottom(), minimumTouchSize(), minimumFontSize());
+  }
+
+  private get rowH(): number { return this.layout().rowH; }
+  private font(size: number): number { return Math.max(size, minimumFontSize()); }
+
+  /** Общие карточки/чипы не меняем: увеличиваем только их небольшие подписи в Летописи. */
+  private readableLabels(root: Phaser.GameObjects.Container): void {
+    for (const o of root.list) {
+      if (o instanceof Phaser.GameObjects.Text && Number.parseFloat(o.style.fontSize as string) < minimumFontSize()) o.setFontSize(minimumFontSize());
+      else if (o instanceof Phaser.GameObjects.Container) this.readableLabels(o);
+    }
+  }
 
   constructor() {
     super('Chronicle');
@@ -71,37 +91,70 @@ export class ChronicleScene extends Phaser.Scene {
   create(data: ChronicleData = {}): void {
     this.tab = data.tab ?? lastTab;
     lastTab = this.tab;
+    this.offsets = { ...lastOffsets };
+    this.summaryText = undefined;
     screen(this, 'Летопись', 'Home', { to: 'Home' });
     // Что было прочитано до этого визита: «новое» отмечается точкой, затем вкладка считается прочитанной.
     this.seen = new Set(seenLore());
     const unseen = loreUnseen();
-    const ty = CONTENT_TOP + S.s + 44;
+    const layout = this.layout();
+    const ty = layout.tabY;
     const index = Math.max(0, TABS.findIndex((t) => t.id === this.tab));
-    const seg = segmented(this, GAME_W / 2, ty, CW, TABS.map((t) => t.label), index, (i) => this.scene.restart({ tab: TABS[i].id } satisfies ChronicleData));
+    const seg = segmented(this, GAME_W / 2, ty, CW, TABS.map((t) => t.label), index, (i) => this.changeTab(TABS[i].id), { h: layout.tabH });
     seg.container.setName('chronicleTabs');
+    this.tabs = seg.container;
+    seg.container.list.filter((o) => o instanceof Phaser.GameObjects.Zone).forEach((o, i) => o.setName(`chronicleTab_${TABS[i].id}`));
     // Есть непрочитанное на другой вкладке — тихая золотая точка над подписью (красное — только «можно забрать»).
     const segW = (CW - 12) / TABS.length;
     TABS.forEach((t, i) => {
       const n = unseen[t.id] + (t.id === 'world' ? tavernNewCount(session.save, GAME) : 0);
-      if (n > 0 && i !== index) goldDot(this, S.l + 6 + segW * (i + 1) - 12, ty - 44 + 4).setName(`chronicleTabDot_${t.id}`);
+      if (n > 0 && i !== index) seg.container.add(goldDot(this, -CW / 2 + 6 + segW * (i + 1) - 12, -layout.tabH / 2 + 14).setName(`chronicleTabDot_${t.id}`));
     });
+    this.area = new ScrollArea(this, layout.listTop, layout.listBottom);
+    this.area.content.setName('chronicleScroll');
+    this.renderTab(data.scroll ?? this.offsets[this.tab] ?? 0);
+    const area = this.area;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.offsets[this.tab] = area.offset;
+      lastOffsets = { ...this.offsets };
+    });
+    onViewChange(this, () => {
+      const next = this.layout();
+      this.tabs.setY(next.tabY);
+      this.summaryText?.setY(next.summaryY).setFontSize(this.font(T.caption));
+      this.area.setBounds(next.listTop, next.listBottom);
+      this.readableLabels(this.area.content);
+    });
+  }
+
+  /** Переключение сохраняет независимые позиции вкладок и не перезапускает сцену/SDK Back. */
+  private changeTab(tab: ChronicleTab): void {
+    if (tab === this.tab || this.area.locked) return;
+    this.offsets[this.tab] = this.area.offset;
+    this.tab = lastTab = tab;
+    this.tabs.getByName(`chronicleTabDot_${tab}`)?.destroy();
+    this.renderTab(this.offsets[tab] ?? 0);
+  }
+
+  private renderTab(offset: number): void {
+    this.area.clear();
+    this.summaryText?.destroy();
+    this.seen = new Set(seenLore());
     const keys = loreKeys()[this.tab];
     this.readable = new Set(keys);
-    const listTop = ty + 44 + S.s + 40;
-    this.area = new ScrollArea(this, listTop, contentBottom() + 10);
     if (this.tab === 'world') this.world();
     else if (this.tab === 'findings') this.findings();
     else if (this.tab === 'bestiary') this.bestiary();
     else if (this.tab === 'items') this.items();
     else this.heroes();
-    if (data.scroll) this.area.offset = data.scroll;
+    this.readableLabels(this.area.content);
+    this.area.offset = offset;
     markLoreSeen(keys);
   }
 
   /** Строка над списком: «Открыто 3 из 12» (без инструкций). */
   private summary(open: number, total: number, label = 'Открыто'): void {
-    const y = CONTENT_TOP + S.s + 88 + S.s + 14;
-    text(this, S.l + S.xxs, y, `${label} ${open} из ${total}`, T.caption, COLOR.textSecondary, { fontStyle: 'bold' }).setOrigin(0, 0.5).setName('chronicleSummary');
+    this.summaryText = text(this, S.l + S.xxs, this.layout().summaryY, `${label} ${open} из ${total}`, this.font(T.caption), COLOR.textSecondary, { fontStyle: 'bold' }).setOrigin(0, 0.5).setName('chronicleSummary');
   }
 
   /** Золотая точка «новое» в правом верхнем углу записи. */
@@ -129,13 +182,13 @@ export class ChronicleScene extends Phaser.Scene {
     // Закрытые записи — одна следующая строкой, остальные — одной строкой «Ещё N впереди» (не стена из «???»).
     const shown = list.filter((w, i) => w.open || list.findIndex((x) => !x.open) === i);
     for (const w of shown) {
-      const row = this.worldRow(w, y + ROW_H / 2);
+      const row = this.worldRow(w, y + this.rowH / 2);
       groups.push([row]);
-      y += ROW_H + S.xs;
+      y += this.rowH + S.xs;
     }
     const rest = list.length - shown.length;
     if (rest > 0) {
-      this.area.add(text(this, GAME_W / 2, y + 40, `Ещё ${rest} ${plural(rest, 'запись', 'записи', 'записей')} впереди`, T.caption, COLOR.textTertiary, { fontStyle: 'bold' }).setName('chronicleMore'));
+      this.area.add(text(this, GAME_W / 2, y + 40, `Ещё ${rest} ${plural(rest, 'запись', 'записи', 'записей')} впереди`, this.font(T.caption), COLOR.textTertiary, { fontStyle: 'bold' }).setName('chronicleMore'));
       y += 80;
     }
     this.area.setContentHeight(y + S.s);
@@ -150,7 +203,7 @@ export class ChronicleScene extends Phaser.Scene {
     const fresh = newEvenings(session.save, GAME).length;
     const open = t.evenings.filter((e) => eveningStatus(session.save, e, GAME) !== 'locked').length;
     const cy = top + TAVERN_H / 2;
-    const go = a.tap(() => startTavernEvening(this, { mode: 'hub', back: { to: 'Chronicle', data: { tab: 'world' } } }));
+    const go = a.tap(() => startTavernEvening(this, { mode: 'hub', back: { to: 'Chronicle', data: { tab: 'world', scroll: a.offset } satisfies ChronicleData } }));
     const frame = a.add(plate(this, GAME_W / 2, cy, CW, TAVERN_H, { ...SURFACE.raised, r: R.l }));
     // Арт: середина зала (очаг и столы) — обрезка нарисованного фона таверны (или файла художника).
     ensureTavernTextures(this);
@@ -187,7 +240,8 @@ export class ChronicleScene extends Phaser.Scene {
     let subtitle: string;
     if (!w.open) {
       title = '???';
-      subtitle = w.kind === 'chapter' ? `Глава ${chNo}` : `После этапа ${w.unlockLabel ?? '?'}`;
+      const previous = chapter ? CONTENT.chapters[CONTENT.chapters.indexOf(chapter) - 1] : undefined;
+      subtitle = w.kind === 'chapter' ? `Глава ${chNo}${previous ? ` · после главы ${previous.order}` : ''}` : `После этапа ${w.unlockLabel ?? '?'}`;
     } else if (w.kind === 'chapter') {
       title = w.lore?.title ?? chapter?.episode?.title ?? w.chapterName.replace(/^Глава\s*\d+\.\s*/, '');
       subtitle = w.lore?.location ?? chapter?.episode?.subtitle ?? `Глава ${chNo}`;
@@ -201,11 +255,11 @@ export class ChronicleScene extends Phaser.Scene {
       subtitle,
       ...(w.open ? { trailing: '›', trailingTone: 'accent' as const, onTap: a.tap(() => this.worldSheet(w)) } : {}),
       dim: !w.open,
-      h: ROW_H,
+      h: this.rowH,
     });
     row.setName(`chronicleWorld_${w.id}`);
     a.add(row);
-    if (w.open) this.newDot(GAME_W - S.l - 14, y - ROW_H / 2 + 14, `world:${w.id}`);
+    if (w.open) this.newDot(GAME_W - S.l - 14, y - this.rowH / 2 + 14, `world:${w.id}`);
     return row;
   }
 
@@ -237,22 +291,21 @@ export class ChronicleScene extends Phaser.Scene {
           label: `Сцены · ${scenes}`,
           name: `chronicleScenes_${chapter.id}`,
           on: () => {
-            openStoryHistory(this, chapter.id);
-            // Список под окном «Истории» не листается и не нажимается.
-            a.locked = true;
-            this.children.getByName('history')?.once(Phaser.GameObjects.Events.DESTROY, () => (a.locked = false));
+            // Helper держит именно этот список заблокированным и во время повторного диалога.
+            openStoryHistory(this, chapter.id, { lock: a });
           },
         });
       }
     }
     a.locked = true;
+    let afterClose: (() => void) | undefined;
     bottomSheet(
       this,
       title,
       (box, width, close) => {
         let y = 0;
         const add = (s: string, size: number, color: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}, gap: number = S.s) => {
-          const t = text(this, 0, y, s, size, color, { align: 'left', wordWrap: { width, useAdvancedWrap: true }, ...style }).setOrigin(0, 0);
+          const t = text(this, 0, y, s, this.font(size), color, { align: 'left', wordWrap: { width, useAdvancedWrap: true }, ...style }).setOrigin(0, 0);
           box.add(t);
           y += t.height + gap;
         };
@@ -263,26 +316,30 @@ export class ChronicleScene extends Phaser.Scene {
         else if (chapter?.episode?.quote) add(`«${chapter.episode.quote}»`, T.body, COLOR.title, { fontStyle: 'italic' }, S.m);
         if (btns.length) {
           const bw = (width - S.xs * (btns.length - 1)) / btns.length;
+          const bh = this.layout().pageButtonH;
           btns.forEach((b, i) => {
-            const btn = button(this, bw / 2 + i * (bw + S.xs), y + BTN.m / 2, bw, BTN.m, '', b.label, () => {
+            const btn = button(this, bw / 2 + i * (bw + S.xs), y + bh / 2, bw, bh, '', b.label, () => {
+              afterClose = b.on;
               close();
-              b.on();
             }, T.body, { variant: 'secondary' });
             btn.container.setName(b.name);
             box.add(btn.container);
           });
-          y += BTN.m;
+          y += bh;
         }
         return y;
       },
-      { onClose: () => (a.locked = false) },
+      { onClose: () => {
+        a.locked = false;
+        // Новый рассказ открывается после закрытия листа: его lock не сбросит запоздалый callback.
+        afterClose?.();
+      } },
     );
   }
 
   /** Страницы поверх Летописи: список под ними не листается. */
   private read(pages: StoryPage[]): void {
-    this.area.locked = true;
-    showPages(this, pages, () => (this.area.locked = false));
+    showPages(this, pages, () => {}, { lock: this.area });
   }
 
   // ---------- Находки ----------
@@ -301,8 +358,8 @@ export class ChronicleScene extends Phaser.Scene {
         this.area.add(ellipsize(text(this, S.l + S.xxs, y + 30, name, T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5), CW));
         y += 60 + S.xs;
       }
-      this.findingRow(f, y + ROW_H / 2);
-      y += ROW_H + S.xs;
+      this.findingRow(f, y + this.rowH / 2);
+      y += this.rowH + S.xs;
     }
     this.area.setContentHeight(y + S.s);
   }
@@ -318,10 +375,11 @@ export class ChronicleScene extends Phaser.Scene {
       subtitle: f.found ? `${FINDING_KIND_NAMES[f.finding.kind]} · этап ${f.stageLabel}` : `Этап ${f.stageLabel}`,
       ...(f.found ? { trailing: '›', trailingTone: 'accent' as const, onTap: a.tap(() => this.read([findingPage(f.finding, f.chapterId)])) } : {}),
       dim: !f.found,
-      h: ROW_H,
+      h: this.rowH,
     });
+    row.setName(`chronicleFinding_${f.finding.id}`);
     a.add(row);
-    if (f.found) this.newDot(GAME_W - S.l - 14, y - ROW_H / 2 + 14, `findings:${f.finding.id}`);
+    if (f.found) this.newDot(GAME_W - S.l - 14, y - this.rowH / 2 + 14, `findings:${f.finding.id}`);
   }
 
   // ---------- Бестиарий ----------
@@ -340,6 +398,7 @@ export class ChronicleScene extends Phaser.Scene {
     const bg = a.add(
       plate(this, x, y, TILE_W, h, m.open ? { ...SURFACE.raised, ...(boss ? { border: mixHex(COLOR.border, COLOR.negative, 0.55) } : {}), r: R.l } : { ...SURFACE.sunken, r: R.l }),
     );
+    bg.setName(`chronicleMonster_${m.unitId}`);
     const picY = y - 50;
     if (m.open) a.add(this.add.ellipse(x, picY + 92, 150, 26, 0x000000, 0.35));
     const pic = a.add(portrait(this, x, picY, portraitKey(m.unit.visual.sprite), 190));
@@ -349,11 +408,12 @@ export class ChronicleScene extends Phaser.Scene {
       pic.setTint(0x000000).setAlpha(0.55);
       a.add(this.add.image(x, picY, questionMark(this)));
     }
-    const name = a.add(text(this, x, y + 104, m.open ? m.unit.name : '???', T.caption, m.open ? COLOR.textPrimary : COLOR.textTertiary, { fontStyle: 'bold' }));
+    const name = a.add(text(this, x, y + 104, m.open ? m.unit.name : '???', this.font(T.caption), m.open ? COLOR.textPrimary : COLOR.textTertiary, { fontStyle: 'bold' }));
     ellipsize(name, TILE_W - S.m);
     const lore = LORE.monsters[m.unitId];
-    const sub = !m.open ? `Этап ${m.stages[0]}` : lore ? lore.title : roleName(m.unit);
-    a.add(ellipsize(text(this, x, y + 146, sub, T.caption, m.open ? COLOR.textSecondary : COLOR.textTertiary), TILE_W - S.m));
+    const first = m.stages[0];
+    const sub = !m.open ? (/^\d+-\d+$/.test(first) ? `Победа на ${first}` : first === 'Охота' ? 'Первый бой на охоте' : first) : lore ? lore.title : roleName(m.unit);
+    a.add(ellipsize(text(this, x, y + 146, sub, this.font(T.caption), m.open ? COLOR.textSecondary : COLOR.textTertiary), TILE_W - S.m));
     if (boss && m.open) a.add(tag(this, x - TILE_W / 2 + S.xs, y - h / 2 + S.l, 'БОСС', 'negative', { solid: true, align: 'left' }));
     if (m.open) {
       this.newDot(x + TILE_W / 2 - 18, y - h / 2 + 18, `bestiary:${m.unitId}`);
@@ -366,8 +426,8 @@ export class ChronicleScene extends Phaser.Scene {
   private items(): void {
     const list = itemEntries(session.save, GAME);
     this.summary(list.filter((e) => e.open).length, list.length);
-    list.forEach((e, i) => this.itemRow(e, i * (ROW_H + S.xs) + ROW_H / 2));
-    this.area.setContentHeight(list.length * (ROW_H + S.xs) + S.s);
+    list.forEach((e, i) => this.itemRow(e, i * (this.rowH + S.xs) + this.rowH / 2));
+    this.area.setContentHeight(list.length * (this.rowH + S.xs) + S.s);
   }
 
   private itemRow(e: ItemEntry, y: number): void {
@@ -389,10 +449,11 @@ export class ChronicleScene extends Phaser.Scene {
       subtitle: e.open ? `${RARITY_NAMES[def.rarity]} · ${SLOT_NAMES[def.slot]}` : `${SLOT_NAMES[def.slot]} · глава ${def.minChapter}`,
       ...(e.open ? { trailing: '›', trailingTone: 'accent' as const, onTap: a.tap(() => itemModal(this, def, { lock: a })) } : {}),
       dim: !e.open,
-      h: ROW_H,
+      h: this.rowH,
     });
+    row.setName(`chronicleItem_${def.id}`);
     a.add(row);
-    if (e.open) this.newDot(GAME_W - S.l - 14, y - ROW_H / 2 + 14, `items:${def.id}`);
+    if (e.open) this.newDot(GAME_W - S.l - 14, y - this.rowH / 2 + 14, `items:${def.id}`);
   }
 
   // ---------- Герои ----------
@@ -415,19 +476,21 @@ export class ChronicleScene extends Phaser.Scene {
       const y = Math.floor(i / COLS) * (CH + 30) + CH / 2 + 16;
       // Новое: непрочитанный кусочек истории — значок-свиток карточки (heroCard.ts storyNew), запись героя — точка.
       const story = h.owned && heroStoryNew(h.templateId) > 0;
-      drawHeroCard(this, x, y, this.heroSubject(h.templateId), {
+      const card = drawHeroCard(this, x, y, this.heroSubject(h.templateId), {
         w: CWD,
         parent: this.area.content,
         greyed: h.owned ? false : 'Не получен',
         storyNew: story,
         onTap: this.area.tap(() => this.heroModal(h)),
       });
+      card.setName(`chronicleHero_${h.templateId}`);
       if (h.owned && !story && LORE.heroes[h.templateId]) this.newDot(x + CWD / 2 - 18, y - CH / 2 + 18, `heroes:${h.templateId}`);
     });
     this.area.setContentHeight(Math.ceil(list.length / COLS) * (CH + 30) + 30);
   }
 
   private heroModal(h: HeroEntry): void {
+    const area = this.area;
     const t = heroTemplate(GAME, h.templateId);
     const l = LORE.heroes[h.templateId];
     const blocks: LoreBlock[] = [{ text: t.bio, color: C.text }];
@@ -450,17 +513,22 @@ export class ChronicleScene extends Phaser.Scene {
       title: t.name,
       // Гильдию первой профессии называет блок «Гильдия» ниже (data/lore/jobs.json: мечники — Излуд), здесь — путь героя.
       subtitle: `${jobTitle(GAME, t.job, t.gender)} → ${t.branches.map((b) => jobTitle(GAME, b.job, t.gender)).join(' или ')}${h.owned ? '' : ' · не получен'}`,
-      art: (add, x, y) => add(drawHeroCard(this, x, y, this.heroSubject(h.templateId), { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' })),
+      art: (add, x, y) => {
+        const card = drawHeroCard(this, x, y, this.heroSubject(h.templateId), { w: 180, showPips: false, greyed: h.owned ? false : 'Не получен' });
+        this.readableLabels(card);
+        add(card);
+      },
       blocks,
-      lock: this.area,
+      lock: area,
       // История героя кусочками (каждые 10 уровней) — страница во весь экран; закрыли — список обновит отметки.
       ...(h.owned && hasHeroStory(h.templateId)
         ? {
             extra: {
               label: `История героя · ${heroStoryProgress(h.templateId).open}/${heroStoryProgress(h.templateId).total}`,
               dot: heroStoryNew(h.templateId) > 0,
-              onTap: () =>
-                openHeroStory(this, h.templateId, { lock: this.area, onClose: () => this.scene.restart({ tab: 'heroes', scroll: this.area.offset } satisfies ChronicleData) }),
+              onTap: () => openHeroStory(this, h.templateId, { lock: area, onClose: () => {
+                if (this.sys.isActive() && this.area === area && this.tab === 'heroes') this.renderTab(area.offset);
+              } }),
             },
           }
         : {}),

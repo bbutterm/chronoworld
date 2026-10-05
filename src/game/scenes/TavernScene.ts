@@ -6,15 +6,14 @@ import { haptic } from '../haptics';
 import { screenBackground } from '../backdrops';
 import { GAME } from '../content';
 import { currentStage, formatNumber, heroSprite, stageNo } from '../flow';
-import { bump, decorTween, MOMENT_DEPTH, moment, pulse, queueRewardFly } from '../juice';
+import { bump, collect, decorTween, MOMENT_DEPTH, moment, pulse, queueRewardFly } from '../juice';
 import { GAME_H, GAME_W, BLEED_X, BLEED_Y } from '../layout';
 import { bottomSheet, cta, CONTENT_TOP, screen, unitFigure } from '../screen';
-import { commit, session, today } from '../session';
+import { commit, now, session, today } from '../session';
 import { whenSprites } from '../sprites';
 import { motion } from '../state';
 import {
   bestResult,
-  cardSlots,
   copyTags,
   firstTenTag,
   firstTenText,
@@ -36,8 +35,10 @@ import { BEAM, CARD_BACK, CIRCLE, FLOOR_SHADE, GLOW, SPARK, setTavernBackground,
 import { drawHeroCard, heroCardSize } from '../heroCard';
 import { markTavernSeen } from '../tavernEntry';
 import { COLOR, E, FAMILY, M, S, T, hexNum } from '../theme';
-import { button, chip, plate, progressBar, rewardRow, SURFACE, tag, text, toast, tutorialHint, infoButton, type ButtonView } from '../ui';
+import { button, chip, plate, pressable, progressBar, rewardRow, ScrollArea, SURFACE, tag, text, toast, tutorialHint, infoButton, type ButtonView } from '../ui';
 import { hintDone, markHint } from '../hints';
+import { onViewChange, view } from '../viewport';
+import { tavernLayout, tavernRevealLayout } from '../compactTavernLayout';
 
 /**
  * Лицо карты призыва — общая плитка карточки героя (heroCard.ts, тот же вид, что в «Героях»): рамка редкости,
@@ -79,7 +80,6 @@ const TABLE_Y = 960;
 const DECK = { x: GAME_W / 2, y: 1720 };
 const DEPTH = 5000;
 /** Кнопки итога призыва; высота «Готово». */
-const DONE_Y = 1640;
 const BTN_H = 150;
 
 /** Фиолетовая и выше — «момент» (moment('summonRare')). */
@@ -111,6 +111,9 @@ interface RevealState {
   phase: Phase;
   cards: CardView[];
   layer: Phaser.GameObjects.Container;
+  body: ScrollArea;
+  footer: Phaser.GameObjects.GameObject[];
+  footerBottom: number;
   /** Кнопки показа (пропуск) — убираются в итоге. */
   ui: Phaser.GameObjects.GameObject[];
   /** «Новый» / копия по картам (тот же templateId уже был у игрока до призыва или раньше в серии). */
@@ -118,6 +121,7 @@ interface RevealState {
   /** Лучшая карта серии — её (фиолетовую и выше) показывает момент, один раз за призыв. */
   best: number;
   momentShown: boolean;
+  pendingSkip: boolean;
   /** Ждут конца момента (очередные перевороты). */
   waiters: (() => void)[];
 }
@@ -132,6 +136,8 @@ interface RevealState {
  */
 export class TavernScene extends Phaser.Scene {
   reveal: RevealState | null = null;
+  private mainArea?: ScrollArea;
+  private get hallLayout() { return tavernLayout(view().uiHeight, view().safeBottom, session.save.summon.welcomeGiven); }
 
   constructor() {
     super('Tavern');
@@ -139,6 +145,8 @@ export class TavernScene extends Phaser.Scene {
 
   create(data: TavernData = {}): void {
     this.reveal = null;
+    this.mainArea = undefined;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.reveal = null; this.mainArea = undefined; });
     markTavernSeen();
     screen(this, 'Таверна', null, { to: 'Home' });
     const bg = screenBackground(this);
@@ -150,10 +158,33 @@ export class TavernScene extends Phaser.Scene {
       this.locked(st);
       return;
     }
-    this.banner();
-    this.topRow(st, !!data.gift);
-    this.pity(st);
-    this.buttons(st);
+    const initial = this.hallLayout;
+    const area = this.mainArea = new ScrollArea(this, initial.bodyTop, initial.bodyBottom);
+    area.content.setName('tavernScroll');
+    const banner = this.add.container(0, -initial.bodyTop);
+    banner.add(collect(this.children, () => this.banner(banner)));
+    area.add(banner);
+    const topRow = this.add.container(0, -initial.bodyTop, collect(this.children, () => this.topRow(st, !!data.gift)));
+    area.add(topRow);
+    const pities = this.add.container(0, -initial.bodyTop, collect(this.children, () => this.pity(st)));
+    area.add(pities);
+    const footer = collect(this.children, () => this.buttons(st));
+    let previous = initial;
+    const reflow = () => {
+      const next = this.hallLayout;
+      banner.y = next.feetY - initial.feetY - initial.bodyTop;
+      pities.y = next.pityY - initial.pityY - initial.bodyTop;
+      const dy = next.pullY - previous.pullY;
+      for (const o of footer) if (o.scene && 'y' in o) (o as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform).y += dy;
+      area.setBounds(next.bodyTop, next.bodyBottom);
+      area.setContentHeight(next.pityY + Math.max(1, st.pities.length) * 32 + S.s - next.bodyTop);
+      previous = next;
+    };
+    reflow();
+    onViewChange(this, reflow);
+    const lock = () => { area.locked = !!this.reveal || this.children.list.some((o) => !!o.getData?.('screenModal')); };
+    this.events.on(Phaser.Scenes.Events.PRE_UPDATE, lock);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.mainArea = undefined; this.events.off(Phaser.Scenes.Events.PRE_UPDATE, lock); });
     if (!data.reveal?.results.length) this.tutorial(st);
     if (data.reveal?.results.length) this.startReveal(data.reveal.results, data.reveal.count);
   }
@@ -182,19 +213,27 @@ export class TavernScene extends Phaser.Scene {
 
   private locked(st: SummonStatus): void {
     const stage = GAME.content.stages.find((s) => s.id === st.unlockAfterStage);
-    const y = 860;
-    plate(this, GAME_W / 2, y, GAME_W - 2 * S.l, 300, { ...SURFACE.raised, r: 28 });
-    text(this, GAME_W / 2, y - 60, 'Таверна закрыта', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
-    text(this, GAME_W / 2, y + 40, `Откроется после этапа ${stage ? stageNo(stage, GAME) : st.unlockAfterStage}`, T.body, COLOR.textSecondary);
-    cta(this, GAME_W / 2, 1640, 'В кампанию', () => this.scene.start('Campaign'));
+    const y = view().uiHeight / 2;
+    const panel = plate(this, GAME_W / 2, y, GAME_W - 2 * S.l, 300, { ...SURFACE.raised, r: 28 });
+    const title = text(this, GAME_W / 2, y - 60, 'Таверна закрыта', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' });
+    const reason = text(this, GAME_W / 2, y + 40, `Откроется после этапа ${stage ? stageNo(stage, GAME) : st.unlockAfterStage}`, T.body, COLOR.textSecondary);
+    const c = cta(this, GAME_W / 2, view().safeBottom - 280, 'В кампанию', () => this.scene.start('Campaign'));
+    const notice = [panel, title, reason];
+    let previous = view();
+    onViewChange(this, (next) => {
+      const dy = (next.uiHeight - previous.uiHeight) / 2;
+      for (const o of notice) o.y += dy;
+      c.container.setY(next.safeBottom - 280);
+      previous = next;
+    });
   }
 
   /**
    * Баннер пула: круг призыва перед камином и три «гостя дня» (сменяются по дате игрока) — крупно, без подписей:
    * арт говорит сам. Ниже — тень пола, на ней гаранты и кнопки читаются поверх арта.
    */
-  private banner(): void {
-    const cy = L.feetY;
+  private banner(owner: Phaser.GameObjects.Container): void {
+    const cy = this.hallLayout.feetY;
     const ring = this.add.container(GAME_W / 2, cy).setScale(1.8, 0.62);
     const circle = this.add.image(0, 0, CIRCLE).setTint(0xc89bff).setAlpha(0.55).setBlendMode(Phaser.BlendModes.ADD);
     const inner = this.add.image(0, 0, CIRCLE).setTint(0xffc070).setAlpha(0.3).setScale(0.62).setBlendMode(Phaser.BlendModes.ADD);
@@ -227,7 +266,10 @@ export class TavernScene extends Phaser.Scene {
       const s = spots[i];
       const feet = cy + s.dy;
       this.add.ellipse(s.x, feet + 4, 190, 38, 0x000000, 0.45);
-      unitFigure(this, heroSprite(hero, GAME), s.x, feet, s.h, { maxScale: 2.8 });
+      unitFigure(this, heroSprite(hero, GAME), s.x, feet, s.h, { maxScale: 2.8, onReady: (figure) => {
+        if (owner.scene) owner.add(figure);
+        else figure.destroy();
+      } });
     });
   }
 
@@ -249,7 +291,10 @@ export class TavernScene extends Phaser.Scene {
       { icon: 'scrolls', value: `+${w.scrolls}` },
     ], { size: 's', align: 'left' });
     const bx = GAME_W - S.l - S.m - 140;
-    const b = button(this, bx, y, 280, 120, '', 'Забрать', () => this.claimWelcome({ x: bx, y }), T.heading, { variant: 'primary' });
+    const b = button(this, bx, y, 280, 132, '', 'Забрать', () => {
+      const m = b.container.getWorldTransformMatrix();
+      this.claimWelcome({ x: m.tx, y: m.ty });
+    }, T.heading, { variant: 'primary' });
     b.container.setName('giftClaim');
     pulse(this, b.container);
   }
@@ -259,8 +304,9 @@ export class TavernScene extends Phaser.Scene {
     const rows = st.pities.length ? st.pities : [{ rarity: st.pityRarity, until: st.untilPity }];
     const rowH = 64;
     const h = rows.length * rowH + 2 * S.s;
-    plate(this, GAME_W / 2, L.pityY, GAME_W - 2 * S.l, h, { ...SURFACE.surface, r: 28 });
-    let ry = L.pityY - h / 2 + S.s + rowH / 2;
+    const pityY = this.hallLayout.pityY;
+    plate(this, GAME_W / 2, pityY, GAME_W - 2 * S.l, h, { ...SURFACE.surface, r: 28 });
+    let ry = pityY - h / 2 + S.s + rowH / 2;
     const barX = 500;
     const barW = GAME_W - S.l - S.m - barX;
     rows.forEach((p, i) => {
@@ -301,18 +347,19 @@ export class TavernScene extends Phaser.Scene {
     const w10 = GAME_W - 2 * S.l - S.s - w1;
     const x1 = S.l + w1 / 2;
     const x10 = GAME_W - S.l - w10 / 2;
-    const b1 = this.pullButton(x1, L.pullY, w1, L.pullH, false, one, one.cost, one.free);
+    const pullY = this.hallLayout.pullY;
+    const b1 = this.pullButton(x1, pullY, w1, L.pullH, false, one, one.cost, one.free);
     b1.container.setName('pullOne');
     if (one.free) pulse(this, b1.container, 1.03);
-    const b10 = this.pullButton(x10, L.pullY, w10, L.pullH, session.save.summon.welcomeGiven, ten, ten.cost, false);
+    const b10 = this.pullButton(x10, pullY, w10, L.pullH, session.save.summon.welcomeGiven, ten, ten.cost, false);
     b10.container.setName('pullTen');
     if (st.firstTenBonus) {
-      tag(this, x10, L.pullY - L.pullH / 2 - 44, firstTenTag(st.firstTenCount, st.firstTenRarity), 'warning').setName('firstTenNote');
+      tag(this, x10, pullY - L.pullH / 2 - 44, firstTenTag(st.firstTenCount, st.firstTenRarity), 'warning').setName('firstTenNote');
     }
     if (!st.freeLeft) {
-      const midnight = new Date();
+      const midnight = new Date(now());
       midnight.setHours(24, 0, 0, 0);
-      text(this, x1, L.freeY, freeInLabel(midnight.getTime() - Date.now()), T.caption, COLOR.textSecondary).setName('freeIn');
+      text(this, x1, this.hallLayout.freeY, freeInLabel(midnight.getTime() - now()), T.caption, COLOR.textSecondary).setName('freeIn');
     }
   }
 
@@ -323,13 +370,14 @@ export class TavernScene extends Phaser.Scene {
   private tutorial(st: SummonStatus): void {
     if (session.save.summon.firstTenDone || hintDone('tavern_summon')) return;
     if (!session.save.summon.welcomeGiven) {
-      tutorialHint(this, 'tavern_summon', GAME_W - S.l - S.m - 140, L.giftY, 'below', { w: 280, h: 120 }, { text: 'Подарок — свитки на призыв', avoidText: TAVERN_INFO });
+      const y = (this.mainArea?.content.y ?? CONTENT_TOP) + L.giftY - CONTENT_TOP;
+      tutorialHint(this, 'tavern_summon', GAME_W - S.l - S.m - 140, y, 'below', { w: 280, h: 132 }, { text: 'Подарок — свитки на призыв', avoidText: TAVERN_INFO });
       return;
     }
     const { ten } = summonButtons(st);
     if (!ten.enabled) return;
     const w10 = GAME_W - 2 * S.l - S.s - 420;
-    tutorialHint(this, 'tavern_summon', GAME_W - S.l - w10 / 2, L.pullY, 'above', { w: w10, h: L.pullH }, { avoidText: TAVERN_INFO });
+    tutorialHint(this, 'tavern_summon', GAME_W - S.l - w10 / 2, this.hallLayout.pullY, 'above', { w: w10, h: L.pullH }, { avoidText: TAVERN_INFO });
   }
 
   // ---------- действия ----------
@@ -399,6 +447,11 @@ export class TavernScene extends Phaser.Scene {
     layer.add(shade);
     // Свет над столом.
     layer.add(this.add.image(GAME_W / 2, TABLE_Y, GLOW).setTint(0xffa050).setAlpha(0.25).setDisplaySize(1300, 1100).setBlendMode(Phaser.BlendModes.ADD));
+    const geometry = tavernRevealLayout(results.length, view().safeBottom, view().adaptive);
+    const body = new ScrollArea(this, geometry.top, geometry.bottom);
+    body.content.setName('tavernRevealScroll');
+    body.setContentHeight(geometry.bodyHeight);
+    layer.add(body.parts);
     const best = bestResult(results);
     const state: RevealState = {
       results,
@@ -406,18 +459,29 @@ export class TavernScene extends Phaser.Scene {
       phase: 'deal',
       cards: [],
       layer,
+      body,
+      footer: [],
+      footerBottom: view().safeBottom,
       ui: [],
       tags: copyTags(results, session.save.heroes, count === 1),
       best: best ? results.indexOf(best) : -1,
       momentShown: false,
+      pendingSkip: false,
       waiters: [],
     };
     this.reveal = state;
     // Касание стола (мимо карт) — пропуск: все карты сразу лицом вверх.
+    let armed = false;
+    shade.on('pointerdown', () => { armed = true; });
+    const release = () => { armed = false; };
+    this.input.on('ui-cancel-press', release);
+    shade.once(Phaser.GameObjects.Events.DESTROY, () => this.input.off('ui-cancel-press', release));
     shade.on('pointerup', () => {
-      if (state.phase === 'deal' || state.phase === 'pick') this.skip(state);
+      if (armed && (state.phase === 'deal' || state.phase === 'pick')) this.skip(state);
+      armed = false;
     });
-    const skip = button(this, GAME_W - S.l - 120, CONTENT_TOP + 66, 240, 96, '', 'Пропустить', () => this.skip(state), T.body, { variant: 'ghost' });
+    const skip = button(this, GAME_W - S.l - 140, CONTENT_TOP + 66, 280, 132, '', 'Пропустить', () => this.skip(state), T.body, { variant: 'ghost' });
+    skip.container.setName('tavernRevealSkip');
     layer.add(skip.container);
     state.ui.push(skip.container);
 
@@ -427,11 +491,19 @@ export class TavernScene extends Phaser.Scene {
       this.finish(state);
       return;
     }
-    const slots = cardSlots(results.length, TABLE_Y);
+    const slots = geometry.slots;
+    onViewChange(this, () => {
+      const next = tavernRevealLayout(state.count, view().safeBottom, view().adaptive);
+      body.setBounds(next.top, next.bottom);
+      const dy = view().safeBottom - state.footerBottom;
+      for (const o of state.footer) if (o.scene && 'y' in o) (o as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform).y += dy;
+      state.footerBottom = view().safeBottom;
+    });
     // Листы героев грузим до раздачи — фигуры встанут в карты без «Загрузка…» посреди показа.
     whenSprites(this, [...new Set(heroes.map((h) => heroSprite(h, GAME)))], () => {
       if (this.reveal !== state) return;
       state.cards = results.map((_, i) => this.makeCard(state, i, slots[i], heroes[i], count === 1));
+      if (state.pendingSkip) { this.skip(state); return; }
       if (motion.reduced) {
         // Уменьшить анимацию: карты сразу лицом вверх, звук и вибрация лучшей карты, итог.
         for (const cv of state.cards) this.showFace(state, cv);
@@ -452,13 +524,13 @@ export class TavernScene extends Phaser.Scene {
     // Рубашка — ровно по размеру лица: переворот не «прыгает».
     const back = this.add.image(0, 0, CARD_BACK).setDisplaySize(face.getData('w') as number, face.getData('h') as number);
     root.add([glow, back, face]);
-    root.setSize(slot.w, slot.h).setInteractive({ useHandCursor: true });
+    root.setSize(slot.w, slot.h).setName(`summonCard_${i}`);
     const cv: CardView = { i, slot, root, glow, back, face, flipped: false, busy: false };
-    root.on('pointerup', () => {
+    state.body.add(root);
+    pressable(this, root, slot.w, slot.h, state.body.tap(() => {
       if (state.phase === 'pick') void this.flip(state, cv, 'tap');
       else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId, back: { to: 'Tavern' } });
-    });
-    state.layer.add(root);
+    }));
     return cv;
   }
 
@@ -468,7 +540,7 @@ export class TavernScene extends Phaser.Scene {
     const n = state.cards.length;
     state.cards.forEach((cv, k) => {
       const { root, slot } = cv;
-      root.setPosition(DECK.x, DECK.y).setScale(0.35).setAngle(-160 + k * 12).setAlpha(0);
+      root.setPosition(DECK.x, tavernRevealLayout(state.count, view().safeBottom, view().adaptive).deckY).setScale(0.35).setAngle(-160 + k * 12).setAlpha(0);
       this.tweens.add({
         targets: root,
         x: slot.x,
@@ -550,7 +622,7 @@ export class TavernScene extends Phaser.Scene {
     const momentCard = epic && cv.i === state.best && !state.momentShown;
     const col = hexNum(rarityDef(GAME, r.rarity).color);
     const { root, glow, slot } = cv;
-    state.layer.bringToTop(root);
+    state.body.content.bringToTop(root);
     // Дрожь рубашки (поворот — не сдвиг: место карты не уплывает).
     const amp = tense ? (epic ? 4 : 3) : 2;
     const shake = this.tweens.add({ targets: root, angle: { from: -amp, to: amp }, duration: 50, yoyo: true, repeat: Math.max(1, Math.floor(wait / 100)), ease: E.inOut });
@@ -562,7 +634,7 @@ export class TavernScene extends Phaser.Scene {
         beam = this.add.image(slot.x, slot.y + slot.h / 2, BEAM).setOrigin(0.5, 1).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0);
         beam.setDisplaySize(slot.w * 1.2, slot.y + slot.h / 2 + 200);
         // Луч — за всеми картами (не красит соседние).
-        state.layer.addAt(beam, 2);
+        state.body.content.addAt(beam, 0);
         this.tweens.add({ targets: beam, alpha: 0.85, duration: wait, ease: E.in });
         this.converge(state, slot, col, wait);
       }
@@ -576,7 +648,7 @@ export class TavernScene extends Phaser.Scene {
         const fw = cv.face.getData('w') as number;
         const fh = cv.face.getData('h') as number;
         const flash = this.add.image(slot.x, slot.y, GLOW).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(fw * 1.5, fh * 1.3).setAlpha(0);
-        state.layer.add(flash);
+        state.body.add(flash);
         this.tweens.add({ targets: flash, alpha: 1, duration: M.fast / 2, yoyo: true, hold: 40, ease: E.out, onComplete: () => flash.destroy() });
         this.tweens.add({
           targets: root,
@@ -618,7 +690,7 @@ export class TavernScene extends Phaser.Scene {
     cv.glow.setAlpha(isEpic(r.rarity) ? 0.85 : rare ? 0.45 : 0.15);
     if (r.guaranteed) {
       const gy = cv.slot.y - (cv.face.getData('h') as number) / 2;
-      state.layer.add(tag(this, cv.slot.x, gy, 'Гарант', 'accent', { solid: true }).setName(`summonGuarantee_${cv.i}`));
+      state.body.add(tag(this, cv.slot.x, gy, 'Гарант', 'accent', { solid: true }).setName(`summonGuarantee_${cv.i}`));
     }
   }
 
@@ -627,7 +699,7 @@ export class TavernScene extends Phaser.Scene {
     if (!this.textures.exists('skin_rays')) return;
     const size = cv.slot.w * (epic ? 2.8 : 2.2);
     const img = this.add.image(cv.slot.x, cv.slot.y, 'skin_rays').setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(size, size).setAlpha(0);
-    state.layer.addAt(img, Math.max(2, state.layer.getIndex(cv.root)));
+    state.body.content.addAt(img, Math.max(0, state.body.content.getIndex(cv.root)));
     this.tweens.add({ targets: img, alpha: epic ? 0.7 : 0.5, duration: M.slow, ease: E.out });
     decorTween(this, { targets: img, angle: 360, duration: 24000, repeat: -1 });
   }
@@ -638,13 +710,13 @@ export class TavernScene extends Phaser.Scene {
       const a = (k / n) * Math.PI * 2 + Math.random() * 0.3;
       const d = (big ? 260 : 150) * (0.6 + Math.random() * 0.6);
       const s = this.add.image(slot.x, slot.y, SPARK).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setScale(big ? 1.1 : 0.8);
-      state.layer.add(s);
+      state.body.add(s);
       this.tweens.add({ targets: s, x: slot.x + Math.cos(a) * d, y: slot.y + Math.sin(a) * d, alpha: 0, scale: 0.2, duration: 500 + Math.random() * 300, ease: E.out, onComplete: () => s.destroy() });
     }
     const rings = big ? 2 : 1;
     for (let k = 0; k < rings; k++) {
       const ring = this.add.circle(slot.x, slot.y, slot.w * 0.4).setStrokeStyle(big ? 10 : 6, col, 1).setFillStyle(0, 0);
-      state.layer.add(ring);
+      state.body.add(ring);
       this.tweens.add({ targets: ring, scale: big ? 3.2 : 2, alpha: 0, duration: M.emphasis, delay: k * 150, ease: E.out, onComplete: () => ring.destroy() });
     }
   }
@@ -655,7 +727,7 @@ export class TavernScene extends Phaser.Scene {
       const a = Math.random() * Math.PI * 2;
       const d = 280 + Math.random() * 200;
       const s = this.add.image(slot.x + Math.cos(a) * d, slot.y + Math.sin(a) * d, SPARK).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setScale(0.7).setAlpha(0);
-      state.layer.add(s);
+      state.body.add(s);
       this.tweens.add({ targets: s, x: slot.x, y: slot.y, alpha: { from: 0, to: 1 }, duration: ms * (0.6 + Math.random() * 0.4), delay: Math.random() * ms * 0.3, ease: E.in, onComplete: () => s.destroy() });
     }
   }
@@ -685,7 +757,7 @@ export class TavernScene extends Phaser.Scene {
     });
     const D = MOMENT_DEPTH + 10;
     const box = this.add.container(0, 0).setDepth(D).setName('showcase');
-    const cy = 960;
+    const cy = view().uiHeight / 2;
     const beam = this.add.image(GAME_W / 2, cy + 380, BEAM).setOrigin(0.5, 1).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(620, 1300).setAlpha(0.7);
     const ring = this.add.container(GAME_W / 2, cy + 330).setScale(1.3, 0.45);
     const circle = this.add.image(0, 0, CIRCLE).setTint(col).setAlpha(0.8).setBlendMode(Phaser.BlendModes.ADD);
@@ -695,6 +767,8 @@ export class TavernScene extends Phaser.Scene {
     const t = resultTag(state.tags[cv.i]);
     const mark = tag(this, GAME_W / 2, cy + fh / 2 + S.l, t.text, t.kind === 'new' ? 'gold' : 'neutral', { solid: t.kind === 'new' });
     box.add([beam, ring, face, mark]);
+    const offResize = onViewChange(this, (next) => box.setY(next.uiHeight / 2 - cy));
+    box.once(Phaser.GameObjects.Events.DESTROY, offResize);
     const said = tpl?.tavernLine;
     if (said) box.add(text(this, GAME_W / 2, mark.y + S.xl, `«${said}»`, T.body, COLOR.textSecondary, { fontStyle: 'italic', wordWrap: { width: GAME_W - 2 * S.xl }, align: 'center' }).setOrigin(0.5, 0).setName('tavernLine'));
     this.tweens.add({ targets: circle, angle: 360, duration: 9000, repeat: -1 });
@@ -748,6 +822,8 @@ export class TavernScene extends Phaser.Scene {
   /** Пропуск: все карты сразу лицом вверх; лучшая фиолетовая (если момента ещё не было) — всё равно моментом. */
   private skip(state: RevealState): void {
     if (state.phase !== 'deal' && state.phase !== 'pick') return;
+    // Первый тап может прийти до листов героев. Запоминаем пропуск, чтобы итог не оказался пустым.
+    if (state.cards.length !== state.results.length) { state.pendingSkip = true; return; }
     this.tweens.killTweensOf(state.cards.map((c) => c.root));
     for (const cv of state.cards) {
       cv.root.setPosition(cv.slot.x, cv.slot.y).setScale(1).setAngle(0).setAlpha(1);
@@ -786,8 +862,8 @@ export class TavernScene extends Phaser.Scene {
       const fh = cv.face.getData('h') as number;
       const y = cv.slot.y + fh / 2 + (state.count === 1 ? S.l : 34);
       const mark = tag(this, cv.slot.x, y, t.text, t.kind === 'new' ? 'gold' : 'neutral', { solid: t.kind === 'new' }).setName(`summonTag_${cv.i}`);
-      if (t.kind === 'copy') mark.setScale(0.85);
-      L2.add(mark);
+      if (t.kind === 'copy' && !view().adaptive) mark.setScale(0.85);
+      state.body.add(mark);
       if (!motion.reduced) {
         mark.setAlpha(0);
         this.tweens.add({ targets: mark, alpha: 1, duration: M.base, delay: k * 24 });
@@ -798,18 +874,23 @@ export class TavernScene extends Phaser.Scene {
     const btns = summonButtons(st);
     const again = state.count === 10 ? btns.ten : btns.one;
     const next = currentStage(session.save, GAME);
+    const geometry = tavernRevealLayout(state.count, view().safeBottom, view().adaptive);
+    const beforeFooter = new Set(L2.list);
     if (next) {
-      const prep = button(this, GAME_W / 2, 1430, GAME_W - 2 * S.l, BTN_H, '', 'Собрать отряд', () => this.scene.start('Stage', { stageId: next.id }), T.heading, { variant: 'secondary' });
+      const prep = button(this, GAME_W / 2, geometry.prepareY, GAME_W - 2 * S.l, BTN_H, '', 'Собрать отряд', () => this.scene.start('Stage', { stageId: next.id }), T.heading, { variant: 'secondary' });
       prep.container.setName('summonPrepare');
       L2.add(prep.container);
     }
     const wDone = 380;
     const wMore = GAME_W - 2 * S.l - S.s - wDone;
-    const done = button(this, S.l + wDone / 2, DONE_Y, wDone, BTN_H, '', 'Готово', () => this.scene.restart({} satisfies TavernData), T.heading, { variant: 'secondary' });
+    const done = button(this, S.l + wDone / 2, geometry.doneY, wDone, BTN_H, '', 'Готово', () => this.scene.restart({} satisfies TavernData), T.heading, { variant: 'secondary' });
+    done.container.setName('summonDone');
     // {} обязательно: без данных Phaser перезапускает сцену с прошлыми (reveal) и показ повторяется.
-    const more = this.pullButton(GAME_W - S.l - wMore / 2, DONE_Y, wMore, L.pullH, true, again, again.cost, again.free, `Ещё ×${state.count}`);
+    const more = this.pullButton(GAME_W - S.l - wMore / 2, geometry.doneY, wMore, L.pullH, true, again, again.cost, again.free, `Ещё ×${state.count}`);
     more.container.setName('summonAgain');
     L2.add([done.container, more.container]);
+    state.footer = L2.list.filter((o) => !beforeFooter.has(o));
+    state.footerBottom = view().safeBottom;
     if (!motion.reduced) {
       for (const b of [done.container, more.container]) {
         b.setAlpha(0);

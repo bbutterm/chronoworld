@@ -6,6 +6,7 @@ import { setThemeBackground, themeOfChapter } from './backdrops';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { bleedImage, onViewChange, view } from './viewport';
 import { SKIN, SKIN_TINT } from './skin';
+import { registerModal } from './screen';
 import { BTN, button, mixHex, plate, ScrollArea, SURFACE, text, type PlateSpec } from './ui';
 import { C, COLOR, FAMILY, M, R, S, T, TINT } from './theme';
 
@@ -41,6 +42,8 @@ export interface StoryPage {
 export interface PagesOptions {
   /** Подпись кнопки последней страницы (по умолчанию «Далее ›», если страница одна — «Закрыть»). */
   doneLabel?: string;
+  /** Список под рассказом остаётся на прежнем месте до закрытия. */
+  lock?: ScrollArea;
 }
 
 /** Имя и глубина слоя — как у диалога сюжета (dialogue.ts: DIALOGUE_NAME, DEPTH). */
@@ -71,10 +74,10 @@ export const pageOpen = (scene: Phaser.Scene) => !!scene.children.getByName(DIAL
 /**
  * Показать страницы по очереди; после последней (или «Пропустить») — onDone. Пустой список — onDone сразу.
  */
-export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDone: () => void, opts: PagesOptions = {}): void {
+export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDone: () => void, opts: PagesOptions = {}): Phaser.GameObjects.Container | null {
   if (!pages.length) {
     onDone();
-    return;
+    return null;
   }
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(DIALOGUE_NAME).setData('pages', pages.length);
   const cx = GAME_W / 2;
@@ -93,6 +96,9 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
   let index = -1;
   let shownAt = 0;
   let closed = false;
+  const lockedArea = opts.lock;
+  const wasLocked = lockedArea?.locked ?? false;
+  if (lockedArea) lockedArea.locked = true;
 
   const close = () => {
     if (closed) return;
@@ -100,6 +106,11 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
     layer.destroy();
     onDone();
   };
+  registerModal(layer, close);
+  layer.once(Phaser.GameObjects.Events.DESTROY, () => {
+    closed = true;
+    if (lockedArea) lockedArea.locked = wasLocked;
+  });
   const next = () => {
     if (closed || performance.now() - shownAt < GUARD_MS) return;
     if (index + 1 < pages.length) show(index + 1);
@@ -166,6 +177,7 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
     } else if (next.compact) area?.setBounds(170, footerY() - 120);
   });
   layer.once(Phaser.GameObjects.Events.DESTROY, off);
+  return layer;
 }
 
 /** Короткий экран: весь рассказ прокручивается, заголовок не отнимает место у текста и нижней кнопки. */

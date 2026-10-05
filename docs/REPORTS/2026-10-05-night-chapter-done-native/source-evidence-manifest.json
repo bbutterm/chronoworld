@@ -1,0 +1,186 @@
+{
+  "ready": true,
+  "sourceChanges": false,
+  "doc": {
+    "relativePath": "docs/qa/story-chapter-done-2026-10-05.md",
+    "path": "/workspace/chronoworld-worktrees/night-story-compact/docs/qa/story-chapter-done-2026-10-05.md",
+    "sha256": "fe6ad880aac71e96621b859c022161d1a63fb24cecdf1c135d462ddeda701955",
+    "bytes": 6582,
+    "patch": {
+      "path": "/tmp/chronoworld-night-story-ui/story-chapter-done-qa-doc.patch",
+      "sha256": "642517d76ceef34edb1dbaf1d0563873219741a2ac782d6d9fb8c08b83612680",
+      "bytes": 6863
+    }
+  },
+  "summary": {
+    "compiledPassed": true,
+    "exitCode": 0,
+    "contexts": 2,
+    "flows": 2,
+    "viewportSizes": [
+      {
+        "width": 360,
+        "height": 640
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "nativeTaps": 6,
+    "wheelActions": 4,
+    "sdkBackClosures": 6,
+    "resizeChecks": 10,
+    "errors": [],
+    "browserUIimports": [],
+    "clock": "normal Date and RAF",
+    "url": "http://127.0.0.1:5518/",
+    "queryFlags": false,
+    "bundleHashes": {
+      "/assets/index-CYhTrHqJ.js": "1706442af527d8d6885037db4bc0398ec700c466573f8afde2d63d3d4495d2fe"
+    },
+    "initialStopPreserved": true,
+    "correctedExpectation": "min(previousOffset, newMaxOffset)",
+    "pageReadRevision": [
+      {
+        "size": {
+          "width": 360,
+          "height": 640
+        },
+        "revision": [
+          1,
+          2
+        ]
+      },
+      {
+        "size": {
+          "width": 390,
+          "height": 844
+        },
+        "revision": [
+          1,
+          2
+        ]
+      }
+    ],
+    "fixtureBaseSha256": "4cc658ebd5e3e26710efc40a4dda98cafa34e92ad4cf6ed62fc9f43bde1824fd",
+    "fixtureSha256": "91ce49a3322d17b39d7d17d653e2c18d0067ca9585453a1b70be4878f2a78d44"
+  },
+  "sourceHashes": {
+    "scenes/ChapterDoneScene.ts": "d48413026d26979dc13b4f33a92becf2c54b073e6dd67f78db9be78edd34849a",
+    "storyPage.ts": "3d971d7595fa06ee9efa5fe2bd39b0017acd20981d3a22ced2ae027ce981c4a7",
+    "screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+    "modalBack.ts": "4317689024c2af97d911974f3e9efc5535d9591e8fd36d83ab85f034e4101a56",
+    "modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d",
+    "ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+    "viewLayout.ts": "0099638f93f5b007b2f2583d1b3fbaa0bc2f7b499e02911a31dba7f35b4407ab",
+    "dialogue.ts": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca"
+  },
+  "rawEvidence": [
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/report.json",
+      "sha256": "1576f0061337033e3553a80854cb700126546f106a86f9ce3ed43fd5a482d556",
+      "bytes": 2087784
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/report.json.gz",
+      "sha256": "3c284cb2a649235b82edffc9bf70133ddda79dfc9c5f881d62704ee7b10466b1",
+      "bytes": 371023
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/clamp-summary.json",
+      "sha256": "ba3b21073b93f9c2b2fc70dd36331f68adf4d1a1b5fcafc8b10e2a586b7c96e4",
+      "bytes": 3169
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/legal180-endpoint-fixture.json",
+      "sha256": "dab7e692b578c19de905548b97cf50e1b551d7585fd11308c25f25a5b5b48b9f",
+      "bytes": 49381
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/chapter-done-final-compiled-clamp.log",
+      "sha256": "6d2c1b6c1c4ff314d63045341bbb5262b4662286ce40845958907bbf66ef2a52",
+      "bytes": 312
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/chapter-done-final-compiled.cjs",
+      "sha256": "e39893c2d7e4f5c93824b2cca821ba3941de44fb64230709f56422c0517a865f",
+      "bytes": 6662
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-final-compiled.cjs",
+      "sha256": "d8b272b4c89d93faadef381a6a967475beffc5d27da78d0def5de488137d34b2",
+      "bytes": 13193
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/chapter-done-compiled-original-stop.cjs",
+      "sha256": "f03df23b35d848716c3631e69550a1a7b87fe61495409774a3834c91a75e8b04",
+      "bytes": 6535
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-final-compiled-accepted.cjs",
+      "sha256": "9ef145c5e36de204bfd359e9adfae1a614acc3c35edc7a1a4c152bd22d39523f",
+      "bytes": 12882
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/report.initial-stop.json",
+      "sha256": "83d1eeef3680035fb58933fe3f61a960b55ad8734df9ea294dce7a95ca2681ce",
+      "bytes": 1506
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/initial-stop.log",
+      "sha256": "26505d70115ad805c22925a681ae61ca85db4e096a5e3060996b90706ef88484",
+      "bytes": 368
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/initial-stop-summary.json",
+      "sha256": "53ff400c55733590e60db6a8d5848d5ad57226c500adca5155168ea16763baef",
+      "bytes": 541
+    }
+  ],
+  "representativePngs": [
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/pages-360.png",
+      "sha256": "0f7f2613ce16d787858a0b6548614a2c33dc0298b122da62ef70f0ba35fabdea",
+      "bytes": 317055
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/history-390.png",
+      "sha256": "d17b168c135bc2289701b71c4eab1eeb0aa2d6c543e2e7b8f3cffb86d4e81b1b",
+      "bytes": 140181
+    }
+  ],
+  "additionalPngs": [
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/pages-390.png",
+      "sha256": "f41931fddd35270eccdb7dc130208cbaf7f7b6bf00212d13e9413d1b97c38197",
+      "bytes": 477472
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/history-360.png",
+      "sha256": "5a175bbefb8b045dc707040537ba23d46e37ff9a1f7b05ee7863bf9ca81a6a06",
+      "bytes": 78276
+    }
+  ],
+  "privateDependencies": [
+    {
+      "path": "/tmp/chronoworld-night-story-ui/qa.cjs",
+      "sha256": "be84a21c641952b81aaaea4b02461d929e4f2b702973005a0d5c000df20939ab",
+      "bytes": 6879
+    },
+    {
+      "path": "/tmp/chronoworld-night-heroes-ui/rpg-ui.cjs",
+      "sha256": "4f3b34d5a81ed78a7f2b62e59701033c2c6bd35d8a7ebb9f7ed285f584ed85a1",
+      "bytes": 16847
+    },
+    {
+      "path": "/tmp/chronoworld-night-heroes-ui/compact-first.cjs",
+      "sha256": "10b9d7f05c431880e6813561abb48340f3b249a586a95116b606cfd980912e58",
+      "bytes": 13514
+    }
+  ],
+  "portability": "Private /tmp adapters depend on the isolated worktree and existing helpers; not a portable repository script. Browser receives compiled JS only; Node core/content imports prepare lawful fixture.",
+  "sourceHandoff": "/tmp/chronoworld-night-story-ui/story-hero-source-ready-manifest.json",
+  "mainFourFlowsEvidence": "/tmp/chronoworld-night-story-ui/story-main4-evidence-ready-manifest.json",
+  "exclusions": "No product changes. OWN Story3, HeroReturn and ChapterDone tiny sources remain frozen; shared4/dialogue/Chronicle/policy/core/data/assets excluded. Font320 candidate not in this compiled build. No published-production claim."
+}

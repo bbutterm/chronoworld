@@ -80,6 +80,8 @@ export interface HeroData {
   heroId: string;
   tab?: Tab;
   back?: HeroBack;
+  /** Позиция тела карточки при возвращении из истории героя. */
+  bodyOffset?: number;
 }
 const TABS: { id: Tab; label: string }[] = [
   { id: 'skills', label: 'Навыки' },
@@ -224,6 +226,7 @@ export class HeroScene extends Phaser.Scene {
     this.actions(hero);
     this.footerObjects = this.children.list.filter(o => !beforeFooter.has(o) && 'y' in o) as (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform)[];
     this.renderDynamic(null);
+    if (data.bodyOffset !== undefined) this.tabArea.offset = data.bodyOffset;
     let footerY = this.footer.actionY;
     onViewChange(this, () => {
       this.stopHold();
@@ -1137,7 +1140,7 @@ export class HeroScene extends Phaser.Scene {
     if (hasHeroStory(hero.templateId)) {
       const pr = heroStoryProgress(hero.templateId);
       const sb = button(this, GAME_W / 2, y + BTN.l / 2, 700, BTN.l, '', `История героя · ${pr.open} из ${pr.total}`, () => {
-        openHeroStory(this, hero.templateId, { lock: a, onClose: () => this.reopen({ heroId: hero.id, tab: 'story' }) });
+        openHeroStory(this, hero.templateId, { lock: a, onClose: () => this.reopen({ heroId: hero.id, tab: 'story', bodyOffset: a.offset }) });
       }, T.heading, { variant: 'secondary' });
       sb.container.setName('heroStoryBtn');
       a.add(sb.container);
