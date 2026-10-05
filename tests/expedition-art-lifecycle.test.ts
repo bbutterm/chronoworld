@@ -4,19 +4,22 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const h = vi.hoisted(() => {
   class Node {
     scene: unknown = {}; name = ''; tint = 0; alpha = 1; destroyed = false;
+    x = 0; scaleX = 1; displayOriginX = 16; frame = { x: 0, cutWidth: 32 };
     setName(name: string) { this.name = name; return this; }
     setTint(tint: number) { this.tint = tint; return this; }
     setAlpha(alpha: number) { this.alpha = alpha; return this; }
+    setScale(scale: number) { this.scaleX = scale; return this; }
+    setX(x: number) { this.x = x; return this; }
     destroy() { this.destroyed = true; this.scene = undefined; }
   }
-  return { Node, cached: true, pending: [] as (() => void)[], figures: [] as Node[] };
+  return { Node, cached: true, pending: [] as (() => void)[], figures: [] as Node[], frame: { x: 0, cutWidth: 32 }, origin: 16, scale: 1 };
 });
 vi.mock('phaser', () => ({ default: { Scene: class {} } }));
 vi.mock('../src/game/content', () => ({ GAME: { content: { units: { monster: { visual: { sprite: 'skeleton' } } } } } }));
 vi.mock('../src/game/screen', () => ({
   CONTENT_TOP: 160, unitTint: () => 0xffffff,
   unitFigure: (_scene: unknown, _id: string, _x: number, _y: number, _h: number, opts: { onReady: (n: InstanceType<typeof h.Node>) => void }) => {
-    const ready = () => { const n = new h.Node(); h.figures.push(n); opts.onReady(n); };
+    const ready = () => { const n = new h.Node(); n.frame = h.frame; n.displayOriginX = h.origin; n.scaleX = h.scale; h.figures.push(n); opts.onReady(n); };
     if (h.cached) ready(); else h.pending.push(ready);
   },
 }));
@@ -53,9 +56,20 @@ function harness(status = Status.CREATING) {
   return { scene, draw };
 }
 
-beforeEach(() => { h.cached = true; h.pending = []; h.figures = []; });
+beforeEach(() => { h.cached = true; h.pending = []; h.figures = []; h.frame = { x: 0, cutWidth: 32 }; h.origin = 16; h.scale = 1; });
 
 describe('expedition monster art lifecycle', () => {
+  it('fits a wide, off-centre packed sprite inside its artwork column', () => {
+    h.frame = { x: 40, cutWidth: 320 }; h.origin = 120; h.scale = 1.8;
+    const { draw } = harness(); draw();
+    const figure = h.figures[0];
+    const visibleLeft = figure.x + (figure.frame.x - figure.displayOriginX) * figure.scaleX;
+    const visibleRight = visibleLeft + figure.frame.cutWidth * figure.scaleX;
+    expect(visibleLeft).toBeCloseTo(80);
+    expect(visibleRight).toBeCloseTo(312);
+    expect(figure.destroyed).toBe(false);
+  });
+
   it('keeps cached sprites delivered synchronously during Phaser create()', () => {
     const { scene, draw } = harness();
     expect(scene.sys.isActive()).toBe(false);

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { inTelegram, installTelegram, onTgEvent, tgInsets } from './telegram';
 import { computeView, MAX_DPR, supportsAdaptiveLayout, type Insets, type View } from './viewLayout';
+import { refreshTarget, refreshText, responsiveText } from './responsiveUi';
 
 export { computeView, MAX_DPR, type View };
 /** Сцены меняют раскладку, сохраняя выбранного героя, модальное окно и положение списка. */
@@ -323,11 +324,31 @@ export function installViewport(game: Phaser.Game): void {
   const addText = factory.text as Fn;
   factory.text = function (this: unknown, x: number, y: number, t: unknown, style?: Phaser.Types.GameObjects.Text.TextStyle) {
     const options = { resolution: textResolution(), ...style };
+    const requested = options.fontSize ?? 16;
     if (current.adaptive) {
-      const size = parseFloat(String(options.fontSize ?? 16));
+      const size = parseFloat(String(requested));
       options.fontSize = Math.max(size, minimumFontSize());
     }
-    return addText.call(this, x, y, t, options);
+    const text = addText.call(this, x, y, t, options) as Phaser.GameObjects.Text;
+    responsiveText(text, requested, minimumFontSize, (object) => refreshInput(object));
+    return text;
+  };
+  const interactive = Phaser.GameObjects.GameObject.prototype.setInteractive;
+  const refreshInput = (object: Phaser.GameObjects.GameObject) => {
+    const hit = object.input?.hitArea;
+    if (hit instanceof Phaser.Geom.Rectangle) refreshTarget(object, hit, current.adaptive ? minimumTouchSize() : 0);
+  };
+  Phaser.GameObjects.GameObject.prototype.setInteractive = function (...args: Parameters<typeof interactive>) {
+    interactive.apply(this, args);
+    refreshInput(this);
+    return this;
+  };
+  const visit = (objects: Phaser.GameObjects.GameObject[], fn: (object: Phaser.GameObjects.GameObject) => void) => {
+    for (const object of objects) {
+      if (!object.scene) continue;
+      fn(object);
+      if (object instanceof Phaser.GameObjects.Container) visit(object.list, fn);
+    }
   };
 
   const bleed = (scene: Phaser.Scene) => {
@@ -351,9 +372,18 @@ export function installViewport(game: Phaser.Game): void {
     // MT-01: resize() выше пересчитал displayScale по СТАРОМУ css-размеру холста; после смены стиля — заново,
     // иначе координаты тапов остаются от прошлого размера окна (поворот, раскрытие Telegram) до перезагрузки.
     sm.refresh();
-    if (previous.safeTop !== v.safeTop || previous.safeBottom !== v.safeBottom || previous.uiHeight !== v.uiHeight) {
-      for (const scene of game.scene.getScenes(true)) scene.events.emit(VIEW_CHANGED, v, previous);
+    const scenes = game.scene.getScenes(true);
+    // Existing captions must receive the same minimum as newly created Text. Owners then measure/reflow
+    // the updated wrapped text without restarting the scene or losing its scroll/modal state.
+    for (const scene of scenes) visit(scene.children.list, (object) => {
+      if (object instanceof Phaser.GameObjects.Text) refreshText(object, minimumFontSize());
+    });
+    if (previous.safeTop !== v.safeTop || previous.safeBottom !== v.safeBottom || previous.uiHeight !== v.uiHeight ||
+      previous.adaptive !== v.adaptive || previous.cssW / previous.worldW !== v.cssW / v.worldW) {
+      for (const scene of scenes) scene.events.emit(VIEW_CHANGED, v, previous);
     }
+    // Include chrome rebuilt by VIEW_CHANGED; mutate Rectangle instead of re-enabling stale input.
+    for (const scene of scenes) visit(scene.children.list, refreshInput);
   };
   // START приходит до create: размеры доступны экрану при его первом построении, включая production.
   const hooked = new WeakSet<Phaser.Scene>();

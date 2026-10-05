@@ -5,8 +5,10 @@ import type Phaser from 'phaser';
 const harness = vi.hoisted(() => ({
   enabled: false,
   node: () => {
-    const n: any = { width: 100 };
-    for (const key of ['setName', 'setDepth', 'setX', 'add', 'setDisplaySize', 'setTint']) n[key] = () => n;
+    const n: any = { width: 100, x: 0, y: 0 };
+    for (const key of ['setName', 'setDepth', 'add', 'setDisplaySize', 'setTint', 'setInteractive']) n[key] = () => n;
+    n.setX = (x: number) => { n.x = x; return n; };
+    n.setY = (y: number) => { n.y = y; return n; };
     return n;
   },
 }));
@@ -24,7 +26,13 @@ vi.mock('../src/game/ui', () => ({
   BTN: { cta: 130 },
   button: () => ({ container: harness.node(), setEnabled: () => {} }),
   chip: () => harness.node(),
+  ScrollArea: class {
+    content = harness.node(); offset = 0; locked = false;
+    add(n: unknown) { return n; }
+    setBounds() {} setContentHeight() {}
+  },
 }));
+vi.mock('../src/game/viewport', () => ({ onViewChange: () => () => {} }));
 vi.mock('../src/game/juice', () => ({ collect: (_children: unknown, fn: () => void) => { fn(); return []; }, staggerIn: () => {} }));
 vi.mock('../src/game/decor', () => ({ ctaShine: () => {} }));
 vi.mock('../src/game/itemIcons', () => ({}));
@@ -60,7 +68,7 @@ function sceneHarness() {
   const battleStart = vi.fn();
   Object.assign(scene, {
     sys: { settings, events, game: { loop: { time: 0 } } },
-    children: {}, add: { image: harness.node }, scene: { restart, start: battleStart },
+    children: {}, add: { image: harness.node, container: harness.node, rectangle: harness.node }, scene: { restart, start: battleStart },
   });
   const clock = new Clock(scene);
   const timers = () => (clock as unknown as { _active: unknown[] })._active;
@@ -287,9 +295,14 @@ describe('выбор уровня охоты', () => {
     if (selected !== null) pick(h, selected);
     const st = huntStatus(session.save, today(), GAME);
     session.save.hunt!.best[st.boss.unit] = st.tiers[0].damage;
+    (h.scene as any).area.offset = 280;
     (h.scene as any).sweep();
-    expect(h.restart).toHaveBeenLastCalledWith({ outcome: expect.objectContaining({ sweep: true }) });
+    expect(h.restart).toHaveBeenLastCalledWith({ outcome: expect.objectContaining({ sweep: true }), scroll: 280 });
+    const spent = session.save.hunt?.used;
+    (h.scene as any).sweep();
+    expect(session.save.hunt?.used).toBe(spent);
     h.tick();
+    expect((h.scene as any).area.offset).toBe(280);
     fight(h, selected ?? 2);
     setRank(3);
     h.stop();

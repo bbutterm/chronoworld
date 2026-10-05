@@ -1,0 +1,50 @@
+{
+  "packet": "readonly-dialogue-back",
+  "productScope": [
+    "src/game/dialogue.ts"
+  ],
+  "baselineDialogueSha256": "a8db250ebe7b652430973ede66146a5b514a01e79404186cb3ff160d99ca13f3",
+  "frozenDialogueSha256": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca",
+  "baselineRegression": {
+    "tests": 9,
+    "failed": 7,
+    "passed": 2,
+    "note": "Same assertions; later type-only opts annotation and fixture setData compatibility do not change assertions."
+  },
+  "focused": {
+    "files": 5,
+    "passedTests": 66,
+    "failedTests": 0,
+    "command": "VITE_CONFIG_NATIVE_IGNORE_WARNING=true npx vitest run tests/dialogue-readonly-back.test.ts tests/campaign-choice-ui.test.ts tests/story.test.ts tests/game-lore-social.test.ts tests/modal-telegram-back.test.ts --maxWorkers 1"
+  },
+  "typecheck": "PASS",
+  "diffCheck": "PASS",
+  "testRendering": "Phaser mock; actual screen/ModalBack/Telegram SDK bridge",
+  "saveByteExact": true,
+  "readonlyCompletionOnce": true,
+  "activeExternalDestroyCompletes": true,
+  "shutdownNeverAdvances": true,
+  "livePlotSaveRewardChoicesUnchanged": true,
+  "browserBefore": {
+    "path": "/tmp/chronoworld-night-story-ui/readonly-replay-before-report.json",
+    "viewports": [
+      [
+        360,
+        640
+      ],
+      [
+        390,
+        640
+      ]
+    ],
+    "dialogueUnregistered": true,
+    "sdkBackWentTo": "Home"
+  },
+  "browserAfter": "Pending separate Story/Chronicle owners compiled acceptance; not claimed by this unit packet",
+  "sharedReadonly": {
+    "src/game/screen.ts": "a1773c9a391ad6ec89699122cd51d75f20d22213143166e625b66380eaf64881",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0"
+  },
+  "noCoreDataSpritesEdits": true,
+  "noCommitPublish": true
+}

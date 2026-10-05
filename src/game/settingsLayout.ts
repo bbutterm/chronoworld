@@ -16,6 +16,19 @@ export const SETTINGS_LAYOUT = {
   rowGap: S.s,
 } as const;
 
+/** Хром остаётся в безопасной области; содержимое настроек листается, а кнопка закрытия закреплена. */
+export function settingsLayout(uiHeight = 1920) {
+  const shift = uiHeight - 1920;
+  return {
+    ...SETTINGS_LAYOUT,
+    panelH: SETTINGS_LAYOUT.panelH + shift,
+    bodyBottom: SETTINGS_LAYOUT.bodyBottom + shift,
+    hintY: SETTINGS_LAYOUT.hintY + shift,
+    versionY: SETTINGS_LAYOUT.versionY + shift,
+    closeY: SETTINGS_LAYOUT.closeY + shift,
+  };
+}
+
 /** Measured wrapped labels and explanations grow downwards, never into the next control. */
 export function settingsRowLayout(labelHeight: number, explanationHeight = 0) {
   const rowH = Math.max(SETTINGS_LAYOUT.hitH, labelHeight);

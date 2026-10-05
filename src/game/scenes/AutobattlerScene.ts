@@ -5,37 +5,79 @@ import { AUTOBATTLER_LAYOUT as L, autobattlerCopiesLabel, autobattlerDailyReward
 import { GAME } from '../content';
 import { heroSprite, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { bottomSheet, confirm, cta, portrait, screen } from '../screen';
+import { bottomSheet, confirm, CONTENT_TOP, contentBottom, cta, portrait, screen } from '../screen';
 import { commit, session, today } from '../session';
 import { portraitKey } from '../sprites';
 import { plural } from '../skillFacts';
-import { COLOR, R, S, T, TOUCH_COMFORT } from '../theme';
-import { button, ellipsize, infoButton, plate, pressable, SURFACE, text, toast } from '../ui';
+import { COLOR, COLOR_N, R, S, T, TOUCH_COMFORT } from '../theme';
+import { button, ellipsize, infoButton, plate, pressable, ScrollArea, SURFACE, text, toast } from '../ui';
+import { collect } from '../juice';
+import { adventureModeLayout } from '../adventureModeLayout';
+import { adventureModePanel } from '../adventureModePanel';
+import { onViewChange } from '../viewport';
 
 export interface AutobattlerSceneData {
   fight?: { round: number; won: boolean; lives: number; ended: boolean; rewards: AutobattlerRewards; income?: number; wins?: number };
+  scroll?: number;
 }
 
 /** Short resumable drafting matches. Every preparation action is immediately saved. */
 export class AutobattlerScene extends Phaser.Scene {
   private busy = false;
+  private area?: ScrollArea;
+  private sheetRevision = 0;
 
   constructor() { super('Autobattler'); }
 
   create(data: AutobattlerSceneData = {}): void {
     this.sys.settings.data = {};
     this.busy = false;
+    this.sheetRevision++;
     screen(this, 'Арена товарищей', 'Adventure', { to: 'Adventure' });
     const status = autobattlerStatus(session.save, GAME);
     if (!status.unlocked) {
-      text(this, GAME_W / 2, 770, 'Арена откроется после первой главы', T.heading, COLOR.textSecondary, { wordWrap: { width: 850 } });
-      cta(this, GAME_W / 2, L.go, 'В кампанию', () => this.scene.start('Campaign'));
+      this.body(() => {
+        text(this, GAME_W / 2, 770, 'Арена откроется после первой главы', T.heading, COLOR.textSecondary, { wordWrap: { width: 850 } });
+        cta(this, GAME_W / 2, L.go, 'В кампанию', () => this.scene.start('Campaign')).container.setName('autobattlerUnlockGo');
+      }, false, data.scroll);
       return;
     }
-    if (status.run) this.preparation(status.run);
-    else this.lobby();
+    this.body(() => status.run ? this.preparation(status.run) : this.lobby(), !!status.run, data.scroll);
     if (data.fight?.ended) this.summarySheet();
     else if (data.fight) toast(this, data.fight.won ? `Раунд ${data.fight.round}: победа` : `Раунд ${data.fight.round}: поражение · жизней ${data.fight.lives}`, data.fight.won ? COLOR.positive : COLOR.warning);
+  }
+
+  /** Drafting and the shop scroll independently of round status and the battle confirmation. */
+  private body(draw: () => void, preparing: boolean, offset = 0): void {
+    const top = preparing ? L.status + 82 : CONTENT_TOP;
+    const layout = adventureModeLayout(contentBottom(), top);
+    const area = this.area = new ScrollArea(this, top, layout.bodyBottom);
+    area.content.setName('autobattlerScroll');
+    const rows = collect(this.children, draw);
+    const fixed = rows.filter(o => ['autobattlerRound', 'autobattlerLives', 'autobattlerGold', 'autobattlerInfo'].includes(o.name));
+    const actions = rows.filter(o => ['autobattlerStart', 'autobattlerGo', 'autobattlerUnlockGo'].includes(o.name));
+    const rest = rows.filter(o => !fixed.includes(o) && !actions.includes(o));
+    const shift = preparing ? S.m : 0;
+    const bottom = Math.max(top, ...rest.map(o => (o as unknown as { getBounds?: () => Phaser.Geom.Rectangle }).getBounds?.().bottom ?? top));
+    area.add(this.add.container(0, shift - top, rest));
+    area.setContentHeight(bottom + shift + S.l - top); area.offset = offset;
+    const footer = this.add.container(0, layout.footerY).setName('autobattlerFooter');
+    footer.add(this.add.rectangle(GAME_W / 2, 0, GAME_W, 208, COLOR_N.surface).setInteractive());
+    for (const o of actions) {
+      const action = o as Phaser.GameObjects.Container;
+      action.setY(action.y - L.go); footer.add(action);
+    }
+    if (preparing) {
+      const bar = this.add.rectangle(GAME_W / 2, L.status, GAME_W, 148, COLOR_N.surface).setInteractive();
+      this.children.moveBelow(bar, fixed[0]);
+    }
+    onViewChange(this, () => { const next = adventureModeLayout(contentBottom(), top); area.setBounds(top, next.bodyBottom); footer.setY(next.footerY); });
+  }
+
+  private sheet(title: string, render: Parameters<typeof bottomSheet>[2]): void {
+    const area = this.area, revision = ++this.sheetRevision;
+    if (area) area.locked = true;
+    bottomSheet(this, title, render, { onClose: () => { if (area && this.area === area && this.sheetRevision === revision) area.locked = false; } });
   }
 
   private act(fn: () => AutobattlerSave): void {
@@ -43,7 +85,7 @@ export class AutobattlerScene extends Phaser.Scene {
     this.busy = true;
     try {
       commit(fn());
-      this.scene.restart();
+      this.scene.restart({ scroll: this.area?.offset } satisfies AutobattlerSceneData);
     } catch (e) {
       this.busy = false;
       if (e instanceof AutobattlerError) toast(this, e.message, COLOR.negative);
@@ -79,8 +121,8 @@ export class AutobattlerScene extends Phaser.Scene {
     const cfg = autobattlerConfig(GAME);
     const preview = autobattlerBattle(session.save, GAME);
     const training = cfg.training[run.training];
-    text(this, S.l, L.status, `Раунд ${run.round}/${cfg.rounds}`, T.heading, COLOR.title).setOrigin(0, 0.5);
-    text(this, 494, L.status, `Жизни ${run.lives}`, T.body, COLOR.positive);
+    text(this, S.l, L.status, `Раунд ${run.round}/${cfg.rounds}`, T.heading, COLOR.title).setOrigin(0, 0.5).setName('autobattlerRound');
+    text(this, 494, L.status, `Жизни ${run.lives}`, T.body, COLOR.positive).setName('autobattlerLives');
     text(this, 760, L.status, `Монеты ${run.gold}`, T.body, COLOR.gold).setName('autobattlerGold');
     this.rulesButton(GAME_W - S.l - 36, L.status);
     const foe = text(this, GAME_W / 2, L.opponent, preview.cohort.name, T.heading, COLOR.textPrimary);
@@ -121,9 +163,9 @@ export class AutobattlerScene extends Phaser.Scene {
       const template = GAME.content.heroes[templateId];
       const hero: AutobattlerHero = run.heroes.find((h) => h.templateId === templateId) ?? { id: `ab_offer_${i}`, templateId, copies: 1, paidCopies: 1, branch: run.branchChoices[templateId] };
       this.companionPortrait(hero, run, x, L.shopPortrait, 100);
-      text(this, x, L.shopName, template.name, T.body, COLOR.textPrimary);
+      ellipsize(text(this, x, L.shopName, template.name, T.body, COLOR.textPrimary), 264);
       const current = run.heroes.find((h) => h.templateId === templateId);
-      text(this, x, L.shopName + 48, current ? autobattlerCopiesLabel(current) : ROLE_NAMES[buildUnit(autobattlerHeroState(hero, run, GAME), GAME).role], T.caption, COLOR.textSecondary);
+      ellipsize(text(this, x, L.shopName + 48, current ? autobattlerCopiesLabel(current) : ROLE_NAMES[buildUnit(autobattlerHeroState(hero, run, GAME), GAME).role], T.caption, COLOR.textSecondary), 264);
       const b = button(this, x, L.shopBuy, 250, TOUCH_COMFORT, '', `Взять · ${cfg.heroCost}`, () => this.act(() => buyAutobattlerOffer(session.save, i, GAME)), T.body, { variant: 'secondary' });
       b.container.setName(`autobattlerOffer${i}`);
       b.setEnabled(run.gold >= cfg.heroCost && (!current || current.copies < 9) && (!!current || run.heroes.length < cfg.reserveLimit));
@@ -163,7 +205,7 @@ export class AutobattlerScene extends Phaser.Scene {
       `Награда зависит от числа побед, начиная с ${cfg.rewards.minWins}. За день начала матча можно получить до ${cfg.rewards.gems} алмазов. Новый лучший результат выдаёт только недостающую часть. Досрочное завершение не приносит наград.`,
       'Матч сохраняется после каждого выбора. Можно выйти и продолжить с того же раунда.',
     ];
-    bottomSheet(this, 'Правила Арены', (content, width) => {
+    this.sheet('Правила Арены', (content, width) => {
       let y = 0;
       for (const paragraph of paragraphs) {
         const t = text(this, 0, y, paragraph, T.body, COLOR.textSecondary, { wordWrap: { width }, align: 'left' }).setOrigin(0, 0);
@@ -182,7 +224,7 @@ export class AutobattlerScene extends Phaser.Scene {
 
   private opponentSheet(): void {
     const preview = autobattlerBattle(session.save, GAME);
-    bottomSheet(this, preview.cohort.name, (content, width) => {
+    this.sheet(preview.cohort.name, (content, width) => {
       const hint = text(this, 0, 0, preview.cohort.hint, T.body, COLOR.textSecondary, { wordWrap: { width }, align: 'left' }).setOrigin(0, 0);
       content.add(hint);
       let y = hint.height + 100;
@@ -199,7 +241,7 @@ export class AutobattlerScene extends Phaser.Scene {
 
   private synergySheet(): void {
     const synergies = autobattlerBattle(session.save, GAME).synergies;
-    bottomSheet(this, 'Связки команды', (content, width) => {
+    this.sheet('Связки команды', (content, width) => {
       let y = 0;
       for (const s of synergies) {
         content.add(text(this, 0, y, `${s.name} · ${s.count}/${s.need}`, T.heading, s.active ? COLOR.positive : COLOR.textPrimary).setOrigin(0, 0));
@@ -217,7 +259,7 @@ export class AutobattlerScene extends Phaser.Scene {
     const cfg = autobattlerConfig(GAME);
     const next = cfg.training[run.training + 1];
     if (!next) return;
-    bottomSheet(this, 'Подготовка команды', (content, width) => {
+    this.sheet('Подготовка команды', (content, width) => {
       content.add(text(this, width / 2, 48, `Уровень ${cfg.training[run.training].level} → ${next.level}`, T.heading, COLOR.title));
       content.add(text(this, width / 2, 144, `Мест на поле: ${next.capacity}`, T.body, COLOR.textPrimary));
       if (next.rarity === 'purple' && cfg.training[run.training].rarity !== 'purple') content.add(text(this, width / 2, 232, 'Откроются вторые профессии', T.body, COLOR.positive));
@@ -232,7 +274,7 @@ export class AutobattlerScene extends Phaser.Scene {
   private slotSheet(slot: number): void {
     const run = autobattlerStatus(session.save, GAME).run;
     if (!run) return;
-    bottomSheet(this, slot < 2 ? 'Товарищ на фронт' : 'Товарищ в тыл', (content, width, close) => {
+    this.sheet(slot < 2 ? 'Товарищ на фронт' : 'Товарищ в тыл', (content, width, close) => {
       let y = 0;
       if (run.squad[slot]) {
         const remove = button(this, width / 2, TOUCH_COMFORT / 2, width, TOUCH_COMFORT, '', 'В резерв', () => { close(); this.act(() => setAutobattlerSquad(session.save, run.squad.map((id, i) => i === slot ? null : id), GAME)); }, T.body, { variant: 'secondary' });
@@ -261,7 +303,7 @@ export class AutobattlerScene extends Phaser.Scene {
   private reserveSheet(): void {
     const run = autobattlerStatus(session.save, GAME).run;
     if (!run) return;
-    bottomSheet(this, 'Товарищи матча', (content, width, close) => {
+    this.sheet('Товарищи матча', (content, width, close) => {
       let y = 0;
       for (const hero of run.heroes) {
         const unit = buildUnit(autobattlerHeroState(hero, run, GAME), GAME);
@@ -282,7 +324,7 @@ export class AutobattlerScene extends Phaser.Scene {
     const cfg = autobattlerConfig(GAME);
     const template = GAME.content.heroes[hero.templateId];
     const unit = buildUnit(autobattlerHeroState(hero, run, GAME), GAME);
-    bottomSheet(this, template.name, (content, width, close) => {
+    this.sheet(template.name, (content, width, close) => {
       content.add(this.companionPortrait(hero, run, 116, 106, 168));
       content.add(text(this, 260, 65, `${ROLE_NAMES[unit.role]} · ${autobattlerCopiesLabel(hero)}`, T.heading, COLOR.title).setOrigin(0, 0.5));
       content.add(text(this, 260, 145, `Ур. ${cfg.training[run.training].level}`, T.body, COLOR.textSecondary).setOrigin(0, 0.5));
@@ -317,15 +359,17 @@ export class AutobattlerScene extends Phaser.Scene {
   private summarySheet(): void {
     const last = autobattlerStatus(session.save, GAME).last;
     if (!last) return;
-    bottomSheet(this, last.reason === 'completed' ? 'Матч завершён' : last.reason === 'defeated' ? 'Команда возвращается' : 'Матч окончен досрочно', (content, width, close) => {
-      content.add(text(this, width / 2, 74, `${last.wins} побед · ${last.rounds} раундов`, T.title, COLOR.title));
-      const rewards = last.rewards;
-      const lines = rewards.gems || rewards.gold || rewards.heroExp ? [`Алмазы +${rewards.gems}`, `Золото +${rewards.gold}`, `Опыт +${rewards.heroExp}`] : [last.reason === 'abandoned' ? 'Досрочное завершение без награды' : 'Результат не увеличил награду дня'];
-      lines.forEach((line, i) => content.add(text(this, width / 2, 206 + i * 88, line, T.body, i === 0 && rewards.gems ? COLOR.gem : COLOR.textSecondary)));
-      const ok = button(this, width / 2, 550, width - 100, TOUCH_COMFORT, '', 'Готово', close, T.heading, { variant: 'primary' });
-      ok.container.setName('autobattlerSummaryOk');
-      content.add(ok.container);
-      return 656;
-    });
+    if (this.area) this.area.locked = true;
+    const title = last.reason === 'completed' ? 'Матч завершён' : last.reason === 'defeated' ? 'Команда возвращается' : 'Матч окончен досрочно';
+    const panel = adventureModePanel(this, 'autobattlerSummary', title, { footerH: 180, onClose: () => { if (this.area) this.area.locked = false; } });
+    const { content, width } = panel;
+    content.add(text(this, width / 2, 74, `${last.wins} побед · ${last.rounds} раундов`, T.title, COLOR.title));
+    const rewards = last.rewards;
+    const lines = rewards.gems || rewards.gold || rewards.heroExp ? [`Алмазы +${rewards.gems}`, `Золото +${rewards.gold}`, `Опыт +${rewards.heroExp}`] : [last.reason === 'abandoned' ? 'Досрочное завершение без награды' : 'Результат не увеличил награду дня'];
+    lines.forEach((line, i) => content.add(text(this, width / 2, 206 + i * 88, line, T.body, i === 0 && rewards.gems ? COLOR.gem : COLOR.textSecondary)));
+    const ok = button(this, width / 2, 90, width - 100, TOUCH_COMFORT, '', 'Готово', panel.close, T.heading, { variant: 'primary' });
+    ok.container.setName('autobattlerSummaryOk');
+    panel.footer.add(ok.container);
+    panel.setHeight(206 + lines.length * 88 + S.l);
   }
 }

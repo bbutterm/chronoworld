@@ -1,0 +1,1030 @@
+{
+  "method": "Offline private browser contexts, real rendered canvas and native input. DEV compact opt-in; no production allowlist change in this owned packet. Lawful campaign snapshots copied as fixtures. Tower maximum-cap draft and Scribe event are explicit synthetic UI fixtures. Expedition concurrent availability race uses public core action and a private clock; it is not additional campaign playthrough.",
+  "productSource": {
+    "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+    "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+    "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+    "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+    "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+    "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+    "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+    "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c"
+  },
+  "runs": [
+    {
+      "scene": "Expeditions",
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 180,
+      "reducedMotion": true,
+      "firstVisitTip": false,
+      "snapshotCount": 24,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "party-cancel-open",
+        "party-open",
+        "party-unavailable",
+        "party-open-after-race",
+        "party-scrolled",
+        "party-clipped-tap",
+        "party-expanded",
+        "party-resized",
+        "party-last-hero",
+        "party-five-heroes",
+        "sent",
+        "event-open",
+        "event-expanded",
+        "event-resized",
+        "event-outcome",
+        "returned",
+        "claimed",
+        "chronicle",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-expeditions-360-strict-v2/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/ExpeditionsScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts",
+        "src/game/expeditionPartyPicker.ts",
+        "src/game/expeditionEventModal.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "68ff79435beb3a86b5ee9b7cdef1b2d75403874bb321c80fb6f37b124b736e40",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "expedition": {
+          "availabilityRace": {
+            "location": "ant_hell",
+            "heroIds": [
+              "h166"
+            ],
+            "method": "Explicit private UI race: the same expedition starts concurrently with public core action while its picker is open."
+          },
+          "cancelledWithoutCommit": true,
+          "nativeClippedTap": {
+            "selector": "expeditionPartyHero_h1",
+            "x": 204,
+            "y": 178,
+            "clip": [
+              192,
+              1146
+            ],
+            "selectedUnchanged": true
+          },
+          "location": "ant_hell",
+          "heroIds": [
+            "h166",
+            "h179",
+            "h12",
+            "h9",
+            "h1"
+          ],
+          "startedAt": 1792688849498,
+          "endsAt": 1792717649498,
+          "event": {
+            "id": "road_kafra",
+            "at": 1792693957740
+          },
+          "fixture": "Core start via actual send; private clock shifted to first event."
+        }
+      }
+    },
+    {
+      "scene": "Expeditions",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "renderer": "webgl1",
+      "lawfulClears": 180,
+      "reducedMotion": false,
+      "firstVisitTip": false,
+      "snapshotCount": 20,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "party-open",
+        "party-scrolled",
+        "party-expanded",
+        "party-resized",
+        "party-last-hero",
+        "party-five-heroes",
+        "sent",
+        "event-open",
+        "event-expanded",
+        "event-resized",
+        "event-outcome",
+        "returned",
+        "claimed",
+        "chronicle",
+        "back"
+      ],
+      "minimumTargetCss": 47.666666666666664,
+      "minimumFontCss": 13,
+      "actualRendererIds": [
+        2
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-expeditions-390-final/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/ExpeditionsScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts",
+        "src/game/expeditionPartyPicker.ts",
+        "src/game/expeditionEventModal.ts"
+      ],
+      "source": {
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "expedition": {
+          "location": "ant_hell",
+          "heroIds": [
+            "h166",
+            "h179",
+            "h12",
+            "h9",
+            "h1"
+          ],
+          "startedAt": 1792645651348,
+          "endsAt": 1792674451348,
+          "event": {
+            "id": "ant_caravan_crate",
+            "at": 1792650414732
+          },
+          "fixture": "Core start via actual send; private clock shifted to first event."
+        }
+      }
+    },
+    {
+      "scene": "Hunt",
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 180,
+      "reducedMotion": true,
+      "firstVisitTip": false,
+      "snapshotCount": 16,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "hunt-lower-rank",
+        "hunt-rules",
+        "hunt-rules-expanded",
+        "hunt-rules-resized",
+        "hunt-rules-scrolled",
+        "hunt-rules-closed",
+        "hunt-next-day",
+        "hunt-sweep-outcome",
+        "hunt-outcome-expanded",
+        "hunt-outcome-resized",
+        "hunt-outcome-scrolled",
+        "hunt-resumed",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-hunt-360-final/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/HuntScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "ef83289d9c4bafd13d850a03caaa7239efe3686d94e2c1c668b2c65fc73bdf17",
+        "src/game/scenes/AutobattlerScene.ts": "9a0573884df804e7a67b189784e1fe99d5e160a49c0c2528ae079a38c167dee7",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "hunt": {
+          "fixture": "Private clock advanced to next UTC day, preserving lawful historical hunt records.",
+          "rankBefore": "Уровень 12 / 15",
+          "rankAfter": "Уровень 11 / 15",
+          "attemptsUsed": 1,
+          "earnedGold": 7000
+        }
+      }
+    },
+    {
+      "scene": "Hunt",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "renderer": "webgl1",
+      "lawfulClears": 180,
+      "reducedMotion": false,
+      "firstVisitTip": false,
+      "snapshotCount": 18,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "hunt-lower-rank",
+        "hunt-rules",
+        "hunt-rules-expanded",
+        "hunt-rules-resized",
+        "hunt-rules-scrolled",
+        "hunt-rules-closed",
+        "hunt-next-day",
+        "hunt-sweep-outcome",
+        "hunt-outcome-expanded",
+        "hunt-outcome-resized",
+        "hunt-outcome-scrolled",
+        "hunt-resumed",
+        "back"
+      ],
+      "minimumTargetCss": 47.666666666666664,
+      "minimumFontCss": 13,
+      "actualRendererIds": [
+        2
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-hunt-390-final/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/HuntScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "hunt": {
+          "fixture": "Private clock advanced to next UTC day, preserving lawful historical hunt records.",
+          "rankBefore": "Уровень 12 / 15",
+          "rankAfter": "Уровень 11 / 15",
+          "attemptsUsed": 1,
+          "earnedGold": 7000
+        }
+      }
+    },
+    {
+      "scene": "Tower",
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 36,
+      "reducedMotion": true,
+      "firstVisitTip": false,
+      "snapshotCount": 43,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "tower-earned-summary-closed",
+        "tower-upgrades",
+        "tower-upgrades-expanded",
+        "tower-upgrades-resized",
+        "tower-upgrade-bought",
+        "tower-upgrades-closed",
+        "tower-rules",
+        "tower-rules-expanded",
+        "tower-rules-resized",
+        "tower-started",
+        "tower-pending-closed",
+        "tower-pending-reopened",
+        "tower-card-expanded",
+        "tower-card-resized",
+        "tower-card-picked",
+        "tower-cards-sheet",
+        "tower-cards-sheet-expanded",
+        "tower-cards-sheet-resized",
+        "tower-resumed",
+        "tower-synthetic-four-offers",
+        "tower-synthetic-comparison",
+        "tower-comparison-expanded",
+        "tower-comparison-resized",
+        "tower-synthetic-replacement",
+        "tower-comparison-back",
+        "tower-replacement-confirmed",
+        "tower-synthetic-event",
+        "tower-event-expanded",
+        "tower-event-resized",
+        "tower-event-reopened",
+        "tower-event-chosen",
+        "tower-event-keep",
+        "tower-surrender-confirm",
+        "tower-surrendered",
+        "tower-summary-expanded",
+        "tower-summary-resized",
+        "tower-summary-consumed",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-tower-360-strict-final/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/TowerScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "46734d7bd52314e69d08c669d50bb0b946def926d2bc03eccb31a2ab699a0925",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "tower": {
+          "shardsSpent": 30,
+          "startedSeed": 4264491337,
+          "earnedCard": "deviruchi",
+          "actualResume": true,
+          "syntheticDraft": {
+            "kind": "Synthetic UI stress fixture, NOT a playthrough: full MVP cap, four pending offers, comparison/exchange. Save schema validated.",
+            "cards": [
+              "osiris",
+              "baphomet",
+              "mistress",
+              "deviruchi"
+            ],
+            "incoming": "dark_lord"
+          },
+          "syntheticEvent": {
+            "kind": "Synthetic UI pending event fixture, NOT an earned floor: Scribe exchange with full MVP cap."
+          }
+        }
+      }
+    },
+    {
+      "scene": "Tower",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "renderer": "webgl1",
+      "lawfulClears": 36,
+      "reducedMotion": false,
+      "firstVisitTip": false,
+      "snapshotCount": 43,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "tower-earned-summary-closed",
+        "tower-upgrades",
+        "tower-upgrades-expanded",
+        "tower-upgrades-resized",
+        "tower-upgrade-bought",
+        "tower-upgrades-closed",
+        "tower-rules",
+        "tower-rules-expanded",
+        "tower-rules-resized",
+        "tower-started",
+        "tower-pending-closed",
+        "tower-pending-reopened",
+        "tower-card-expanded",
+        "tower-card-resized",
+        "tower-card-picked",
+        "tower-cards-sheet",
+        "tower-cards-sheet-expanded",
+        "tower-cards-sheet-resized",
+        "tower-resumed",
+        "tower-synthetic-four-offers",
+        "tower-synthetic-comparison",
+        "tower-comparison-expanded",
+        "tower-comparison-resized",
+        "tower-synthetic-replacement",
+        "tower-comparison-back",
+        "tower-replacement-confirmed",
+        "tower-synthetic-event",
+        "tower-event-expanded",
+        "tower-event-resized",
+        "tower-event-reopened",
+        "tower-event-chosen",
+        "tower-event-keep",
+        "tower-surrender-confirm",
+        "tower-surrendered",
+        "tower-summary-expanded",
+        "tower-summary-resized",
+        "tower-summary-consumed",
+        "back"
+      ],
+      "minimumTargetCss": 47.666666666666664,
+      "minimumFontCss": 13,
+      "actualRendererIds": [
+        2
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-tower-390-mid-final/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/TowerScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "tower": {
+          "shardsSpent": 30,
+          "startedSeed": 4264491337,
+          "earnedCard": "deviruchi",
+          "actualResume": true,
+          "syntheticDraft": {
+            "kind": "Synthetic UI stress fixture, NOT a playthrough: full MVP cap, four pending offers, comparison/exchange. Save schema validated.",
+            "cards": [
+              "osiris",
+              "baphomet",
+              "mistress",
+              "deviruchi"
+            ],
+            "incoming": "dark_lord"
+          },
+          "syntheticEvent": {
+            "kind": "Synthetic UI pending event fixture, NOT an earned floor: Scribe exchange with full MVP cap."
+          }
+        }
+      }
+    },
+    {
+      "scene": "Autobattler",
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 180,
+      "reducedMotion": true,
+      "firstVisitTip": false,
+      "snapshotCount": 32,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "arena-earned-summary",
+        "arena-summary-expanded",
+        "arena-summary-resized",
+        "arena-started",
+        "arena-opponent",
+        "arena-opponent-expanded",
+        "arena-opponent-resized",
+        "arena-synergies",
+        "arena-offer-bought",
+        "arena-rerolled",
+        "arena-training",
+        "arena-training-expanded",
+        "arena-training-resized",
+        "arena-training-blocked",
+        "arena-slot",
+        "arena-slot-expanded",
+        "arena-slot-resized",
+        "arena-slot-swapped",
+        "arena-reserve",
+        "arena-companion",
+        "arena-companion-expanded",
+        "arena-companion-resized",
+        "arena-rules",
+        "arena-rules-expanded",
+        "arena-rules-resized",
+        "arena-resumed",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-arena-360-final/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/AutobattlerScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e2ee42bf241398c3fb0d99565ecdcdd83c836e13a538d779339c15f15028d7ae",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "arena": {
+          "actualStart": true,
+          "round": 1,
+          "goldBefore": 10,
+          "goldAfter": 5,
+          "actualBuy": true,
+          "actualReroll": true,
+          "actualSlotSwap": true,
+          "actualResume": true,
+          "training": "Unaffordable after buy+reroll; disabled confirm verified. No synthetic match currency added."
+        }
+      }
+    },
+    {
+      "scene": "Autobattler",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "renderer": "webgl1",
+      "lawfulClears": 180,
+      "reducedMotion": false,
+      "firstVisitTip": false,
+      "snapshotCount": 32,
+      "phases": [
+        "initial",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "arena-earned-summary",
+        "arena-summary-expanded",
+        "arena-summary-resized",
+        "arena-started",
+        "arena-opponent",
+        "arena-opponent-expanded",
+        "arena-opponent-resized",
+        "arena-synergies",
+        "arena-offer-bought",
+        "arena-rerolled",
+        "arena-training",
+        "arena-training-expanded",
+        "arena-training-resized",
+        "arena-training-blocked",
+        "arena-slot",
+        "arena-slot-expanded",
+        "arena-slot-resized",
+        "arena-slot-swapped",
+        "arena-reserve",
+        "arena-companion",
+        "arena-companion-expanded",
+        "arena-companion-resized",
+        "arena-rules",
+        "arena-rules-expanded",
+        "arena-rules-resized",
+        "arena-resumed",
+        "back"
+      ],
+      "minimumTargetCss": 47.666666666666664,
+      "minimumFontCss": 13,
+      "actualRendererIds": [
+        2
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-arena-390-final/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/AutobattlerScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "de782ad4fa9632f9f0a7c422e8c243b0998180793741d302d3821906d2101bfc",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "arena": {
+          "actualStart": true,
+          "round": 1,
+          "goldBefore": 10,
+          "goldAfter": 5,
+          "actualBuy": true,
+          "actualReroll": true,
+          "actualSlotSwap": true,
+          "actualResume": true,
+          "training": "Unaffordable after buy+reroll; the locked tap leaves the save unchanged and explains the exact cost restriction. No synthetic match currency added."
+        }
+      }
+    },
+    {
+      "scene": "Hunt",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "renderer": "webgl1",
+      "lawfulClears": 180,
+      "reducedMotion": true,
+      "firstVisitTip": true,
+      "snapshotCount": 8,
+      "phases": [
+        "initial",
+        "native-other-size",
+        "native-size-restored",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        2
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-hunt-tip-390-before/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/HuntScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "9335af21ddbeb8ce5c506e538358b7768e976b2b1405bb0cf342f38194f59e14",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {}
+    },
+    {
+      "scene": "Expeditions",
+      "locked": true,
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 0,
+      "reducedMotion": true,
+      "snapshotCount": 9,
+      "phases": [
+        "locked-entry",
+        "initial",
+        "native-other-size",
+        "native-size-restored",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-locked-expeditions-360/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/ExpeditionsScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts",
+        "src/game/expeditionPartyPicker.ts",
+        "src/game/expeditionEventModal.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "9335af21ddbeb8ce5c506e538358b7768e976b2b1405bb0cf342f38194f59e14",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "locked": {
+          "nativeEntryRejected": true,
+          "saveUnchanged": true,
+          "sceneInstantiation": "Explicit synthetic UI coverage of the normally inaccessible locked scene, not a playthrough."
+        }
+      }
+    },
+    {
+      "scene": "Hunt",
+      "locked": true,
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 0,
+      "reducedMotion": true,
+      "snapshotCount": 9,
+      "phases": [
+        "locked-entry",
+        "initial",
+        "native-other-size",
+        "native-size-restored",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-locked-hunt-360/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/HuntScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "9335af21ddbeb8ce5c506e538358b7768e976b2b1405bb0cf342f38194f59e14",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "locked": {
+          "nativeEntryRejected": true,
+          "saveUnchanged": true,
+          "sceneInstantiation": "Explicit synthetic UI coverage of the normally inaccessible locked scene, not a playthrough."
+        }
+      }
+    },
+    {
+      "scene": "Tower",
+      "locked": true,
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 0,
+      "reducedMotion": true,
+      "snapshotCount": 9,
+      "phases": [
+        "locked-entry",
+        "initial",
+        "native-other-size",
+        "native-size-restored",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-locked-tower-360/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/TowerScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "9335af21ddbeb8ce5c506e538358b7768e976b2b1405bb0cf342f38194f59e14",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "locked": {
+          "nativeEntryRejected": true,
+          "saveUnchanged": true,
+          "sceneInstantiation": "Explicit synthetic UI coverage of the normally inaccessible locked scene, not a playthrough."
+        }
+      }
+    },
+    {
+      "scene": "Autobattler",
+      "locked": true,
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "renderer": "canvas",
+      "lawfulClears": 0,
+      "reducedMotion": true,
+      "snapshotCount": 9,
+      "phases": [
+        "locked-entry",
+        "initial",
+        "native-other-size",
+        "native-size-restored",
+        "expanded",
+        "resized-back",
+        "tg-top-156",
+        "tg-top-136",
+        "back"
+      ],
+      "minimumTargetCss": 44,
+      "minimumFontCss": 12,
+      "actualRendererIds": [
+        1
+      ],
+      "runtimeErrors": [],
+      "failures": [],
+      "rawReportPath": "/tmp/night-adventure-locked-autobattler-360/report.json",
+      "executedModeSourceVerified": [
+        "src/game/scenes/AutobattlerScene.ts",
+        "src/game/adventureModeLayout.ts",
+        "src/game/adventureModePanel.ts"
+      ],
+      "source": {
+        "scripts/night-adventure-modes-qa.mjs": "9335af21ddbeb8ce5c506e538358b7768e976b2b1405bb0cf342f38194f59e14",
+        "src/game/scenes/ExpeditionsScene.ts": "8c73566b036431cd85bdf2f1283275cbca706bb41a434b0d5dc945a5246afa11",
+        "src/game/scenes/HuntScene.ts": "5a4f9297ee5e609fe55c9dd7c789525ac957484bbc0df6b3cd975d4095a71f3f",
+        "src/game/scenes/TowerScene.ts": "e7ba4268c20e76270077640c9459a6b6612c6c21fe22effb0aaf86ae3aafd52b",
+        "src/game/scenes/AutobattlerScene.ts": "9cb892810da1b8f169772cc60123832e029ea347d95e13ded8ebdb5b55b74e59",
+        "src/game/adventureModeLayout.ts": "a9274ef1e387f69096647a4959236d0bfa534752012d4493e9da41bcaa66115c",
+        "src/game/adventureModePanel.ts": "97defcdbd785a7648891cb45f3446718acfc2ed7324a597b65eaab0209e81a89",
+        "src/game/expeditionPartyPicker.ts": "89a026de6f8391ac1ccfcebc26b077c746e484d13c785744c0e716b5d7b197be",
+        "src/game/expeditionEventModal.ts": "86c860b6f645219846c7016baa66631737c35739e2972860423939caa7358d0c",
+        "src/game/screen.ts": "a9f4029ef7c0e18d50d3150c0f8e865b39cb0c32379670560b1e0b12d58944ff",
+        "src/game/ui.ts": "1c949cf5b1f9bb5f1e27e85a98ecf62f93d4636783a31255b1df3313aff7e418",
+        "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293"
+      },
+      "method": "Lawful campaign snapshot in private browser; hints suppressed for UI input; actual Adventure tile and pointer clicks. Any prepared expedition/event states use core actions and a private clock shift. This is UI proof, not a playthrough.",
+      "actions": {
+        "locked": {
+          "nativeEntryRejected": true,
+          "saveUnchanged": true,
+          "sceneInstantiation": "Explicit synthetic UI coverage of the normally inaccessible locked scene, not a playthrough."
+        }
+      }
+    }
+  ],
+  "focusedTests": {
+    "files": 7,
+    "tests": 79,
+    "status": "PASS",
+    "details": [
+      {
+        "files": 4,
+        "tests": 42,
+        "log": "/tmp/night-mode-tests-final.log"
+      },
+      {
+        "files": 3,
+        "tests": 37,
+        "log": "/tmp/night-mode-tests-core-final.log"
+      }
+    ]
+  },
+  "typecheck": "PASS",
+  "limitations": [
+    "Physical iPhone Safari not available",
+    "Chromium Canvas and WebGL1 only",
+    "Autobattler preparation/resume verified; this packet does not claim a complete arena combat match",
+    "Root combined-code production opt-in verification pending"
+  ],
+  "helperSource": "9335af21ddbeb8ce5c506e538358b7768e976b2b1405bb0cf342f38194f59e14"
+}

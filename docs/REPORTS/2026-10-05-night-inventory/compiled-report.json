@@ -1,0 +1,486 @@
+{
+  "url": "http://127.0.0.1:5597",
+  "privateUI": true,
+  "devCompact": false,
+  "syntheticMvpStock": true,
+  "bundleHashes": {
+    "/assets/index-CIJ2Dq28.js": "25e4380898ef2b81044a7c0abe91dbfe29680e04b020119c50f39b6660c39c90"
+  },
+  "sourceRequests": [],
+  "legalFixture": "tests/fixtures/boot-late-save.json",
+  "runs": [
+    {
+      "width": 360,
+      "height": 640,
+      "mode": "canvas",
+      "phases": [
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1230
+          ],
+          "expandedClip": [
+            482,
+            1590
+          ],
+          "afterClip": [
+            482,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "modalControls": [
+            {
+              "name": "itemLock",
+              "left": 48,
+              "right": 528,
+              "top": 1058,
+              "bottom": 1190,
+              "heightCss": 44
+            },
+            {
+              "name": "itemHero",
+              "left": 48,
+              "right": 528,
+              "top": 1214,
+              "bottom": 1346,
+              "heightCss": 44
+            },
+            {
+              "name": "itemRefine",
+              "left": 552,
+              "right": 1032,
+              "top": 1214,
+              "bottom": 1346,
+              "heightCss": 44
+            }
+          ],
+          "nonOverlapping": true
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1230
+          ],
+          "expandedClip": [
+            482,
+            1590
+          ],
+          "afterClip": [
+            482,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "itemLockRoundTrip": "it156",
+          "resourcesAndPartyExact": true
+        },
+        {
+          "tap": "invTabs",
+          "part": 1
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1230
+          ],
+          "expandedClip": [
+            718,
+            1590
+          ],
+          "afterClip": [
+            718,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1230
+          ],
+          "expandedClip": [
+            718,
+            1590
+          ],
+          "afterClip": [
+            718,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tableRows": [
+            "cardsRow_meilin",
+            "cardsRow_lira",
+            "cardsRow_vika",
+            "cardsRow_dorn",
+            "cardsRow_zara",
+            "cardsRow_iris",
+            "cardsRow_kai",
+            "cardsRow_alan",
+            "cardsRow_greta",
+            "cardsRow_teo",
+            "cardsRow_bran",
+            "cardsRow_otto"
+          ],
+          "tableClip": [
+            718,
+            1230
+          ],
+          "tableOffset": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1230
+          ],
+          "expandedClip": [
+            326,
+            1590
+          ],
+          "afterClip": [
+            326,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1230
+          ],
+          "expandedClip": [
+            326,
+            1590
+          ],
+          "afterClip": [
+            326,
+            1230
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "cardInserted": "card_mastering",
+          "targetId": "cardTarget_it58",
+          "exactlyOneConsumed": true,
+          "publicCoreFieldsExact": true
+        }
+      ],
+      "errors": [],
+      "passed": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "mode": "webgl1",
+      "phases": [
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            482,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            482,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invFreeOnly"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "modalControls": [
+            {
+              "name": "itemLock",
+              "left": 48,
+              "right": 528,
+              "top": 1514.4615478515625,
+              "bottom": 1646.4615478515625,
+              "heightCss": 47.666666666666664
+            },
+            {
+              "name": "itemHero",
+              "left": 48,
+              "right": 528,
+              "top": 1670.4615478515625,
+              "bottom": 1802.4615478515625,
+              "heightCss": 47.666666666666664
+            },
+            {
+              "name": "itemRefine",
+              "left": 552,
+              "right": 1032,
+              "top": 1670.4615478515625,
+              "bottom": 1802.4615478515625,
+              "heightCss": 47.666666666666664
+            }
+          ],
+          "nonOverlapping": true
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            482,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            482,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            482,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "tap": "invItem_it156"
+        },
+        {
+          "tap": "itemLock"
+        },
+        {
+          "itemLockRoundTrip": "it156",
+          "resourcesAndPartyExact": true
+        },
+        {
+          "tap": "invTabs",
+          "part": 1
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            718,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            718,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "tap": "cardsRarity_green"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            718,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            718,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            718,
+            1686.4615384615386
+          ],
+          "beforeOffset": 769.5384615384614,
+          "afterOffset": 576.6153846153848,
+          "expected": 576.6153846153848
+        },
+        {
+          "tableRows": [
+            "cardsRow_meilin",
+            "cardsRow_lira",
+            "cardsRow_vika",
+            "cardsRow_dorn",
+            "cardsRow_zara",
+            "cardsRow_iris",
+            "cardsRow_kai",
+            "cardsRow_alan",
+            "cardsRow_greta",
+            "cardsRow_teo",
+            "cardsRow_bran",
+            "cardsRow_otto"
+          ],
+          "tableClip": [
+            718,
+            1686.4615384615386
+          ],
+          "tableOffset": 576.6153846153848
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            326,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            326,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 0
+        },
+        {
+          "tap": "invTabs",
+          "part": 2
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "resize": true,
+          "beforeClip": [
+            326,
+            1686.4615384615386
+          ],
+          "expandedClip": [
+            326,
+            1879.3846153846152
+          ],
+          "afterClip": [
+            326,
+            1686.4615384615386
+          ],
+          "beforeOffset": 0,
+          "afterOffset": 0,
+          "expected": 0
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "tap": "mvpCardInsert_card_mastering"
+        },
+        {
+          "tap": "cardTarget_it58"
+        },
+        {
+          "cardInserted": "card_mastering",
+          "targetId": "cardTarget_it58",
+          "exactlyOneConsumed": true,
+          "publicCoreFieldsExact": true
+        }
+      ],
+      "errors": [],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "fixtureSha256": "38cad65dbc3ebdfa72800ed742921caec379b7454ff457e28bfcaccbf53a357a",
+  "sourceHashes": {
+    "src/game/scenes/InventoryScene.ts": "6ea6685075b0d43f6bd035a93911334c08243d20c7ec8b4030363731c95017bf",
+    "src/game/inventoryScreenLayout.ts": "fb1bcee13f9f4efbcae3ccd27966e5ab66233166ab1b0812cdf690729611e5c0",
+    "src/game/screen.ts": "ce8df5071c956e83d8059558efd90b5e500d1589c55b740b054d1002b5159094",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0",
+    "src/game/viewLayout.ts": "c24b9f2ae43a4aa39ad8aaa55526133d8261bd907e03f5240f5c378d4c21e8d1"
+  }
+}

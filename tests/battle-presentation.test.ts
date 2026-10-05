@@ -25,10 +25,10 @@ describe('BUG158: finite large battle silhouettes with original foot anchors', (
     const def = sprite('lord_of_death');
     const original = structuredClone(def);
     const p = battleSpritePresentation(def, def.scale, arena);
-    expect((278 - 4) * def.scale).toBeCloseTo(876.8); // Reproduced overflowing attack at native3.2.
+    expect((281 - 2) * def.scale).toBeCloseTo(892.8); // Owner100 archive: independently measured alpha bounds at native3.2.
     expect(p.scale).toBe(2);
-    expect(p.animated).toEqual({ left: -184, top: -420, right: 364, bottom: 98 });
-    expect(p.animated.right - p.animated.left).toBe(548);
+    expect(p.animated).toEqual({ left: -188, top: -418, right: 370, bottom: 98 });
+    expect(p.animated.right - p.animated.left).toBe(558);
     expect((def.top ?? 0) * p.scale).toBeGreaterThan((sprite('knight_m').top ?? 0) * sprite('knight_m').scale);
     expect(p.large).toBe(true);
     expect(def).toEqual(original);
@@ -50,8 +50,8 @@ describe('BUG158: finite large battle silhouettes with original foot anchors', (
     const p = battleSpritePresentation(def, 3.2, arena);
     const normal = battleSpriteHitArea(p, ...def.cell, def.anchor[0] / def.cell[0], def.anchor[1] / def.cell[1], false);
     const flipped = battleSpriteHitArea(p, ...def.cell, 1 - def.anchor[0] / def.cell[0], def.anchor[1] / def.cell[1], true);
-    expect(normal).toEqual({ x: 24, y: 20, width: 217, height: 247 });
-    expect(flipped).toEqual({ x: 55, y: 20, width: 217, height: 247 });
+    expect(normal).toEqual({ x: 21, y: 20, width: 223, height: 247 });
+    expect(flipped).toEqual({ x: 52, y: 20, width: 223, height: 247 });
     // Previous centered45% hit area excluded this visibly opaque left section of the flipped torso.
     const visibleSourceX = def.cell[0] - 225;
     expect(visibleSourceX).toBeGreaterThanOrEqual(flipped.x);

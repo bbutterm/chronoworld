@@ -9,6 +9,7 @@ import { duplicateCardsInSquad } from '../heroes/roster';
 import { CARD_RARITIES } from '../heroes/schema';
 import { Rng } from '../rng';
 import type { HeroState, SaveState } from '../save/schema';
+import { withBondLinks } from '../tavern/tavern';
 import type { BattleResult, PlayerControl } from '../types';
 import { blessingBattle, blessingById, familyStates, runEffects, type FamilyState } from './blessings';
 import {
@@ -630,7 +631,8 @@ export function towerRunSquad(save: SaveState, ctx: TowerContext): { squad: (Uni
     hp[u.id] = run.hp[id] ?? 1000;
     return u;
   });
-  return { squad, hp };
+  // Заслуженные связки следуют за участниками забега, даже если общий отряд изменён.
+  return { squad: withBondLinks(squad, { ...save, squad: run.squad }, ctx), hp };
 }
 
 export interface TowerFightOutcome {

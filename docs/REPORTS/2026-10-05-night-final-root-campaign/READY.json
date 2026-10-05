@@ -1,0 +1,115 @@
+{
+  "ready": true,
+  "packet": "final-root-companion-seed1-campaign180-after-description",
+  "newIndependentRun": true,
+  "sourceImmutable": true,
+  "sourceFileCount": 807,
+  "sourceSha256": "4b4ecaaf45e572c8444811db6991e6dbece39277b95e4a1bfe938497abfd3b19",
+  "driverCompositeSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "dataDescriptionSha256": "d45591376ad050ef2b9b3e1cdc46f9fdee808e88f9ed9e178b3fdeebf8e80a5a",
+  "complete": {
+    "stages": 180,
+    "attempts": 561,
+    "losses": 381,
+    "waits12Hours": 22,
+    "gameHours": 279.026
+  },
+  "proof": {
+    "all180FirstWinPairsLegal": true,
+    "initialCompanionIdentityAtEveryFirstWin": true,
+    "all807SourceFilesImmutable": true,
+    "publicFinalBossReplayWinner": "A",
+    "sequenceAccounting1237": true,
+    "freshOutputAgreesWithPriorCandidate": true
+  },
+  "files": [
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/description-delta.json",
+      "sha256": "1a670b7469755db6d359986f2d0be5232447126d8902fb9b5bfdfad6fd703942",
+      "bytes": 308
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/metadata.json",
+      "sha256": "541b1519b4eff4f172e5720417cde58c22ee2b43f825ac3e4ff4c365e0080eea",
+      "bytes": 394
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/attempts.jsonl.gz",
+      "sha256": "5ad740ee7aa22045c776bfbfa9a5794c6d18549a1fb0061cc9c7429635f883e4",
+      "bytes": 22122
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/before-first-win-ch10_s18.clock.json.gz",
+      "sha256": "66dbc92b90ec29587efe094637f7eb1a5b76f7985adaf7fc1c104219957060a4",
+      "bytes": 87
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/before-first-win-ch10_s18.json.gz",
+      "sha256": "f3c1aa7782507868941d871c750cd4536825ebedee2cffe5637d2ccda68761ad",
+      "bytes": 7890
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/driver-report.json.gz",
+      "sha256": "4a877e50a84005cebab30f3a43eea549779366014f0acbf1c9b4b3eeb45102bb",
+      "bytes": 7609
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/final-clock.json.gz",
+      "sha256": "d81d4c61a433742e6d42840c4b5a0d54ba4b85dc98084f00cfd4f3c19a327cb9",
+      "bytes": 60
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/final-save.json.gz",
+      "sha256": "775a58f7a4e6061a26fc9c9e9d8836a82d6ae2de82f69d2c92881de646f89716",
+      "bytes": 7918
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/first-win-integrity-proof.json.gz",
+      "sha256": "f5c92d1bc6456816333e79ce7f87579af6db471b3bbbed20e75c426b717adb30",
+      "bytes": 21030
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/index.json",
+      "sha256": "9107e9aa6f3e7970720737e804f8a6eb6ae581011cfa904b20cea6ecbceb8626",
+      "bytes": 3721
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/public-root-proof.ts.gz",
+      "sha256": "064fd074f1a574fa8d54e39d124c6cf55df5b4ab5de2cd29f0e41cf55da79a26",
+      "bytes": 1994
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/raw/source-before-ledger.json.gz",
+      "sha256": "2ac40a5712ff19c2428c66edf6de02ac0c3cf2650b7f26e14a06dd2a143e9aaa",
+      "bytes": 39091
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/source-after-verification.json",
+      "sha256": "ba6f8082d6e03e8136547fb2204712a5aec404fc726cd7239da88bdb27990a6a",
+      "bytes": 1372
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/stages.csv",
+      "sha256": "d5bdd2306799f40967d63b3bea6a83c80cae55e5bafd32fd0bf32fd32cf8dd3c",
+      "bytes": 10186
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-root-campaign/summary.json",
+      "sha256": "e34fe1db3eed981af05850add6e0b6e69e6e68bb1030bc3b7e9aaeded2127851",
+      "bytes": 4372
+    },
+    {
+      "path": "docs/qa/night-final-root-campaign-2026-10-05.md",
+      "sha256": "2b226486a564d458d71cd315ea6f0dc59b0c7eab76f3e423ad99ecf6618dcf2a",
+      "bytes": 4735
+    }
+  ],
+  "oldProofUnchanged": {
+    "path": "docs/REPORTS/2026-10-05-night-final-campaign/READY.json",
+    "sha256": "ae26912b772ada4d2bc7c31ec858b04516cc05f55398d9a24645305b161a73c8"
+  },
+  "noProductEdits": true,
+  "noCommitPublish": true,
+  "rootChecks": "Root owned after final UI/source integration",
+  "rawOutput": "/tmp/chronoworld-night-final-root-companions-seed1"
+}

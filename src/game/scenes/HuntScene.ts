@@ -5,25 +5,29 @@ import { ELEMENT_NAMES, type Element } from '../../core/elements';
 import { elementBadge, elementTitle } from '../battleElements';
 import { GAME } from '../content';
 import { formatNumber, heroSprite, RARITY_COLORS, RARITY_NAMES } from '../flow';
-import { GAME_H, GAME_W } from '../layout';
-import { bottomSheet, CONTENT_TOP, contentBottom, cta, popIn, portrait, screen, unitFigure, unitTint } from '../screen';
+import { GAME_W } from '../layout';
+import { bottomSheet, CONTENT_TOP, contentBottom, cta, portrait, screen, unitFigure, unitTint } from '../screen';
 import { cardArtId, showCardArt } from '../cardArt';
 import { commit, restartOnNewDay, session, today } from '../session';
-import { BTN, button, chip, clampLines, ellipsize, infoButton, plate, progressBar, rewardRow, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
+import { BTN, button, chip, clampLines, ellipsize, infoButton, plate, progressBar, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
 import { ctaShine, glow, ribbon, slowRays } from '../decor';
 import { skinIcon } from '../skin';
 import { portraitKey } from '../sprites';
-import { C, COLOR, COLOR_N, FAMILY, R, S, T, Z } from '../theme';
+import { C, COLOR, COLOR_N, FAMILY, R, S, T } from '../theme';
 import { lockedScreen } from '../unlockBanner';
 import { plural } from '../skillFacts';
 import { burst, collect, countUp, rewardFly, staggerIn } from '../juice';
 import { firstTip } from '../firstTips';
 import { heroCardIcon } from '../heroCard';
 import { rewardIcon } from '../rewardsView';
+import { adventureModeLayout } from '../adventureModeLayout';
+import { adventureModePanel } from '../adventureModePanel';
+import { onViewChange } from '../viewport';
 
 /** Данные экрана: после боя (BattleScene) или «Зачистки» — итог попытки поверх экрана. */
 export interface HuntSceneData {
   outcome?: HuntOutcome;
+  scroll?: number;
 }
 
 /**
@@ -143,6 +147,8 @@ function syncRankSelection(rank: number): void {
  * «В бой» (попытки — чип на ней) и вторичная «Зачистка». Легенда, механики и правила — за «i» (лист снизу).
  */
 export class HuntScene extends Phaser.Scene {
+  private area?: ScrollArea;
+  private sweeping = false;
   constructor() {
     super('Hunt');
   }
@@ -150,6 +156,7 @@ export class HuntScene extends Phaser.Scene {
   create(data: HuntSceneData = {}): void {
     // Итог попытки одноразовый: Phaser сохраняет старые данные при входе без data.
     this.sys.settings.data = {};
+    this.sweeping = false;
     restartOnNewDay(this);
     screen(this, 'Охота на MVP', 'Adventure', { to: 'Adventure' });
     const st = huntStatus(session.save, today(), GAME);
@@ -158,24 +165,36 @@ export class HuntScene extends Phaser.Scene {
       lockedScreen(this, 'hunt');
       return;
     }
-    // Раскладка сверху вниз по видимой области: баннер растёт на вытянутых экранах, кнопки — у низа.
-    const bottom = contentBottom();
-    const ctaY = bottom - S.xs - L.ctaH / 2;
+    // The full boss and reward description scroll; attempts and both actions stay above navigation.
     const top = CONTENT_TOP + S.xs;
-    const restH = L.squadH + L.levelH + L.ctaH + S.xs + 3 * S.s + S.l;
-    const bannerH = Phaser.Math.Clamp(bottom - top - restH, L.bannerMin, L.bannerMax);
-    const gap = Math.max(S.s, (bottom - top - bannerH - L.squadH - L.levelH - L.ctaH - S.xs - S.l) / 3);
+    const layout = adventureModeLayout(contentBottom(), top);
+    const bannerH = Phaser.Math.Clamp(layout.bodyBottom - top - L.squadH - L.levelH - 3 * S.s, L.bannerMin, L.bannerMax);
+    const gap = S.s;
     const squadY = top + bannerH + gap;
     const levelY = squadY + L.squadH + gap;
+    const area = this.area = new ScrollArea(this, top, layout.bodyBottom);
+    area.content.setName('huntScroll');
+    const body = this.add.container(0, -top);
+    area.add(body);
     const groups: Phaser.GameObjects.GameObject[][] = [];
     groups.push(collect(this.children, () => this.banner(st, top, bannerH)));
     groups.push(collect(this.children, () => this.squadRow(st, squadY)));
     groups.push(collect(this.children, () => this.levelBlock(st, levelY)));
-    groups.push(collect(this.children, () => this.footer(st, ctaY)));
+    body.add(groups.flat());
+    area.setContentHeight(levelY + L.levelH + S.s - top);
+    if (data.scroll !== undefined) area.offset = data.scroll;
+    const footer = this.add.container(0, layout.footerY).setName('huntFooter');
+    footer.add(this.add.rectangle(GAME_W / 2, 0, GAME_W, L.ctaH + 4 * S.s, COLOR_N.surface).setInteractive());
+    const actions = collect(this.children, () => this.footer(st, 0));
+    footer.add(actions); groups.push(actions);
+    onViewChange(this, () => {
+      const next = adventureModeLayout(contentBottom(), top);
+      area.setBounds(top, next.bodyBottom); footer.setY(next.footerY);
+    });
     staggerIn(this, 'Hunt', groups);
     if (data.outcome) this.showOutcome(data.outcome);
     // Первый вход: Гаррет о MVP дня (firstTips.ts, один раз) — над кнопками, placeBand обходит данные.
-    else firstTip(this, 'tip_hunt', ctaY - L.ctaH / 2 - 260);
+    else firstTip(this, 'tip_hunt', layout.footerY - L.ctaH / 2 - 260);
   }
 
   /** Баннер MVP: багровый ореол и фигура справа, имя и стихия слева сверху, слабость и полоса ОЗ с фазами снизу. */
@@ -185,7 +204,6 @@ export class HuntScene extends Phaser.Scene {
     const shape = this.make.graphics({}, false);
     shape.fillStyle(0xffffff, 1).fillRoundedRect(LEFT, top, W, h, R.l);
     const mask = shape.createGeometryMask();
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => shape.destroy());
     const clip = <G extends Phaser.GameObjects.Components.Mask>(g: G): G => g.setMask(mask);
     clip(this.add.graphics().fillGradientStyle(0x4a1712, 0x4a1712, 0x120605, 0x120605, 1).fillRect(LEFT, top, W, h));
     const fx = LEFT + W * 0.66;
@@ -201,10 +219,14 @@ export class HuntScene extends Phaser.Scene {
       onReady: (o) => {
         if (!shade.scene || o.scene !== this) return void o.destroy();
         clip(o).setTint(unitTint(def.visual));
-        this.children.moveBelow(o, shade);
+        if (shade.parentContainer) { shade.parentContainer.add(o); shade.parentContainer.moveBelow<Phaser.GameObjects.GameObject>(o, shade); }
+        else this.children.moveBelow(o, shade);
       },
     });
-    plate(this, GAME_W / 2, top + h / 2, W, h, { fill: COLOR.bg, alpha: 0, border: COLOR.border, borderW: 4, r: R.l, hl: 0.18 }).setName('huntBanner');
+    const frame = plate(this, GAME_W / 2, top + h / 2, W, h, { fill: COLOR.bg, alpha: 0, border: COLOR.border, borderW: 4, r: R.l, hl: 0.18 }).setName('huntBanner');
+    const moveMask = () => { const m = shade.getWorldTransformMatrix(); shape.setPosition(m.tx, m.ty); };
+    this.events.on(Phaser.Scenes.Events.PRE_RENDER, moveMask);
+    frame.once(Phaser.GameObjects.Events.DESTROY, () => { this.events.off(Phaser.Scenes.Events.PRE_RENDER, moveMask); mask.destroy(); shape.destroy(); });
 
     const tx = LEFT + S.l;
     const ty = top + S.l;
@@ -351,6 +373,8 @@ export class HuntScene extends Phaser.Scene {
 
   /** Правила и подробности — лист снизу (легенда, механики, слабость, карта MVP, попытки). */
   private rules(st: HuntStatus): void {
+    if (this.area?.locked) return;
+    if (this.area) this.area.locked = true;
     const boss = st.boss;
     bottomSheet(this, boss.def.name, (c, w) => {
       let y = 0;
@@ -383,13 +407,13 @@ export class HuntScene extends Phaser.Scene {
       head('Попытки');
       para(`${st.attemptsPerDay} в день, бой ${GAME.hunt.timeLimitSeconds} с. Первая попытка дня даёт Благословенную руду.${GAME.hunt.sweep ? ' «Зачистка» повторяет лучший бой.' : ''}`, COLOR.textSecondary, T.caption);
       return y;
-    });
+    }, { onClose: () => { if (this.area) this.area.locked = false; } });
   }
 
   private pick(rank: number, st: HuntStatus): void {
     const selected = Math.max(0, Math.min(st.rank, rank));
     pickedRank = selected < st.rank ? selected : null;
-    this.scene.restart({});
+    this.scene.restart({ scroll: this.area?.offset } satisfies HuntSceneData);
   }
 
   /** «Зачистка» (вторичная) и «В бой» (главная, чип попыток на углу). */
@@ -401,6 +425,7 @@ export class HuntScene extends Phaser.Scene {
     sweep.setEnabled(st.canSweep);
     const gx = LEFT + W - goW / 2;
     const go = cta(this, gx, y, 'В бой', () => this.fight(), { w: goW, h: L.ctaH, enabled: st.attemptsLeft > 0 });
+    go.container.setName('huntGo');
     go.label.setX(30);
     go.container.add(this.add.image(30 - go.label.width / 2 - 48, -4, skinIcon('swords')).setDisplaySize(62, 62).setTint(st.attemptsLeft > 0 ? 0x3a2408 : 0x6a6a6a));
     if (st.attemptsLeft > 0) ctaShine(this, go.container, goW, L.ctaH);
@@ -422,11 +447,14 @@ export class HuntScene extends Phaser.Scene {
   }
 
   private sweep(): void {
+    if (this.sweeping || this.area?.locked) return;
+    this.sweeping = true;
     try {
       const out = sweepHunt(session.save, today(), GAME);
       commit(out.save);
-      this.scene.restart({ outcome: out } satisfies HuntSceneData);
+      this.scene.restart({ outcome: out, scroll: this.area?.offset } satisfies HuntSceneData);
     } catch (e) {
+      this.sweeping = false;
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
   }
@@ -437,10 +465,9 @@ export class HuntScene extends Phaser.Scene {
    */
   private showOutcome(out: HuntOutcome): void {
     const cx = GAME_W / 2;
-    const cy = GAME_H / 2;
-    const layer = this.add.container(0, 0).setDepth(Z.modal).setName('huntOutcome');
-    const shade = this.add.rectangle(cx, cy, GAME_W * 3, GAME_H * 3, 0x000000, 0.72).setInteractive();
-    layer.add(shade);
+    if (this.area) this.area.locked = true;
+    const panel = adventureModePanel(this, 'huntOutcome', 'Итог охоты', { footerH: 180, onClose: () => { if (this.area) this.area.locked = false; } });
+    const layer = panel.content.setX(0);
     const mvpFight = !out.sweep && out.levelBefore !== undefined;
     const hp = out.boss.def.stats.hp;
     const pct = out.killed ? 100 : Math.min(99, Math.floor((out.damage / Math.max(1, hp)) * 100));
@@ -463,8 +490,8 @@ export class HuntScene extends Phaser.Scene {
     const pityTag = !cardDef && out.killed && !!out.boss.card && !!GAME.hunt.mvp;
     const CARD_H = 190;
     const bh = 420 + (row ? row.height + S.l : 80) + (cardDef ? CARD_H + S.s + 56 + 40 + S.s : pityTag ? 52 + S.l : 0) + 170;
-    const top = cy - bh / 2;
-    const box = plate(this, cx, cy, bw, bh, { fill: COLOR.surfaceRaised, alpha: 0.98, border: COLOR.accent, borderW: 4, r: R.xl, hl: 0.15 }).setInteractive();
+    const top = 40;
+    const box = plate(this, cx, top + bh / 2, bw, bh, { fill: COLOR.surfaceRaised, alpha: 0.98, border: COLOR.accent, borderW: 4, r: R.xl, hl: 0.15 });
     layer.add(box);
     // BUG-185: MVP — исход называется прямо: «MVP!» или «Поражение», доля снятых ОЗ и уровень «10 → 9».
     const head = out.sweep ? 'Зачистка' : out.killed ? 'MVP!' : mvpFight ? 'Поражение' : 'Охота окончена';
@@ -479,7 +506,7 @@ export class HuntScene extends Phaser.Scene {
     countUp(this, big, 0, bigVal, fmt, {
       delay: 160,
       onDone: () => {
-        if (out.killed || out.record || out.rankUp) burst(this, { x: cx, y: bigY });
+        if (big.scene && (out.killed || out.record || out.rankUp)) { const bounds = big.getBounds(); burst(this, { x: bounds.centerX, y: bounds.centerY }); }
       },
     });
     // Порог и уровень — тегами в ряд.
@@ -524,13 +551,14 @@ export class HuntScene extends Phaser.Scene {
     const close = () => {
       const pill = this.children.getByName('pill_gold') as Phaser.GameObjects.Container | null;
       const key = roIcon(this, 'gold');
-      if (g.gold > 0 && pill && key) rewardFly(this, { x: cx, y: bigY }, { x: pill.x, y: pill.y, box: pill }, { key, scale: 3 }, { n: 6 });
-      layer.destroy();
+      const bounds = big.getBounds();
+      if (g.gold > 0 && pill && key) rewardFly(this, { x: bounds.centerX, y: bounds.centerY }, { x: pill.x, y: pill.y, box: pill }, { key, scale: 3 }, { n: 6 });
+      panel.close();
     };
-    const ok = cta(this, cx, top + bh - 95, 'Отлично', close, { w: 440, h: 130 });
-    layer.add(ok.container);
-    layer.setData('close', close);
-    popIn(this, layer, shade);
+    const ok = cta(this, panel.width / 2, 90, 'Отлично', close, { w: 440, h: 132 });
+    ok.container.setName('huntOutcomeOk');
+    panel.footer.add(ok.container);
+    panel.setHeight(top + bh - 170);
   }
 }
 

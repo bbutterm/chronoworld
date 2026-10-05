@@ -6,12 +6,18 @@ import type { SaveState, StoryScene } from '../src/core';
 const h = vi.hoisted(() => {
   class Node {
     name = ''; text = ''; x = 0; y = 0; width = 100; height = 100;
-    scene: unknown = {}; visible = true; input: unknown; list: Node[] = []; parentContainer?: Node;
+    scene: unknown; visible = true; input: unknown; list: Node[] = []; parentContainer?: Node;
+    destroying = false;
     handlers: Record<string, ((...args: any[]) => void)[]> = {};
+    data = new Map<string, unknown>();
     constructor(x = 0, y = 0, text = '') { this.x = x; this.y = y; this.text = text; }
-    add(items: Node | Node[]) { for (const n of [items].flat()) { n.parentContainer = this; this.list.push(n); } return this; }
+    add(items: Node | Node[]) { for (const n of [items].flat()) { n.scene = this.scene; n.parentContainer = this; this.list.push(n); } return this; }
     removeAll(destroy: boolean) { if (destroy) this.list.forEach((n) => n.destroy()); this.list = []; return this; }
-    destroy() { this.emit('destroy'); this.removeAll(true); this.scene = undefined; this.handlers = {}; }
+    destroy() {
+      if (!this.scene || this.destroying) return;
+      this.destroying = true;
+      this.emit('destroy'); this.removeAll(true); this.scene = undefined; this.handlers = {};
+    }
     on(event: string, fn: (...args: any[]) => void) { (this.handlers[event] ??= []).push(fn); return this; }
     once(event: string, fn: (...args: any[]) => void) {
       const once = (...args: any[]) => { this.handlers[event] = (this.handlers[event] ?? []).filter((h) => h !== once); fn(...args); };
@@ -19,6 +25,8 @@ const h = vi.hoisted(() => {
     }
     emit(event: string, ...args: any[]) { for (const fn of [...(this.handlers[event] ?? [])]) fn(...args); }
     setName(n: string) { this.name = n; return this; }
+    setData(key: string, value: unknown) { this.data.set(key, value); return this; }
+    getData(key: string) { return this.data.get(key); }
     setText(t: string) { this.text = t; return this; }
     setX(x: number) { this.x = x; return this; }
     setVisible(on: boolean) { this.visible = on; return this; }
@@ -65,18 +73,25 @@ function harness() {
   type Timer = { active: boolean; loop: boolean; callback: () => void; remove: () => void };
   const nodes: InstanceType<typeof h.Node>[] = [];
   const timers: Timer[] = [];
-  const make = (x = 0, y = 0) => { const n = new h.Node(x, y); nodes.push(n); return n; };
+  let active = true;
+  const events = new EventEmitter();
+  const make = (x = 0, y = 0) => { const n = new h.Node(x, y); n.scene = sc; nodes.push(n); return n; };
   const timer = (callback: () => void, loop = false) => {
     const t: Timer = { active: true, loop, callback, remove: () => { t.active = false; } };
     timers.push(t); return t;
   };
   const sc = {
     add: { container: make, rectangle: make, image: make },
-    textures: { exists: () => false }, tweens: { add: () => {} }, events: new EventEmitter(),
+    textures: { exists: () => false }, tweens: { add: () => {} }, events, sys: { isActive: () => active },
     time: { get now() { return h.now; }, addEvent: ({ callback }: { callback: () => void }) => timer(callback, true), delayedCall: (_delay: number, cb: () => void) => timer(cb) },
     scene: { start: vi.fn() }, game: {},
+    children: { get list() { return nodes.filter((n) => n.scene && !n.parentContainer); } },
   };
-  const current = () => nodes.filter((n) => n.scene && !n.parentContainer).flatMap(flatten).filter((n) => n.scene);
+  events.once('shutdown', () => {
+    active = false;
+    for (const n of [...sc.children.list]) n.destroy();
+  });
+  const current = () => sc.children.list.flatMap(flatten).filter((n) => n.scene);
   const node = (name: string) => current().find((n) => n.name === name)!;
   const click = (n: InstanceType<typeof h.Node>, time = h.now + LINE_GUARD_MS + 1) => {
     h.now = time; n.emit('pointerdown', { event: { timeStamp: time } }); n.emit('pointerup');

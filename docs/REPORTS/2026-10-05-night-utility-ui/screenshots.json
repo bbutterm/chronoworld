@@ -1,0 +1,48 @@
+{
+  "compiled": true,
+  "renderMode": "Canvas fallback",
+  "reduceMotion": true,
+  "images": [
+    {
+      "path": "screens/mail-letter-tg360.png",
+      "bytes": 61731,
+      "sha256": "af92d99872562c6ed1fea7caf5962fc80f991c90ce9263400a9493b3e077e05c",
+      "origin": "/tmp/chronoworld-utility-ui-production-final/canvas-360x640-welcome-mail-letter.png",
+      "productionCase": "canvas:360x640:welcome",
+      "state": "mail-letter"
+    },
+    {
+      "path": "screens/quests-last-tg360.png",
+      "bytes": 68375,
+      "sha256": "c00061de125f417c8423fdf94d739da886c3d8fa13719d7fc8a9cc9da3b523ef",
+      "origin": "/tmp/chronoworld-utility-ui-production-final/canvas-360x640-late-quests-last.png",
+      "productionCase": "canvas:360x640:late",
+      "state": "quests-last"
+    },
+    {
+      "path": "screens/achievements-last-tg360.png",
+      "bytes": 73118,
+      "sha256": "2809bb4b88e3d2bf609e29ed2d614e7a291fe1f63887a047a25ccfb6f85807ad",
+      "origin": "/tmp/chronoworld-utility-ui-production-final/canvas-360x640-achievements-achievements-last.png",
+      "productionCase": "canvas:360x640:achievements",
+      "state": "achievements-last"
+    },
+    {
+      "path": "screens/shop-last-tg360.png",
+      "bytes": 64614,
+      "sha256": "395b2161562be6b7ebb497d9ee92b3759ea7ead19d73dcc331d76d1f52866f74",
+      "origin": "/tmp/chronoworld-utility-ui-production-final/canvas-360x640-late-shop-last.png",
+      "productionCase": "canvas:360x640:late",
+      "state": "shop-last"
+    },
+    {
+      "path": "screens/shop-confirmation-tg390.png",
+      "bytes": 77428,
+      "sha256": "b97a31a1718270a7651c670d61da9a3011fd568b8ef9f46935673c9d13c25a24",
+      "origin": "/tmp/chronoworld-utility-ui-production-canvas390-final/canvas-390x844-mid-shop-sheet.png",
+      "productionCase": "canvas:390x844:mid",
+      "state": "shop-sheet"
+    }
+  ],
+  "note": "Five representative unedited captures. All 164 compiled state checks are retained in production-summary.json and the private raw inputs; these images are illustrative, not a substitute for action/geometry assertions."
+}

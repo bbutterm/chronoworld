@@ -1,0 +1,12 @@
+{
+  "gitHead": "b00888b403f2b6c0031840c89f6583fc96451e6d",
+  "scriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "sourceSha256": "4b4ecaaf45e572c8444811db6991e6dbece39277b95e4a1bfe938497abfd3b19",
+  "seedBase": 1,
+  "maxWaits": 180,
+  "maxStages": 180,
+  "naiveMaxFarm": false,
+  "preserveCompanions": true,
+  "waitHours": 12,
+  "artificialResources": false
+}

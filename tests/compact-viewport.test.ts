@@ -40,22 +40,24 @@ describe('компактный Telegram сохраняет ширину и да�
     expect(tiny.y + 500).toBe(tiny.bottom);
   });
 
-  it('переключает только адаптированные сцены и восстанавливает поле боя целиком', () => {
+  it('переключает только адаптированные сцены и сохраняет классическую раскладку для остальных', () => {
     expect(supportsAdaptiveLayout('Campaign')).toBe(true);
     expect(supportsAdaptiveLayout('Adventure')).toBe(true);
     expect(supportsAdaptiveLayout('Hero')).toBe(true);
     expect(supportsAdaptiveLayout('Ascend')).toBe(true);
-    for (const scene of ['Heroes', 'HeroPick', 'Stage', 'Squad']) expect(supportsAdaptiveLayout(scene)).toBe(true);
-    for (const scene of ['Battle', 'Home', 'Tavern', 'TavernEvening', 'Result']) expect(supportsAdaptiveLayout(scene)).toBe(false);
+    expect(supportsAdaptiveLayout('Home')).toBe(true);
+    expect(supportsAdaptiveLayout('Tavern')).toBe(true);
+    for (const scene of ['Heroes', 'HeroPick', 'Stage', 'Squad', 'Expeditions', 'Hunt', 'Tower', 'Autobattler', 'Mail', 'Quests', 'Achievements', 'Shop', 'Events', 'Friends', 'Inventory', 'Chronicle', 'TavernEvening']) expect(supportsAdaptiveLayout(scene)).toBe(true);
+    for (const scene of ['Prep']) expect(supportsAdaptiveLayout(scene)).toBe(false);
     const insets = { top: 136, bottom: 34, left: 0, right: 0 };
     const map = computeView(360, 640, 1, insets, 2, supportsAdaptiveLayout('Campaign'));
-    const battle = computeView(360, 640, 1, insets, 2, supportsAdaptiveLayout('Battle'));
+    const classic = computeView(360, 640, 1, insets, 2, supportsAdaptiveLayout('Prep'));
     expect(map.uiHeight).toBe(1410);
-    expect(battle.uiHeight).toBe(1920);
-    expect(battle.worldY).toBeLessThanOrEqual(0);
-    expect(battle.worldY + battle.worldH).toBeGreaterThanOrEqual(1920);
+    expect(classic.uiHeight).toBe(1920);
+    expect(classic.worldY).toBeLessThanOrEqual(0);
+    expect(classic.worldY + classic.worldH).toBeGreaterThanOrEqual(1920);
     expect(map).toEqual(computeView(360, 640, 1, insets, 2, true));
-    for (const scene of ['Hero', 'Ascend', 'Heroes', 'HeroPick', 'Stage', 'Squad']) {
+    for (const scene of ['Hero', 'Ascend', 'Heroes', 'HeroPick', 'Stage', 'Squad', 'Battle', 'Result', 'ChapterDone', 'Home', 'Tavern', 'Expeditions', 'Hunt', 'Tower', 'Autobattler', 'Mail', 'Quests', 'Achievements', 'Shop', 'Events', 'Friends', 'Inventory', 'Chronicle', 'TavernEvening']) {
       const hero = computeView(360, 640, 1, insets, 2, supportsAdaptiveLayout(scene));
       expect(hero.adaptive).toBe(true);
       expect(hero.uiHeight).toBe(1410);

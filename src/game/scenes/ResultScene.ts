@@ -27,6 +27,8 @@ import { showUnlockBanners } from '../unlockBanner';
 import { heroCardIcon, rarityColor } from '../heroCard';
 import { skinIcon } from '../skin';
 import { mugIcon } from '../tavernEntry';
+import { battleResultLayout } from '../battleScreenLayout';
+import { minimumTouchSize, onViewChange, view } from '../viewport';
 import { battleRewards, defeatShortcuts, resultEventLines, Reveal, type BattleReward, type DefeatShortcut, type RevealObj } from '../rewardsView';
 
 /** Метка в данных итогов (ResultData.stage): «Глава пройдена» уже показан из этих итогов. */
@@ -68,6 +70,10 @@ const RING_W = 8;
 type Obj = RevealObj;
 
 export class ResultScene extends Phaser.Scene {
+  private endpointLayout = battleResultLayout(GAME_H, GAME_H);
+  private bodyArea: ScrollArea | null = null;
+  private footerNodes: { node: Obj; primary: boolean }[] = [];
+  private headerNodes: { node: Obj; dy: number }[] = [];
   /** R: идущий обратный отсчёт авто-прохождения (null — нет). */
   autoTimer: Phaser.Time.TimerEvent | null = null;
   /** Низ содержимого и верх кнопок (e2e: содержимое не наезжает на кнопки). */
@@ -92,6 +98,16 @@ export class ResultScene extends Phaser.Scene {
     this.tableEnd = 0;
     this.autoTop = BUTTONS_TOP;
     this.eventLines = 0;
+    this.endpointLayout = battleResultLayout(view().uiHeight, view().safeBottom);
+    this.autoTop = this.endpointLayout.bodyBottom + S.s;
+    this.bodyArea = null;
+    this.footerNodes = [];
+    this.headerNodes = [];
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.bodyArea = null;
+      this.footerNodes = [];
+      this.headerNodes = [];
+    });
     // Фон — поле только что сыгранного боя (глава этапа / ярус башни).
     addThemeBackground(this, 'battle', themeOfBattle({ stageId: stage?.stageId, towerFloor: tower?.floor }), win ? 0.75 : 0.6);
     const outcome = stage?.outcome ?? tower?.outcome;
@@ -101,6 +117,25 @@ export class ResultScene extends Phaser.Scene {
     }
     if (win) this.victory(data);
     else this.defeat(data);
+    this.headerNodes = this.children.list.filter((o): o is Obj => 'y' in o && 'depth' in o && Number(o.depth) >= 2 && Number(o.depth) <= 3)
+      .map(node => ({ node, dy: node.y - this.endpointLayout.bannerY }));
+    onViewChange(this, () => {
+      this.endpointLayout = battleResultLayout(view().uiHeight, view().safeBottom);
+      this.autoTop = this.endpointLayout.bodyBottom + S.s;
+      this.bodyArea?.setBounds(this.endpointLayout.bodyTop, this.endpointLayout.bodyBottom);
+      for (const h of this.headerNodes) if (h.node.scene) h.node.setY(this.endpointLayout.bannerY + h.dy);
+      for (const f of this.footerNodes) if (f.node.scene) f.node.setY(f.primary ? this.endpointLayout.row1 : this.endpointLayout.row2);
+      (this.children.getByName('autoStopNote') as Phaser.GameObjects.Text | null)?.setY(this.endpointLayout.row2 + 96);
+      this.tableEnd = Math.min(this.tableEnd, this.endpointLayout.bodyBottom);
+    });
+  }
+
+  private bodyLayer(): Phaser.GameObjects.Container {
+    const area = this.bodyArea = new ScrollArea(this, this.endpointLayout.bodyTop, this.endpointLayout.bodyBottom);
+    area.content.setDepth(10).setName('resultScroll');
+    const layer = this.add.container(0, -L.metaY + 30);
+    area.add(layer);
+    return layer;
   }
 
   // ---------- победа ----------
@@ -123,7 +158,7 @@ export class ResultScene extends Phaser.Scene {
     moment(this, firstClear ? 'firstClear' : 'victory', {
       image: bannerKey,
       imageWidth: L.bannerW,
-      at: { x: GAME_W / 2, y: L.bannerY },
+      at: { x: GAME_W / 2, y: this.endpointLayout.bannerY },
       keep: true,
       depth: 1,
       sound: false,
@@ -134,7 +169,7 @@ export class ResultScene extends Phaser.Scene {
   private victoryBody(data: ResultData, firstClear: boolean): void {
     const { result: r, stage, tower } = data;
     const reveal = new Reveal(this);
-    const layer = this.add.container(0, 0).setDepth(10);
+    const layer = this.bodyLayer();
     const add = <T extends Phaser.GameObjects.GameObject>(o: T): T => {
       layer.add(o);
       return o;
@@ -202,7 +237,6 @@ export class ResultScene extends Phaser.Scene {
         rows.push({
           draw: (ly, put) => {
             const t = put(text(this, GAME_W / 2, ly, line, hot ? T.body : T.caption, hot ? COLOR.title : COLOR.textPrimary, { fontStyle: hot ? 'bold' : 'normal' }));
-            if (t.width > L.contentW) t.setFontSize(Math.max(T.caption - 6, Math.floor((T.caption * L.contentW) / t.width)));
             return [ellipsize(t, L.contentW)];
           },
         });
@@ -227,28 +261,14 @@ export class ResultScene extends Phaser.Scene {
       }
     }
     if (rows.length) {
-      const room = L.lineFeet - L.lineH * 1.1 - 80 - y;
-      const fit = Math.max(2, Math.floor(room / EVENT_LINE));
-      if (rows.length <= fit) {
-        rows.forEach((row, i) => {
-          reveal.step(row.draw(y + EVENT_LINE * (i + 0.5), add));
-        });
-        y += rows.length * EVENT_LINE;
-      } else {
-        // Не влезают до кнопок — список прокручивается пальцем, ничего не прячется.
-        const area = new ScrollArea(this, y, y + fit * EVENT_LINE);
-        const put: Put = (o) => {
-          area.add(o);
-          return o;
-        };
-        rows.forEach((row, i) => row.draw(EVENT_LINE * (i + 0.5), put));
-        area.setContentHeight(rows.length * EVENT_LINE);
-        for (const p of area.parts) (p as unknown as Phaser.GameObjects.Components.Depth).setDepth?.(10);
-        y += fit * EVENT_LINE;
-      }
+      const rowH = Math.max(EVENT_LINE, minimumTouchSize());
+      rows.forEach((row, i) => reveal.step(row.draw(y + rowH * (i + 0.5), add)));
+      y += rows.length * rowH;
       this.eventLines = rows.length;
     }
-    this.tableEnd = y;
+    lineup.setY(Math.max(0, y + 100 - (L.lineFeet - L.lineH * 1.1)));
+    this.bodyArea?.setContentHeight(Math.max(y + 40, L.lineFeet + lineup.y + 140) - L.metaY + 30);
+    this.tableEnd = this.endpointLayout.bodyBottom;
 
     reveal.play(() => this.victoryButtons(data, firstClear));
   }
@@ -259,16 +279,22 @@ export class ResultScene extends Phaser.Scene {
     const def = stage ? GAME.content.stages.find((s) => s.id === stage.stageId) : undefined;
     const where = tower ? `Башня, этаж ${tower.floor}` : def ? `Этап ${stageNo(def, GAME)}` : 'Бой';
     const parts = [where, stage?.skipped ? 'бой пропущен' : `${decimal(r.duration, 1)} с`];
-    const c = this.add.container(GAME_W / 2, L.metaY);
-    const t = text(this, 0, 0, parts.join(' · '), T.caption, COLOR.textSecondary);
-    c.add(t);
-    if (firstClear) {
-      const tg = tag(this, 0, 0, 'Первая победа', 'positive');
-      const w = tg.width + S.xs + t.width;
-      tg.setX(-w / 2 + tg.width / 2);
-      t.setX(w / 2 - t.width / 2);
-      c.add(tg);
-    }
+    const c = this.add.container(GAME_W / 2, L.metaY).setName('resultMeta');
+    // Font floors change on narrower phones; rebuild only this row so its plate and gap follow the glyph bounds.
+    const draw = () => {
+      c.removeAll(true);
+      const t = text(this, 0, 0, parts.join(' · '), T.caption, COLOR.textSecondary).setName('resultStageMeta');
+      c.add(t);
+      if (firstClear) {
+        const tg = tag(this, 0, 0, 'Первая победа', 'positive').setName('resultFirstWin');
+        const w = tg.width + S.xs + t.width;
+        tg.setX(-w / 2 + tg.width / 2);
+        t.setX(w / 2 - t.width / 2);
+        c.add(tg);
+      }
+    };
+    draw();
+    c.once(Phaser.GameObjects.Events.DESTROY, onViewChange(this, draw));
     return c;
   }
 
@@ -362,27 +388,27 @@ export class ResultScene extends Phaser.Scene {
     };
     keep(this.statsButton(data, L.stats.x, L.stats.w));
     if (tower) {
-      keep(button(this, L.side.x, L.row1, L.side.w, BTN.l, '', 'К башне', () => this.scene.start('Tower'), T.body, { variant: 'secondary' }));
-      keep(cta(this, L.main.x, L.row1, 'Выше', () => this.scene.start('Battle', { mode: 'tower' }), { w: L.main.w, h: BTN.cta }));
-      keep(button(this, L.side.x, L.row2, L.side.w, BTN.m, '', 'Приключения', () => this.scene.start('Adventure'), T.body, { variant: 'ghost' }));
+      keep(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'К башне', () => this.scene.start('Tower'), T.body, { variant: 'secondary' }));
+      keep(cta(this, L.main.x, this.endpointLayout.row1, 'Выше', () => this.scene.start('Battle', { mode: 'tower' }), { w: L.main.w, h: BTN.cta }));
+      keep(button(this, L.side.x, this.endpointLayout.row2, L.side.w, Math.max(BTN.m, minimumTouchSize()), '', 'Приключения', () => this.scene.start('Adventure'), T.body, { variant: 'ghost' }));
       this.showButtons(shown);
       return;
     }
     if (!stage) {
-      keep(button(this, L.side.x, L.row1, L.side.w, BTN.l, '', 'Отряд', () => this.scene.start('Prep'), T.body, { variant: 'secondary' }));
-      keep(cta(this, L.main.x, L.row1, 'Ещё раз', () => this.testAgain(), { w: L.main.w, h: BTN.cta }));
-      keep(button(this, L.side.x, L.row2, L.side.w, BTN.m, '', 'Город', () => this.scene.start('Home'), T.body, { variant: 'ghost' }));
+      keep(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'Отряд', () => this.scene.start('Prep'), T.body, { variant: 'secondary' }));
+      keep(cta(this, L.main.x, this.endpointLayout.row1, 'Ещё раз', () => this.testAgain(), { w: L.main.w, h: BTN.cta }));
+      keep(button(this, L.side.x, this.endpointLayout.row2, L.side.w, Math.max(BTN.m, minimumTouchSize()), '', 'Город', () => this.scene.start('Home'), T.body, { variant: 'ghost' }));
       this.showButtons(shown);
       return;
     }
     const next = nextOpenStage(session.save, stage.stageId, GAME);
-    keep(button(this, L.side.x, L.row1, L.side.w, BTN.l, '', 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), T.body, { variant: 'secondary' }));
-    const nextBtn = keep(cta(this, L.main.x, L.row1, 'Дальше', () => {
+    keep(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), T.body, { variant: 'secondary' }));
+    const nextBtn = keep(cta(this, L.main.x, this.endpointLayout.row1, 'Дальше', () => {
       markHint('result_next');
       if (next) this.scene.start('Stage', { stageId: next.id });
     }, { w: L.main.w, h: BTN.cta, enabled: !!next }));
     if (!next) nextBtn.container.disableInteractive();
-    keep(button(this, L.side.x, L.row2, L.side.w, BTN.m, '', 'К кампании', () => {
+    keep(button(this, L.side.x, this.endpointLayout.row2, L.side.w, Math.max(BTN.m, minimumTouchSize()), '', 'К кампании', () => {
       markHint('result_home');
       this.scene.start('Campaign');
     }, T.body, { variant: 'ghost' }));
@@ -412,8 +438,8 @@ export class ResultScene extends Phaser.Scene {
           showUnlockBanners(this, () => {
             // Обучение (hints.ts): первая победа — «Дальше»; потом, когда копится сундук или хватает на уровень, — «К кампании».
             const hint = firstClear ? pickResultHint({ hasNext: !!next, chestOrLevel: levelUpReady(session.save, GAME).length > 0 || session.save.campaign.cleared.length >= 2 }) : null;
-            if (hint === 'result_next') tutorialHint(this, hint, L.main.x, L.row1, 'above', { w: L.main.w, h: BTN.cta });
-            else if (hint) tutorialHint(this, hint, L.side.x, L.row2, 'above', { w: L.side.w, h: BTN.m });
+            if (hint === 'result_next') tutorialHint(this, hint, L.main.x, this.endpointLayout.row1, 'above', { w: L.main.w, h: BTN.cta });
+            else if (hint) tutorialHint(this, hint, L.side.x, this.endpointLayout.row2, 'above', { w: L.side.w, h: BTN.m });
             auto.begin();
           });
       }, { auto: autoAdvance.on }),
@@ -424,6 +450,7 @@ export class ResultScene extends Phaser.Scene {
   private showButtons(objs: Obj[]): void {
     for (const o of objs) {
       (o as unknown as Phaser.GameObjects.Components.Depth).setDepth(20);
+      this.footerNodes.push({ node: o, primary: o.y === this.endpointLayout.row1 });
       if (!juiceOn()) continue;
       const a = o.alpha;
       o.setAlpha(0);
@@ -447,13 +474,12 @@ export class ResultScene extends Phaser.Scene {
     sfx('defeat');
     haptic('defeat');
     this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, 0.45);
-    const layer = this.add.container(0, 0).setDepth(10);
+    const layer = this.bodyLayer();
     const reveal = new Reveal(this);
     const bannerKey = this.textures.exists('skin_banner_defeat') ? 'skin_banner_defeat' : 'ui_defeat';
-    const halo = glow(this, GAME_W / 2, L.bannerY, 128, 0xa02818, 0.4).setScale(1000 / 128, 380 / 128);
-    const banner = this.add.image(GAME_W / 2, L.bannerY, bannerKey);
+    const halo = glow(this, GAME_W / 2, this.endpointLayout.bannerY, 128, 0xa02818, 0.4).setScale(1000 / 128, 380 / 128).setDepth(2);
+    const banner = this.add.image(GAME_W / 2, this.endpointLayout.bannerY, bannerKey).setDepth(3);
     banner.setDisplaySize(L.bannerW, (L.bannerW * banner.height) / Math.max(1, banner.width));
-    layer.add([halo, banner]);
     reveal.step([halo, banner]);
 
     const why = r.reason === 'timeout' ? 'Время вышло' : 'Отряд пал';
@@ -498,20 +524,21 @@ export class ResultScene extends Phaser.Scene {
       reveal.step([q]);
       y += S.l + q.height;
     }
-    this.tableEnd = y;
+    this.bodyArea?.setContentHeight(y - L.metaY + 70);
+    this.tableEnd = this.endpointLayout.bodyBottom;
 
     reveal.play(() => {
       const shown: Obj[] = [];
       const stats = this.statsButton(data, GAME_W / 2, 360);
       if (tower) {
-        shown.push(button(this, L.side.x, L.row1, L.side.w, BTN.l, '', 'К башне', () => this.scene.start('Tower'), T.body, { variant: 'secondary' }).container);
-        shown.push(cta(this, L.main.x, L.row1, 'Ещё раз', () => this.scene.start('Battle', { mode: 'tower' }), { w: L.main.w, h: BTN.cta }).container);
+        shown.push(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'К башне', () => this.scene.start('Tower'), T.body, { variant: 'secondary' }).container);
+        shown.push(cta(this, L.main.x, this.endpointLayout.row1, 'Ещё раз', () => this.scene.start('Battle', { mode: 'tower' }), { w: L.main.w, h: BTN.cta }).container);
       } else if (stage) {
-        shown.push(button(this, L.side.x, L.row1, L.side.w, BTN.l, '', 'К кампании', () => this.scene.start('Campaign'), T.body, { variant: 'secondary' }).container);
-        shown.push(cta(this, L.main.x, L.row1, 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), { w: L.main.w, h: BTN.cta }).container);
+        shown.push(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'К кампании', () => this.scene.start('Campaign'), T.body, { variant: 'secondary' }).container);
+        shown.push(cta(this, L.main.x, this.endpointLayout.row1, 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), { w: L.main.w, h: BTN.cta }).container);
       } else {
-        shown.push(button(this, L.side.x, L.row1, L.side.w, BTN.l, '', 'Город', () => this.scene.start('Home'), T.body, { variant: 'secondary' }).container);
-        shown.push(cta(this, L.main.x, L.row1, 'Ещё раз', () => this.testAgain(), { w: L.main.w, h: BTN.cta }).container);
+        shown.push(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'Город', () => this.scene.start('Home'), T.body, { variant: 'secondary' }).container);
+        shown.push(cta(this, L.main.x, this.endpointLayout.row1, 'Ещё раз', () => this.testAgain(), { w: L.main.w, h: BTN.cta }).container);
       }
       shown.push(stats.container);
       this.showButtons(shown);
@@ -562,7 +589,7 @@ export class ResultScene extends Phaser.Scene {
 
   /** Тихая кнопка «Статистика» (лист снизу с обеими сторонами). */
   private statsButton(data: ResultData, x: number, w: number): ButtonView {
-    const b = button(this, x, L.row2, w, BTN.m, '', 'Статистика', () => this.openStats(data.result, data.defs), T.body, { variant: 'ghost' });
+    const b = button(this, x, this.endpointLayout.row2, w, Math.max(BTN.m, minimumTouchSize()), '', 'Статистика', () => this.openStats(data.result, data.defs), T.body, { variant: 'ghost' });
     b.container.setName('resultStats');
     return b;
   }
@@ -589,7 +616,7 @@ export class ResultScene extends Phaser.Scene {
           const name = text(this, nx, cy - 20, def?.name ?? u.unitId, T.caption, isMvp ? COLOR.title : COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5).setAlpha(alpha);
           ellipsize(name, width - nx - 260);
           content.add(name);
-          if (isMvp) content.add(tag(this, nx + name.displayWidth + S.xs, cy - 20, 'MVP', 'gold', { solid: true, align: 'left' }).setScale(0.8));
+          if (isMvp) content.add(tag(this, nx + name.displayWidth + S.xs, cy - 20, 'MVP', 'gold', { solid: true, align: 'left' }));
           const barW = width - nx - 260;
           content.add(this.add.rectangle(nx, cy + 22, barW, 12, COLOR_N.surfaceSunken).setOrigin(0, 0.5));
           if (rep.damageDealt > 0) content.add(this.add.rectangle(nx, cy + 22, Math.max(4, (barW * rep.damageDealt) / maxDmg), 12, side === 'A' ? TINT.gold : TINT.danger).setOrigin(0, 0.5));
@@ -613,7 +640,7 @@ export class ResultScene extends Phaser.Scene {
    */
   private autoRow(stageId: string, next: ButtonView): { view: Obj; begin: () => void } {
     const plan = autoNextStage(session.save, stageId, true, GAME);
-    const toggle = button(this, L.auto.x, L.row2, L.auto.w, BTN.m, '', 'Авто: дальше', () => {
+    const toggle = button(this, L.auto.x, this.endpointLayout.row2, L.auto.w, Math.max(BTN.m, minimumTouchSize()), '', 'Авто: дальше', () => {
       setAutoAdvance(!autoAdvance.on);
       drawMark();
       if (autoAdvance.on) start();
@@ -628,7 +655,7 @@ export class ResultScene extends Phaser.Scene {
     const check = text(this, boxX, -5, '✓', T.caption, COLOR.textPrimary, { fontStyle: 'bold' });
     toggle.container.add([box, check]);
     // Почему авто стоит (повтор, конец главы) — крошечная подпись под переключателем, только когда авто включено.
-    const note = text(this, L.auto.x, L.row2 + BTN.m / 2 + 18, '', T.caption - 8, COLOR.textTertiary).setDepth(20);
+    const note = text(this, GAME_W / 2, this.endpointLayout.row2 + 96, '', T.caption, COLOR.textTertiary).setDepth(20).setName('autoStopNote');
     toggle.container.once(Phaser.GameObjects.Events.DESTROY, () => note.destroy());
     const drawMark = () => {
       box.setFillStyle(autoAdvance.on ? TINT.success : TINT.checkOff).setStrokeStyle(4, autoAdvance.on ? TINT.header : TINT.frame);

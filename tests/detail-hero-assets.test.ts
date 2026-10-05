@@ -81,12 +81,26 @@ describe('Approved 36-pack profession release', () => {
     const approved = Object.keys(provenance).filter(id => provenance[id].source?.renderer === 'QA-approved current detail atlas, copied byte-for-byte');
     expect(approved.sort()).toEqual(cases.map(a => a.new_sprite_id).sort());
   });
-  it('retains every prior runtime entry, including all monsters and generic professions', () => {
+  it('retains every prior identity and profession, accepting only the later approved monster alpha bounds', () => {
     const preserved = manifest.sprites.filter(s => release.preservedSpriteIds.includes(s.id));
     const canonical = (value: unknown): unknown => Array.isArray(value) ? value.map(canonical) :
       value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([k, v]) => [k, canonical(v)])) : value;
     expect(preserved).toHaveLength(release.preservedSpriteIds.length);
-    expect(createHash('sha256').update(JSON.stringify(canonical(preserved))).digest('hex')).toBe(release.preservedRuntimeEntriesSha256);
+    // Reconstruct the historical checksum while verifying every later approved bbox and PNG exactly.
+    const monsterRelease = json('tests/fixtures/monster-sheet-release.json') as {
+      sprites: { id: string; beforeBBox: unknown; approvedBBox: unknown; sheetSHA256: string }[];
+    };
+    expect(monsterRelease.sprites).toHaveLength(100);
+    const approved = new Map(monsterRelease.sprites.map(s => [s.id, s]));
+    expect(approved.size).toBe(100);
+    const historical = preserved.map(s => {
+      const current = approved.get(s.id);
+      if (!current) return s;
+      expect(s.bbox).toEqual(current.approvedBBox);
+      expect(createHash('sha256').update(readFileSync(join(ROOT, 'assets', s.file))).digest('hex')).toBe(current.sheetSHA256);
+      return { ...s, bbox: current.beforeBBox };
+    });
+    expect(createHash('sha256').update(JSON.stringify(canonical(historical))).digest('hex')).toBe(release.preservedRuntimeEntriesSha256);
     const added = manifest.sprites.filter(s => !release.preservedSpriteIds.includes(s.id));
     // The approved original 36 remain intact; the veteran release adds exactly 24 gender forms.
     const veterans = Object.values(ctx.content.heroes).flatMap(t => t.branches.flatMap(b => b.advanced ? [b.advanced.visual.sprite!] : []));

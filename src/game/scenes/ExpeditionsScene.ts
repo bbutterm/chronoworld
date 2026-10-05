@@ -3,11 +3,14 @@ import {
   actClaimAllExpeditions,
   actClaimExpedition,
   autoParty,
+  busyHeroes,
   expectedExpeditionLoot,
   expeditionStatus,
   finishedExpeditions,
   pendingExpeditionEvents,
+  heroPower,
   startExpedition,
+  withGear,
   type ActiveExpeditionView,
   type ExpectedLoot,
   type ExpeditionStoryLine,
@@ -29,10 +32,12 @@ import { afterRewardFly, collect, pulse, queueRewardFly, staggerIn, type Point }
 import { heroCardIcon } from '../heroCard';
 import { rewardIcon } from '../rewardsView';
 import { expeditionRewardPreview } from '../expeditionRewards';
+import { EXPEDITION_PARTY_PANEL, openExpeditionPartyPicker } from '../expeditionPartyPicker';
+import { onViewChange } from '../viewport';
 
 /** Карточка локации: ширина — по полям экрана, высота и шаг списка. */
 const CARD_W = GAME_W - 2 * S.l;
-const CARD_H = 436;
+const CARD_H = 536;
 /** Закрытая локация — низкая карточка: название и замок с этапом. */
 const LOCKED_H = 216;
 const cardH = (v: ExpeditionView): number => (v.unlocked ? CARD_H : LOCKED_H);
@@ -45,7 +50,7 @@ const COL_R = LEFT + CARD_W - S.m;
 const COL_W = COL_R - COL_X;
 const FACE = 80;
 /** Ряды правой колонки (от верха карточки): название, состояние, отряд, действие, добыча. */
-const ROW = { name: 56, state: 134, squad: 218, action: 304, loot: 388 } as const;
+const ROW = { name: 56, state: 134, squad: 244, action: 372, loot: 484 } as const;
 /** Полоса над списком: «Забрать всё» / счётчики и «Летопись». */
 const BAR_Y = CONTENT_TOP + 56;
 const LIST_TOP = CONTENT_TOP + 124;
@@ -156,6 +161,8 @@ export class ExpeditionsScene extends Phaser.Scene {
   private hours = 8;
   /** Сколько событий ждали решения при отрисовке (появилось новое — перерисовать). */
   private pendingShown = 0;
+  private selectedParties = new Map<string, string[]>();
+  private selectedSaveCreatedAt?: number;
 
   constructor() {
     super('Expeditions');
@@ -165,11 +172,17 @@ export class ExpeditionsScene extends Phaser.Scene {
     screen(this, 'Экспедиции', 'Adventure', { to: 'Adventure' });
     this.hours = loadHours();
     const save = session.save;
+    if (this.selectedSaveCreatedAt !== save.createdAt) {
+      this.selectedSaveCreatedAt = save.createdAt;
+      this.selectedParties.clear();
+    }
     this.pendingShown = pendingExpeditionEvents(save, now());
-    const views = expeditionStatus(save, now(), GAME);
+    const views = expeditionStatus(save, now(), GAME).map(v => v.unlocked && !v.active ? { ...v, party: this.party(v.location.id) } : v);
     this.topBar(views);
 
     this.area = new ScrollArea(this, LIST_TOP, contentBottom() + 10);
+    this.area.content.setName('expeditionsScroll');
+    onViewChange(this, () => this.area.setBounds(LIST_TOP, contentBottom() + 10));
     this.timers = [];
     // Порядок важен для золотой кнопки: вернувшиеся — первыми получают «Забрать», затем первая свободная — «Отправить».
     const rows: Phaser.GameObjects.GameObject[][] = [];
@@ -269,6 +282,10 @@ export class ExpeditionsScene extends Phaser.Scene {
             return;
           }
           area.add(o);
+          const width = o.frame.cutWidth * Math.abs(o.scaleX);
+          if (width > ART_W - 2 * S.xs) o.setScale(o.scaleX * (ART_W - 2 * S.xs) / width);
+          // Packed sprite cells can have an off-centre pivot: keep the visible body inside its artwork column.
+          o.setX(cx - (o.frame.x - o.displayOriginX + o.frame.cutWidth / 2) * o.scaleX);
           o.setTint(locked ? 0x202020 : unitTint(unit.visual));
           if (locked) o.setAlpha(0.8);
         },
@@ -291,14 +308,15 @@ export class ExpeditionsScene extends Phaser.Scene {
     }
   }
 
-  private faces(ids: readonly string[], y: number): number {
+  private faces(ids: readonly string[], y: number, maxW = COL_W): number {
+    const size = Math.min(FACE, (maxW - Math.max(0, ids.length - 1) * S.xxs) / Math.max(1, ids.length));
     ids.forEach((id, i) => {
       const hero = session.save.heroes.find((h) => h.id === id);
-      const x = COL_X + FACE / 2 + i * (FACE + S.xxs);
-      this.area.add(plate(this, x, y, FACE, FACE, { ...SURFACE.sunken, r: R.s }));
-      if (hero) this.area.add(portrait(this, x, y, portraitKey(heroSprite(hero, GAME)), FACE - 10));
+      const x = COL_X + size / 2 + i * (size + S.xxs);
+      this.area.add(plate(this, x, y, size, size, { ...SURFACE.sunken, r: R.s }));
+      if (hero) this.area.add(portrait(this, x, y, portraitKey(heroSprite(hero, GAME)), size - 10));
     });
-    return COL_X + ids.length * (FACE + S.xxs);
+    return COL_X + ids.length * (size + S.xxs);
   }
 
   /**
@@ -320,20 +338,23 @@ export class ExpeditionsScene extends Phaser.Scene {
     const loc = v.location;
     const party = v.party!;
     a.add(powerCompare(this, COL_X, top + ROW.state, party.power, party.need, { align: 'left' }));
-    if (party.ok) this.faces(party.heroIds, top + ROW.squad);
+    if (party.ok) this.faces(party.heroIds, top + ROW.squad, COL_W - 250 - S.s);
     else {
       const why = this.shortHint(loc.id);
-      if (why) a.add(ellipsize(text(this, COL_X, top + ROW.squad, why, T.caption, COLOR.warning, { fontStyle: 'bold' }).setOrigin(0, 0.5), COL_W));
+      if (why) a.add(ellipsize(text(this, COL_X, top + ROW.squad, why, T.caption, COLOR.warning, { fontStyle: 'bold' }).setOrigin(0, 0.5), COL_W - 250 - S.s));
     }
+    const pick = button(this, COL_R - 125, top + ROW.squad, 250, 132, '', 'Изменить', a.tap(() => this.pickParty(loc.id)), T.body, { variant: 'secondary' });
+    pick.container.setName(`party_${loc.id}`);
+    a.add(pick.container);
     // Срок — сегмент 1 / 4 / 8 ч (выбор общий для всех локаций и запоминается), справа — «Отправить».
     const ds = GAME.meta.expeditions.durations;
-    const segW = 330;
-    const seg = segmented(this, COL_X + segW / 2, top + ROW.action, segW, ds.map((d) => `${d.hours} ч`), Math.max(0, ds.findIndex((d) => d.hours === this.hours)), (i) => a.tap(() => this.pickHours(ds[i].hours))(), { h: 84 });
+    const segW = ds.length * 132 + 12;
+    const seg = segmented(this, COL_X + segW / 2, top + ROW.action, segW, ds.map((d) => `${d.hours} ч`), Math.max(0, ds.findIndex((d) => d.hours === this.hours)), (i) => a.tap(() => this.pickHours(ds[i].hours))(), { h: 132 });
     seg.container.setName(`hours_${loc.id}`);
     a.add(seg.container);
     const sendW = COL_R - (COL_X + segW + S.s);
     const sendX = COL_R - sendW / 2;
-    const send = button(this, sendX, top + ROW.action, sendW, BTN.m, primary ? 'ui_btn_primary' : '', 'Отправить', a.tap(() => this.send(v)), T.body, primary ? {} : { variant: 'secondary' });
+    const send = button(this, sendX, top + ROW.action, sendW, 132, primary ? 'ui_btn_primary' : '', 'В путь', a.tap(() => this.send(v)), T.body, primary ? {} : { variant: 'secondary' });
     send.container.setName(`send_${loc.id}`);
     if (!party.ok) send.setEnabled(false);
     a.add(send.container);
@@ -341,10 +362,34 @@ export class ExpeditionsScene extends Phaser.Scene {
     this.lootRow(expectedChips(exp), top + ROW.loot, findIcons(exp));
   }
 
+  private party(locationId: string): ReturnType<typeof autoParty> {
+    const save = session.save;
+    const ids = this.selectedParties.get(locationId);
+    const busy = new Set(busyHeroes(save));
+    const heroes = ids?.map(id => save.heroes.find(h => h.id === id));
+    if (!ids?.length || heroes?.some(h => !h || busy.has(h.id))) {
+      this.selectedParties.delete(locationId);
+      return autoParty(save, locationId, GAME);
+    }
+    const need = GAME.meta.expeditions.locations.find(l => l.id === locationId)!.power;
+    const power = heroes!.reduce((n, h) => n + heroPower(h!, withGear(GAME, save)), 0);
+    return { heroIds: [...ids], power, need, ok: power >= need };
+  }
+
+  private pickParty(locationId: string): void {
+    if (this.area.locked || this.children.getByName(EVENT_MODAL)) return;
+    const scroll = this.area.offset;
+    this.area.locked = true;
+    openExpeditionPartyPicker(this, locationId, this.party(locationId).heroIds, ids => {
+      this.selectedParties.set(locationId, ids);
+      this.scene.restart({ scroll });
+    }, () => { this.area.locked = false; });
+  }
+
   private activeRows(e: ActiveExpeditionView, top: number, primary: boolean): void {
     const a = this.area;
     const rewards = expeditionRewardPreview(session.save, e, GAME);
-    const facesEnd = this.faces(e.heroIds, top + ROW.squad);
+    const facesEnd = this.faces(e.heroIds, top + ROW.squad, COL_W - 260);
     this.eventTag(e, facesEnd + S.xs, top + ROW.squad);
     if (e.done) {
       a.add(tag(this, COL_X, top + ROW.state, 'Отряд вернулся', 'positive', { align: 'left' }));
@@ -383,12 +428,19 @@ export class ExpeditionsScene extends Phaser.Scene {
   }
 
   private openEvent(location: string): void {
+    if (this.area.locked || this.children.getByName(EXPEDITION_PARTY_PANEL)) return;
     const scroll = this.area.offset;
-    openExpeditionEvent(this, location, () => this.scene.restart({ scroll }));
+    this.area.locked = true;
+    if (!openExpeditionEvent(this, location, () => {
+      this.area.locked = false;
+      this.scene.restart({ scroll });
+    })) this.area.locked = false;
   }
 
   /** Лор места и что там находят — лист снизу (на карточке — только название). */
   private lore(v: ExpeditionView): void {
+    if (this.area.locked) return;
+    this.area.locked = true;
     const loc = v.location;
     bottomSheet(this, loc.name, (c, w) => {
       let y = 0;
@@ -403,7 +455,7 @@ export class ExpeditionsScene extends Phaser.Scene {
       if (exp.finds) add(exp.finds, COLOR.textSecondary, T.caption);
       add(`Нужна мощь отряда: ${formatNumber(loc.power)}${v.unlocked ? '' : ` · ${v.lockedText}`}`, COLOR.textSecondary, T.caption);
       return y;
-    });
+    }, { onClose: () => { this.area.locked = false; } });
   }
 
   /** Летопись экспедиций: последние записи и кто с кем сблизился. */
@@ -417,7 +469,10 @@ export class ExpeditionsScene extends Phaser.Scene {
     const lines = [...(b.journal ?? [])].reverse().slice(0, 8).map((j) => `${loc(j.location)}: ${j.text}`);
     const bonds = [...(b.bonds ?? [])].reverse().slice(0, 4).map((x) => `${name(x.heroes[0])} и ${name(x.heroes[1])} сблизились (${loc(x.location)})`);
     const body = [...lines, ...bonds];
-    noticeModal(this, 'Летопись экспедиций', body.length ? body : ['Пока пусто. События в пути попадут сюда.']);
+    if (this.area.locked) return;
+    this.area.locked = true;
+    const layer = noticeModal(this, 'Летопись экспедиций', body.length ? body : ['Пока пусто. События в пути попадут сюда.']);
+    layer.once(Phaser.GameObjects.Events.DESTROY, () => { this.area.locked = false; });
   }
 
   private updateTimer(t: Timer, at: number): void {
@@ -429,7 +484,7 @@ export class ExpeditionsScene extends Phaser.Scene {
 
   private tick(): void {
     const at = now();
-    const modal = confirmOpen(this) || !!this.children.getByName(EVENT_MODAL) || !!this.children.getByName('noticeModal') || !!this.children.getByName('bottomSheet');
+    const modal = this.area.locked || confirmOpen(this) || !!this.children.getByName(EVENT_MODAL) || !!this.children.getByName(EXPEDITION_PARTY_PANEL) || !!this.children.getByName('noticeModal') || !!this.children.getByName('bottomSheet');
     const newEvent = pendingExpeditionEvents(session.save, at) !== this.pendingShown;
     if (!modal && (newEvent || this.timers.some((t) => at >= t.e.endsAt))) {
       this.scene.restart({ scroll: this.area.offset });
@@ -447,13 +502,13 @@ export class ExpeditionsScene extends Phaser.Scene {
   }
 
   private send(v: ExpeditionView): void {
-    const party = v.party;
+    const party = this.party(v.location.id);
     if (!party?.ok) {
       toast(this, `${v.location.name}: мало мощи — ${formatNumber(party?.power ?? 0)} / нужно ${formatNumber(v.location.power)}`, C.warning);
       return;
     }
     try {
-      commit(startExpedition(session.save, v.location.id, this.hours, now(), GAME));
+      commit(startExpedition(session.save, v.location.id, this.hours, now(), GAME, party.heroIds));
       const msg = `Отряд ушёл: «${v.location.name}» · ${this.hours} ч`;
       this.scene.restart({ scroll: this.area.offset });
       this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, msg, C.success));

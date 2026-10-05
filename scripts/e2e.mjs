@@ -138,7 +138,8 @@ async function main() {
     const clickNamed = async (sceneKey, name) => {
       const pos = await page.evaluate(
         ([k, n]) => {
-          const o = window.__game.scene.getScene(k).children.getByName(n);
+          const all = (list) => list.flatMap((o) => o.list ? [o, ...all(o.list)] : [o]);
+          const o = all(window.__game.scene.getScene(k).children.list).find((item) => item.name === n && item.visible);
           if (!o) return null;
           const b = o.getBounds();
           return [b.centerX, b.centerY];
@@ -659,7 +660,7 @@ async function main() {
       await sleep(2500);
       await shot('tavern-purple');
       // Касание по затемнению показа (мимо будущих кнопок итога — показ мог уже закрыться сам).
-      await clickGame(540, 1420);
+      if ((await page.evaluate(() => window.__game.scene.isActive('Tavern') && window.__game.scene.getScene('Tavern').reveal?.phase)) === 'showcase') await clickGame(540, 300);
     } else problems.push('Таверна: нет крупного показа фиолетовой');
     // Если фиолетовая была первой картой, её показ открылся от первого касания и «Открыть все» ушло в затемнение
     // показа — тогда жмём «Открыть все» ещё раз (и закрываем повторный показ), пока не дойдём до итога.
@@ -671,7 +672,7 @@ async function main() {
       if (done) break;
       const phase = await page.evaluate(() => window.__game.scene.getScene('Tavern').reveal?.phase);
       if (i === 3) throw new Error(`Таверна: итог не наступил, фаза ${phase}`);
-      if (phase === 'showcase') await clickGame(540, 1420);
+      if (phase === 'showcase') if ((await page.evaluate(() => window.__game.scene.isActive('Tavern') && window.__game.scene.getScene('Tavern').reveal?.phase)) === 'showcase') await clickGame(540, 300);
     }
     await sleep(500);
     await shot('tavern-results');

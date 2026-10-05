@@ -1,0 +1,14 @@
+{
+  "scope": "Historical separate local compiled proofs; original passed=false attempts remain unchanged. These are not a new combined-root or public-deployment claim.",
+  "files": [
+    {
+      "file": "inventory-before.json.gz",
+      "source": "/tmp/night-modal-inventory-sell-before-360-canvas-final/report.json",
+      "originalBytes": 405872,
+      "originalSha256": "0f6523c67bdec4ad0ac91273080ff90aa60c8f15d3226ef629d07f1122c27f83",
+      "storedBytes": 70676,
+      "sha256": "a46b8a46e90eaecdb0a6d1c57937559390973f9a3a26b4a0d9060c1b7a97182e",
+      "compression": "gzip,mtime=0; original JSON preserved byte-for-byte"
+    }
+  ]
+}

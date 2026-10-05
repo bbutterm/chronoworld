@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "root": "/workspace/chronoworld",
+  "sourceFileCount": 807,
+  "beforeSourceSha256": "4b4ecaaf45e572c8444811db6991e6dbece39277b95e4a1bfe938497abfd3b19",
+  "afterSourceSha256": "4b4ecaaf45e572c8444811db6991e6dbece39277b95e4a1bfe938497abfd3b19",
+  "all807SourceFilesByteExact": true,
+  "driverCompositeSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "driverFilesByteExact": true,
+  "dataDescriptionSha256": "d45591376ad050ef2b9b3e1cdc46f9fdee808e88f9ed9e178b3fdeebf8e80a5a",
+  "gitHeadBefore": "b00888b403f2b6c0031840c89f6583fc96451e6d",
+  "gitHeadAfter": "b00888b403f2b6c0031840c89f6583fc96451e6d",
+  "freshRunComplete180": true,
+  "independentFreshOutput": "/tmp/chronoworld-night-final-root-companions-seed1",
+  "priorCandidateComparison": {
+    "allowedReportDifferences": [
+      "gitHead",
+      "sourceSha256",
+      "wallTimeSeconds",
+      "cpuTimeSeconds"
+    ],
+    "fileEquality": {
+      "attempts.jsonl": true,
+      "stages.csv": true,
+      "final-save.json": true,
+      "final-clock.json": true
+    },
+    "firstWinSaveClockFilesCompared": 360,
+    "firstWinAllByteExact": true
+  },
+  "note": "Repeated fresh account/seed policy on root after ONLY vanguard player-facing description correction. Independent new results match prior deterministic output; prior proof remains separately dated and named."
+}

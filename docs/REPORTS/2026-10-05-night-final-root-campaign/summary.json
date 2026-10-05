@@ -1,0 +1,166 @@
+{
+  "packet": "final-root-companion-seed1-after-vanguard-description",
+  "freshRootRun": true,
+  "root": "/workspace/chronoworld",
+  "gitHead": "b00888b403f2b6c0031840c89f6583fc96451e6d",
+  "sourceSha256": "4b4ecaaf45e572c8444811db6991e6dbece39277b95e4a1bfe938497abfd3b19",
+  "driverCompositeSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "dataDescriptionSha256": "d45591376ad050ef2b9b3e1cdc46f9fdee808e88f9ed9e178b3fdeebf8e80a5a",
+  "complete": {
+    "status": "complete",
+    "cleared": 180,
+    "campaignStages": 180,
+    "elapsedHours": 279.026,
+    "activeMinutes": 902,
+    "totalWaits": 22,
+    "campaignAttempts": 561,
+    "campaignLosses": 381,
+    "finalResources": {
+      "gold": 56127,
+      "exp": 40652207,
+      "gems": 67,
+      "scrolls": 0
+    }
+  },
+  "timeouts": 104,
+  "originalCompanions": [
+    {
+      "id": "h1",
+      "templateId": "alan",
+      "rarity": "red",
+      "level": 100,
+      "companion": true
+    },
+    {
+      "id": "h2",
+      "templateId": "bran",
+      "rarity": "purple",
+      "level": 1,
+      "companion": true
+    },
+    {
+      "id": "h3",
+      "templateId": "vika",
+      "rarity": "gold",
+      "level": 80,
+      "companion": true
+    }
+  ],
+  "finalSquad": [
+    "h1:alan:red:100:knight:resolve",
+    "h11:lira:purple:60:sage:precision",
+    "h23:kai:purple:60:wizard:precision",
+    "h3:vika:gold:80:priest:precision",
+    "h4:teo:red:96:priest:precision"
+  ],
+  "heroPowers": [
+    {
+      "id": "h1",
+      "power": 10747
+    },
+    {
+      "id": "h11",
+      "power": 4098
+    },
+    {
+      "id": "h23",
+      "power": 4346
+    },
+    {
+      "id": "h3",
+      "power": 6001
+    },
+    {
+      "id": "h4",
+      "power": 7514
+    }
+  ],
+  "actionCounts": {
+    "reset_training": 274,
+    "copy_rarity_upgrade": 3,
+    "tavern_evening": 10,
+    "tower": 517,
+    "hunt": 24,
+    "arena_round": 71,
+    "replay": 77,
+    "training_focus": 14,
+    "wait_12h": 22,
+    "salvage": 55,
+    "campaign_choice": 1,
+    "bond_quest": 11,
+    "mvp_card": 1
+  },
+  "firstWall": {
+    "stage": "ch2_s6",
+    "hour": 0.623,
+    "waitNumber": 1,
+    "willWait": true,
+    "power": 3746,
+    "recommended": 4000,
+    "blockers": {
+      "not_enough_exp": 5
+    },
+    "resources": {
+      "gold": 1022,
+      "exp": 3010,
+      "gems": 138,
+      "scrolls": 0
+    }
+  },
+  "lawfulness": {
+    "firstWinSaveClockPairs": 180,
+    "publicDeserialize": true,
+    "openStages": true,
+    "preClaimPreDevelopmentPower": true,
+    "seedSequence": true,
+    "rarityLevelCaps": true,
+    "initialCompanionIdentityPreserved": true,
+    "initialCompanionIdentityPreservedAtEveryFirstWin": true,
+    "battleSequenceAccounting": {
+      "actual": 1237,
+      "fromCampaignTowerArenaReplayBond": 1237
+    },
+    "wallWaitHours": 12,
+    "waitActionCount": 22,
+    "elapsedClockMatches": true,
+    "noArtificialResources": true
+  },
+  "finalBossReplay": {
+    "stage": "ch10_s18",
+    "seed": 1237,
+    "winner": "A",
+    "duration": 80.9,
+    "clearedAfter": 180
+  },
+  "deterministicAgreementWithPriorCandidate": {
+    "allowedReportDifferences": [
+      "gitHead",
+      "sourceSha256",
+      "wallTimeSeconds",
+      "cpuTimeSeconds"
+    ],
+    "fileEquality": {
+      "attempts.jsonl": true,
+      "stages.csv": true,
+      "final-save.json": true,
+      "final-clock.json": true
+    },
+    "firstWinSaveClockFilesCompared": 360,
+    "firstWinAllByteExact": true
+  },
+  "diagnosticDuration": {
+    "cpuSeconds": 61.282,
+    "elapsedSeconds": 56.13,
+    "isolated": false,
+    "physicalPhoneFPSMeasured": false
+  },
+  "coverageLimits": [
+    "One fresh seed1 combined-policy result; does not prove optimality, multi-seed win rate or isolate the effect of an individual change.",
+    "Only vanguard player-facing description differs from prior immutable candidate; numeric battle rules unchanged.",
+    "Campaign180 completed. Side modes exercised: Tower best24, Arena best3/completed12; not full side-mode completion.",
+    "All actions public, +12h only at bounded stalls. QA optimizer action counters are not human-click telemetry.",
+    "Recorded public final-boss replay uses model seed1237; real UI has its own stageSeed and acceptance."
+  ],
+  "rawOutput": "/tmp/chronoworld-night-final-root-companions-seed1",
+  "previousProofUnchanged": "docs/REPORTS/2026-10-05-night-final-campaign/READY.json"
+}

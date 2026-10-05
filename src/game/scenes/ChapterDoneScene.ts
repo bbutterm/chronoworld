@@ -5,15 +5,17 @@ import { sceneSoundOf } from '../sceneAudio';
 import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from '../layout';
-import { confirm, cta, popIn, unitFigure } from '../screen';
+import { bottomSheet, confirm, cta, unitFigure } from '../screen';
+import { chapterDoneLayout } from '../battleScreenLayout';
+import { minimumTouchSize, onViewChange, view } from '../viewport';
 import { arrangeSquad, pendingEvening, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type HeroState, type SaveState } from '../../core';
 import { chroniclePage, showPages } from '../storyPage';
 import { startTavernEvening } from './TavernEveningScene';
 import { commit, session } from '../session';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, sceneLabel, seenChapterScenes } from '../storyView';
-import { BTN, button, clampLines, ellipsize, groupNum, panel, plate, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
-import { C, COLOR, E, FS, M, OUTLINE, R, S, T, TINT } from '../theme';
+import { BTN, button, clampLines, ellipsize, groupNum, plate, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
+import { COLOR, E, M, R, S, T, TINT } from '../theme';
 import { countUp, juiceOn, moment } from '../juice';
 import { glow } from '../decor';
 import { Reveal } from '../rewardsView';
@@ -41,9 +43,9 @@ const L = {
   quoteY: 570,
   rewardsHeadY: 700,
   rewardsY: 770,
-  cardY: 1090,
-  cardH: 500,
-  rowY: 1450,
+  cardY: 1170,
+  cardH: 560,
+  rowY: 1540,
   ctaY: 1690,
 } as const;
 
@@ -58,11 +60,24 @@ type Summary = ReturnType<typeof chapterSummary>;
  * новый герой (или «Впереди — …»), тихий ряд «История / Летопись / Вечер» и одна главная кнопка «Глава N ›».
  */
 export class ChapterDoneScene extends Phaser.Scene {
+  private endpointLayout = chapterDoneLayout(GAME_H, GAME_H);
+  private bodyArea: ScrollArea | null = null;
+  private footerNodes: { node: Phaser.GameObjects.Container | Phaser.GameObjects.Text; dy: number }[] = [];
+  private headerNodes: { node: Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform; dy: number }[] = [];
   constructor() {
     super(CHAPTER_DONE);
   }
 
   create(data: ChapterDoneData): void {
+    this.endpointLayout = chapterDoneLayout(view().uiHeight, view().safeBottom);
+    this.bodyArea = null;
+    this.footerNodes = [];
+    this.headerNodes = [];
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.bodyArea = null;
+      this.footerNodes = [];
+      this.headerNodes = [];
+    });
     const sum = chapterSummary(session.save, data.chapterId, GAME);
     // Сцену добавляют при первом показе — хук звука экранов (installAudio) её не знает: музыка босса сменяется картой главы сама.
     try {
@@ -83,18 +98,30 @@ export class ChapterDoneScene extends Phaser.Scene {
     moment(this, 'newChapter', {
       title: `Глава ${sum.number} пройдена!`,
       subtitle: name,
-      at: { x: cx, y: L.titleY },
+      at: { x: cx, y: this.endpointLayout.titleY },
       keep: true,
       depth: 1,
       dimAfter: ART_DIM,
       onSettled: () => this.body(data, sum),
+    });
+    this.headerNodes = this.children.list.filter((o): o is Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform =>
+      'y' in o && 'depth' in o && Number(o.depth) >= 2 && Number(o.depth) <= 3)
+      .map(node => ({ node, dy: node.y - this.endpointLayout.titleY }));
+    onViewChange(this, () => {
+      this.endpointLayout = chapterDoneLayout(view().uiHeight, view().safeBottom);
+      this.bodyArea?.setBounds(this.endpointLayout.bodyTop, this.endpointLayout.bodyBottom);
+      for (const h of this.headerNodes) if (h.node.scene) h.node.setY(this.endpointLayout.titleY + h.dy);
+      for (const f of this.footerNodes) if (f.node.scene) f.node.setY(this.endpointLayout.ctaY + f.dy);
     });
   }
 
   /** Содержимое под заголовком — по одной (Reveal), кнопки последними; летопись главы (первый раз) — после них. */
   private body(data: ChapterDoneData, sum: Summary): void {
     const cx = GAME_W / 2;
-    const layer = this.add.container(0, 0).setDepth(10);
+    const area = this.bodyArea = new ScrollArea(this, this.endpointLayout.bodyTop, this.endpointLayout.bodyBottom);
+    area.content.setDepth(10).setName('chapterDoneScroll');
+    const layer = this.add.container(0, -L.quoteY + 72);
+    area.add(layer);
     const reveal = new Reveal(this);
 
     // Строка-крючок — цитата главы (episode.quote).
@@ -135,7 +162,8 @@ export class ChapterDoneScene extends Phaser.Scene {
 
     reveal.play(() => {
       for (const o of this.buttons(data, sum)) {
-        o.setDepth(20);
+        if (o.getData('chapterScroll')) layer.add(o);
+        else { o.setDepth(20); this.footerNodes.push({ node: o, dy: o.y - this.endpointLayout.ctaY }); }
         if (!juiceOn()) continue;
         o.setAlpha(0);
         this.tweens.add({ targets: o, alpha: 1, duration: M.base, ease: E.out });
@@ -143,6 +171,7 @@ export class ChapterDoneScene extends Phaser.Scene {
       // «Летопись отряда» главы (lore-route §5.3) — в первый раз открывается сама, когда экран встал.
       if (chapterChronicle(data.chapterId, GAME.content) && pendingChronicle(session.save, data.chapterId, GAME.content)) this.openChronicle(data, sum.number);
     }, M.slow);
+    area.setContentHeight(L.rowY + Math.max(BTN.m, minimumTouchSize()) / 2 + S.l - L.quoteY + 72);
   }
 
   /** Карточка героя истории: фигура, имя, профессия; не в отряде — «Взять в отряд». */
@@ -171,7 +200,7 @@ export class ChapterDoneScene extends Phaser.Scene {
     }
     c.add(text(this, cx, feet + 50, `${info.name} с вами — но не в отряде`, T.body, COLOR.title, { fontStyle: 'bold' }).setName('recruitName'));
     c.add(text(this, cx, feet + 96, job, T.caption, COLOR.textSecondary));
-    const take = button(this, cx, top + L.cardH - BTN.m / 2 - S.xs, 480, BTN.m, '', 'Взять в отряд', () => {
+    const take = button(this, cx, top + L.cardH - Math.max(BTN.m, minimumTouchSize()) / 2 - S.xs, 480, Math.max(BTN.m, minimumTouchSize()), '', 'Взять в отряд', () => {
       const go = () => {
         const r = takeIntoSquad(session.save, hero.id);
         commit(r.save);
@@ -207,7 +236,7 @@ export class ChapterDoneScene extends Phaser.Scene {
     // Вечер в «Двух колоколах» (docs/design/tavern-evenings.md) — новый с красной точкой.
     const evening = GAME.story.tavern?.evenings.find((e) => e.after === data.chapterId);
     const items: { label: string; name: string; onTap: () => void; enabled: boolean; dot?: boolean }[] = [
-      { label: 'История', name: 'storyHistoryBtn', onTap: () => openStoryHistory(this, data.chapterId), enabled: history.length > 0 },
+      { label: 'История', name: 'storyHistoryBtn', onTap: () => openStoryHistory(this, data.chapterId, { lock: this.bodyArea ?? undefined }), enabled: history.length > 0 },
     ];
     if (chronicle) items.push({ label: 'Летопись', name: 'chronicleChapterBtn', onTap: () => this.openChronicle(data, sum.number), enabled: true });
     if (evening) {
@@ -222,21 +251,22 @@ export class ChapterDoneScene extends Phaser.Scene {
     const w = items.length === 3 ? 312 : 400;
     items.forEach((it, i) => {
       const x = cx + (i - (items.length - 1) / 2) * (w + S.s);
-      const b = button(this, x, L.rowY, w, BTN.m, '', it.label, it.onTap, T.body, { variant: 'secondary' });
+      const b = button(this, x, L.rowY, w, Math.max(BTN.m, minimumTouchSize()), '', it.label, it.onTap, T.body, { variant: 'secondary' });
       b.container.setName(it.name);
+      b.container.setData('chapterScroll', true);
       if (!it.enabled) b.setEnabled(false).container.disableInteractive();
       if (it.dot) b.container.add(this.add.circle(w / 2 - 14, -BTN.m / 2 + 14, 14, TINT.badge).setStrokeStyle(4, 0xffffff));
       out.push(b.container);
     });
     const next = sum.next;
-    const go = cta(this, cx, L.ctaY, next ? `Глава ${next.number} ›` : 'К кампании', () => {
+    const go = cta(this, cx, this.endpointLayout.ctaY, next ? `Глава ${next.number} ›` : 'К кампании', () => {
       // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).
       commit(clearChapterDone(session.save));
       this.scene.start('Campaign', next ? { chapter: next.index } : {});
     }, { w: 700 });
     out.push(go.container);
     // Название следующей главы под кнопкой — когда его не показала карточка «Впереди».
-    if (next && sum.recruit) out.push(ellipsize(text(this, cx, L.ctaY + BTN.cta / 2 + S.l, next.name.replace(/^Глава\s*\d+\.\s*/, ''), T.caption, COLOR.textSecondary), 900));
+    if (next && sum.recruit) out.push(ellipsize(text(this, cx, this.endpointLayout.ctaY + BTN.cta / 2 + S.l, next.name.replace(/^Глава\s*\d+\.\s*/, ''), T.caption, COLOR.textSecondary), 900));
     return out;
   }
 
@@ -247,6 +277,7 @@ export class ChapterDoneScene extends Phaser.Scene {
     const found = findingEntries(session.save, GAME.content).filter((f) => f.chapterId === data.chapterId);
     showPages(this, [chroniclePage(data.chapterId, number, chronicle, { got: found.filter((f) => f.found).length, total: found.length })], () =>
       commit(markPageSeen(session.save, chroniclePageId(data.chapterId))),
+      { lock: this.bodyArea ?? undefined },
     );
   }
 }
@@ -313,39 +344,48 @@ export function takeIntoSquad(save: SaveState, heroId: string): { save: SaveStat
 }
 
 /** «История» (P3 / T1-03): список увиденных сцен главы; касание — пересмотреть сцену поверх экрана. */
-export function openStoryHistory(sc: Phaser.Scene, chapterId: string): void {
-  if (sc.children.getByName(HISTORY)) return;
+export function openStoryHistory(sc: Phaser.Scene, chapterId: string, opts: { lock?: ScrollArea } = {}): Phaser.GameObjects.Container | null {
+  if (sc.children.getByName(HISTORY)) return null;
   const scenes = seenChapterScenes(session.save, chapterId, GAME);
-  const layer = sc.add.container(0, 0).setDepth(9000).setName(HISTORY);
-  const shade = sc.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.7).setInteractive();
-  const rowH = 118;
-  // NB-01: все увиденные сцены (в главе 1 их 13) — не влезают в окно, список прокручивается.
-  const visibleRows = Math.min(Math.max(1, scenes.length), 9);
-  const h = 370 + visibleRows * rowH;
-  const top = GAME_H / 2 - h / 2;
-  const box = panel(sc, GAME_W / 2, GAME_H / 2, 940, h, 'ui_panel').setInteractive();
-  const head = text(sc, GAME_W / 2, top + 80, 'История главы', FS.h1, C.title, { fontStyle: 'bold', ...OUTLINE });
-  // Черта под заголовком.
-  const line = sc.add.rectangle(GAME_W / 2, top + 140, 860, 2, TINT.frame, 0.5);
-  layer.add([shade, box, head, line]);
-  const close = () => layer.destroy();
-  shade.on('pointerup', close);
-  if (!scenes.length) layer.add(text(sc, GAME_W / 2, top + 200, 'Сцен этой главы вы ещё не видели', FS.body, C.muted));
-  const done = button(sc, GAME_W / 2, top + h - 90, 400, 110, 'ui_btn_primary', 'Закрыть', close, FS.h3);
-  layer.add(done.container);
-  popIn(sc, layer, shade);
-  // Список — после popIn: прокрутка живёт в координатах экрана, окно «вырастает» без неё (160 мс).
-  const listTop = top + 150;
-  const area = new ScrollArea(sc, listTop, listTop + visibleRows * rowH);
-  layer.add(area.parts);
-  // Полоса прокрутки — у правой кромки окна, а не экрана.
-  (area.parts[1] as Phaser.GameObjects.Rectangle).setX(GAME_W / 2 + 448);
-  scenes.forEach((s, i) => {
-    const b = button(sc, GAME_W / 2, rowH / 2 + i * rowH, 800, 100, 'k:buttonLong_beige', `▶  ${sceneLabel(s, GAME)}`, area.tap(() => {
-      close();
-      playScenes(sc, [s], () => {}, { readOnly: true });
-    }), FS.h3);
-    area.add(b.container);
+  const rowH = Math.max(118, minimumTouchSize() + 16);
+  const lockedArea = opts.lock;
+  const wasLocked = lockedArea?.locked ?? false;
+  if (lockedArea) lockedArea.locked = true;
+  let released = false;
+  let selected: (typeof scenes)[number] | undefined;
+  let replayStarted = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    if (lockedArea) lockedArea.locked = wasLocked;
+    sc.events.off(Phaser.Scenes.Events.SHUTDOWN, release);
+  };
+  sc.events.once(Phaser.Scenes.Events.SHUTDOWN, release);
+  const sheet = bottomSheet(sc, 'История главы', (content, width, close) => {
+    if (!scenes.length) {
+      content.add(text(sc, width / 2, 56, 'Сцен этой главы вы ещё не видели', T.body, COLOR.textSecondary));
+      return 112;
+    }
+    scenes.forEach((s, i) => {
+      const b = button(sc, width / 2, rowH / 2 + i * rowH, width - S.s, rowH - 16, '', `▶  ${sceneLabel(s, GAME)}`, () => {
+        if (selected || released) return;
+        selected = s;
+        close();
+      }, T.body, { variant: 'secondary' });
+      content.add(b.container);
+    });
+    return scenes.length * rowH;
+  }, { onClose: () => {
+    if (released) return;
+    if (!selected || !sc.sys.isActive()) return release();
+    replayStarted = true;
+    playScenes(sc, [selected], release, { readOnly: true });
+  } });
+  sheet.layer.setName(HISTORY);
+  sheet.layer.once(Phaser.GameObjects.Events.DESTROY, () => {
+    if (!selected) return release();
+    // При штатном закрытии onClose вызывается сразу после DESTROY; внешний destroy отменяет переход.
+    queueMicrotask(() => { if (!replayStarted) release(); });
   });
-  area.setContentHeight(scenes.length * rowH);
+  return sheet.layer;
 }

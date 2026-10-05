@@ -12,6 +12,7 @@ const save = JSON.parse(readFileSync(SAVE_PATH, 'utf8')), clock = JSON.parse(rea
 const ORIGIN = arg('origin', 'http://127.0.0.1:5523'), OUT = arg('out', 'ui-atlas/night-boss');
 const WIDTH = Number(arg('width', '390')), HEIGHT = Number(arg('height', WIDTH === 360 ? '640' : '844'));
 const RENDERER = arg('renderer', 'webgl1'), TELEGRAM = arg('telegram', '0') === '1';
+const COMPACT = arg('compact', '0') === '1';
 const RENDER_EVERY = Number(arg('render-every','1'));
 const MAX_MS = Number(arg('max-seconds', '240')) * 1000;
 if (!Number.isFinite(clock.now) || !Number.isFinite(MAX_MS) || MAX_MS < 1000 || !['canvas', 'webgl1'].includes(RENDERER) || !Number.isInteger(RENDER_EVERY) || RENDER_EVERY<1 || RENDER_EVERY>6) throw new Error('Invalid clock, deadline, renderer or render interval');
@@ -19,6 +20,7 @@ const moduleRoot = execSync('npm root -g', { encoding: 'utf8' }).trim();
 const { chromium } = await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE ? resolve(process.env.PLAYWRIGHT_MODULE) : join(moduleRoot, 'playwright', 'index.mjs')).href);
 mkdirSync(OUT, { recursive: true });
 const report = { started: new Date().toISOString(), origin: ORIGIN, stage: STAGE, savePath: SAVE_PATH, clock, cleared: save.campaign.cleared.length, width: WIDTH, height: HEIGHT, rendererRequested: RENDERER, telegram: TELEGRAM, renderEvery:RENDER_EVERY, method: 'Existing lawful save; preparation scene opened directly; real fight button; deterministic replay updated at 30 Hz with synchronized private Date.now, performance.now and game.loop.time clocks, sampled every 0.2 s. With --render-every N only every Nth update is rendered; every sample and screenshot follows a real renderer postrender. Result/modal/navigation use native RAF. No playthrough or device-FPS claim.', errors: [], failures: [], samples: [], interactions: [] };
+report.compactDevOverride=COMPACT;
 const flush = () => writeFileSync(join(OUT, 'report.json'), JSON.stringify(report, null, 2));
 const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_EXECUTABLE_PATH ? { executablePath: process.env.CHROME_EXECUTABLE_PATH } : {}), args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const context = await browser.newContext({ viewport: { width: WIDTH, height: HEIGHT }, isMobile: true, hasTouch: true, timezoneId: 'UTC' });
@@ -33,10 +35,11 @@ await page.addInitScript(({ save, clock, height, telegram, renderer }) => {
   localStorage.setItem('chronoworld.save.v1', JSON.stringify(save));
   localStorage.setItem('chronoworld.timeShift', String(Math.max(0, clock.now - Date.now())));
   for (const [key, value] of Object.entries({ battleAutoUlt: '1', battleSpeed: '1', autoAdvance: '0', fpsCap: '60', reduceMotion: '0' })) localStorage.setItem('chronoworld.' + key, value);
+  window.__qaTgEvents = {};
   if (telegram) window.Telegram = { WebApp: { version: '9.0', platform: 'ios', initData: '', isFullscreen: true, isExpanded: true, viewportHeight: height, viewportStableHeight: height,
     safeAreaInset: { top: 47, bottom: 34, left: 0, right: 0 }, contentSafeAreaInset: { top: 89, bottom: 0, left: 0, right: 0 },
     ready() {}, expand() {}, requestFullscreen() {}, lockOrientation() {}, disableVerticalSwipes() {}, setHeaderColor() {}, setBackgroundColor() {}, setBottomBarColor() {},
-    BackButton: { show() {}, hide() {}, onClick() {}, offClick() {} }, onEvent() {}, offEvent() {} } };
+    BackButton: { show() {}, hide() {}, onClick() {}, offClick() {} }, onEvent(name,fn) { (window.__qaTgEvents[name]??=[]).push(fn); }, offEvent(name,fn) { window.__qaTgEvents[name]=(window.__qaTgEvents[name]??[]).filter(f=>f!==fn); } } };
   const getContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function(type, ...args) { return type === 'webgl2' || (renderer === 'canvas' && ['webgl', 'experimental-webgl'].includes(type)) ? null : getContext.call(this, type, ...args); };
 }, { save, clock, height: HEIGHT, telegram: TELEGRAM, renderer: RENDERER });
@@ -46,15 +49,23 @@ async function clickObject(selector, textMatch = false) {
   const pos = await page.evaluate(([selector, textMatch]) => {
     const sc = window.__game.scene.getScenes(true)[0];
     const walk = list => list.flatMap(o => [o, ...(o.list ? walk(o.list) : [])]);
-    const o = walk(sc.children.list).find(o => (textMatch ? o.type === 'Text' && o.text === selector : o.name === selector) && o.visible && o.alpha > .05);
+    const root=o=>{while(o.parentContainer)o=o.parentContainer;return o;};
+    const shown=o=>{for(let p=o;p;p=p.parentContainer)if(!p.visible||p.alpha<.05)return false;return true;};
+    const matches=walk(sc.children.list).filter(o=>(textMatch?o.type==='Text'&&o.text===selector:o.name===selector)&&shown(o));
+    matches.sort((a,b)=>root(a).depth-root(b).depth||sc.children.list.indexOf(root(a))-sc.children.list.indexOf(root(b)));
+    const o=matches.at(-1);
     if (!o) return null;
     const b = o.getBounds(), v = window.__view();
     const p = o.type === 'Container' && o.input?.enabled ? o.getWorldTransformMatrix().transformPoint(0, 0) : { x: b.centerX, y: b.centerY };
-    return { ...p, v };
+    let clip=null;for(let parent=o;parent;parent=parent.parentContainer)if(parent.getData?.('clip')){clip=parent.getData('clip');break;}
+    return { ...p, v, clip };
   }, [selector, textMatch]);
   if (!pos) throw new Error('Visible target missing: ' + selector);
   const box = await page.locator('canvas').boundingBox(), scale = box.width / pos.v.worldW;
-  await page.mouse.click(box.x + (pos.x - pos.v.worldX) * scale, box.y + (pos.y - pos.v.worldY) * scale);
+  const x=box.x+(pos.x-pos.v.worldX)*scale,y=box.y+(pos.y-pos.v.worldY)*scale;
+  if(pos.clip&&(pos.y<pos.clip[0]||pos.y>pos.clip[1]))throw new Error('Target is outside its real scroll mask: '+selector);
+  if(x<box.x||x>box.x+box.width||y<box.y||y>box.y+box.height)throw new Error('Target outside canvas: '+selector);
+  await page.mouse.click(x,y);
   report.interactions.push({ selector, textMatch });
 }
 
@@ -85,8 +96,45 @@ async function sceneEvidence() {
       texts: objects.filter(o => o.type === 'Text' && ancestorsVisible(o)).map(o => ({ text: o.text, depth: o.depth, parent: o.parentContainer?.name, bounds: { ...o.getBounds() }, clip:clip(o), fontSize: o.style.fontSize, alpha: o.alpha })),
       images: objects.filter(o => o.frame && ancestorsVisible(o)).map(o => ({ type:o.type,texture:o.texture?.key,frame:o.frame.name,bounds:{...o.getBounds()},clip:clip(o),alpha:o.alpha })),
       named: objects.filter(o => o.name && ancestorsVisible(o)).map(o => ({ name: o.name, interactive: !!o.input?.enabled, bounds: { ...o.getBounds() } })),
+      targets: objects.filter(o=>o.input?.enabled&&ancestorsVisible(o)).map(o=>{const h=o.input.hitArea,m=o.getWorldTransformMatrix();return{name:o.name,width:(h.width??h.radius*2)*Math.hypot(m.a,m.b)*view.cssW/view.worldW,height:(h.height??h.radius*2)*Math.hypot(m.c,m.d)*view.cssW/view.worldW}}),
       missingSources: objects.filter(o => o.frame && !o.frame.source).map(o => ({ name: o.name, texture: o.texture?.key })) };
   });
+}
+
+async function compactEndpointResize(label) {
+  if(!COMPACT)return;
+  report.endpointResizes??=[];
+  const before=await page.evaluate(async()=>{const {session}=await import('/src/game/session.ts'),sc=window.__game.scene.getScenes(true)[0];window.__bossQa.endpoint={sc,data:sc.sys.settings.data,json:JSON.stringify(sc.sys.settings.data),save:JSON.stringify(session.save)};return{scene:sc.scene.key,view:window.__view(),frames:window.__bossQa.renders};});
+  for(const height of [HEIGHT+160,HEIGHT]) {
+    await page.setViewportSize({width:WIDTH,height});await page.waitForTimeout(400);
+    const state=await page.evaluate(async()=>{const {session}=await import('/src/game/session.ts'),sc=window.__game.scene.getScenes(true)[0],b=window.__bossQa.endpoint;return{sceneSame:sc===b.sc,dataSame:sc.sys.settings.data===b.data,jsonSame:JSON.stringify(sc.sys.settings.data)===b.json,saveSame:JSON.stringify(session.save)===b.save,frames:window.__bossQa.renders};});
+    if(!state.sceneSame||!state.dataSame||!state.jsonSame||!state.saveSame||state.frames<=before.frames)throw new Error(label+': endpoint resize changed result/save identity or stopped real rendering');
+    const evidence=await sceneEvidence();report.endpointResizes.push({label,height,state,evidence});
+    const visible=evidence.texts.filter(o=>{const b=o.bounds,c=o.clip;return b.y+b.height>0&&b.y<evidence.view.uiHeight&&(!c||b.y+b.height>c[0]&&b.y<c[1]);});
+    if(visible.some(o=>parseFloat(o.fontSize)*evidence.view.cssW/evidence.view.worldW<11.99))throw new Error(label+': visible endpoint text below12CSS');
+    if(evidence.targets.some(t=>!Number.isFinite(t.width)||!Number.isFinite(t.height)||t.width<43.99||t.height<43.99))throw new Error(label+': endpoint touch target below44CSS');
+  }
+}
+
+async function compactBattleResize() {
+  if(!COMPACT||!TELEGRAM)return;
+  report.compactResizes=[];
+  for(const top of [156,136]) {
+    const before=await page.evaluate(async()=>{
+      const {session}=await import('/src/game/session.ts'),sc=window.__game.scene.getScene('Battle');
+      window.__bossQa.resize={scene:sc,result:sc.result,cursor:sc.cursor,clock:sc.clock,units:JSON.stringify(sc.result.units),save:JSON.stringify(session.save)};
+      return{view:window.__view(),clock:sc.clock,cursor:sc.cursor};
+    });
+    await page.evaluate(top=>{const t=window.Telegram.WebApp;t.contentSafeAreaInset.top=top-t.safeAreaInset.top;for(const fn of window.__qaTgEvents.contentSafeAreaChanged??[])fn();},top);
+    await page.waitForFunction(previous=>Math.abs(window.__view().uiHeight-previous)>1,before.view.uiHeight,{timeout:5000});
+    const after=await page.evaluate(async()=>{
+      const {session}=await import('/src/game/session.ts'),sc=window.__game.scene.getScene('Battle'),b=window.__bossQa.resize;
+      return{sceneSame:sc===b.scene,resultSame:sc.result===b.result,cursorSame:sc.cursor===b.cursor,clockSame:sc.clock===b.clock,unitsSame:JSON.stringify(sc.result.units)===b.units,saveSame:JSON.stringify(session.save)===b.save,view:window.__view()};
+    });
+    if(['sceneSame','resultSame','cursorSame','clockSame','unitsSame','saveSame'].some(k=>!after[k]))throw new Error('Compact Telegram inset resize changed live battle state: '+JSON.stringify(after));
+    await step(1);report.compactResizes.push({top,before,after,evidence:await sceneEvidence()});
+  }
+  await page.screenshot({path:join(OUT,'battle-mid-compact.png')});
 }
 
 try {
@@ -107,7 +155,7 @@ try {
     return { status, day: today(), stage: getStage(GAME, stageId), squad: session.save.squad, heroes: session.save.heroes.filter(h => session.save.squad.includes(h.id)) };
   }, STAGE);
   report.preparation = prep;
-  await page.waitForFunction(() => window.__game.scene.isActive('Stage') && !window.__sprites.busy(), null, { timeout: 60000 });
+  await page.waitForFunction(() => {const a=window.__game.scene.getScenes(true);return a.length===1&&a[0].scene.key==='Stage'&&!window.__sprites.busy();}, null, { timeout: 60000 });
   await page.waitForTimeout(400);
   const button = await page.evaluate(() => {
     const sc = window.__game.scene.getScene('Stage');
@@ -115,6 +163,7 @@ try {
     return walk(sc.children.list).find(o => o.type === 'Text' && ['В бой', 'Повторить', 'Тренировка'].includes(o.text))?.text;
   });
   if (!button) throw new Error('Fight button missing');
+  if(COMPACT)await page.evaluate(()=>{const url=new URL(location.href);url.searchParams.set('compact','1');history.replaceState(null,'',url);});
   await clickObject(button, true); current = 'Battle';
   for (let n = 0; n < 30; n++) {
     if (await page.evaluate(() => window.__game.scene.isActive('Battle'))) break;
@@ -122,7 +171,7 @@ try {
     if (dialogue) { try { await clickObject('Пропустить', true); } catch { /* text may appear on a later frame */ } }
     await page.waitForTimeout(150);
   }
-  await page.waitForFunction(() => window.__game.scene.isActive('Battle') && window.__game.scene.getScene('Battle').ready && window.__game.scene.getScene('Battle').viewList.length >= 10 && !window.__sprites.busy(), null, { timeout: 90000 });
+  await page.waitForFunction(() => {const a=window.__game.scene.getScenes(true);return a.length===1&&a[0].scene.key==='Battle'&&a[0].ready&&a[0].viewList.length>=10&&!window.__sprites.busy();}, null, { timeout: 90000 });
   await page.evaluate(() => {
     const g = window.__game; g.loop.sleep();
     window.__bossQa = { time: performance.now(), wall:Date.now(), renders: 0, masks: new Map(), manual:true, originalDate:Date.now, originalPerformance:performance.now.bind(performance) };
@@ -186,6 +235,7 @@ try {
     const state = await step(6);
     if (!state.scenes.includes('Battle')) break;
     const sample = await page.evaluate(() => window.__bossQa.sample()); report.samples.push(sample);
+    if(COMPACT&&n===75)await compactBattleResize();
     const value = Math.max(0,...sample.overlaps.map(o => o.coveredFraction));
     if (value > worst + .02) { worst = value; report.worst = sample; await page.screenshot({ path:join(OUT,'battle-overlap.png') }); }
     if(!report.maximumSample || value>report.maximumCovered) { report.maximumCovered=value; report.maximumSample=sample; }
@@ -239,30 +289,35 @@ try {
   await step(21);
   // Core-only lawful snapshots may have pending one-time feature announcements.
   // Dismiss them through actual buttons, preserving their normal save changes.
-  for(let n=0;n<20;n++) {
-    const banner=await page.evaluate(() => !!window.__game.scene.getScenes(true)[0]?.children.getByName('unlockBanner'));
-    if(!banner) break;
-    await page.waitForTimeout(180); await clickObject('Позже',true); await step(21);
+  let quiet=0;
+  for(let n=0;n<40;n++) {
+    const pending=await page.evaluate(()=>{const sc=window.__game.scene.getScenes(true)[0];return{banner:!!sc?.children.getByName('unlockBanner'),dialogue:!!sc?.children.getByName('dialogue')};});
+    if(pending.dialogue) { quiet=0;await clickObject('Пропустить',true);await step(21); }
+    else if(pending.banner) { quiet=0;await clickObject('Позже',true);await step(21); }
+    else { await step(27);if(++quiet===2)break; }
   }
   if(await page.evaluate(() => !!window.__game.scene.getScenes(true)[0]?.children.getByName('unlockBanner'))) throw new Error('Feature announcements did not finish; statistics coverage is incomplete');
   current='Result'; report.result=await sceneEvidence();
   if(!report.result.scenes.includes('Result') || !await page.evaluate(() => window.__game.scene.getScene('Result').ready)) throw new Error('Expected a ready Result scene');
   await page.screenshot({path:join(OUT,'result.png')});
+  await compactEndpointResize('result');
   await clickObject('resultStats'); await step(15); report.stats=await sceneEvidence();
   if(!report.stats.named.some(o=>o.name==='bottomSheet')) throw new Error('Statistics sheet did not open');
   await page.screenshot({path:join(OUT,'result-stats.png')});
   const box=await page.locator('canvas').boundingBox();
   await page.mouse.move(box.x+box.width/2,box.y+box.height*.65); await page.mouse.wheel(0,420); await step(15);
   report.statsScrolled=await sceneEvidence(); await page.screenshot({path:join(OUT,'result-stats-enemies.png')});
+  await compactEndpointResize('statistics');
   await clickObject('sheetClose'); await step(15); report.statsClosed=await sceneEvidence();
   if(report.statsClosed.named.some(o=>o.name==='bottomSheet')) report.failures.push('Statistics sheet did not close');
   await page.waitForTimeout(180);
   await clickObject('К кампании',true); await step(15); report.campaignReturn=await sceneEvidence();
   if(!report.campaignReturn.scenes.includes('Campaign')) report.failures.push('Result campaign button did not reach Campaign');
-  if(!report.bossTap || report.bossTap.boss.nameAlpha<.5) report.failures.push('Real boss tap did not reveal the boss name');
+  if(!report.bossTap || (COMPACT ? Math.abs(report.bossTap.boss.nameAlpha-1)>1e-6 : report.bossTap.boss.nameAlpha<.5)) report.failures.push(COMPACT ? 'Real boss tap did not fully reveal the boss name (alpha1 required)' : 'Real boss tap did not reveal the boss name');
   if(report.samples.some(s=>s.labelCollisions.length)) report.failures.push('Visible battle label rectangles overlap');
   if(report.samples.some((s,i)=>i>0 && s.frames<=report.samples[i-1].frames)) report.failures.push('No successful postrender between battle samples');
   if([report.result,report.stats,report.statsScrolled,report.statsClosed].some(d=>d.missingSources.length)) report.failures.push('Live image lost a texture source');
+  report.maximumCovered=Math.max(0,...report.samples.flatMap(s=>s.overlaps.map(o=>o.coveredFraction)));
   report.finished=new Date().toISOString(); flush();
   console.log(JSON.stringify({stage:STAGE,samples:report.samples.length,winner:report.battle.winner,duration:report.battle.duration,maximumCovered:report.maximumCovered,bossTapNameAlpha:report.bossTap?.boss.nameAlpha,renderer:report.battle.renderer,errors:report.errors.length,failures:report.failures}));
 } catch(e) { report.fatal=e.stack; console.error(e); }

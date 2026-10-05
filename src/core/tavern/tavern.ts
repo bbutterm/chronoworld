@@ -127,12 +127,13 @@ export interface TavernState {
   choices: Record<string, string>;
   bond: Record<string, number>;
   quests: string[];
+  chapterSquads?: Record<string, string[]>;
 }
 
 /** Состояние вечеров из сохранения (нет поля — пусто). */
 export function tavernOf(save: Pick<SaveState, 'tavern'>): TavernState {
   const t = save.tavern ?? {};
-  return { seen: t.seen ?? [], choices: t.choices ?? {}, bond: t.bond ?? {}, quests: t.quests ?? [] };
+  return { seen: t.seen ?? [], choices: t.choices ?? {}, bond: t.bond ?? {}, quests: t.quests ?? [], ...(t.chapterSquads ? { chapterSquads: t.chapterSquads } : {}) };
 }
 
 function withTavern(save: SaveState, next: TavernState): SaveState {
@@ -141,6 +142,7 @@ function withTavern(save: SaveState, next: TavernState): SaveState {
   if (Object.keys(next.choices).length) out.choices = next.choices;
   if (Object.keys(next.bond).length) out.bond = next.bond;
   if (next.quests.length) out.quests = next.quests;
+  if (next.chapterSquads && Object.keys(next.chapterSquads).length) out.chapterSquads = next.chapterSquads;
   return { ...save, tavern: out };
 }
 
@@ -266,16 +268,59 @@ export function storyHeroesInSquad(save: SaveState, ctx: Ctx): string[] {
   return Object.keys(t.heroes).filter((h) => inSquad.has(h));
 }
 
+/** Remember the actual battle participants before post-victory recruitment can change the party. */
+export function rememberChapterSquad(save: SaveState, chapterId: string, templateIds: readonly string[], ctx: GameContext): SaveState {
+  const st = tavernOf(save);
+  if (Object.hasOwn(st.chapterSquads ?? {}, chapterId) || !chapterDone(save, chapterId, ctx)) return save;
+  const known = new Set(Object.keys(ctx.content.heroes));
+  const participants = [...new Set(templateIds.filter(id => known.has(id)))].slice(0, 5);
+  return withTavern(save, { ...st, chapterSquads: { ...st.chapterSquads, [chapterId]: participants } });
+}
+
+/** Shared credit/preview contract. Only a genuinely missing snapshot uses the legacy current-party fallback. */
+export function eveningSquadHeroes(save: SaveState, eveningId: string, ctx: Ctx): string[] {
+  const t = tavernOfCtx(ctx);
+  const evening = t?.evenings.find(e => e.id === eveningId);
+  if (!t || !evening) return [];
+  const snapshots = tavernOf(save).chapterSquads;
+  if (!snapshots || !Object.hasOwn(snapshots, evening.after)) return storyHeroesInSquad(save, ctx);
+  const snapshot = snapshots[evening.after];
+  if (!Array.isArray(snapshot)) return [];
+  const participants = new Set(snapshot);
+  return Object.keys(t.heroes).filter(id => Object.hasOwn(ctx.content.heroes, id) && participants.has(id));
+}
+
+/** Remove obsolete references without throwing away the campaign or turning an empty snapshot into new credit. */
+export function sanitizeChapterSquads(save: SaveState, ctx: GameContext): { save: SaveState; warnings: string[] } {
+  const st = tavernOf(save);
+  if (!st.chapterSquads) return { save, warnings: [] };
+  const knownChapters = new Set(ctx.content.chapters.map(chapter => chapter.id));
+  const knownHeroes = new Set(Object.keys(ctx.content.heroes));
+  const next: Record<string, string[]> = {};
+  let changed = false;
+  for (const [chapter, snapshot] of Object.entries(st.chapterSquads)) {
+    if (!knownChapters.has(chapter) || !chapterDone(save, chapter, ctx)) {
+      changed = true;
+      continue;
+    }
+    const participants = Array.isArray(snapshot) ? [...new Set(snapshot.filter(id => knownHeroes.has(id)))].slice(0, 5) : [];
+    next[chapter] = participants;
+    if (!Array.isArray(snapshot) || participants.length !== snapshot.length || participants.some((id, i) => id !== snapshot[i])) changed = true;
+  }
+  if (!changed) return { save, warnings: [] };
+  return { save: withTavern(save, { ...st, chapterSquads: next }), warnings: ['Сведения об отряде, прошедшем главу, исправлены при загрузке.'] };
+}
+
 /**
- * Вечер закончен (дослушан или «Пропустить»): пометить увиденным и один раз дать близость героям отряда
- * (bond.squadGain — «прошли главу вместе»). Повторный вызов (пересмотр) ничего не меняет.
+ * Вечер закончен (дослушан или «Пропустить»): пометить увиденным и один раз дать близость участникам главы.
+ * Старое сохранение без снимка использует текущий отряд. Повторный вызов (пересмотр) ничего не меняет.
  */
 export function finishEvening(save: SaveState, eveningId: string, ctx: Ctx): BondGains {
   const t = tavernOfCtx(ctx);
   const st = tavernOf(save);
   if (!t || st.seen.includes(eveningId)) return { save, gains: {} };
   const gains: Record<string, number> = {};
-  if (t.evenings.some((e) => e.id === eveningId)) for (const h of storyHeroesInSquad(save, ctx)) gains[h] = t.bond.squadGain;
+  for (const h of eveningSquadHeroes(save, eveningId, ctx)) gains[h] = t.bond.squadGain;
   const { st: next, got } = addBond({ ...st, seen: [...st.seen, eveningId] }, gains, t.bond.max);
   return { save: withTavern(save, next), gains: got };
 }

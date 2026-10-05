@@ -1,5 +1,6 @@
 import { simulateBattle } from '../battle';
-import { buildUnit } from '../heroes/card';
+import { branchOf, buildUnit } from '../heroes/card';
+import { formationRank } from '../meta/formation';
 import type { GameContext } from '../progression/types';
 import { Rng } from '../rng';
 import type { HeroState, SaveState } from '../save/schema';
@@ -86,13 +87,17 @@ export function startAutobattlerRun(save: AutobattlerSave, day: string, ctx: Aut
   const pool = [...new Set([...cfg.starterPool, ...save.summon.discovered, ...save.heroes.map((h) => h.templateId)])].filter((id) => !!ctx.content.heroes[id]).sort();
   const branchChoices: Record<string, string> = {};
   for (const templateId of pool) {
-    const hero = save.heroes.filter((h) => h.templateId === templateId && h.branch && ctx.content.heroes[templateId].branches.some((b) => b.job === h.branch)).sort((a, b) => b.level - a.level)[0];
-    branchChoices[templateId] = hero?.branch ?? ctx.content.heroes[templateId].branches[0].job;
+    const template = ctx.content.heroes[templateId];
+    const companion = save.heroes.find((h) => h.templateId === templateId && h.companion);
+    // Carry the personal choice, including an inactive remembered path, without its campaign power.
+    const ownBranch = companion && (branchOf(template, companion.branch) ?? branchOf(template, companion.journey?.lastBranch));
+    const hero = save.heroes.filter((h) => h.templateId === templateId && branchOf(template, h.branch)).sort((a, b) => b.level - a.level)[0];
+    branchChoices[templateId] = ownBranch?.job ?? hero?.branch ?? template.branches[0].job;
   }
   const heroes: AutobattlerHero[] = cfg.startingTeam.map((templateId) => ({ id: `ab_${seq}_${templateId}`, templateId, copies: 1, paidCopies: 0, branch: branchChoices[templateId] }));
   const squad: (string | null)[] = [null, null, null, null, null];
   for (const h of heroes) {
-    const order = ctx.content.heroes[h.templateId].role === 'tank' ? [0, 1, 2, 3, 4] : [2, 3, 4, 0, 1];
+    const order = autoPlacementOrder(h, 0, ctx);
     squad[order.find((i) => squad[i] === null)!] = h.id;
   }
   const run: AutobattlerRun = { version: 1, id: seq, seed: (save.createdAt ^ Math.imul(seq, 0x27d4eb2d)) >>> 0, day, round: 1, wins: 0, lives: cfg.lives, gold: cfg.startingGold, training: 0, shopSeq: 0, shop: [null, null, null], pool, branchChoices, heroes, squad };
@@ -116,8 +121,7 @@ export function buyAutobattlerOffer(save: AutobattlerSave, index: number, ctx: A
   const heroes = current ? run.heroes.map((h) => h.id === hero.id ? hero : h) : [...run.heroes, hero];
   const squad = [...run.squad];
   if (!current && squad.filter(Boolean).length < cfg.training[run.training].capacity) {
-    const role = ctx.content.heroes[templateId].role;
-    const order = role === 'tank' ? [0, 1, 2, 3, 4] : [2, 3, 4, 0, 1];
+    const order = autoPlacementOrder(hero, run.training, ctx);
     const slot = order.find((i) => squad[i] === null);
     if (slot !== undefined) squad[slot] = hero.id;
   }
@@ -140,7 +144,7 @@ export function trainAutobattlerRun(save: AutobattlerSave, ctx: AutobattlerConte
   for (const h of run.heroes) {
     if (squad.filter(Boolean).length >= training.capacity) break;
     if (squad.includes(h.id)) continue;
-    const order = ctx.content.heroes[h.templateId].role === 'tank' ? [0, 1, 2, 3, 4] : [2, 3, 4, 0, 1];
+    const order = autoPlacementOrder(h, run.training + 1, ctx);
     squad[order.find((i) => squad[i] === null)!] = h.id;
   }
   return withRun(save, { ...run, gold: run.gold - training.cost, training: run.training + 1, squad });
@@ -171,9 +175,15 @@ export function setAutobattlerBranch(save: AutobattlerSave, heroId: string, bran
   return withRun(save, { ...run, heroes: run.heroes.map((h) => h.id === heroId ? { ...h, branch } : h) });
 }
 
-export function autobattlerHeroState(hero: AutobattlerHero, run: AutobattlerRun, ctx: AutobattlerContext): HeroState {
+export function autobattlerHeroState(hero: AutobattlerHero, run: Pick<AutobattlerRun, 'training'>, ctx: AutobattlerContext): HeroState {
   const training = autobattlerConfig(ctx).training[run.training];
   return { id: hero.id, templateId: hero.templateId, rarity: training.rarity, level: training.level, ...(hero.branch ? { branch: hero.branch } : {}) };
+}
+
+/** Place only a newly active card; existing player positions stay intact. */
+function autoPlacementOrder(hero: AutobattlerHero, training: number, ctx: AutobattlerContext): number[] {
+  const rank = formationRank(autobattlerHeroState(hero, { training }, ctx), ctx);
+  return rank <= 1 ? [0, 1, 2, 3, 4] : [2, 3, 4, 0, 1];
 }
 
 function normalizedUnit(hero: HeroState, ctx: AutobattlerContext, multiplier = 1): UnitDef {

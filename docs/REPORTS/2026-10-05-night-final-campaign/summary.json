@@ -1,0 +1,4032 @@
+{
+  "gitHead": "2689d9e0bd9bffd0909448f35aa7baa5047a6e9e",
+  "scriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "sourceSha256": "115646d8410bc843a7eefb3fbaf38d8086d0c4cf629848798c13e0c3942b136b",
+  "seedBase": 1,
+  "maxWaits": 180,
+  "maxStages": 180,
+  "naiveMaxFarm": false,
+  "preserveCompanions": true,
+  "waitHours": 12,
+  "artificialResources": false,
+  "status": "complete",
+  "cleared": 180,
+  "campaignStages": 180,
+  "elapsedHours": 279.026,
+  "activeMinutes": 902,
+  "totalWaits": 22,
+  "campaignAttempts": 561,
+  "campaignLosses": 381,
+  "wallTimeSeconds": 56.871,
+  "cpuTimeSeconds": 60.81,
+  "stages": [
+    {
+      "stage": "ch1_s1",
+      "chapter": "chapter1",
+      "firstHour": 0,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.004,
+      "power": 1425,
+      "recommended": 430,
+      "ratio": 3.314,
+      "seed": 1,
+      "squad": [
+        "h1:alan:green:2:tier1:-",
+        "-",
+        "-",
+        "h2:bran:green:2:tier1:-",
+        "h3:vika:green:2:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s2",
+      "chapter": "chapter1",
+      "firstHour": 0.004,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.007,
+      "power": 1447,
+      "recommended": 680,
+      "ratio": 2.128,
+      "seed": 2,
+      "squad": [
+        "h1:alan:green:3:tier1:-",
+        "-",
+        "-",
+        "h2:bran:green:2:tier1:-",
+        "h3:vika:green:2:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s11",
+      "chapter": "chapter1",
+      "firstHour": 0.007,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.01,
+      "power": 1450,
+      "recommended": 480,
+      "ratio": 3.021,
+      "seed": 3,
+      "squad": [
+        "h1:alan:green:3:tier1:-",
+        "-",
+        "-",
+        "h2:bran:green:2:tier1:-",
+        "h3:vika:green:2:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s3",
+      "chapter": "chapter1",
+      "firstHour": 0.01,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.013,
+      "power": 1471,
+      "recommended": 670,
+      "ratio": 2.196,
+      "seed": 4,
+      "squad": [
+        "h1:alan:green:3:tier1:-",
+        "-",
+        "-",
+        "h2:bran:green:2:tier1:-",
+        "h3:vika:green:2:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s4",
+      "chapter": "chapter1",
+      "firstHour": 0.013,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.017,
+      "power": 1506,
+      "recommended": 1100,
+      "ratio": 1.369,
+      "seed": 5,
+      "squad": [
+        "h1:alan:green:3:tier1:-",
+        "-",
+        "-",
+        "h2:bran:green:3:tier1:-",
+        "h3:vika:green:2:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s5",
+      "chapter": "chapter1",
+      "firstHour": 0.017,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.021,
+      "power": 1520,
+      "recommended": 1100,
+      "ratio": 1.382,
+      "seed": 6,
+      "squad": [
+        "h1:alan:green:3:tier1:-",
+        "-",
+        "-",
+        "h2:bran:green:3:tier1:-",
+        "h3:vika:green:3:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s12",
+      "chapter": "chapter1",
+      "firstHour": 0.024,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.028,
+      "power": 2614,
+      "recommended": 2100,
+      "ratio": 1.245,
+      "seed": 7,
+      "squad": [
+        "h1:alan:green:4:tier1:-",
+        "h12:iris:green:2:tier1:-",
+        "h15:dorn:green:2:tier1:-",
+        "h2:bran:green:3:tier1:-",
+        "h6:teo:blue:2:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s6",
+      "chapter": "chapter1",
+      "firstHour": 0.029,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.033,
+      "power": 2655,
+      "recommended": 1900,
+      "ratio": 1.397,
+      "seed": 8,
+      "squad": [
+        "h1:alan:green:4:tier1:-",
+        "h12:iris:green:3:tier1:-",
+        "h15:dorn:green:3:tier1:-",
+        "h2:bran:green:3:tier1:-",
+        "h4:teo:blue:2:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s13",
+      "chapter": "chapter1",
+      "firstHour": 0.033,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.038,
+      "power": 2675,
+      "recommended": 2100,
+      "ratio": 1.274,
+      "seed": 9,
+      "squad": [
+        "h1:alan:green:4:tier1:-",
+        "h12:iris:green:3:tier1:-",
+        "h15:dorn:green:3:tier1:-",
+        "h2:bran:green:3:tier1:-",
+        "h4:teo:blue:3:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s7",
+      "chapter": "chapter1",
+      "firstHour": 0.038,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.042,
+      "power": 2696,
+      "recommended": 2100,
+      "ratio": 1.284,
+      "seed": 10,
+      "squad": [
+        "h1:alan:green:4:tier1:-",
+        "h12:iris:green:4:tier1:-",
+        "h15:dorn:green:3:tier1:-",
+        "h2:bran:green:3:tier1:-",
+        "h4:teo:blue:3:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s14",
+      "chapter": "chapter1",
+      "firstHour": 0.043,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.048,
+      "power": 2748,
+      "recommended": 2300,
+      "ratio": 1.195,
+      "seed": 11,
+      "squad": [
+        "h1:alan:green:4:tier1:-",
+        "h12:iris:green:4:tier1:-",
+        "h15:dorn:green:4:tier1:-",
+        "h2:bran:green:4:tier1:-",
+        "h4:teo:blue:3:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s8",
+      "chapter": "chapter1",
+      "firstHour": 0.048,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.052,
+      "power": 2777,
+      "recommended": 2200,
+      "ratio": 1.262,
+      "seed": 12,
+      "squad": [
+        "h1:alan:green:4:tier1:-",
+        "h12:iris:green:4:tier1:-",
+        "h15:dorn:green:4:tier1:-",
+        "h2:bran:green:4:tier1:-",
+        "h4:teo:blue:4:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s15",
+      "chapter": "chapter1",
+      "firstHour": 0.052,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.057,
+      "power": 2797,
+      "recommended": 2300,
+      "ratio": 1.216,
+      "seed": 13,
+      "squad": [
+        "h1:alan:green:4:tier1:-",
+        "h12:iris:green:4:tier1:-",
+        "h15:dorn:green:4:tier1:-",
+        "h2:bran:green:4:tier1:-",
+        "h4:teo:blue:4:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s9",
+      "chapter": "chapter1",
+      "firstHour": 0.057,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.062,
+      "power": 2814,
+      "recommended": 2400,
+      "ratio": 1.173,
+      "seed": 14,
+      "squad": [
+        "h1:alan:green:5:tier1:-",
+        "h12:iris:green:4:tier1:-",
+        "h15:dorn:green:4:tier1:-",
+        "h2:bran:green:4:tier1:-",
+        "h4:teo:blue:4:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s16",
+      "chapter": "chapter1",
+      "firstHour": 0.062,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.066,
+      "power": 2842,
+      "recommended": 2400,
+      "ratio": 1.184,
+      "seed": 15,
+      "squad": [
+        "h1:alan:green:5:tier1:-",
+        "h12:iris:green:5:tier1:-",
+        "h15:dorn:green:4:tier1:-",
+        "h2:bran:green:4:tier1:-",
+        "h4:teo:blue:4:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s17",
+      "chapter": "chapter1",
+      "firstHour": 0.066,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.071,
+      "power": 2858,
+      "recommended": 2500,
+      "ratio": 1.143,
+      "seed": 16,
+      "squad": [
+        "h1:alan:green:5:tier1:-",
+        "h12:iris:green:5:tier1:-",
+        "h15:dorn:green:5:tier1:-",
+        "h2:bran:green:4:tier1:-",
+        "h4:teo:blue:4:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s18",
+      "chapter": "chapter1",
+      "firstHour": 0.071,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.076,
+      "power": 2883,
+      "recommended": 2400,
+      "ratio": 1.201,
+      "seed": 17,
+      "squad": [
+        "h1:alan:green:5:tier1:-",
+        "h12:iris:green:5:tier1:-",
+        "h15:dorn:green:5:tier1:-",
+        "h2:bran:green:5:tier1:-",
+        "h4:teo:blue:4:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch1_s10",
+      "chapter": "chapter1",
+      "firstHour": 0.076,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.083,
+      "power": 2909,
+      "recommended": 2700,
+      "ratio": 1.077,
+      "seed": 18,
+      "squad": [
+        "h1:alan:green:5:tier1:-",
+        "h12:iris:green:5:tier1:-",
+        "h15:dorn:green:5:tier1:-",
+        "h2:bran:green:5:tier1:-",
+        "h4:teo:blue:5:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s1",
+      "chapter": "chapter2",
+      "firstHour": 0.084,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.088,
+      "power": 3005,
+      "recommended": 1400,
+      "ratio": 2.146,
+      "seed": 19,
+      "squad": [
+        "h1:alan:green:6:tier1:-",
+        "h12:iris:green:6:tier1:-",
+        "h13:greta:blue:5:tier1:-",
+        "h15:dorn:green:5:tier1:-",
+        "h4:teo:blue:5:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s11",
+      "chapter": "chapter2",
+      "firstHour": 0.088,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.092,
+      "power": 3047,
+      "recommended": 1700,
+      "ratio": 1.792,
+      "seed": 20,
+      "squad": [
+        "h1:alan:green:6:tier1:-",
+        "h12:iris:green:6:tier1:-",
+        "h13:greta:blue:6:tier1:-",
+        "h15:dorn:green:5:tier1:-",
+        "h4:teo:blue:5:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s2",
+      "chapter": "chapter2",
+      "firstHour": 0.092,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.096,
+      "power": 3073,
+      "recommended": 1700,
+      "ratio": 1.808,
+      "seed": 21,
+      "squad": [
+        "h1:alan:green:6:tier1:-",
+        "h12:iris:green:6:tier1:-",
+        "h13:greta:blue:6:tier1:-",
+        "h15:dorn:green:6:tier1:-",
+        "h4:teo:blue:5:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s12",
+      "chapter": "chapter2",
+      "firstHour": 0.096,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.101,
+      "power": 3094,
+      "recommended": 2100,
+      "ratio": 1.473,
+      "seed": 22,
+      "squad": [
+        "h1:alan:green:6:tier1:-",
+        "h12:iris:green:6:tier1:-",
+        "h13:greta:blue:6:tier1:-",
+        "h15:dorn:green:6:tier1:-",
+        "h4:teo:blue:6:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s3",
+      "chapter": "chapter2",
+      "firstHour": 0.101,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.106,
+      "power": 3112,
+      "recommended": 3000,
+      "ratio": 1.037,
+      "seed": 23,
+      "squad": [
+        "h1:alan:green:7:tier1:-",
+        "h12:iris:green:6:tier1:-",
+        "h13:greta:blue:6:tier1:-",
+        "h15:dorn:green:6:tier1:-",
+        "h4:teo:blue:6:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s13",
+      "chapter": "chapter2",
+      "firstHour": 0.106,
+      "attempts": 4,
+      "waits": 0,
+      "clearedHour": 0.277,
+      "power": 3554,
+      "recommended": 3400,
+      "ratio": 1.045,
+      "seed": 48,
+      "squad": [
+        "h1:alan:green:10:tier1:resolve",
+        "h12:iris:green:10:tier1:precision",
+        "h13:greta:blue:9:tier1:-",
+        "h20:zara:blue:9:tier1:-",
+        "h4:teo:blue:9:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s4",
+      "chapter": "chapter2",
+      "firstHour": 0.277,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.284,
+      "power": 3572,
+      "recommended": 3600,
+      "ratio": 0.992,
+      "seed": 49,
+      "squad": [
+        "h1:alan:green:10:tier1:resolve",
+        "h12:iris:green:10:tier1:precision",
+        "h13:greta:blue:9:tier1:-",
+        "h20:zara:blue:9:tier1:-",
+        "h4:teo:blue:9:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s14",
+      "chapter": "chapter2",
+      "firstHour": 0.284,
+      "attempts": 8,
+      "waits": 0,
+      "clearedHour": 0.409,
+      "power": 3630,
+      "recommended": 3800,
+      "ratio": 0.955,
+      "seed": 69,
+      "squad": [
+        "h1:alan:green:10:tier1:resolve",
+        "h12:iris:green:10:tier1:precision",
+        "h20:zara:blue:10:tier1:precision",
+        "h4:teo:blue:10:tier1:precision",
+        "h3:vika:green:9:tier1:-"
+      ]
+    },
+    {
+      "stage": "ch2_s5",
+      "chapter": "chapter2",
+      "firstHour": 0.409,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.415,
+      "power": 3702,
+      "recommended": 3600,
+      "ratio": 1.028,
+      "seed": 70,
+      "squad": [
+        "h1:alan:green:10:tier1:resolve",
+        "h12:iris:green:10:tier1:precision",
+        "h20:zara:blue:10:tier1:precision",
+        "h3:vika:green:10:tier1:precision",
+        "h4:teo:blue:10:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s15",
+      "chapter": "chapter2",
+      "firstHour": 0.416,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 0.423,
+      "power": 3708,
+      "recommended": 3800,
+      "ratio": 0.976,
+      "seed": 71,
+      "squad": [
+        "h1:alan:green:10:tier1:resolve",
+        "h12:iris:green:10:tier1:precision",
+        "h20:zara:blue:10:tier1:precision",
+        "h3:vika:green:10:tier1:precision",
+        "h4:teo:blue:10:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s6",
+      "chapter": "chapter2",
+      "firstHour": 0.423,
+      "attempts": 13,
+      "waits": 1,
+      "clearedHour": 12.633,
+      "power": 3953,
+      "recommended": 4000,
+      "ratio": 0.988,
+      "seed": 101,
+      "squad": [
+        "h1:alan:green:13:tier1:resolve",
+        "h12:iris:green:13:tier1:precision",
+        "h20:zara:blue:12:tier1:precision",
+        "h3:vika:green:12:tier1:precision",
+        "h4:teo:blue:12:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s16",
+      "chapter": "chapter2",
+      "firstHour": 12.633,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 12.641,
+      "power": 3960,
+      "recommended": 4300,
+      "ratio": 0.921,
+      "seed": 102,
+      "squad": [
+        "h1:alan:green:13:tier1:resolve",
+        "h12:iris:green:13:tier1:precision",
+        "h20:zara:blue:12:tier1:precision",
+        "h3:vika:green:12:tier1:precision",
+        "h4:teo:blue:12:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s7",
+      "chapter": "chapter2",
+      "firstHour": 12.641,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 12.648,
+      "power": 3989,
+      "recommended": 4200,
+      "ratio": 0.95,
+      "seed": 103,
+      "squad": [
+        "h1:alan:green:13:tier1:resolve",
+        "h12:iris:green:13:tier1:precision",
+        "h20:zara:blue:13:tier1:precision",
+        "h3:vika:green:12:tier1:precision",
+        "h4:teo:blue:12:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s17",
+      "chapter": "chapter2",
+      "firstHour": 12.648,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 12.657,
+      "power": 3989,
+      "recommended": 4100,
+      "ratio": 0.973,
+      "seed": 104,
+      "squad": [
+        "h1:alan:green:13:tier1:resolve",
+        "h12:iris:green:13:tier1:precision",
+        "h20:zara:blue:13:tier1:precision",
+        "h3:vika:green:12:tier1:precision",
+        "h4:teo:blue:12:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s8",
+      "chapter": "chapter2",
+      "firstHour": 12.657,
+      "attempts": 10,
+      "waits": 0,
+      "clearedHour": 12.887,
+      "power": 4071,
+      "recommended": 4400,
+      "ratio": 0.925,
+      "seed": 137,
+      "squad": [
+        "h12:iris:green:13:tier1:precision",
+        "h1:alan:blue:13:tier1:resolve",
+        "h20:zara:blue:13:tier1:precision",
+        "h3:vika:green:13:tier1:precision",
+        "h4:teo:blue:12:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s18",
+      "chapter": "chapter2",
+      "firstHour": 12.888,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 12.895,
+      "power": 4086,
+      "recommended": 4400,
+      "ratio": 0.929,
+      "seed": 138,
+      "squad": [
+        "h1:alan:blue:13:tier1:resolve",
+        "h12:iris:green:13:tier1:precision",
+        "h20:zara:blue:13:tier1:precision",
+        "h3:vika:green:13:tier1:precision",
+        "h4:teo:blue:12:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s9",
+      "chapter": "chapter2",
+      "firstHour": 12.895,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 12.901,
+      "power": 4087,
+      "recommended": 4500,
+      "ratio": 0.908,
+      "seed": 139,
+      "squad": [
+        "h1:alan:blue:13:tier1:resolve",
+        "h12:iris:green:13:tier1:precision",
+        "h20:zara:blue:13:tier1:precision",
+        "h3:vika:green:13:tier1:precision",
+        "h4:teo:blue:12:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch2_s10",
+      "chapter": "chapter2",
+      "firstHour": 12.902,
+      "attempts": 14,
+      "waits": 1,
+      "clearedHour": 25.108,
+      "power": 4797,
+      "recommended": 5100,
+      "ratio": 0.941,
+      "seed": 167,
+      "squad": [
+        "h1:alan:purple:16:knight:resolve",
+        "h9:iris:blue:16:tier1:precision",
+        "h20:zara:blue:16:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:15:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s1",
+      "chapter": "chapter3",
+      "firstHour": 25.108,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.112,
+      "power": 4814,
+      "recommended": 3200,
+      "ratio": 1.504,
+      "seed": 168,
+      "squad": [
+        "h1:alan:purple:16:knight:resolve",
+        "h9:iris:blue:16:tier1:precision",
+        "h20:zara:blue:16:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:16:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s11",
+      "chapter": "chapter3",
+      "firstHour": 25.112,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.116,
+      "power": 4814,
+      "recommended": 2800,
+      "ratio": 1.719,
+      "seed": 169,
+      "squad": [
+        "h1:alan:purple:16:knight:resolve",
+        "h9:iris:blue:16:tier1:precision",
+        "h20:zara:blue:16:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:16:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s2",
+      "chapter": "chapter3",
+      "firstHour": 25.116,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.12,
+      "power": 4843,
+      "recommended": 3900,
+      "ratio": 1.242,
+      "seed": 170,
+      "squad": [
+        "h1:alan:purple:17:knight:resolve",
+        "h9:iris:blue:16:tier1:precision",
+        "h20:zara:blue:16:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:16:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s12",
+      "chapter": "chapter3",
+      "firstHour": 25.12,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.124,
+      "power": 4844,
+      "recommended": 3600,
+      "ratio": 1.346,
+      "seed": 171,
+      "squad": [
+        "h1:alan:purple:17:knight:resolve",
+        "h9:iris:blue:16:tier1:precision",
+        "h20:zara:blue:16:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:16:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s3",
+      "chapter": "chapter3",
+      "firstHour": 25.124,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.128,
+      "power": 4848,
+      "recommended": 3800,
+      "ratio": 1.276,
+      "seed": 172,
+      "squad": [
+        "h1:alan:purple:17:knight:resolve",
+        "h9:iris:blue:16:tier1:precision",
+        "h20:zara:blue:16:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:16:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s13",
+      "chapter": "chapter3",
+      "firstHour": 25.128,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.132,
+      "power": 4871,
+      "recommended": 4100,
+      "ratio": 1.188,
+      "seed": 173,
+      "squad": [
+        "h1:alan:purple:17:knight:resolve",
+        "h9:iris:blue:17:tier1:precision",
+        "h20:zara:blue:16:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:16:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s4",
+      "chapter": "chapter3",
+      "firstHour": 25.132,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.136,
+      "power": 4888,
+      "recommended": 3900,
+      "ratio": 1.253,
+      "seed": 174,
+      "squad": [
+        "h1:alan:purple:17:knight:resolve",
+        "h9:iris:blue:17:tier1:precision",
+        "h20:zara:blue:17:tier1:precision",
+        "h21:meilin:blue:16:tier1:precision",
+        "h3:vika:blue:16:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s14",
+      "chapter": "chapter3",
+      "firstHour": 25.136,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.14,
+      "power": 4988,
+      "recommended": 4300,
+      "ratio": 1.16,
+      "seed": 175,
+      "squad": [
+        "h1:alan:purple:18:knight:resolve",
+        "h9:iris:blue:17:tier1:precision",
+        "h20:zara:blue:17:tier1:precision",
+        "h8:dorn:blue:17:tier1:precision",
+        "h3:vika:blue:17:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s5",
+      "chapter": "chapter3",
+      "firstHour": 25.14,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.145,
+      "power": 5011,
+      "recommended": 3900,
+      "ratio": 1.285,
+      "seed": 176,
+      "squad": [
+        "h1:alan:purple:18:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:17:tier1:precision",
+        "h8:dorn:blue:17:tier1:precision",
+        "h3:vika:blue:17:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s15",
+      "chapter": "chapter3",
+      "firstHour": 25.145,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.151,
+      "power": 5030,
+      "recommended": 5300,
+      "ratio": 0.949,
+      "seed": 177,
+      "squad": [
+        "h1:alan:purple:18:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:17:tier1:precision",
+        "h3:vika:blue:17:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s6",
+      "chapter": "chapter3",
+      "firstHour": 25.151,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.156,
+      "power": 5030,
+      "recommended": 4300,
+      "ratio": 1.17,
+      "seed": 178,
+      "squad": [
+        "h1:alan:purple:18:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:17:tier1:precision",
+        "h3:vika:blue:17:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s16",
+      "chapter": "chapter3",
+      "firstHour": 25.156,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.162,
+      "power": 5054,
+      "recommended": 4900,
+      "ratio": 1.031,
+      "seed": 179,
+      "squad": [
+        "h1:alan:purple:18:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:18:tier1:precision",
+        "h3:vika:blue:17:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s7",
+      "chapter": "chapter3",
+      "firstHour": 25.162,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.168,
+      "power": 5054,
+      "recommended": 5400,
+      "ratio": 0.936,
+      "seed": 180,
+      "squad": [
+        "h1:alan:purple:18:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:18:tier1:precision",
+        "h3:vika:blue:17:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s17",
+      "chapter": "chapter3",
+      "firstHour": 25.168,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.174,
+      "power": 5070,
+      "recommended": 5200,
+      "ratio": 0.975,
+      "seed": 181,
+      "squad": [
+        "h1:alan:purple:18:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:18:tier1:precision",
+        "h3:vika:blue:18:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s8",
+      "chapter": "chapter3",
+      "firstHour": 25.174,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.181,
+      "power": 5101,
+      "recommended": 5300,
+      "ratio": 0.962,
+      "seed": 182,
+      "squad": [
+        "h1:alan:purple:19:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:18:tier1:precision",
+        "h3:vika:blue:18:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s18",
+      "chapter": "chapter3",
+      "firstHour": 25.181,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.186,
+      "power": 5101,
+      "recommended": 5500,
+      "ratio": 0.927,
+      "seed": 183,
+      "squad": [
+        "h1:alan:purple:19:knight:resolve",
+        "h9:iris:blue:18:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:18:tier1:precision",
+        "h3:vika:blue:18:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s9",
+      "chapter": "chapter3",
+      "firstHour": 25.186,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.192,
+      "power": 5124,
+      "recommended": 5800,
+      "ratio": 0.883,
+      "seed": 184,
+      "squad": [
+        "h1:alan:purple:19:knight:resolve",
+        "h9:iris:blue:19:tier1:precision",
+        "h20:zara:blue:18:tier1:precision",
+        "h8:dorn:blue:18:tier1:precision",
+        "h3:vika:blue:18:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch3_s10",
+      "chapter": "chapter3",
+      "firstHour": 25.192,
+      "attempts": 2,
+      "waits": 0,
+      "clearedHour": 25.209,
+      "power": 5205,
+      "recommended": 5100,
+      "ratio": 1.021,
+      "seed": 186,
+      "squad": [
+        "h1:alan:purple:20:knight:resolve",
+        "h9:iris:blue:19:tier1:precision",
+        "h20:zara:blue:19:tier1:precision",
+        "h8:dorn:blue:19:tier1:precision",
+        "h3:vika:blue:19:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s1",
+      "chapter": "chapter4",
+      "firstHour": 25.209,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.217,
+      "power": 5227,
+      "recommended": 3300,
+      "ratio": 1.584,
+      "seed": 187,
+      "squad": [
+        "h1:alan:purple:20:knight:resolve",
+        "h9:iris:blue:20:tier1:precision",
+        "h20:zara:blue:19:tier1:precision",
+        "h8:dorn:blue:19:tier1:precision",
+        "h3:vika:blue:19:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s2",
+      "chapter": "chapter4",
+      "firstHour": 25.217,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.224,
+      "power": 5237,
+      "recommended": 3800,
+      "ratio": 1.378,
+      "seed": 188,
+      "squad": [
+        "h1:alan:purple:20:knight:resolve",
+        "h9:iris:blue:20:tier1:precision",
+        "h20:zara:blue:19:tier1:precision",
+        "h8:dorn:blue:19:tier1:precision",
+        "h3:vika:blue:19:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s11",
+      "chapter": "chapter4",
+      "firstHour": 25.224,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.231,
+      "power": 5263,
+      "recommended": 3700,
+      "ratio": 1.422,
+      "seed": 189,
+      "squad": [
+        "h1:alan:purple:20:knight:resolve",
+        "h9:iris:blue:20:tier1:precision",
+        "h20:zara:blue:20:tier1:precision",
+        "h8:dorn:blue:19:tier1:precision",
+        "h3:vika:blue:19:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s3",
+      "chapter": "chapter4",
+      "firstHour": 25.231,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.239,
+      "power": 5355,
+      "recommended": 3800,
+      "ratio": 1.409,
+      "seed": 190,
+      "squad": [
+        "h1:alan:purple:20:knight:resolve",
+        "h9:iris:blue:20:tier1:precision",
+        "h20:zara:blue:20:tier1:precision",
+        "h8:dorn:blue:20:tier1:precision",
+        "h3:vika:blue:19:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s4",
+      "chapter": "chapter4",
+      "firstHour": 25.239,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.247,
+      "power": 5434,
+      "recommended": 3900,
+      "ratio": 1.393,
+      "seed": 191,
+      "squad": [
+        "h1:alan:purple:20:knight:resolve",
+        "h9:iris:blue:20:tier1:precision",
+        "h20:zara:blue:20:tier1:precision",
+        "h8:dorn:blue:20:tier1:precision",
+        "h3:vika:blue:20:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s5",
+      "chapter": "chapter4",
+      "firstHour": 25.247,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.255,
+      "power": 5506,
+      "recommended": 4700,
+      "ratio": 1.171,
+      "seed": 192,
+      "squad": [
+        "h1:alan:purple:20:knight:resolve",
+        "h9:iris:blue:20:tier1:precision",
+        "h20:zara:blue:20:tier1:precision",
+        "h8:dorn:blue:20:tier1:precision",
+        "h3:vika:blue:20:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s12",
+      "chapter": "chapter4",
+      "firstHour": 25.255,
+      "attempts": 3,
+      "waits": 0,
+      "clearedHour": 25.424,
+      "power": 5684,
+      "recommended": 4100,
+      "ratio": 1.386,
+      "seed": 213,
+      "squad": [
+        "h1:alan:purple:22:knight:resolve",
+        "h9:iris:blue:21:tier1:precision",
+        "h20:zara:blue:21:tier1:precision",
+        "h8:dorn:blue:21:tier1:precision",
+        "h3:vika:blue:21:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s6",
+      "chapter": "chapter4",
+      "firstHour": 25.424,
+      "attempts": 7,
+      "waits": 0,
+      "clearedHour": 25.542,
+      "power": 5729,
+      "recommended": 5200,
+      "ratio": 1.102,
+      "seed": 224,
+      "squad": [
+        "h1:alan:purple:23:knight:resolve",
+        "h9:iris:blue:22:tier1:precision",
+        "h20:zara:blue:22:tier1:precision",
+        "h3:vika:blue:19:tier1:precision",
+        "h4:teo:blue:22:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s13",
+      "chapter": "chapter4",
+      "firstHour": 25.543,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.553,
+      "power": 5819,
+      "recommended": 4700,
+      "ratio": 1.238,
+      "seed": 225,
+      "squad": [
+        "h1:alan:purple:23:knight:resolve",
+        "h9:iris:blue:22:tier1:precision",
+        "h20:zara:blue:22:tier1:precision",
+        "h3:vika:blue:20:tier1:precision",
+        "h4:teo:blue:22:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s7",
+      "chapter": "chapter4",
+      "firstHour": 25.553,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.561,
+      "power": 5867,
+      "recommended": 5700,
+      "ratio": 1.029,
+      "seed": 226,
+      "squad": [
+        "h1:alan:purple:23:knight:resolve",
+        "h9:iris:blue:22:tier1:precision",
+        "h20:zara:blue:22:tier1:precision",
+        "h3:vika:blue:21:tier1:precision",
+        "h4:teo:blue:22:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s14",
+      "chapter": "chapter4",
+      "firstHour": 25.561,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.573,
+      "power": 5914,
+      "recommended": 5300,
+      "ratio": 1.116,
+      "seed": 227,
+      "squad": [
+        "h1:alan:purple:23:knight:resolve",
+        "h9:iris:blue:22:tier1:precision",
+        "h20:zara:blue:22:tier1:precision",
+        "h3:vika:blue:22:tier1:precision",
+        "h4:teo:blue:22:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s8",
+      "chapter": "chapter4",
+      "firstHour": 25.573,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 25.583,
+      "power": 5923,
+      "recommended": 6600,
+      "ratio": 0.897,
+      "seed": 228,
+      "squad": [
+        "h1:alan:purple:23:knight:resolve",
+        "h9:iris:blue:22:tier1:precision",
+        "h20:zara:blue:22:tier1:precision",
+        "h3:vika:blue:22:tier1:precision",
+        "h4:teo:blue:22:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s15",
+      "chapter": "chapter4",
+      "firstHour": 25.583,
+      "attempts": 2,
+      "waits": 0,
+      "clearedHour": 25.605,
+      "power": 5972,
+      "recommended": 5700,
+      "ratio": 1.048,
+      "seed": 230,
+      "squad": [
+        "h1:alan:purple:23:knight:resolve",
+        "h9:iris:blue:23:tier1:precision",
+        "h20:zara:blue:23:tier1:precision",
+        "h3:vika:blue:22:tier1:precision",
+        "h4:teo:blue:22:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s9",
+      "chapter": "chapter4",
+      "firstHour": 25.605,
+      "attempts": 25,
+      "waits": 2,
+      "clearedHour": 49.891,
+      "power": 7293,
+      "recommended": 6800,
+      "ratio": 1.073,
+      "seed": 265,
+      "squad": [
+        "h1:alan:purple:30:knight:resolve",
+        "h9:iris:purple:30:knight:precision",
+        "h20:zara:blue:29:tier1:precision",
+        "h4:teo:blue:29:tier1:precision",
+        "h3:vika:blue:29:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s16",
+      "chapter": "chapter4",
+      "firstHour": 49.891,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.9,
+      "power": 7362,
+      "recommended": 5600,
+      "ratio": 1.315,
+      "seed": 266,
+      "squad": [
+        "h1:alan:purple:30:knight:resolve",
+        "h9:iris:purple:30:knight:precision",
+        "h20:zara:blue:30:tier1:precision",
+        "h4:teo:blue:29:tier1:precision",
+        "h3:vika:blue:29:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s17",
+      "chapter": "chapter4",
+      "firstHour": 49.9,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.906,
+      "power": 7451,
+      "recommended": 7800,
+      "ratio": 0.955,
+      "seed": 267,
+      "squad": [
+        "h1:alan:purple:30:knight:resolve",
+        "h9:iris:purple:30:knight:precision",
+        "h20:zara:blue:30:tier1:precision",
+        "h3:vika:blue:29:tier1:precision",
+        "h4:teo:blue:29:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s18",
+      "chapter": "chapter4",
+      "firstHour": 49.906,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.914,
+      "power": 7519,
+      "recommended": 7100,
+      "ratio": 1.059,
+      "seed": 268,
+      "squad": [
+        "h1:alan:purple:30:knight:resolve",
+        "h9:iris:purple:30:knight:precision",
+        "h20:zara:blue:30:tier1:precision",
+        "h3:vika:blue:30:tier1:precision",
+        "h4:teo:blue:29:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch4_s10",
+      "chapter": "chapter4",
+      "firstHour": 49.914,
+      "attempts": 2,
+      "waits": 0,
+      "clearedHour": 49.938,
+      "power": 7680,
+      "recommended": 6900,
+      "ratio": 1.113,
+      "seed": 270,
+      "squad": [
+        "h1:alan:purple:31:knight:resolve",
+        "h9:iris:purple:31:knight:precision",
+        "h20:zara:blue:31:tier1:precision",
+        "h3:vika:blue:31:tier1:precision",
+        "h4:teo:blue:30:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s1",
+      "chapter": "chapter5",
+      "firstHour": 49.938,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.948,
+      "power": 7749,
+      "recommended": 4400,
+      "ratio": 1.761,
+      "seed": 271,
+      "squad": [
+        "h1:alan:purple:31:knight:resolve",
+        "h9:iris:purple:31:knight:precision",
+        "h20:zara:blue:31:tier1:precision",
+        "h3:vika:blue:31:tier1:precision",
+        "h4:teo:blue:31:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s2",
+      "chapter": "chapter5",
+      "firstHour": 49.948,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.954,
+      "power": 7755,
+      "recommended": 4600,
+      "ratio": 1.686,
+      "seed": 272,
+      "squad": [
+        "h1:alan:purple:31:knight:resolve",
+        "h9:iris:purple:31:knight:precision",
+        "h20:zara:blue:31:tier1:precision",
+        "h3:vika:blue:31:tier1:precision",
+        "h4:teo:blue:31:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s11",
+      "chapter": "chapter5",
+      "firstHour": 49.957,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.961,
+      "power": 8253,
+      "recommended": 5400,
+      "ratio": 1.528,
+      "seed": 273,
+      "squad": [
+        "h1:alan:purple:32:knight:resolve",
+        "h9:iris:purple:31:knight:precision",
+        "h20:zara:blue:31:tier1:precision",
+        "h21:meilin:purple:31:hunter:precision",
+        "h4:teo:blue:31:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s3",
+      "chapter": "chapter5",
+      "firstHour": 49.961,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.968,
+      "power": 8279,
+      "recommended": 4800,
+      "ratio": 1.725,
+      "seed": 274,
+      "squad": [
+        "h1:alan:purple:32:knight:resolve",
+        "h9:iris:purple:31:knight:precision",
+        "h20:zara:blue:31:tier1:precision",
+        "h21:meilin:purple:31:hunter:precision",
+        "h4:teo:blue:31:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s4",
+      "chapter": "chapter5",
+      "firstHour": 49.968,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.974,
+      "power": 8334,
+      "recommended": 4900,
+      "ratio": 1.701,
+      "seed": 275,
+      "squad": [
+        "h1:alan:purple:32:knight:resolve",
+        "h9:iris:purple:32:knight:precision",
+        "h20:zara:blue:31:tier1:precision",
+        "h21:meilin:purple:31:hunter:precision",
+        "h4:teo:blue:31:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s5",
+      "chapter": "chapter5",
+      "firstHour": 49.974,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 49.982,
+      "power": 8423,
+      "recommended": 6300,
+      "ratio": 1.337,
+      "seed": 276,
+      "squad": [
+        "h1:alan:purple:32:knight:resolve",
+        "h9:iris:purple:32:knight:precision",
+        "h20:zara:blue:32:tier1:precision",
+        "h21:meilin:purple:31:hunter:precision",
+        "h4:teo:blue:31:tier1:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s12",
+      "chapter": "chapter5",
+      "firstHour": 49.982,
+      "attempts": 3,
+      "waits": 0,
+      "clearedHour": 50.178,
+      "power": 8808,
+      "recommended": 5900,
+      "ratio": 1.493,
+      "seed": 299,
+      "squad": [
+        "h1:alan:purple:33:knight:resolve",
+        "h9:iris:purple:33:knight:precision",
+        "h20:zara:blue:33:tier1:precision",
+        "h21:meilin:purple:33:hunter:precision",
+        "h4:teo:purple:32:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s6",
+      "chapter": "chapter5",
+      "firstHour": 50.178,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 50.188,
+      "power": 8834,
+      "recommended": 5800,
+      "ratio": 1.523,
+      "seed": 300,
+      "squad": [
+        "h1:alan:purple:33:knight:resolve",
+        "h9:iris:purple:33:knight:precision",
+        "h20:zara:blue:33:tier1:precision",
+        "h21:meilin:purple:33:hunter:precision",
+        "h4:teo:purple:33:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s13",
+      "chapter": "chapter5",
+      "firstHour": 50.188,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 50.199,
+      "power": 8859,
+      "recommended": 7900,
+      "ratio": 1.121,
+      "seed": 301,
+      "squad": [
+        "h1:alan:purple:33:knight:resolve",
+        "h9:iris:purple:33:knight:precision",
+        "h20:zara:blue:33:tier1:precision",
+        "h21:meilin:purple:33:hunter:precision",
+        "h4:teo:purple:33:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s7",
+      "chapter": "chapter5",
+      "firstHour": 50.199,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 50.211,
+      "power": 8895,
+      "recommended": 6900,
+      "ratio": 1.289,
+      "seed": 302,
+      "squad": [
+        "h1:alan:purple:34:knight:resolve",
+        "h9:iris:purple:33:knight:precision",
+        "h20:zara:blue:33:tier1:precision",
+        "h21:meilin:purple:33:hunter:precision",
+        "h4:teo:purple:33:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s14",
+      "chapter": "chapter5",
+      "firstHour": 50.211,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 50.224,
+      "power": 8924,
+      "recommended": 7400,
+      "ratio": 1.206,
+      "seed": 303,
+      "squad": [
+        "h1:alan:purple:34:knight:resolve",
+        "h9:iris:purple:34:knight:precision",
+        "h20:zara:blue:33:tier1:precision",
+        "h21:meilin:purple:33:hunter:precision",
+        "h4:teo:purple:33:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s8",
+      "chapter": "chapter5",
+      "firstHour": 50.224,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 50.235,
+      "power": 8924,
+      "recommended": 7600,
+      "ratio": 1.174,
+      "seed": 304,
+      "squad": [
+        "h1:alan:purple:34:knight:resolve",
+        "h9:iris:purple:34:knight:precision",
+        "h20:zara:blue:33:tier1:precision",
+        "h21:meilin:purple:33:hunter:precision",
+        "h4:teo:purple:33:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s15",
+      "chapter": "chapter5",
+      "firstHour": 50.235,
+      "attempts": 4,
+      "waits": 0,
+      "clearedHour": 50.362,
+      "power": 9310,
+      "recommended": 8200,
+      "ratio": 1.135,
+      "seed": 317,
+      "squad": [
+        "h1:alan:purple:34:knight:resolve",
+        "h9:iris:purple:34:knight:precision",
+        "h21:meilin:purple:34:hunter:precision",
+        "h41:lira:purple:34:sage:precision",
+        "h4:teo:purple:33:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s9",
+      "chapter": "chapter5",
+      "firstHour": 50.365,
+      "attempts": 14,
+      "waits": 1,
+      "clearedHour": 62.632,
+      "power": 9895,
+      "recommended": 9400,
+      "ratio": 1.053,
+      "seed": 341,
+      "squad": [
+        "h1:alan:purple:38:knight:resolve",
+        "h9:iris:purple:38:knight:precision",
+        "h21:meilin:purple:38:hunter:precision",
+        "h11:lira:purple:38:sage:precision",
+        "h4:teo:purple:38:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s16",
+      "chapter": "chapter5",
+      "firstHour": 62.632,
+      "attempts": 41,
+      "waits": 3,
+      "clearedHour": 100.046,
+      "power": 11628,
+      "recommended": 8500,
+      "ratio": 1.368,
+      "seed": 465,
+      "squad": [
+        "h1:alan:purple:50:knight:resolve",
+        "h9:iris:purple:50:knight:precision",
+        "h8:dorn:purple:49:assassin:precision",
+        "h21:meilin:purple:49:hunter:precision",
+        "h4:teo:purple:49:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s17",
+      "chapter": "chapter5",
+      "firstHour": 100.046,
+      "attempts": 5,
+      "waits": 0,
+      "clearedHour": 100.307,
+      "power": 11832,
+      "recommended": 10700,
+      "ratio": 1.106,
+      "seed": 490,
+      "squad": [
+        "h1:alan:purple:50:knight:resolve",
+        "h9:iris:purple:50:knight:precision",
+        "h8:dorn:purple:50:assassin:precision",
+        "h11:lira:purple:50:sage:precision",
+        "h4:teo:purple:49:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s18",
+      "chapter": "chapter5",
+      "firstHour": 100.307,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 100.318,
+      "power": 11832,
+      "recommended": 11800,
+      "ratio": 1.003,
+      "seed": 491,
+      "squad": [
+        "h1:alan:purple:50:knight:resolve",
+        "h9:iris:purple:50:knight:precision",
+        "h8:dorn:purple:50:assassin:precision",
+        "h11:lira:purple:50:sage:precision",
+        "h4:teo:purple:49:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch5_s10",
+      "chapter": "chapter5",
+      "firstHour": 100.318,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 100.33,
+      "power": 11927,
+      "recommended": 10400,
+      "ratio": 1.147,
+      "seed": 492,
+      "squad": [
+        "h1:alan:purple:50:knight:resolve",
+        "h9:iris:purple:50:knight:precision",
+        "h8:dorn:purple:50:assassin:precision",
+        "h11:lira:purple:50:sage:precision",
+        "h4:teo:purple:50:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s1",
+      "chapter": "chapter6",
+      "firstHour": 100.33,
+      "attempts": 19,
+      "waits": 1,
+      "clearedHour": 112.866,
+      "power": 12323,
+      "recommended": 10900,
+      "ratio": 1.131,
+      "seed": 540,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h11:lira:purple:52:sage:precision",
+        "h21:meilin:purple:52:hunter:precision",
+        "h3:vika:purple:51:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s2",
+      "chapter": "chapter6",
+      "firstHour": 112.866,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 112.877,
+      "power": 12373,
+      "recommended": 12400,
+      "ratio": 0.998,
+      "seed": 541,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h21:meilin:purple:52:hunter:precision",
+        "h11:lira:purple:52:sage:precision",
+        "h3:vika:purple:51:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s11",
+      "chapter": "chapter6",
+      "firstHour": 112.877,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 112.887,
+      "power": 12398,
+      "recommended": 11000,
+      "ratio": 1.127,
+      "seed": 542,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h21:meilin:purple:52:hunter:precision",
+        "h11:lira:purple:52:sage:precision",
+        "h3:vika:purple:52:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s3",
+      "chapter": "chapter6",
+      "firstHour": 112.887,
+      "attempts": 3,
+      "waits": 0,
+      "clearedHour": 113.184,
+      "power": 12429,
+      "recommended": 9800,
+      "ratio": 1.268,
+      "seed": 568,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h21:meilin:purple:52:hunter:precision",
+        "h11:lira:purple:52:sage:precision",
+        "h3:vika:purple:52:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s4",
+      "chapter": "chapter6",
+      "firstHour": 113.184,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.197,
+      "power": 12457,
+      "recommended": 9400,
+      "ratio": 1.325,
+      "seed": 569,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h11:lira:purple:52:sage:precision",
+        "h21:meilin:purple:53:hunter:precision",
+        "h3:vika:purple:52:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s5",
+      "chapter": "chapter6",
+      "firstHour": 113.197,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.212,
+      "power": 12474,
+      "recommended": 10900,
+      "ratio": 1.144,
+      "seed": 570,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h11:lira:purple:52:sage:precision",
+        "h21:meilin:purple:53:hunter:precision",
+        "h3:vika:purple:52:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s12",
+      "chapter": "chapter6",
+      "firstHour": 113.212,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.226,
+      "power": 12490,
+      "recommended": 13500,
+      "ratio": 0.925,
+      "seed": 571,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h11:lira:purple:52:sage:precision",
+        "h21:meilin:purple:53:hunter:precision",
+        "h3:vika:purple:52:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s6",
+      "chapter": "chapter6",
+      "firstHour": 113.226,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.238,
+      "power": 12544,
+      "recommended": 9700,
+      "ratio": 1.293,
+      "seed": 572,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h21:meilin:purple:53:hunter:precision",
+        "h11:lira:purple:53:sage:precision",
+        "h3:vika:purple:52:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s13",
+      "chapter": "chapter6",
+      "firstHour": 113.238,
+      "attempts": 5,
+      "waits": 0,
+      "clearedHour": 113.379,
+      "power": 12583,
+      "recommended": 11900,
+      "ratio": 1.057,
+      "seed": 581,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h20:zara:purple:53:assassin:precision",
+        "h11:lira:purple:53:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s7",
+      "chapter": "chapter6",
+      "firstHour": 113.379,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.392,
+      "power": 12600,
+      "recommended": 10700,
+      "ratio": 1.178,
+      "seed": 582,
+      "squad": [
+        "h1:alan:purple:53:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h20:zara:purple:53:assassin:precision",
+        "h11:lira:purple:53:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s14",
+      "chapter": "chapter6",
+      "firstHour": 113.392,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.406,
+      "power": 12646,
+      "recommended": 11300,
+      "ratio": 1.119,
+      "seed": 583,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h20:zara:purple:53:assassin:precision",
+        "h11:lira:purple:53:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s8",
+      "chapter": "chapter6",
+      "firstHour": 113.406,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.417,
+      "power": 12696,
+      "recommended": 12100,
+      "ratio": 1.049,
+      "seed": 584,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:53:knight:precision",
+        "h20:zara:purple:53:assassin:precision",
+        "h11:lira:purple:53:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s15",
+      "chapter": "chapter6",
+      "firstHour": 113.417,
+      "attempts": 5,
+      "waits": 0,
+      "clearedHour": 113.628,
+      "power": 12744,
+      "recommended": 11000,
+      "ratio": 1.159,
+      "seed": 598,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:53:assassin:precision",
+        "h8:dorn:purple:53:assassin:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s9",
+      "chapter": "chapter6",
+      "firstHour": 113.628,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.641,
+      "power": 12816,
+      "recommended": 12100,
+      "ratio": 1.059,
+      "seed": 599,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:54:assassin:precision",
+        "h8:dorn:purple:53:assassin:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s16",
+      "chapter": "chapter6",
+      "firstHour": 113.641,
+      "attempts": 5,
+      "waits": 0,
+      "clearedHour": 113.791,
+      "power": 12877,
+      "recommended": 13800,
+      "ratio": 0.933,
+      "seed": 610,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:54:assassin:precision",
+        "h11:lira:purple:53:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s17",
+      "chapter": "chapter6",
+      "firstHour": 113.791,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.803,
+      "power": 12882,
+      "recommended": 11600,
+      "ratio": 1.111,
+      "seed": 611,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:54:assassin:precision",
+        "h11:lira:purple:53:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s18",
+      "chapter": "chapter6",
+      "firstHour": 113.804,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.815,
+      "power": 12923,
+      "recommended": 13700,
+      "ratio": 0.943,
+      "seed": 612,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:54:assassin:precision",
+        "h11:lira:purple:54:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch6_s10",
+      "chapter": "chapter6",
+      "firstHour": 113.815,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.828,
+      "power": 12923,
+      "recommended": 13300,
+      "ratio": 0.972,
+      "seed": 613,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:54:assassin:precision",
+        "h11:lira:purple:54:sage:precision",
+        "h3:vika:purple:53:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s1",
+      "chapter": "chapter7",
+      "firstHour": 113.828,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.84,
+      "power": 12994,
+      "recommended": 10700,
+      "ratio": 1.214,
+      "seed": 614,
+      "squad": [
+        "h1:alan:purple:54:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:54:assassin:precision",
+        "h11:lira:purple:54:sage:precision",
+        "h3:vika:purple:54:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s2",
+      "chapter": "chapter7",
+      "firstHour": 113.84,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 113.853,
+      "power": 13035,
+      "recommended": 10800,
+      "ratio": 1.207,
+      "seed": 615,
+      "squad": [
+        "h1:alan:purple:55:knight:resolve",
+        "h9:iris:purple:54:knight:precision",
+        "h20:zara:purple:54:assassin:precision",
+        "h11:lira:purple:54:sage:precision",
+        "h3:vika:purple:54:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s11",
+      "chapter": "chapter7",
+      "firstHour": 113.853,
+      "attempts": 17,
+      "waits": 1,
+      "clearedHour": 126.571,
+      "power": 13730,
+      "recommended": 13800,
+      "ratio": 0.995,
+      "seed": 670,
+      "squad": [
+        "h1:alan:purple:59:knight:resolve",
+        "h9:iris:purple:58:knight:precision",
+        "h8:dorn:purple:58:assassin:precision",
+        "h11:lira:purple:58:sage:precision",
+        "h3:vika:purple:58:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s3",
+      "chapter": "chapter7",
+      "firstHour": 126.571,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 126.582,
+      "power": 13767,
+      "recommended": 12100,
+      "ratio": 1.138,
+      "seed": 671,
+      "squad": [
+        "h1:alan:purple:59:knight:resolve",
+        "h9:iris:purple:59:knight:precision",
+        "h8:dorn:purple:58:assassin:precision",
+        "h11:lira:purple:58:sage:precision",
+        "h3:vika:purple:58:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s4",
+      "chapter": "chapter7",
+      "firstHour": 126.582,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 126.594,
+      "power": 13771,
+      "recommended": 11000,
+      "ratio": 1.252,
+      "seed": 672,
+      "squad": [
+        "h1:alan:purple:59:knight:resolve",
+        "h9:iris:purple:59:knight:precision",
+        "h8:dorn:purple:58:assassin:precision",
+        "h11:lira:purple:58:sage:precision",
+        "h3:vika:purple:58:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s5",
+      "chapter": "chapter7",
+      "firstHour": 126.594,
+      "attempts": 5,
+      "waits": 0,
+      "clearedHour": 126.782,
+      "power": 13849,
+      "recommended": 12900,
+      "ratio": 1.074,
+      "seed": 686,
+      "squad": [
+        "h1:alan:purple:59:knight:resolve",
+        "h9:iris:purple:59:knight:precision",
+        "h20:zara:purple:59:assassin:precision",
+        "h11:lira:purple:59:sage:precision",
+        "h3:vika:purple:59:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s12",
+      "chapter": "chapter7",
+      "firstHour": 126.782,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 126.794,
+      "power": 13860,
+      "recommended": 11500,
+      "ratio": 1.205,
+      "seed": 687,
+      "squad": [
+        "h1:alan:purple:59:knight:resolve",
+        "h9:iris:purple:59:knight:precision",
+        "h20:zara:purple:59:assassin:precision",
+        "h11:lira:purple:59:sage:precision",
+        "h3:vika:purple:59:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s6",
+      "chapter": "chapter7",
+      "firstHour": 126.794,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 126.806,
+      "power": 13893,
+      "recommended": 13100,
+      "ratio": 1.061,
+      "seed": 688,
+      "squad": [
+        "h1:alan:purple:60:knight:resolve",
+        "h9:iris:purple:59:knight:precision",
+        "h20:zara:purple:59:assassin:precision",
+        "h11:lira:purple:59:sage:precision",
+        "h3:vika:purple:59:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s13",
+      "chapter": "chapter7",
+      "firstHour": 126.806,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 126.819,
+      "power": 13933,
+      "recommended": 12500,
+      "ratio": 1.115,
+      "seed": 689,
+      "squad": [
+        "h1:alan:purple:60:knight:resolve",
+        "h9:iris:purple:59:knight:precision",
+        "h20:zara:purple:59:assassin:precision",
+        "h11:lira:purple:59:sage:precision",
+        "h3:vika:purple:59:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s7",
+      "chapter": "chapter7",
+      "firstHour": 126.82,
+      "attempts": 5,
+      "waits": 0,
+      "clearedHour": 127.034,
+      "power": 14028,
+      "recommended": 14000,
+      "ratio": 1.002,
+      "seed": 704,
+      "squad": [
+        "h1:alan:purple:60:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h8:dorn:purple:60:assassin:precision",
+        "h11:lira:purple:59:sage:precision",
+        "h3:vika:purple:59:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s14",
+      "chapter": "chapter7",
+      "firstHour": 127.034,
+      "attempts": 2,
+      "waits": 0,
+      "clearedHour": 127.053,
+      "power": 14028,
+      "recommended": 13000,
+      "ratio": 1.079,
+      "seed": 706,
+      "squad": [
+        "h1:alan:purple:60:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h8:dorn:purple:60:assassin:precision",
+        "h11:lira:purple:59:sage:precision",
+        "h3:vika:purple:59:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s8",
+      "chapter": "chapter7",
+      "firstHour": 127.054,
+      "attempts": 7,
+      "waits": 0,
+      "clearedHour": 127.242,
+      "power": 14058,
+      "recommended": 14500,
+      "ratio": 0.97,
+      "seed": 719,
+      "squad": [
+        "h1:alan:purple:60:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:59:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s15",
+      "chapter": "chapter7",
+      "firstHour": 127.242,
+      "attempts": 26,
+      "waits": 2,
+      "clearedHour": 151.972,
+      "power": 17800,
+      "recommended": 13200,
+      "ratio": 1.348,
+      "seed": 767,
+      "squad": [
+        "h1:alan:red:70:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s9",
+      "chapter": "chapter7",
+      "firstHour": 151.972,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 151.983,
+      "power": 17862,
+      "recommended": 15700,
+      "ratio": 1.138,
+      "seed": 768,
+      "squad": [
+        "h1:alan:red:71:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s16",
+      "chapter": "chapter7",
+      "firstHour": 151.983,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 151.993,
+      "power": 17895,
+      "recommended": 15200,
+      "ratio": 1.177,
+      "seed": 769,
+      "squad": [
+        "h1:alan:red:71:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s17",
+      "chapter": "chapter7",
+      "firstHour": 151.993,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.005,
+      "power": 17956,
+      "recommended": 13800,
+      "ratio": 1.301,
+      "seed": 770,
+      "squad": [
+        "h1:alan:red:72:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s18",
+      "chapter": "chapter7",
+      "firstHour": 152.005,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.015,
+      "power": 17956,
+      "recommended": 16200,
+      "ratio": 1.108,
+      "seed": 771,
+      "squad": [
+        "h1:alan:red:72:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch7_s10",
+      "chapter": "chapter7",
+      "firstHour": 152.015,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.028,
+      "power": 18018,
+      "recommended": 16800,
+      "ratio": 1.073,
+      "seed": 772,
+      "squad": [
+        "h1:alan:red:73:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s1",
+      "chapter": "chapter8",
+      "firstHour": 152.028,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.041,
+      "power": 18085,
+      "recommended": 10300,
+      "ratio": 1.756,
+      "seed": 773,
+      "squad": [
+        "h1:alan:red:73:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s2",
+      "chapter": "chapter8",
+      "firstHour": 152.041,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.052,
+      "power": 18146,
+      "recommended": 11000,
+      "ratio": 1.65,
+      "seed": 774,
+      "squad": [
+        "h1:alan:red:74:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s3",
+      "chapter": "chapter8",
+      "firstHour": 152.052,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.063,
+      "power": 18162,
+      "recommended": 11300,
+      "ratio": 1.607,
+      "seed": 775,
+      "squad": [
+        "h1:alan:red:74:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s4",
+      "chapter": "chapter8",
+      "firstHour": 152.063,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.075,
+      "power": 18162,
+      "recommended": 12200,
+      "ratio": 1.489,
+      "seed": 776,
+      "squad": [
+        "h1:alan:red:74:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s5",
+      "chapter": "chapter8",
+      "firstHour": 152.075,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.082,
+      "power": 18222,
+      "recommended": 12700,
+      "ratio": 1.435,
+      "seed": 777,
+      "squad": [
+        "h1:alan:red:75:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s6",
+      "chapter": "chapter8",
+      "firstHour": 152.082,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.088,
+      "power": 18222,
+      "recommended": 13500,
+      "ratio": 1.35,
+      "seed": 778,
+      "squad": [
+        "h1:alan:red:75:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s7",
+      "chapter": "chapter8",
+      "firstHour": 152.089,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.099,
+      "power": 18420,
+      "recommended": 14400,
+      "ratio": 1.279,
+      "seed": 779,
+      "squad": [
+        "h1:alan:red:76:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s8",
+      "chapter": "chapter8",
+      "firstHour": 152.099,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.108,
+      "power": 18420,
+      "recommended": 13400,
+      "ratio": 1.375,
+      "seed": 780,
+      "squad": [
+        "h1:alan:red:76:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s9",
+      "chapter": "chapter8",
+      "firstHour": 152.108,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.118,
+      "power": 18496,
+      "recommended": 15600,
+      "ratio": 1.186,
+      "seed": 781,
+      "squad": [
+        "h1:alan:red:77:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s10",
+      "chapter": "chapter8",
+      "firstHour": 152.118,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.129,
+      "power": 18548,
+      "recommended": 16100,
+      "ratio": 1.152,
+      "seed": 782,
+      "squad": [
+        "h1:alan:red:77:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s11",
+      "chapter": "chapter8",
+      "firstHour": 152.129,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.14,
+      "power": 18611,
+      "recommended": 15300,
+      "ratio": 1.216,
+      "seed": 783,
+      "squad": [
+        "h1:alan:red:78:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s12",
+      "chapter": "chapter8",
+      "firstHour": 152.14,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.151,
+      "power": 18611,
+      "recommended": 14400,
+      "ratio": 1.292,
+      "seed": 784,
+      "squad": [
+        "h1:alan:red:78:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s13",
+      "chapter": "chapter8",
+      "firstHour": 152.151,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.162,
+      "power": 18686,
+      "recommended": 16500,
+      "ratio": 1.132,
+      "seed": 785,
+      "squad": [
+        "h1:alan:red:79:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s14",
+      "chapter": "chapter8",
+      "firstHour": 152.162,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.175,
+      "power": 18686,
+      "recommended": 16000,
+      "ratio": 1.168,
+      "seed": 786,
+      "squad": [
+        "h1:alan:red:79:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s15",
+      "chapter": "chapter8",
+      "firstHour": 152.176,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.189,
+      "power": 18933,
+      "recommended": 15600,
+      "ratio": 1.214,
+      "seed": 787,
+      "squad": [
+        "h1:alan:red:80:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s16",
+      "chapter": "chapter8",
+      "firstHour": 152.189,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.202,
+      "power": 18933,
+      "recommended": 18700,
+      "ratio": 1.012,
+      "seed": 788,
+      "squad": [
+        "h1:alan:red:80:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s17",
+      "chapter": "chapter8",
+      "firstHour": 152.202,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.214,
+      "power": 18995,
+      "recommended": 18200,
+      "ratio": 1.044,
+      "seed": 789,
+      "squad": [
+        "h1:alan:red:81:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch8_s18",
+      "chapter": "chapter8",
+      "firstHour": 152.214,
+      "attempts": 3,
+      "waits": 0,
+      "clearedHour": 152.524,
+      "power": 20131,
+      "recommended": 20400,
+      "ratio": 0.987,
+      "seed": 814,
+      "squad": [
+        "h1:alan:red:89:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s1",
+      "chapter": "chapter9",
+      "firstHour": 152.524,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.538,
+      "power": 20184,
+      "recommended": 17300,
+      "ratio": 1.167,
+      "seed": 815,
+      "squad": [
+        "h1:alan:red:89:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s2",
+      "chapter": "chapter9",
+      "firstHour": 152.538,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.552,
+      "power": 20280,
+      "recommended": 16600,
+      "ratio": 1.222,
+      "seed": 816,
+      "squad": [
+        "h1:alan:red:90:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s3",
+      "chapter": "chapter9",
+      "firstHour": 152.552,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.564,
+      "power": 20468,
+      "recommended": 17600,
+      "ratio": 1.163,
+      "seed": 817,
+      "squad": [
+        "h1:alan:red:90:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s4",
+      "chapter": "chapter9",
+      "firstHour": 152.564,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.578,
+      "power": 20563,
+      "recommended": 16900,
+      "ratio": 1.217,
+      "seed": 818,
+      "squad": [
+        "h1:alan:red:91:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s5",
+      "chapter": "chapter9",
+      "firstHour": 152.578,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.591,
+      "power": 20582,
+      "recommended": 19300,
+      "ratio": 1.066,
+      "seed": 819,
+      "squad": [
+        "h1:alan:red:91:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s6",
+      "chapter": "chapter9",
+      "firstHour": 152.591,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.605,
+      "power": 20648,
+      "recommended": 17500,
+      "ratio": 1.18,
+      "seed": 820,
+      "squad": [
+        "h1:alan:red:92:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s7",
+      "chapter": "chapter9",
+      "firstHour": 152.605,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.617,
+      "power": 20648,
+      "recommended": 16100,
+      "ratio": 1.282,
+      "seed": 821,
+      "squad": [
+        "h1:alan:red:92:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s8",
+      "chapter": "chapter9",
+      "firstHour": 152.617,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.631,
+      "power": 20648,
+      "recommended": 18200,
+      "ratio": 1.135,
+      "seed": 822,
+      "squad": [
+        "h1:alan:red:92:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s9",
+      "chapter": "chapter9",
+      "firstHour": 152.631,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 152.644,
+      "power": 20715,
+      "recommended": 20800,
+      "ratio": 0.996,
+      "seed": 823,
+      "squad": [
+        "h1:alan:red:93:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s10",
+      "chapter": "chapter9",
+      "firstHour": 152.644,
+      "attempts": 44,
+      "waits": 3,
+      "clearedHour": 190.335,
+      "power": 22747,
+      "recommended": 26000,
+      "ratio": 0.875,
+      "seed": 929,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s11",
+      "chapter": "chapter9",
+      "firstHour": 190.335,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.347,
+      "power": 22747,
+      "recommended": 18700,
+      "ratio": 1.216,
+      "seed": 930,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s12",
+      "chapter": "chapter9",
+      "firstHour": 190.347,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.359,
+      "power": 22891,
+      "recommended": 18300,
+      "ratio": 1.251,
+      "seed": 931,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s13",
+      "chapter": "chapter9",
+      "firstHour": 190.359,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.372,
+      "power": 22973,
+      "recommended": 21800,
+      "ratio": 1.054,
+      "seed": 932,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s14",
+      "chapter": "chapter9",
+      "firstHour": 190.372,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.385,
+      "power": 23055,
+      "recommended": 17300,
+      "ratio": 1.333,
+      "seed": 933,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s15",
+      "chapter": "chapter9",
+      "firstHour": 190.385,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.397,
+      "power": 23055,
+      "recommended": 18800,
+      "ratio": 1.226,
+      "seed": 934,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s16",
+      "chapter": "chapter9",
+      "firstHour": 190.397,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.412,
+      "power": 23080,
+      "recommended": 22100,
+      "ratio": 1.044,
+      "seed": 935,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s17",
+      "chapter": "chapter9",
+      "firstHour": 190.412,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.426,
+      "power": 23105,
+      "recommended": 20000,
+      "ratio": 1.155,
+      "seed": 936,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch9_s18",
+      "chapter": "chapter9",
+      "firstHour": 190.427,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 190.442,
+      "power": 23188,
+      "recommended": 20200,
+      "ratio": 1.148,
+      "seed": 937,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h13:greta:purple:60:blacksmith:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s1",
+      "chapter": "chapter10",
+      "firstHour": 190.442,
+      "attempts": 11,
+      "waits": 0,
+      "clearedHour": 190.781,
+      "power": 23265,
+      "recommended": 21400,
+      "ratio": 1.087,
+      "seed": 957,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h8:dorn:purple:60:assassin:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s2",
+      "chapter": "chapter10",
+      "firstHour": 190.781,
+      "attempts": 8,
+      "waits": 0,
+      "clearedHour": 191.148,
+      "power": 23302,
+      "recommended": 20000,
+      "ratio": 1.165,
+      "seed": 980,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s3",
+      "chapter": "chapter10",
+      "firstHour": 191.148,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 191.163,
+      "power": 23302,
+      "recommended": 25100,
+      "ratio": 0.928,
+      "seed": 981,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s4",
+      "chapter": "chapter10",
+      "firstHour": 191.163,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 191.176,
+      "power": 23329,
+      "recommended": 21600,
+      "ratio": 1.08,
+      "seed": 982,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s5",
+      "chapter": "chapter10",
+      "firstHour": 191.176,
+      "attempts": 2,
+      "waits": 0,
+      "clearedHour": 191.205,
+      "power": 23348,
+      "recommended": 20300,
+      "ratio": 1.15,
+      "seed": 984,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s6",
+      "chapter": "chapter10",
+      "firstHour": 191.205,
+      "attempts": 27,
+      "waits": 2,
+      "clearedHour": 216.255,
+      "power": 25745,
+      "recommended": 24200,
+      "ratio": 1.064,
+      "seed": 1053,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s7",
+      "chapter": "chapter10",
+      "firstHour": 216.256,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 216.27,
+      "power": 25745,
+      "recommended": 21900,
+      "ratio": 1.176,
+      "seed": 1054,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s8",
+      "chapter": "chapter10",
+      "firstHour": 216.27,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 216.285,
+      "power": 25782,
+      "recommended": 24700,
+      "ratio": 1.044,
+      "seed": 1055,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s9",
+      "chapter": "chapter10",
+      "firstHour": 216.285,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 216.3,
+      "power": 25782,
+      "recommended": 23600,
+      "ratio": 1.092,
+      "seed": 1056,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:purple:60:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s10",
+      "chapter": "chapter10",
+      "firstHour": 216.3,
+      "attempts": 14,
+      "waits": 1,
+      "clearedHour": 228.849,
+      "power": 28099,
+      "recommended": 25700,
+      "ratio": 1.093,
+      "seed": 1095,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:gold:80:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s11",
+      "chapter": "chapter10",
+      "firstHour": 228.849,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 228.861,
+      "power": 28099,
+      "recommended": 22400,
+      "ratio": 1.254,
+      "seed": 1096,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:gold:80:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s12",
+      "chapter": "chapter10",
+      "firstHour": 228.861,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 228.875,
+      "power": 28099,
+      "recommended": 25500,
+      "ratio": 1.102,
+      "seed": 1097,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h9:iris:purple:60:knight:precision",
+        "h20:zara:purple:60:assassin:precision",
+        "h11:lira:purple:60:sage:precision",
+        "h3:vika:gold:80:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s13",
+      "chapter": "chapter10",
+      "firstHour": 228.875,
+      "attempts": 51,
+      "waits": 4,
+      "clearedHour": 278.96,
+      "power": 32482,
+      "recommended": 22200,
+      "ratio": 1.463,
+      "seed": 1232,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h11:lira:purple:60:sage:precision",
+        "h23:kai:purple:60:wizard:precision",
+        "h3:vika:gold:80:priest:precision",
+        "h4:teo:red:91:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s14",
+      "chapter": "chapter10",
+      "firstHour": 278.96,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 278.973,
+      "power": 32482,
+      "recommended": 27300,
+      "ratio": 1.19,
+      "seed": 1233,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h11:lira:purple:60:sage:precision",
+        "h23:kai:purple:60:wizard:precision",
+        "h3:vika:gold:80:priest:precision",
+        "h4:teo:red:91:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s15",
+      "chapter": "chapter10",
+      "firstHour": 278.973,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 278.986,
+      "power": 32529,
+      "recommended": 24200,
+      "ratio": 1.344,
+      "seed": 1234,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h11:lira:purple:60:sage:precision",
+        "h23:kai:purple:60:wizard:precision",
+        "h3:vika:gold:80:priest:precision",
+        "h4:teo:red:92:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s16",
+      "chapter": "chapter10",
+      "firstHour": 278.986,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 278.999,
+      "power": 32573,
+      "recommended": 24300,
+      "ratio": 1.34,
+      "seed": 1235,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h11:lira:purple:60:sage:precision",
+        "h23:kai:purple:60:wizard:precision",
+        "h3:vika:gold:80:priest:precision",
+        "h4:teo:red:93:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s17",
+      "chapter": "chapter10",
+      "firstHour": 278.999,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 279.013,
+      "power": 32615,
+      "recommended": 27200,
+      "ratio": 1.199,
+      "seed": 1236,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h11:lira:purple:60:sage:precision",
+        "h23:kai:purple:60:wizard:precision",
+        "h3:vika:gold:80:priest:precision",
+        "h4:teo:red:94:priest:precision"
+      ]
+    },
+    {
+      "stage": "ch10_s18",
+      "chapter": "chapter10",
+      "firstHour": 279.013,
+      "attempts": 1,
+      "waits": 0,
+      "clearedHour": 279.026,
+      "power": 32662,
+      "recommended": 25100,
+      "ratio": 1.301,
+      "seed": 1237,
+      "squad": [
+        "h1:alan:red:100:knight:resolve",
+        "h11:lira:purple:60:sage:precision",
+        "h23:kai:purple:60:wizard:precision",
+        "h3:vika:gold:80:priest:precision",
+        "h4:teo:red:95:priest:precision"
+      ]
+    }
+  ],
+  "walls": [
+    {
+      "stage": "ch2_s6",
+      "hour": 0.623,
+      "waitNumber": 1,
+      "willWait": true,
+      "power": 3746,
+      "recommended": 4000,
+      "blockers": {
+        "not_enough_exp": 5
+      },
+      "resources": {
+        "gold": 1022,
+        "exp": 3010,
+        "gems": 138,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch2_s10",
+      "hour": 13.087,
+      "waitNumber": 2,
+      "willWait": true,
+      "power": 4094,
+      "recommended": 5100,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 1880,
+        "exp": 5774,
+        "gems": 69,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch4_s9",
+      "hour": 25.726,
+      "waitNumber": 3,
+      "willWait": true,
+      "power": 6011,
+      "recommended": 6800,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 6538,
+        "exp": 12792,
+        "gems": 10,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch4_s9",
+      "hour": 37.879,
+      "waitNumber": 4,
+      "willWait": true,
+      "power": 6533,
+      "recommended": 6800,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 1024,
+        "exp": 16301,
+        "gems": 25,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch5_s9",
+      "hour": 50.606,
+      "waitNumber": 5,
+      "willWait": true,
+      "power": 9458,
+      "recommended": 9400,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 10571,
+        "exp": 181447,
+        "gems": 89,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch5_s16",
+      "hour": 62.973,
+      "waitNumber": 6,
+      "willWait": true,
+      "power": 9593,
+      "recommended": 8500,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 15118,
+        "exp": 297302,
+        "gems": 120,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch5_s16",
+      "hour": 75.356,
+      "waitNumber": 7,
+      "willWait": true,
+      "power": 10716,
+      "recommended": 8500,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 10038,
+        "exp": 522408,
+        "gems": 228,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch5_s16",
+      "hour": 87.675,
+      "waitNumber": 8,
+      "willWait": true,
+      "power": 11063,
+      "recommended": 8500,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 10183,
+        "exp": 694763,
+        "gems": 145,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch6_s1",
+      "hour": 100.596,
+      "waitNumber": 9,
+      "willWait": true,
+      "power": 11937,
+      "recommended": 10900,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 6703,
+        "exp": 1060367,
+        "gems": 142,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch7_s11",
+      "hour": 114.163,
+      "waitNumber": 10,
+      "willWait": true,
+      "power": 13116,
+      "recommended": 13800,
+      "blockers": {
+        "not_enough_gold": 5
+      },
+      "resources": {
+        "gold": 41086,
+        "exp": 1489940,
+        "gems": 87,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch7_s15",
+      "hour": 127.547,
+      "waitNumber": 11,
+      "willWait": true,
+      "power": 14135,
+      "recommended": 13200,
+      "blockers": {
+        "max_level": 4,
+        "not_enough_gold": 1
+      },
+      "resources": {
+        "gold": 42174,
+        "exp": 2226299,
+        "gems": 97,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch7_s15",
+      "hour": 139.957,
+      "waitNumber": 12,
+      "willWait": true,
+      "power": 14505,
+      "recommended": 13200,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 30930,
+        "exp": 3255567,
+        "gems": 111,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch9_s10",
+      "hour": 153.025,
+      "waitNumber": 13,
+      "willWait": true,
+      "power": 20918,
+      "recommended": 26000,
+      "blockers": {
+        "not_enough_gold": 1,
+        "max_level": 4
+      },
+      "resources": {
+        "gold": 11245,
+        "exp": 5555326,
+        "gems": 15,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch9_s10",
+      "hour": 165.463,
+      "waitNumber": 14,
+      "willWait": true,
+      "power": 21675,
+      "recommended": 26000,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 15480,
+        "exp": 7391050,
+        "gems": 42,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch9_s10",
+      "hour": 178.107,
+      "waitNumber": 15,
+      "willWait": true,
+      "power": 22205,
+      "recommended": 26000,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 21321,
+        "exp": 10517658,
+        "gems": 187,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch10_s6",
+      "hour": 191.609,
+      "waitNumber": 16,
+      "willWait": true,
+      "power": 23375,
+      "recommended": 24200,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 77556,
+        "exp": 14367336,
+        "gems": 28,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch10_s6",
+      "hour": 204.236,
+      "waitNumber": 17,
+      "willWait": true,
+      "power": 24882,
+      "recommended": 24200,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 75038,
+        "exp": 18528620,
+        "gems": 162,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch10_s10",
+      "hour": 216.832,
+      "waitNumber": 18,
+      "willWait": true,
+      "power": 25928,
+      "recommended": 25700,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 189333,
+        "exp": 23167000,
+        "gems": 21,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch10_s13",
+      "hour": 229.307,
+      "waitNumber": 19,
+      "willWait": true,
+      "power": 28162,
+      "recommended": 22200,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 87234,
+        "exp": 25641053,
+        "gems": 34,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch10_s13",
+      "hour": 241.92,
+      "waitNumber": 20,
+      "willWait": true,
+      "power": 28507,
+      "recommended": 22200,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 15609,
+        "exp": 30516194,
+        "gems": 183,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch10_s13",
+      "hour": 254.338,
+      "waitNumber": 21,
+      "willWait": true,
+      "power": 28988,
+      "recommended": 22200,
+      "blockers": {
+        "max_level": 5
+      },
+      "resources": {
+        "gold": 514329,
+        "exp": 33914546,
+        "gems": 203,
+        "scrolls": 0
+      }
+    },
+    {
+      "stage": "ch10_s13",
+      "hour": 266.943,
+      "waitNumber": 22,
+      "willWait": true,
+      "power": 30542,
+      "recommended": 22200,
+      "blockers": {
+        "max_level": 4,
+        "not_enough_gold": 1
+      },
+      "resources": {
+        "gold": 58598,
+        "exp": 38565449,
+        "gems": 43,
+        "scrolls": 0
+      }
+    }
+  ],
+  "actionCounts": {
+    "reset_training": 274,
+    "copy_rarity_upgrade": 3,
+    "tavern_evening": 10,
+    "tower": 517,
+    "hunt": 24,
+    "arena_round": 71,
+    "replay": 77,
+    "training_focus": 14,
+    "wait_12h": 22,
+    "salvage": 55,
+    "campaign_choice": 1,
+    "bond_quest": 11,
+    "mvp_card": 1
+  },
+  "income": {
+    "offline": {
+      "gold": 24811026,
+      "gems": 115,
+      "exp": 35304885
+    },
+    "fast_rewards": {
+      "gold": 3567840,
+      "gems": 5,
+      "exp": 5077800
+    },
+    "campaign": {
+      "gold": 6894657,
+      "gems": 150,
+      "exp": 9817518
+    },
+    "tower": {
+      "gold": 1080192,
+      "gems": 63,
+      "exp": 1537259
+    },
+    "hunt": {
+      "gold": 486000,
+      "gems": 184,
+      "exp": 682000
+    },
+    "expeditions": {
+      "gold": 112272,
+      "gems": 288,
+      "exp": 154224
+    },
+    "quests": {
+      "gold": 8400,
+      "gems": 1080,
+      "exp": 3600
+    },
+    "achievements": {
+      "gold": 1700,
+      "gems": 340,
+      "exp": 0
+    },
+    "events": {
+      "gold": 12990,
+      "gems": 1345,
+      "exp": 23498
+    },
+    "mail": {
+      "gold": 5800,
+      "gems": 0,
+      "exp": 5000
+    },
+    "heroes": {
+      "gold": 177768315,
+      "gems": 0,
+      "exp": 189821129
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 33800,
+      "gems": 0,
+      "exp": 0
+    },
+    "refine": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "spend": {
+    "offline": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "fast_rewards": {
+      "gold": 0,
+      "gems": 1505,
+      "exp": 0
+    },
+    "campaign": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "tower": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "hunt": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "expeditions": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "quests": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "achievements": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "events": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "mail": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "heroes": {
+      "gold": 191976865,
+      "gems": 0,
+      "exp": 201774706
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 1890,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 3853000,
+      "gems": 108,
+      "exp": 0
+    },
+    "refine": {
+      "gold": 18897000,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "finalResources": {
+    "gold": 56127,
+    "exp": 40652207,
+    "gems": 67,
+    "scrolls": 0
+  },
+  "development": {
+    "summons": 121,
+    "ascensions": 58,
+    "levelUps": 12023,
+    "branchChoices": 29,
+    "equips": 103027,
+    "refines": 266,
+    "refineFailures": 10,
+    "shopBuys": {
+      "scroll": 4,
+      "item_common": 1,
+      "card_blue": 4,
+      "card_purple": 2
+    }
+  },
+  "finalSquad": [
+    "h1:alan:red:100:knight:resolve",
+    "h11:lira:purple:60:sage:precision",
+    "h23:kai:purple:60:wizard:precision",
+    "h3:vika:gold:80:priest:precision",
+    "h4:teo:red:96:priest:precision"
+  ],
+  "heroPowers": [
+    {
+      "id": "h1",
+      "power": 10747
+    },
+    {
+      "id": "h11",
+      "power": 4098
+    },
+    {
+      "id": "h23",
+      "power": 4346
+    },
+    {
+      "id": "h3",
+      "power": 6001
+    },
+    {
+      "id": "h4",
+      "power": 7514
+    }
+  ]
+}

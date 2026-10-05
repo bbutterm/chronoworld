@@ -10,9 +10,16 @@ export class ModalBack {
     if (!this.closed && this.active()) this.closeTop();
   };
 
-  constructor(private readonly fallback: (() => void) | null, private readonly closeTop: () => void, private readonly active: () => boolean) {
+  constructor(private fallback: (() => void) | null, private readonly closeTop: () => void, private readonly active: () => boolean) {
     this.current = fallback;
     this.off = setTgBack(fallback);
+  }
+
+  /** Каркас может появиться после первого окна: открытые слои остаются владельцами Back. */
+  setFallback(fallback: (() => void) | null): void {
+    if (this.closed) return;
+    this.fallback = fallback;
+    this.refresh();
   }
 
   /** Отписка вызывается вместе с уничтожением слоя; закрытие старой сцены не займёт Back новой. */

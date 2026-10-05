@@ -9,6 +9,7 @@ import { SKIN_TINT, skinIcon } from './skin';
 import { heroCardIcon } from './heroCard';
 import { roundIcon, ROUND_ICON } from './homeBuildings';
 import { S } from './theme';
+import { minimumTouchSize } from './viewport';
 
 /**
  * Вход в события новичка, почту и контракт героя с главной: круглые иконки в шапке слева от шестерёнки (как значки
@@ -43,7 +44,6 @@ export function envelopeIcon(scene: Phaser.Scene, x: number, y: number, size: nu
 }
 
 /** Шаг иконок в шапке (цель нажатия ROUND_ICON.hit) и сдвиг значка к правому верхнему краю круга. */
-const STEP = ROUND_ICON.hit;
 const BADGE_D = ROUND_ICON.size / 2 - 8;
 
 /**
@@ -56,7 +56,8 @@ export function homeEventIcons(scene: Phaser.Scene): number {
   touchToday();
   const day = today();
   const gear = scene.children.getByName('settings') as Phaser.GameObjects.Container | null;
-  let x = (gear ? gear.x - 56 - S.xxs : 960) - STEP / 2;
+  const step = Math.max(ROUND_ICON.hit, minimumTouchSize());
+  let x = (gear ? gear.x - gear.width / 2 - S.xxs : 960) - step / 2;
   const y = HEADER_H / 2;
   const mark = (cx: number, n: number) => badge(scene, cx + BADGE_D, y - BADGE_D, n);
 
@@ -66,7 +67,7 @@ export function homeEventIcons(scene: Phaser.Scene): number {
   // «Контракт героя» ждёт выбора — карта героя с числом (слева от почты).
   const picks = pendingPicks(session.save);
   if (picks.length) {
-    x -= STEP;
+    x -= step;
     const pk = roundIcon(scene, x, y, 'contractIcon', (s) => heroCardIcon(scene, 0, 0, s * 1.1, picks[0].rarity, undefined, { pick: true }), () =>
       scene.scene.start('HeroPick', { back: { to: 'Home' } }),
     );
@@ -75,7 +76,7 @@ export function homeEventIcons(scene: Phaser.Scene): number {
   }
   const b = eventsBadges(session.save, day, GAME);
   if (b.loginVisible || b.newbieVisible) {
-    x -= STEP;
+    x -= step;
     const ev = roundIcon(scene, x, y, 'eventsIcon', (s) => scene.add.image(0, 0, skinIcon('gift')).setDisplaySize(s, s).setTint(SKIN_TINT.gold), () =>
       scene.scene.start('Events', { tab: b.login > 0 || !b.newbieVisible ? 'login' : 'newbie' }),
     );
@@ -85,5 +86,5 @@ export function homeEventIcons(scene: Phaser.Scene): number {
       pulse(scene, ev, 1.06, 700);
     }
   }
-  return x - STEP / 2;
+  return x - step / 2;
 }

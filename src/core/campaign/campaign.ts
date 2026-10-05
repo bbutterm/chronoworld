@@ -14,7 +14,7 @@ import { withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
 import { grantBlessedOre } from '../equipment/refine';
 import { bankOffline, lastClearedStage } from './offline';
-import { withBondLinks } from '../tavern/tavern';
+import { rememberChapterSquad, withBondLinks } from '../tavern/tavern';
 import { assertDay } from '../features/daily';
 
 export type StageStatus = 'locked' | 'open' | 'cleared';
@@ -168,7 +168,16 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   next.resources = { ...save.resources, gold: save.resources.gold + gold };
   next = addHeroExp(next, heroExp);
   if (!firstTime && rewarded) next.campaignFarm = { day: day!, wins: allowance!.used + 1 };
-  if (firstTime) next.campaign = { ...save.campaign, cleared: [...save.campaign.cleared, stage.id] };
+  if (firstTime) {
+    next.campaign = { ...save.campaign, cleared: [...save.campaign.cleared, stage.id] };
+    if (ctx.content.stages.filter(s => s.chapter === stage.chapter).at(-1)?.id === stage.id) {
+      const participants = squad.flatMap(unit => {
+        const hero = unit && save.heroes.find(h => h.id === unit.id);
+        return hero ? [hero.templateId] : [];
+      });
+      next = rememberChapterSquad(next, stage.chapter, participants, ctx);
+    }
+  }
   if (firstTime && save.campaign.cleared.length === 0 && now !== undefined) next.offline = { ...save.offline, lastClaimAt: now };
 
   events.push({ type: 'rewards', gold, heroExp });

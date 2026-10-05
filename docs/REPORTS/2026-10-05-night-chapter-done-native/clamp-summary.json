@@ -1,0 +1,204 @@
+{
+  "passed": true,
+  "exitCode": 0,
+  "flows": 2,
+  "sourceRequests": [],
+  "errors": [],
+  "taps": 6,
+  "resizeChecks": 10,
+  "resizePairs": [
+    {
+      "modal": "dialogue",
+      "viewport": [
+        360,
+        624,
+        360,
+        744
+      ],
+      "uiHeight": [
+        1410,
+        1770
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 6,
+      "expected": 0
+    },
+    {
+      "modal": "dialogue",
+      "viewport": [
+        360,
+        744,
+        360,
+        624
+      ],
+      "uiHeight": [
+        1770,
+        1410
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 366,
+      "expected": 0
+    },
+    {
+      "modal": "history",
+      "viewport": [
+        360,
+        624,
+        360,
+        744
+      ],
+      "uiHeight": [
+        1410,
+        1770
+      ],
+      "offset": [
+        360,
+        6
+      ],
+      "maxOffset": 6,
+      "expected": 6
+    },
+    {
+      "modal": "history",
+      "viewport": [
+        360,
+        744,
+        360,
+        624
+      ],
+      "uiHeight": [
+        1770,
+        1410
+      ],
+      "offset": [
+        6,
+        6
+      ],
+      "maxOffset": 366,
+      "expected": 6
+    },
+    {
+      "modal": "dialogue",
+      "viewport": [
+        390,
+        838,
+        390,
+        634
+      ],
+      "uiHeight": [
+        1866.4615384615386,
+        1301.5384615384617
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 474.46153846153834,
+      "expected": 0
+    },
+    {
+      "modal": "dialogue",
+      "viewport": [
+        390,
+        634,
+        390,
+        754
+      ],
+      "uiHeight": [
+        1301.5384615384617,
+        1633.8461538461538
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 142.1538461538462,
+      "expected": 0
+    },
+    {
+      "modal": "dialogue",
+      "viewport": [
+        390,
+        754,
+        390,
+        838
+      ],
+      "uiHeight": [
+        1633.8461538461538,
+        1866.4615384615386
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 0,
+      "expected": 0
+    },
+    {
+      "modal": "history",
+      "viewport": [
+        390,
+        838,
+        390,
+        634
+      ],
+      "uiHeight": [
+        1866.4615384615386,
+        1301.5384615384617
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 474.46153846153834,
+      "expected": 0
+    },
+    {
+      "modal": "history",
+      "viewport": [
+        390,
+        634,
+        390,
+        754
+      ],
+      "uiHeight": [
+        1301.5384615384617,
+        1633.8461538461538
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 142.1538461538462,
+      "expected": 0
+    },
+    {
+      "modal": "history",
+      "viewport": [
+        390,
+        754,
+        390,
+        838
+      ],
+      "uiHeight": [
+        1633.8461538461538,
+        1866.4615384615386
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "maxOffset": 0,
+      "expected": 0
+    }
+  ],
+  "bundleHashes": {
+    "/assets/index-CYhTrHqJ.js": "1706442af527d8d6885037db4bc0398ec700c466573f8afde2d63d3d4495d2fe"
+  }
+}

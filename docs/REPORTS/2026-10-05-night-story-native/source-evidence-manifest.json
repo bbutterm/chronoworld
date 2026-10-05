@@ -1,0 +1,155 @@
+{
+  "mainStoryCompiledPassed": true,
+  "chapterDoneCompiledPassed": false,
+  "doc": {
+    "path": "docs/qa/story-short-viewport-2026-10-05.md",
+    "absolutePath": "/workspace/chronoworld-worktrees/night-story-compact/docs/qa/story-short-viewport-2026-10-05.md",
+    "sha256": "572370145894aed398b69883faacf218634a45801c0ee50e6d6bd6c166402ec4",
+    "patch": "/tmp/chronoworld-night-story-ui/story-main4-qa-doc.patch",
+    "patchSha256": "cfad18044bc7d94f1bafd51ddd16442814e56954caba9473b904eb15d2c25e61"
+  },
+  "compiledSummary": {
+    "flows": 4,
+    "nativeTaps": 32,
+    "nativeModalDrags": 4,
+    "resizeChecks": 20,
+    "pageErrors": [],
+    "browserUIimports": [],
+    "bundleHashes": {
+      "/assets/index-CYhTrHqJ.js": "1706442af527d8d6885037db4bc0398ec700c466573f8afde2d63d3d4495d2fe"
+    },
+    "fixtureBaseSha256": "4cc658ebd5e3e26710efc40a4dda98cafa34e92ad4cf6ed62fc9f43bde1824fd",
+    "fixtureSha256": "5ddd3394d9c9824ba3112a0c3e583378a81615d9c24682af685ba5da1235786d",
+    "clock": "normal Date/RAF",
+    "url": "http://127.0.0.1:5518/",
+    "queryFlags": false
+  },
+  "rawEvidence": [
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-final-compiled-accepted.cjs",
+      "sha256": "9ef145c5e36de204bfd359e9adfae1a614acc3c35edc7a1a4c152bd22d39523f",
+      "bytes": 12882
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled/report.json",
+      "sha256": "5d7d1ccf226baad768a6313dd9d26a5d0354d4f97764f662fcfb3640ba276c02",
+      "bytes": 2094104
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled/legal180-fixture.json",
+      "sha256": "85c8b289197c64db6f6b6b93b93d204729771b20a8d26cb27e19ec2fd87c847c",
+      "bytes": 49575
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-final-compiled.log",
+      "sha256": "16698a8a86e2eca2d59d74267ffb85b7149bc3bef6d7f26e7d37bb364a67f794",
+      "bytes": 196
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-build-final.log",
+      "sha256": "7da8ec62190123d76f7238eb0451e82d154f046007f0d38a24ca6e698cb48d87",
+      "bytes": 239251
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-focused-final-ready.log",
+      "sha256": "2a5ba1413264ed4610310cd98b8a7ea8abb2f31c3dc82ecafa7f5670041ed5e7",
+      "bytes": 71801
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-typecheck-final-ready.log",
+      "sha256": "553ac4aa8053d0b6071fff7591693121ca806ce1ab8ad18f74f565481f51e593",
+      "bytes": 49
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/story-ui-lint-final-ready.log",
+      "sha256": "c0b4bcd7b5ea9ce5557f1b24d36d4f769d065f5a2dad4f14b228be3ef4675a6b",
+      "bytes": 1340
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/readonly-replay-before-report.json",
+      "sha256": "4b271a7accbebac2a5f95767f58a2cd4c01af0d6663b53d4b70730e7aeee03dc",
+      "bytes": 329098
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/readonly-replay-after-report.json",
+      "sha256": "0f30946cdf0521df2f4d5a6bfba7b7adb3fcffa60169068646d8c9cda5770141",
+      "bytes": 338711
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/before-report.json",
+      "sha256": "7d70237c878e4f1a802f7ee3ae3e485f9ca908bdf8dd3868e33fed6fe2f11a34",
+      "bytes": 29597
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/before-chronicle-report.json",
+      "sha256": "66fc68aed4dfc6fe8c482fdaa1fabfbf04d1315aad00056d6a4dc7a81af7f68f",
+      "bytes": 26717
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/qa.cjs",
+      "sha256": "be84a21c641952b81aaaea4b02461d929e4f2b702973005a0d5c000df20939ab",
+      "bytes": 6879
+    },
+    {
+      "path": "/tmp/chronoworld-night-heroes-ui/rpg-ui.cjs",
+      "sha256": "4f3b34d5a81ed78a7f2b62e59701033c2c6bd35d8a7ebb9f7ed285f584ed85a1",
+      "bytes": 16847
+    },
+    {
+      "path": "/tmp/chronoworld-night-heroes-ui/compact-first.cjs",
+      "sha256": "10b9d7f05c431880e6813561abb48340f3b249a586a95116b606cfd980912e58",
+      "bytes": 13514
+    }
+  ],
+  "representativePngs": [
+    {
+      "path": "/tmp/chronoworld-night-story-ui/before-hero-story-360.png",
+      "sha256": "880301b7af062f2ee9799340d1b43c0fad9a56087e0d64f37fd7c9609bd37e10",
+      "bytes": 85796
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/before-lore-360.png",
+      "sha256": "d9a9826c62c59df96539c33895d5374e72042891f9f1dee27e4ad324c4f3f14d",
+      "bytes": 99988
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled/hero-story-360.png",
+      "sha256": "7897e7efdf371096cf8c0bd4d268cc6810d5d231d3fe498bec62b0800cf60b52",
+      "bytes": 71772
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled/lore-390.png",
+      "sha256": "7ca11a3fc9cfaae6efd1a720548726531d0c180f8e333e94f10e0f318e0ea69c",
+      "bytes": 115239
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled/pages-360.png",
+      "sha256": "1482bcf3321e5866aab9ab08884a4adb5fe1794378aacfcc6386a1a84ef4481e",
+      "bytes": 342307
+    },
+    {
+      "path": "/tmp/chronoworld-night-story-ui/compiled/replay-390.png",
+      "sha256": "7e8d429c3404b50203da325759385d9150f15c9c0423bbb0cfc68921f0b7fb07",
+      "bytes": 103263
+    }
+  ],
+  "portability": "PRIVATE adapters depend on existing /tmp helpers and isolated worktree, not a portable repo script; no UI source imports in browser; Node core/content imports prepare fixture only",
+  "sourceHandoff": "/tmp/chronoworld-night-story-ui/story-hero-source-ready-manifest.json",
+  "chapterDoneOriginalStop": "/tmp/chronoworld-night-story-ui/compiled-chapter-done/initial-stop-summary.json",
+  "scope": "OWN Story3, HeroReturn and tiny ChapterDone251960→d484; 20 NEW tests; read-only foundations/policy/Chronicle/dialogue/core/data/assets excluded; no published-production claim",
+  "compiledSourceHashes": {
+    "src/game/loreView.ts": "75383e2a5a2605e1355aaed3f7bad1e410f57329c57c06548afb2ea57b737829",
+    "src/game/heroStoryView.ts": "a77ae3cf482cf0910388fb1eec707deb99d9bc46daca8f26743bd16b20800638",
+    "src/game/storyPage.ts": "3d971d7595fa06ee9efa5fe2bd39b0017acd20981d3a22ced2ae027ce981c4a7",
+    "src/game/scenes/ChapterDoneScene.ts": "d48413026d26979dc13b4f33a92becf2c54b073e6dd67f78db9be78edd34849a",
+    "src/game/scenes/HeroScene.ts": "80d50c5fe79f830b05457b21c97c0bd89a19353f778f46519a5525f256f40b4a",
+    "src/game/scenes/ChronicleScene.ts": "14d86013619082c19128e4682a07cdf1ae3c273a2a1f7981beb20bb1433d5b4b",
+    "src/game/viewLayout.ts": "0099638f93f5b007b2f2583d1b3fbaa0bc2f7b499e02911a31dba7f35b4407ab",
+    "src/game/screen.ts": "dafd0e09615fd8c5cc3dfc034b447766c60fb9875d3dbc8e272d02ab1c3e919a",
+    "src/game/modalBack.ts": "4317689024c2af97d911974f3e9efc5535d9591e8fd36d83ab85f034e4101a56",
+    "src/game/ui.ts": "2260e83c2b4608956dd0a0fe2bc30d51a266d2f226a00bcc2cc980759efd02f4",
+    "src/game/scroll.ts": "d473e9a59875ad033c4ab9c2b119a58244b27d386122266fbd9104eefbf9c6e0",
+    "src/game/dialogue.ts": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca",
+    "src/game/modalInput.ts": "5b2d43276bd0034aa67433e0293bbd903bc39140d64197191c190d0f758beb7d"
+  }
+}

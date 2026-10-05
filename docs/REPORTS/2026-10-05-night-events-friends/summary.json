@@ -1,0 +1,54 @@
+[
+  {
+    "case": "final-360-canvas",
+    "report": "/tmp/night-events-friends-final-360-canvas/report.json",
+    "sha256": "c938d67b2e17b8ecd0693a996651b81ac54e0e1d888c112197403fe28bfc8012",
+    "steps": 21,
+    "assertions": 227,
+    "rendererTypes": [
+      1
+    ],
+    "minFontCSS": 12,
+    "errors": 0,
+    "bundleSha256": null
+  },
+  {
+    "case": "final-390-webgl",
+    "report": "/tmp/night-events-friends-final-390-webgl/report.json",
+    "sha256": "5b0e47d22f03ffb9d7611bb440e2fd50881d422460703a90d10273752d6349e0",
+    "steps": 21,
+    "assertions": 227,
+    "rendererTypes": [
+      2
+    ],
+    "minFontCSS": 13,
+    "errors": 0,
+    "bundleSha256": null
+  },
+  {
+    "case": "compiled-360-canvas",
+    "report": "/tmp/night-events-friends-compiled-360-canvas/report.json",
+    "sha256": "7458776c8e14f77a0739efe162bf0242f15f3f7aa2f0e1ae1fc2a387d74f6259",
+    "steps": 21,
+    "assertions": 227,
+    "rendererTypes": [
+      1
+    ],
+    "minFontCSS": 12,
+    "errors": 0,
+    "bundleSha256": "5ff8f46e8acbda7915fa51fc0413f3051005134768ce9f047f9f7a7751bb58f0"
+  },
+  {
+    "case": "compiled-390-webgl",
+    "report": "/tmp/night-events-friends-compiled-390-webgl/report.json",
+    "sha256": "ce958f801217c10b3f90f6ff3af88d074cd311549d048e326860720f574fb486",
+    "steps": 21,
+    "assertions": 227,
+    "rendererTypes": [
+      2
+    ],
+    "minFontCSS": 13,
+    "errors": 0,
+    "bundleSha256": "5ff8f46e8acbda7915fa51fc0413f3051005134768ce9f047f9f7a7751bb58f0"
+  }
+]

@@ -1,0 +1,68 @@
+{
+  "ready": true,
+  "packet": "readonly-dialogue-back-source",
+  "sourceFrozen": true,
+  "baseHead": "2689d9e0bd9bffd0909448f35aa7baa5047a6e9e",
+  "baselineTargets": {
+    "src/game/dialogue.ts": "a8db250ebe7b652430973ede66146a5b514a01e79404186cb3ff160d99ca13f3",
+    "tests/campaign-choice-ui.test.ts": "b525d199612e0a20a201ab6c98c86f2e05a57d6e412a148cbe3220bcfc232101"
+  },
+  "files": [
+    {
+      "path": "src/game/dialogue.ts",
+      "sha256": "4ce623a286d9dfb43f9ce8f5ced93bf1a2f7e61f16401d5be3b1d4703ab033ca",
+      "bytes": 21430
+    },
+    {
+      "path": "tests/campaign-choice-ui.test.ts",
+      "sha256": "4e8bd6cf8b62fb2964d0b2b5d608e22c612c6be6d6c183df4f79e2afad8ff732",
+      "bytes": 15613
+    },
+    {
+      "path": "tests/dialogue-readonly-back.test.ts",
+      "sha256": "212bcbdd6baf6e22cf45bb53e2003f96eea550198813ffafcb8485fc93e35480",
+      "bytes": 12499
+    },
+    {
+      "path": "docs/qa/night-dialogue-back-2026-10-05.md",
+      "sha256": "94efc6239531acacebeddc72696b3e774921f86af2d3397d9c362a26f399de82",
+      "bytes": 3460
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-dialogue-back/before-test.log.gz",
+      "sha256": "c6e43924738ea5b105a848f07a9f7470b220d0f4ce9e38bf6e61259833709044",
+      "bytes": 1576
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-dialogue-back/focused-test.log.gz",
+      "sha256": "21237d0191f379b32def2f675711a5a80883029ed05df67b5f0c9ae9ed72fcc2",
+      "bytes": 319
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-dialogue-back/summary.json",
+      "sha256": "0ba4d672c254304a2731cca1190ccbaf63c04dc3d509983d875596ad3b6dfe99",
+      "bytes": 1785
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-dialogue-back/typecheck.log.gz",
+      "sha256": "a9108ed0e680541102f5b0b988a949ff7bb1e8750704d3081c655648c1ff16b2",
+      "bytes": 69
+    }
+  ],
+  "excludes": [
+    "src/game/screen.ts",
+    "src/game/modalBack.ts",
+    "src/game/ui.ts",
+    "src/core",
+    "data",
+    "assets",
+    "private browser overlays"
+  ],
+  "checks": {
+    "focused66": "PASS",
+    "typecheck": "PASS",
+    "diffWhitespace": "PASS",
+    "actualCompiledAfter": "Separate owners; pending at source handoff",
+    "fullRootCheck": "Root owned after integration"
+  }
+}

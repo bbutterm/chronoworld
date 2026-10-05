@@ -10,6 +10,7 @@ const harness = vi.hoisted(() => {
     enabled = true; tap = () => {}; active = true;
     constructor(x = 0, y = 0, text = '') { this.x = x; this.y = y; this.text = text; }
     add(items: Node | Node[]) { for (const n of Array.isArray(items) ? items : [items]) { n.parentContainer = this; this.list.push(n); } return this; }
+    remove(n: Node) { this.list = this.list.filter(item => item !== n); n.parentContainer = undefined; return this; }
     removeAll(destroy: boolean) { if (destroy) this.list.forEach((n) => n.destroy()); this.list = []; return this; }
     destroy() { this.removeAll(true); this.scene = undefined; this.active = false; }
     setName(n: string) { this.name = n; return this; }
@@ -19,8 +20,13 @@ const harness = vi.hoisted(() => {
     setPosition(x: number, y: number) { this.x = x; this.y = y; return this; }
     setY(y: number) { this.y = y; return this; } setX(x: number) { this.x = x; return this; }
     setText(text: string) { this.text = text; return this; }
+    getWorldTransformMatrix(): { tx: number; ty: number } {
+      const parent = this.parentContainer?.getWorldTransformMatrix();
+      return { tx: this.x + (parent?.tx ?? 0), ty: this.y + (parent?.ty ?? 0) };
+    }
+    getBounds() { const { tx, ty } = this.getWorldTransformMatrix(); return { left: tx - this.width / 2, right: tx + this.width / 2, bottom: ty + this.height / 2, top: ty - this.height / 2 }; }
   }
-  return { Node, save: undefined as unknown as SaveState, commits: 0, roots: [] as Node[], timers: [] as (() => void)[], sheets: [] as Node[] };
+  return { Node, save: undefined as unknown as SaveState, commits: 0, roots: [] as Node[], timers: [] as (() => void)[], sheets: [] as Node[], sheetCloses: [] as (() => void)[] };
 });
 vi.mock('phaser', () => ({ default: { Scene: class {}, GameObjects: { Container: harness.Node }, Math: { Clamp: (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n)) } } }));
 vi.mock('../src/game/content', async () => ({ GAME: (await import('../scripts/lib/content-node')).loadFullContext() }));
@@ -28,7 +34,7 @@ vi.mock('../src/game/session', () => ({ session: { get save() { return harness.s
 vi.mock('../src/game/screen', () => ({
   CONTENT_TOP: 160, NAV_H: 150, popIn: () => {}, unitTint: () => 0,
   portrait: (_s: unknown, x: number, y: number) => new harness.Node(x, y),
-  bottomSheet: (_s: unknown, _t: string, fn: (c: InstanceType<typeof harness.Node>, w: number) => void) => { const c = new harness.Node(); harness.sheets.push(c); fn(c, 984); },
+  bottomSheet: (_s: unknown, _t: string, fn: (c: InstanceType<typeof harness.Node>, w: number) => void, opts?: { onClose?: () => void }) => { const c = new harness.Node(); harness.sheets.push(c); if (opts?.onClose) harness.sheetCloses.push(opts.onClose); fn(c, 984); },
 }));
 vi.mock('../src/game/ui', () => ({
   BTN: { l: 120, m: 96 }, SURFACE: {},
@@ -76,7 +82,12 @@ function sceneHarness() {
     time: { delayedCall: (_ms: number, callback: () => void) => { harness.timers.push(callback); } },
     scene: { restart: vi.fn() },
   });
-  vi.spyOn(scene, 'overlay').mockReturnValue(root);
+  vi.spyOn(scene, 'overlay').mockImplementation(() => {
+    const footer = new harness.Node(); root.add(footer);
+    const panel = { layer: root, content: root, footer, width: 984, setHeight: () => {}, close: () => root.destroy() };
+    scene.panel = panel;
+    return panel;
+  });
   vi.spyOn(scene, 'flashCard').mockReturnValue(340);
   const node = (name: string) => flatten(root).find((n) => n.name === name)!;
   const click = (name: string) => { const n = node(name); expect(n, name).toBeDefined(); if (n.enabled) n.tap(); };
@@ -94,10 +105,31 @@ beforeEach(() => {
     cards: ['golden_bug', 'baphomet', 'mistress', 'pupa', 'deviruchi'], rerolls: 2,
     pending: { kind: 'blessing', options: ['osiris', 'orc_hero', 'dark_lord', 'drake'], source: 'boss', minRarity: 'legendary', rolls: 0 },
   });
-  harness.commits = 0; harness.timers = []; harness.roots = []; harness.sheets = [];
+  harness.commits = 0; harness.timers = []; harness.roots = []; harness.sheets = []; harness.sheetCloses = [];
 });
 
 describe('экспериментальные карты Башни: действия экрана', () => {
+  it('закрытие старого листа не открывает ввод под новым листом или новой сценой', () => {
+    const h = sceneHarness(), firstArea = { locked: false };
+    h.scene.area = firstArea;
+    h.scene.rulesSheet();
+    const oldClose = harness.sheetCloses.at(-1)!;
+    h.scene.cardsSheet(run());
+    const currentClose = harness.sheetCloses.at(-1)!;
+    expect(firstArea.locked).toBe(true);
+    oldClose();
+    expect(firstArea.locked).toBe(true);
+    currentClose();
+    expect(firstArea.locked).toBe(false);
+    h.scene.rulesSheet();
+    const beforeRestart = harness.sheetCloses.at(-1)!;
+    const replacementArea = { locked: true };
+    h.scene.area = replacementArea;
+    beforeRestart();
+    expect(replacementArea.locked).toBe(true);
+    expect(harness.commits).toBe(0);
+  });
+
   it('четыре предложения, перетасовка и явный отказ доступны при полном лимите', () => {
     const h = sceneHarness(); h.open();
     for (let i = 0; i < 4; i++) expect(h.node(`towerCard${i}`)).toBeDefined();

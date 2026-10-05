@@ -449,6 +449,8 @@ export const SaveStateSchema = z.object({
       choices: z.record(z.string(), z.string()).optional(),
       bond: z.record(z.string(), z.number().int().nonnegative()).optional(),
       quests: z.array(z.string()).optional(),
+      /** Участники первой победы последнего этапа главы. Повреждённая запись не ломает основной прогресс. */
+      chapterSquads: z.record(z.string(), z.array(z.string()).max(5).catch([])).catch({}).optional(),
     })
     .optional(),
   /**

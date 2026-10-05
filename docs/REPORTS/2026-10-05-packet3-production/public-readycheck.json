@@ -1,0 +1,17 @@
+{
+  "time": "2026-10-05T05:01:06.778615+00:00",
+  "url": "https://chronoworld-ecru.vercel.app/",
+  "method": "GET-only readiness; no browser or write",
+  "bundle": "https://chronoworld-ecru.vercel.app/assets/index-D71usCSU.js",
+  "bundleSha256": "ee67ba54d6a6a48657c97fdc4289c0c41702cd685c00d2eb5e55d2099c89cd56",
+  "bytes": 2940303,
+  "htmlSha256": "e9b59eabf67a02ee412da4831f3340663f3d9aa1086778dce7e62c7d601cef6f",
+  "headers": {
+    "age": "2710",
+    "last-modified": "Mon, 05 Oct 2026 04:15:54 GMT",
+    "x-vercel-cache": "HIT",
+    "x-vercel-id": "cle1::c7lx2-1791176465243-e0c4b7733ae9"
+  },
+  "expectedMain": "8265a7309b7483287644957fd2ba825e59dc789e",
+  "expectedTree": "86fd00311cdf0d78465cb193dae9a2398aa15019"
+}

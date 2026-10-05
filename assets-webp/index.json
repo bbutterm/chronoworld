@@ -590,9 +590,9 @@
   "webp": 1052
  },
  "sprites/bosses/banshee.png": {
-  "sha1": "e7f244b3d306550a2151f2bf03cafc8cee0c59ea",
-  "png": 78596,
-  "webp": 36522
+  "sha1": "6e1536ccdb3561191f86634918770120698ed765",
+  "png": 289834,
+  "webp": 69426
  },
  "sprites/bosses/boss1.png": {
   "sha1": "37729a04c889f6400b78c94aced7e6a20d6bd77a",
@@ -600,94 +600,94 @@
   "webp": 143946
  },
  "sprites/bosses/boss2.png": {
-  "sha1": "3f6c214c8620864ca793a7943c56ce09cedb9847",
-  "png": 41931,
-  "webp": 30318
+  "sha1": "422caefdc716acd1a72f1bdfd5b6491a216f4948",
+  "png": 374077,
+  "webp": 81720
  },
  "sprites/bosses/dark_lord.png": {
-  "sha1": "b5c94f5954576b79ea28c795416b2f555422dcb0",
-  "png": 71509,
-  "webp": 38186
+  "sha1": "c9ed0c7351f7b14a79000626c225fa70ab180171",
+  "png": 756767,
+  "webp": 182064
  },
  "sprites/bosses/deviruchi.png": {
-  "sha1": "d6f5f8dacbdc257df7ee31f20dc158eb73c0e3b6",
-  "png": 10199,
-  "webp": 6052
+  "sha1": "e0422d5abbb25fea947a1c02b531d8acd3a17871",
+  "png": 99014,
+  "webp": 21546
  },
  "sprites/bosses/drake.png": {
-  "sha1": "3c86a1d82ff6df4efe8e3cbb31c941a8c60e6bac",
-  "png": 105162,
-  "webp": 24620
+  "sha1": "ccafd6edc85147831490708c1e62084c9cbe0d8e",
+  "png": 288190,
+  "webp": 71492
  },
  "sprites/bosses/dullahan.png": {
-  "sha1": "cecac0bf23e23771274fcefb4a76ffde58182cca",
-  "png": 153722,
-  "webp": 77364
+  "sha1": "e53ef21479c6801f7a901bb0e6c6ba1c815dca88",
+  "png": 337300,
+  "webp": 73452
  },
  "sprites/bosses/elder.png": {
-  "sha1": "f1923fa31ffcf4da9b59018f89f6ecacae234ed5",
-  "png": 71376,
-  "webp": 32474
+  "sha1": "b18f32b3f4da8ae033f0f019f72281cbca275ae6",
+  "png": 523867,
+  "webp": 100638
  },
  "sprites/bosses/familiar.png": {
-  "sha1": "bac45e87a81c04e15ce79ff40a49b6860320ec6f",
-  "png": 15176,
-  "webp": 7944
+  "sha1": "24759239aa5504df7b1c5b725ff73ddb3d595790",
+  "png": 60611,
+  "webp": 9716
  },
  "sprites/bosses/ghostring.png": {
-  "sha1": "fcbc82e4e4f5e34d821679d098e91a2227e25993",
-  "png": 11564,
-  "webp": 6708
+  "sha1": "c0b0e092175becc8c368eb10501a24d9863bdf67",
+  "png": 90680,
+  "webp": 12688
  },
  "sprites/bosses/horong.png": {
-  "sha1": "1b724a49ca655becb15c611e8a72de2c86dab551",
-  "png": 10123,
-  "webp": 6610
+  "sha1": "d78c120b4fd4c0a93d48c67c44b821fba4f867ef",
+  "png": 73251,
+  "webp": 16518
  },
  "sprites/bosses/isis.png": {
-  "sha1": "0c4189e7cf3efd7e2163dba2445c744cf3774c49",
-  "png": 35500,
-  "webp": 25450
+  "sha1": "d6654be0b7020ad72e4b9f80d4ecd5353bc4d5e0",
+  "png": 404229,
+  "webp": 95546
  },
  "sprites/bosses/mastering.png": {
-  "sha1": "a0a7dd3ed2e1ef65e01a9e51bd8c10d0e869d5d8",
-  "png": 16110,
-  "webp": 9158
+  "sha1": "325e00a357f4d137a32929b57fedd536d8065741",
+  "png": 176151,
+  "webp": 32358
  },
  "sprites/bosses/mistress.png": {
-  "sha1": "8cdae88a548abf2ca568bc880e1eb11742994358",
-  "png": 15328,
-  "webp": 8814
+  "sha1": "4160a8ac881d814746da13d1785901599578d8a4",
+  "png": 97952,
+  "webp": 17302
  },
  "sprites/bosses/moonlight_flower.png": {
-  "sha1": "3278e25d51ddc1018694d78e12eba3221bd4dee7",
-  "png": 27070,
-  "webp": 16912
+  "sha1": "0f303750238fa8248d2a7b965667e04f88ea6f47",
+  "png": 213432,
+  "webp": 47632
  },
  "sprites/bosses/orc_lady.png": {
-  "sha1": "b5589acfc614ec1023867d9389583b9e8f973123",
-  "png": 92306,
-  "webp": 22908
+  "sha1": "26ea551aca59018ee0fad547259611668f244212",
+  "png": 255612,
+  "webp": 58716
  },
  "sprites/bosses/orc_lord.png": {
-  "sha1": "f55d87f83d7b9c3364bb3608de0684d8c5eb0fb1",
-  "png": 150887,
-  "webp": 36484
+  "sha1": "a9b626f6ca9e8b536a0eec3e4f881c08005f32c0",
+  "png": 388298,
+  "webp": 92266
  },
  "sprites/bosses/orc_skeleton.png": {
-  "sha1": "af2b639ed95d8d79df92e981194fcc23c91dc214",
-  "png": 29886,
-  "webp": 16954
+  "sha1": "058c0b744cff6ad134e749c711231e861eed4c48",
+  "png": 234524,
+  "webp": 47472
  },
  "sprites/bosses/orc_zombie.png": {
-  "sha1": "6a8629825d910ed6a820cdf640de4da018b53b73",
-  "png": 30850,
-  "webp": 18504
+  "sha1": "7ca43ea0040aac0c2cb1127649ff12313da55139",
+  "png": 273918,
+  "webp": 61920
  },
  "sprites/bosses/osiris.png": {
-  "sha1": "685a24dd349cfe3079ec40a8ae299091c7adc662",
-  "png": 23466,
-  "webp": 15964
+  "sha1": "c1706c77dc4620faee005f3a735cdec4fb50cc62",
+  "png": 156625,
+  "webp": 35586
  },
  "sprites/bosses/rocker.png": {
   "sha1": "aa6eb69c268af87c15eceddeaa802e8d9c826299",
@@ -695,64 +695,64 @@
   "webp": 47046
  },
  "sprites/bosses/smokie.png": {
-  "sha1": "ae0a13fac4773a24fdabe0f469f457391f321cd3",
-  "png": 13300,
-  "webp": 9478
+  "sha1": "424cdf9f54274e65c3c0d1ce8e188d9430de659d",
+  "png": 110564,
+  "webp": 20662
  },
  "sprites/bosses/sohee.png": {
-  "sha1": "87f1d27fc27bfad7da97163200a153ac30dec6b2",
-  "png": 54430,
-  "webp": 24870
+  "sha1": "1cb62bc8bde1fe91be6323c2c3ab2c544876f305",
+  "png": 254001,
+  "webp": 61568
  },
  "sprites/bosses/swordfish.png": {
-  "sha1": "58d5e86d5784a13c829dc9fe9672e819daf6d5b4",
-  "png": 27709,
-  "webp": 18164
+  "sha1": "365ecc732dff9644cd8d7ee5e602ca35e705cd80",
+  "png": 230008,
+  "webp": 40598
  },
  "sprites/bosses/vagabond_wolf.png": {
-  "sha1": "a9d10173264569a8efb27802a6591a898d10a50b",
-  "png": 23513,
-  "webp": 14224
+  "sha1": "123e23d88a9a49c3582daca921f080206ccbf250",
+  "png": 155467,
+  "webp": 29796
  },
  "sprites/bosses/vocal.png": {
-  "sha1": "e0c69a8ddb50abb4aaec67052b1b98fd6264cef1",
-  "png": 107043,
-  "webp": 23186
+  "sha1": "023293547b786c9684f1bb99b47822154a264e3e",
+  "png": 199309,
+  "webp": 38890
  },
  "sprites/bosses_xl/abysmal_knight.png": {
-  "sha1": "2dff418a5248ebbefa3bd18263c6b95228367521",
-  "png": 323035,
-  "webp": 106578
+  "sha1": "dec946e1a3177006d135187c099ebf4d429357f8",
+  "png": 1630238,
+  "webp": 466854
  },
  "sprites/bosses_xl/alarm.png": {
-  "sha1": "d5e003c2bb62294b4959664ffacab0797741ac6d",
-  "png": 169391,
-  "webp": 42424
+  "sha1": "c30349c66ff4b32317f0294b3df98ec99d0c2b4e",
+  "png": 480608,
+  "webp": 127778
  },
  "sprites/bosses_xl/bloody_knight.png": {
-  "sha1": "1b7a5c1e686fb01abe59d99b66d491c26d4b2d0e",
-  "png": 389031,
-  "webp": 161482
+  "sha1": "e28602100f35343b17dceeaabc56d2f023bf0104",
+  "png": 1045037,
+  "webp": 274724
  },
  "sprites/bosses_xl/clock_tower_manager.png": {
-  "sha1": "15668e458d3d9c6d1cb7b6e0109803459a78fc86",
-  "png": 71039,
-  "webp": 44846
+  "sha1": "8285a04601513b110466a5dcc31655b477f5607a",
+  "png": 442638,
+  "webp": 107512
  },
  "sprites/bosses_xl/dracula.png": {
-  "sha1": "71270f6a851825100a0cbabbb41eada430720ea4",
-  "png": 159062,
-  "webp": 41294
+  "sha1": "7e03c90283614994d7a23fb15da39220d594994c",
+  "png": 259938,
+  "webp": 72468
  },
  "sprites/bosses_xl/lord_of_death.png": {
-  "sha1": "431c98315535ce288c2c8060315970d21424db6f",
-  "png": 482147,
-  "webp": 152970
+  "sha1": "6fe9b1ea8e2e734980ee98057b8dd6cae4462817",
+  "png": 1449711,
+  "webp": 447972
  },
  "sprites/bosses_xl/owl_baron.png": {
-  "sha1": "355e3fd0234d18b939e50c49b64a21326919e08e",
-  "png": 36224,
-  "webp": 21896
+  "sha1": "e3916ce0a9ec9fa1eb62328c9b87bf249f8e04ac",
+  "png": 310480,
+  "webp": 72930
  },
  "sprites/heroes/acolyte.png": {
   "sha1": "f1a58ecf7a0090c59f3a279099d39347e9235152",
@@ -864,6 +864,21 @@
   "png": 31511,
   "webp": 22356
  },
+ "sprites/heroes/hero_alan_crusader_detail_v2.png": {
+  "sha1": "8d5675295f09e6db6138176387409566dd74b556",
+  "png": 186066,
+  "webp": 39140
+ },
+ "sprites/heroes/hero_alan_first_profession_detail_v1.png": {
+  "sha1": "d1e752518d9fc2678afe58139446f059c8f9dde7",
+  "png": 148885,
+  "webp": 35520
+ },
+ "sprites/heroes/hero_alan_knight_detail_v2.png": {
+  "sha1": "5b4fa0c2fd34a551538ca5cf715acbd1c96a8b71",
+  "png": 130104,
+  "webp": 30272
+ },
  "sprites/heroes/hero_alan_swordman.png": {
   "sha1": "a07150cd5f28219dd8e7b807acd7eb0ec5241626",
   "png": 27542,
@@ -874,15 +889,170 @@
   "png": 25494,
   "webp": 18142
  },
+ "sprites/heroes/hero_bran_bard_detail_v2.png": {
+  "sha1": "55e7081664734dbdce63b30abc03d8d006b260cb",
+  "png": 151941,
+  "webp": 34558
+ },
+ "sprites/heroes/hero_bran_first_profession_detail_v1.png": {
+  "sha1": "dade2dcdecc72733b1bd11e9ff6a7928549e4d11",
+  "png": 143408,
+  "webp": 36838
+ },
+ "sprites/heroes/hero_bran_hunter_detail_v2.png": {
+  "sha1": "3c5f69e2fe982968ba584bfd71b3d95d7a91e11a",
+  "png": 141099,
+  "webp": 32874
+ },
+ "sprites/heroes/hero_dorn_assassin_detail_v2.png": {
+  "sha1": "c5ac66dfefb70d53caf62aa8039d10c25fdc0802",
+  "png": 163430,
+  "webp": 40058
+ },
+ "sprites/heroes/hero_dorn_rogue_detail_v2.png": {
+  "sha1": "c0a0fe6bbdf69e739d74e520be237cf73294e509",
+  "png": 162078,
+  "webp": 39798
+ },
  "sprites/heroes/hero_dorn_thief.png": {
   "sha1": "718342f1b180f085f12abed8c310a1de1f97d262",
   "png": 24635,
   "webp": 17190
  },
+ "sprites/heroes/hero_dorn_thief_detail_v2.png": {
+  "sha1": "306521503aaa8a478a3f3ff49bea20432caabe59",
+  "png": 155848,
+  "webp": 40198
+ },
+ "sprites/heroes/hero_greta_alchemist_detail_v2.png": {
+  "sha1": "5cebf4a58cc86eb9e1bb4ce97a6d6d3b3af5aa41",
+  "png": 169359,
+  "webp": 40866
+ },
+ "sprites/heroes/hero_greta_blacksmith_detail_v2.png": {
+  "sha1": "798908a89324d32e3ad32b0c67d59081bed6ff57",
+  "png": 149408,
+  "webp": 35788
+ },
+ "sprites/heroes/hero_greta_merchant_detail_v2.png": {
+  "sha1": "45ab8ecd918d5b3b6aab8a053fe45f83129df6a6",
+  "png": 133146,
+  "webp": 38056
+ },
+ "sprites/heroes/hero_iris_crusader_detail_v2.png": {
+  "sha1": "82a085387399ed8b4cee29422c4cb4b0fd0a1c77",
+  "png": 168718,
+  "webp": 40442
+ },
+ "sprites/heroes/hero_iris_first_profession_detail_v1.png": {
+  "sha1": "42ddee2ae3c56c6f24567925f245d65b09d26fa9",
+  "png": 133231,
+  "webp": 32232
+ },
+ "sprites/heroes/hero_iris_knight_detail_v2.png": {
+  "sha1": "c483d8f21e9b6dae6384e8d65382bafa7adb282a",
+  "png": 129311,
+  "webp": 29412
+ },
+ "sprites/heroes/hero_kai_magician_details_v2.png": {
+  "sha1": "01ff6e47f141eb7eb331f0456191243560b8ae42",
+  "png": 146924,
+  "webp": 37014
+ },
+ "sprites/heroes/hero_kai_sage_detail_v2.png": {
+  "sha1": "859df696ca85bdd914a25c92182f3e264417f7fd",
+  "png": 176127,
+  "webp": 44440
+ },
+ "sprites/heroes/hero_kai_wizard_detail_v2.png": {
+  "sha1": "b817f4a927df765f38898714d5af0bd8d825eb60",
+  "png": 163745,
+  "webp": 42294
+ },
+ "sprites/heroes/hero_lira_magician_details_v2.png": {
+  "sha1": "bf1060ccbb00bf9bdaf2c603b5e77c54b73db248",
+  "png": 130758,
+  "webp": 31162
+ },
+ "sprites/heroes/hero_lira_wizard_detail_v2.png": {
+  "sha1": "5482bd6337eb8790d30daff82e6910e0571ad8fa",
+  "png": 172145,
+  "webp": 44332
+ },
+ "sprites/heroes/hero_meilin_first_profession_detail_v1.png": {
+  "sha1": "c7cdf5a56377819c111a06242453c0bab7fa72fe",
+  "png": 140408,
+  "webp": 34974
+ },
+ "sprites/heroes/hero_meilin_hunter_detail_v2.png": {
+  "sha1": "75204da623ecaf31a8cf0fd610c09053c5638184",
+  "png": 141854,
+  "webp": 33016
+ },
+ "sprites/heroes/hero_otto_alchemist_detail_v2.png": {
+  "sha1": "273bbb3119e3d2e4e7a6dacf81ec5ac859ea9c18",
+  "png": 162919,
+  "webp": 38440
+ },
+ "sprites/heroes/hero_otto_blacksmith_detail_v2.png": {
+  "sha1": "6ea4f7ee353344d0520e36a5d3c0043df4e7179f",
+  "png": 157480,
+  "webp": 37932
+ },
+ "sprites/heroes/hero_otto_merchant_detail_v2.png": {
+  "sha1": "293c3815b287ed59da8eb4c7c0b61471b5f5d231",
+  "png": 141519,
+  "webp": 34934
+ },
+ "sprites/heroes/hero_teo_acolyte_details_v2.png": {
+  "sha1": "1d36c4ee6f38838ea5d2cf586541a5e33f3cf7a4",
+  "png": 144492,
+  "webp": 34888
+ },
+ "sprites/heroes/hero_teo_monk_detail_v2.png": {
+  "sha1": "95a47c4f26bbccf0df9fefcf32eac60cb5919436",
+  "png": 183849,
+  "webp": 45276
+ },
+ "sprites/heroes/hero_teo_priest_detail_v2.png": {
+  "sha1": "3b1bfd46ee8a56f511524fe805e447d292b919dc",
+  "png": 165576,
+  "webp": 41426
+ },
  "sprites/heroes/hero_vika_acolyte.png": {
   "sha1": "647d986ba16970ff42f13391b0d4501eccb3f965",
   "png": 23565,
   "webp": 17246
+ },
+ "sprites/heroes/hero_vika_acolyte_details_v2.png": {
+  "sha1": "7d631cd20e1b72fd572483b4081ac455af2896cf",
+  "png": 127381,
+  "webp": 30428
+ },
+ "sprites/heroes/hero_vika_monk_detail_v2.png": {
+  "sha1": "89f85dbec192776ccda5418de9dd9528fa05ba9f",
+  "png": 183668,
+  "webp": 45332
+ },
+ "sprites/heroes/hero_vika_priest_detail_v2.png": {
+  "sha1": "c349c0e1cdd0ed8250647b958399703a8b9f9b07",
+  "png": 162572,
+  "webp": 41822
+ },
+ "sprites/heroes/hero_zara_assassin_detail_v2.png": {
+  "sha1": "f93a1d099b2e1ef3eabf8d1c8dcf63d037b387d0",
+  "png": 168308,
+  "webp": 41394
+ },
+ "sprites/heroes/hero_zara_rogue_detail_v2.png": {
+  "sha1": "2239b74297717d5917a1f57d37e2f84d3d40d71b",
+  "png": 166178,
+  "webp": 40378
+ },
+ "sprites/heroes/hero_zara_thief_detail_v2.png": {
+  "sha1": "d723d3acc9ce5954d507c139f37809def4f0c26e",
+  "png": 156562,
+  "webp": 42086
  },
  "sprites/heroes/hunter_f.png": {
   "sha1": "107f2d5a82d74b6e6b94b99900f01e7d8bc436e9",
@@ -984,6 +1154,16 @@
   "png": 23143,
   "webp": 19288
  },
+ "sprites/heroes/profession_novice_f_detail_v1.png": {
+  "sha1": "13a3fdd99f15af7da63f719150304c59d821c58b",
+  "png": 159999,
+  "webp": 41698
+ },
+ "sprites/heroes/profession_novice_m_detail_v1.png": {
+  "sha1": "48fc95c0a06e3671d2e685ae6372a4e2cef0d2cb",
+  "png": 168285,
+  "webp": 37502
+ },
  "sprites/heroes/rogue.png": {
   "sha1": "70667e1ff210ff6a91aacefa5487d37893273ad3",
   "png": 25403,
@@ -1060,29 +1240,29 @@
   "webp": 18074
  },
  "sprites/monsters/angeling.png": {
-  "sha1": "488912749e4ddc1ff84997a57d7443c4bdf641cd",
-  "png": 18359,
-  "webp": 11034
+  "sha1": "867b6f4f8938ba7d0b157aff1681bf7269d9db50",
+  "png": 123647,
+  "webp": 29112
  },
  "sprites/monsters/archangeling.png": {
-  "sha1": "6a2dd02f3c10336a10093ab6362988c882a080be",
-  "png": 18128,
-  "webp": 11236
+  "sha1": "5bc6b3b3e895a30144558c16f011d28c776b826a",
+  "png": 139034,
+  "webp": 31788
  },
  "sprites/monsters/baphomet_jr.png": {
-  "sha1": "61c5c1324911268308658830e8237004c970c5f2",
-  "png": 11713,
-  "webp": 6314
+  "sha1": "8200b12a08de3a80bef00c8fccf9e1b070abb209",
+  "png": 76589,
+  "webp": 13480
  },
  "sprites/monsters/bloody_murderer.png": {
-  "sha1": "cf9b44404a29f1471c876969f9d6ec7630a2dcc0",
-  "png": 124990,
-  "webp": 68160
+  "sha1": "8cf857d8987be3039b9e4dfb827e71d77bc39bda",
+  "png": 491587,
+  "webp": 136962
  },
  "sprites/monsters/bongun.png": {
-  "sha1": "6a8549914e3011de02175a682d2b62fee52fee02",
-  "png": 48739,
-  "webp": 21874
+  "sha1": "9d26b71a8da761f68e7371033cd6e1486515ef64",
+  "png": 159424,
+  "webp": 39996
  },
  "sprites/monsters/dark_priest.png": {
   "sha1": "66e670512245ce39989c55fffe1391ff463697e8",
@@ -1090,9 +1270,9 @@
   "webp": 46278
  },
  "sprites/monsters/doppelganger.png": {
-  "sha1": "ea5f8c58d04789a7902560cd731304c356b558ee",
-  "png": 19577,
-  "webp": 13534
+  "sha1": "c9f2ccd826cf6d72a2b58d38f9183a094868ad8f",
+  "png": 109142,
+  "webp": 25376
  },
  "sprites/monsters/drops.png": {
   "sha1": "f5ddf7c0fc911f2eba54d5eaf403f02c8bb5d158",
@@ -1100,9 +1280,9 @@
   "webp": 13184
  },
  "sprites/monsters/eclipse.png": {
-  "sha1": "8b86dba779f27782cde289de8fcf281a1089f090",
-  "png": 10932,
-  "webp": 5900
+  "sha1": "056e37561a84c3b837dac55b87ba4e063f37e90b",
+  "png": 82833,
+  "webp": 12870
  },
  "sprites/monsters/elite.png": {
   "sha1": "59606295130e2819aded626366f81a3e3a9ebe02",
@@ -1120,9 +1300,9 @@
   "webp": 14458
  },
  "sprites/monsters/gargoyle.png": {
-  "sha1": "ed48aff54e2db3cd63932289ed585c972e8950fc",
-  "png": 82402,
-  "webp": 20646
+  "sha1": "e7598a9ceab077f3ab2dd407f5807dd761562cc0",
+  "png": 201229,
+  "webp": 39042
  },
  "sprites/monsters/ghoul.png": {
   "sha1": "deb52f9c4af9aaf6bd39e049135afd5a49134326",
@@ -1130,34 +1310,34 @@
   "webp": 38972
  },
  "sprites/monsters/gibbet.png": {
-  "sha1": "27d643c36d2d49ccae0ee0944cd47fdc00148b62",
-  "png": 127142,
-  "webp": 63632
+  "sha1": "2790b8075bdbed9ded1e52f9643169738b55ba03",
+  "png": 396313,
+  "webp": 88838
  },
  "sprites/monsters/high_orc.png": {
-  "sha1": "961eeb305738153fda4c465ccfee135df379bba8",
-  "png": 126406,
-  "webp": 43158
+  "sha1": "760b93c0870e5f6e90d1c66450543676bee6a050",
+  "png": 323378,
+  "webp": 88628
  },
  "sprites/monsters/hunter_fly.png": {
-  "sha1": "7d31319d7afe41131174634bc871cbe5851f9f04",
-  "png": 8402,
-  "webp": 4460
+  "sha1": "6ea21fb59eb954d38f9e5a82f371c1e4314f210d",
+  "png": 43435,
+  "webp": 8044
  },
  "sprites/monsters/hydra.png": {
-  "sha1": "26ab1de7f2bdbbef925eb4112665aabd62c442a9",
-  "png": 18271,
-  "webp": 12066
+  "sha1": "25037e8184cec46577f915af37f8d2c772a95e34",
+  "png": 137918,
+  "webp": 25512
  },
  "sprites/monsters/kukre.png": {
-  "sha1": "bec78deb505edd903f3ac0680d00cb2c9b83b092",
-  "png": 5832,
-  "webp": 3760
+  "sha1": "65d32c531bbaa2d12f0a6bba8521536901c729ab",
+  "png": 36684,
+  "webp": 5564
  },
  "sprites/monsters/loli_ruri.png": {
-  "sha1": "dfdfc95a87dfdc0942250b7293842e6a59a7ddc2",
-  "png": 87106,
-  "webp": 35334
+  "sha1": "a7386c0072a90e8449796303994020170e2969e1",
+  "png": 375587,
+  "webp": 83480
  },
  "sprites/monsters/lunatic.png": {
   "sha1": "8b44647f6b4a3e5b2a99b9e60fb3d00d80e5eebd",
@@ -1170,9 +1350,9 @@
   "webp": 30918
  },
  "sprites/monsters/mantis.png": {
-  "sha1": "fcdeee14b382784d4f53526a1a40fb4faede07f7",
-  "png": 15911,
-  "webp": 9930
+  "sha1": "b5a1065f4622cafa743fff1b69f33bd21c4f1f5b",
+  "png": 96050,
+  "webp": 20482
  },
  "sprites/monsters/marduk.png": {
   "sha1": "501df31deb007daf789cad68f96251db231f31e2",
@@ -1185,9 +1365,9 @@
   "webp": 13592
  },
  "sprites/monsters/marse.png": {
-  "sha1": "54fdfa97e440ba4b9b98463517c1b25c6e0977d5",
-  "png": 11100,
-  "webp": 6596
+  "sha1": "9ff8f5bc42a51f9e9e3d962c3fcd578dad2100b8",
+  "png": 106386,
+  "webp": 15762
  },
  "sprites/monsters/melee.png": {
   "sha1": "bf484fa982e8a8fdddf651d603fb39b5b8bd1fc0",
@@ -1195,9 +1375,9 @@
   "webp": 34976
  },
  "sprites/monsters/mimic.png": {
-  "sha1": "c126adf560b7e2eb20fa43cba746a4d07a19db47",
-  "png": 21086,
-  "webp": 13556
+  "sha1": "647a16151e75f46563865ed39bd24dcc674c027c",
+  "png": 144499,
+  "webp": 33760
  },
  "sprites/monsters/mummy.png": {
   "sha1": "faed2031970c5032c9fab0ad33974aaf053b870e",
@@ -1205,34 +1385,34 @@
   "webp": 45678
  },
  "sprites/monsters/munak.png": {
-  "sha1": "4d4b50d2866ff06352611fb3878ec1990abc8d94",
-  "png": 20932,
-  "webp": 12188
+  "sha1": "97358589009769dda488d09638ed42750aedc4a6",
+  "png": 158468,
+  "webp": 26444
  },
  "sprites/monsters/nine_tail.png": {
-  "sha1": "9fd4bc45e8ebee98bafee3eba8d3f9d64908bb79",
-  "png": 17187,
-  "webp": 12386
+  "sha1": "81b0a5b91d7fa9b2219d4de195cf0858f16cbe94",
+  "png": 155589,
+  "webp": 30046
  },
  "sprites/monsters/obeaune.png": {
-  "sha1": "e16119631a3373bcce252e47540a3c2a3fe7f26d",
-  "png": 20983,
-  "webp": 14008
+  "sha1": "6d5955588dd8625effe230d58adb419002ef1027",
+  "png": 177561,
+  "webp": 31960
  },
  "sprites/monsters/orc_archer.png": {
-  "sha1": "0cb6ba156efdf5ea8e0a9a0c4866853ea27689a6",
-  "png": 31172,
-  "webp": 21166
+  "sha1": "686dc370ffd1b398042f6081e5e3a65666601904",
+  "png": 233350,
+  "webp": 56404
  },
  "sprites/monsters/orc_warrior.png": {
-  "sha1": "68eec18f450f886e1fd866eb3611ea17c5d4dfb1",
-  "png": 118065,
-  "webp": 39690
+  "sha1": "f67cd95c5d4f79cfac4081e2f22b961493ab9a2a",
+  "png": 270798,
+  "webp": 76198
  },
  "sprites/monsters/penomena.png": {
-  "sha1": "51d6fd628fcf0986ea07f93dc5ee74f9d394580c",
-  "png": 20335,
-  "webp": 11606
+  "sha1": "3092e949db7f30a24224e56c3b579c4e01988c98",
+  "png": 152649,
+  "webp": 27246
  },
  "sprites/monsters/pirate_skel.png": {
   "sha1": "d85a7da400ab6faa66317d34013f63de2d101f15",
@@ -1240,9 +1420,9 @@
   "webp": 30658
  },
  "sprites/monsters/plankton.png": {
-  "sha1": "d593b93b8c5aa852070f2e634e2fe4746e7fe6af",
-  "png": 7284,
-  "webp": 4008
+  "sha1": "49550d1389457e344707d3f485bcf47b07aca88f",
+  "png": 41855,
+  "webp": 7450
  },
  "sprites/monsters/poporing.png": {
   "sha1": "2d65f31aabd6aceb23017c54a3109bf01fd709ad",
@@ -1250,9 +1430,9 @@
   "webp": 13102
  },
  "sprites/monsters/punk.png": {
-  "sha1": "c0ca57fe3436e7555261758121bbe9475c059827",
-  "png": 39683,
-  "webp": 11340
+  "sha1": "de5fe39e185831307f07aa969b3436754e07752d",
+  "png": 57661,
+  "webp": 15770
  },
  "sprites/monsters/pupa.png": {
   "sha1": "6fe0bbd448d0364d61e7bec0a0d3d29b65ac8e59",
@@ -1260,9 +1440,9 @@
   "webp": 13220
  },
  "sprites/monsters/quve.png": {
-  "sha1": "5a4022369656ae531bf143aa7528ccfd1a11c2e9",
-  "png": 7236,
-  "webp": 4932
+  "sha1": "c36692975a02459e034b2571ff740b028c474618",
+  "png": 41804,
+  "webp": 8348
  },
  "sprites/monsters/ranged.png": {
   "sha1": "454417c10b64ed260ce630584ed863bb97eee346",
@@ -1275,9 +1455,9 @@
   "webp": 37182
  },
  "sprites/monsters/rideword.png": {
-  "sha1": "60819aea0a2663af6e7173c125bf0510f3354e99",
-  "png": 13831,
-  "webp": 7898
+  "sha1": "4e99ce0419480a6f972148f2c95ec82da26aa844",
+  "png": 74409,
+  "webp": 13464
  },
  "sprites/monsters/sandman.png": {
   "sha1": "0ea08674c71ae99a77dace2c988ac3b0394355a5",
@@ -1285,24 +1465,24 @@
   "webp": 38690
  },
  "sprites/monsters/scorpion.png": {
-  "sha1": "70786299c841b59a5a626807ee6ec81c8e8f7f65",
-  "png": 33740,
-  "webp": 14486
+  "sha1": "7283c775aca2e25a9d3b41ea9c41fca715997d6d",
+  "png": 165488,
+  "webp": 38530
  },
  "sprites/monsters/side_winder.png": {
-  "sha1": "58fb3dda5236ca58c0c8ddfd5716fc8c26ac764d",
-  "png": 10724,
-  "webp": 6268
+  "sha1": "644bf7c7a5877cae989462c6e166a7eda0efe443",
+  "png": 63447,
+  "webp": 11390
  },
  "sprites/monsters/steel_chonchon.png": {
-  "sha1": "59291586fef037626abe035ef983cb75f534d1c1",
-  "png": 8356,
-  "webp": 4392
+  "sha1": "eb5dec084d4da0c1ce0eecb7c7b331763ff78518",
+  "png": 54280,
+  "webp": 9506
  },
  "sprites/monsters/stem_worm.png": {
-  "sha1": "884c21de42b781c72d4cb310edd133036b671b08",
-  "png": 12608,
-  "webp": 7388
+  "sha1": "ce9d67b7b56b2ff4aa7a9670060286586fe413f5",
+  "png": 104832,
+  "webp": 21630
  },
  "sprites/monsters/tank.png": {
   "sha1": "5fc6ab2f86ce9d5c67e597cc26b6c70269466ecc",
@@ -1310,19 +1490,19 @@
   "webp": 61766
  },
  "sprites/monsters/tarou.png": {
-  "sha1": "f1fe4243a97540556e0cfe2c392a370a9cf9d3d9",
-  "png": 6292,
-  "webp": 3108
+  "sha1": "e9ca65ecfc836829349a32915d2d148dc35120db",
+  "png": 30908,
+  "webp": 4306
  },
  "sprites/monsters/thief_bug.png": {
-  "sha1": "bf458f807c2885284464117af9cd8fac244b786b",
-  "png": 7678,
-  "webp": 3898
+  "sha1": "87c9bfc5fb5617f9d64031d4dde621689eb25764",
+  "png": 26786,
+  "webp": 4032
  },
  "sprites/monsters/thief_bug_egg.png": {
-  "sha1": "b5dad1707e16b4c8edde9b6ec17e3185858076f5",
-  "png": 4502,
-  "webp": 1610
+  "sha1": "dcdcaa1209cd0c6db6b82734a8e25bb85360e942",
+  "png": 21470,
+  "webp": 2660
  },
  "sprites/monsters/thief_bug_female.png": {
   "sha1": "31867b58bba45518f7366033e0b54063f7974d16",
@@ -1335,9 +1515,9 @@
   "webp": 8452
  },
  "sprites/monsters/turtle_general.png": {
-  "sha1": "ea9a012b4e57dd21dc6c48a4a4ceb20e8f4222db",
-  "png": 175682,
-  "webp": 54014
+  "sha1": "dd4f923f48659362b5daf641e52e27947aaf4bf3",
+  "png": 478457,
+  "webp": 116908
  },
  "sprites/monsters/verit.png": {
   "sha1": "a112a5e1047250b11d61bb1d0a5b8f58440ec268",
@@ -1345,44 +1525,44 @@
   "webp": 32852
  },
  "sprites/monsters/whisper.png": {
-  "sha1": "1fdb4a7b73323ae39fbac733ffe64c73207efe0a",
-  "png": 11879,
-  "webp": 7308
+  "sha1": "e85bec1bdf23313284b6bc64e54af9ae450f87ae",
+  "png": 84400,
+  "webp": 21710
  },
  "sprites/monsters_xl/amon_ra.png": {
-  "sha1": "87d7eff3ffe8c73afa3ed52c3e9b60ee124d2ab0",
-  "png": 230122,
-  "webp": 65852
+  "sha1": "417750706a7458a396c87ae816137df084825beb",
+  "png": 642843,
+  "webp": 113762
  },
  "sprites/monsters_xl/ancient_mummy.png": {
-  "sha1": "b11861e536c78ea581023c94902aff90d07d303d",
-  "png": 28807,
-  "webp": 19484
+  "sha1": "6be2697f86ad5017cd4ae9d43e21bc370f3b8ebc",
+  "png": 208365,
+  "webp": 47836
  },
  "sprites/monsters_xl/clock.png": {
-  "sha1": "4c2a3988bbe50cce7262037b865ec1643437770d",
-  "png": 312825,
-  "webp": 144564
+  "sha1": "700712a70b0dda915f3014671243671ac5b9fd87",
+  "png": 515823,
+  "webp": 180652
  },
  "sprites/monsters_xl/eddga.png": {
-  "sha1": "7aec0a0041d870449948cd9b6ff72a0c7ff94964",
-  "png": 158827,
-  "webp": 42480
+  "sha1": "cb2985a731923e731431d9d58f10b3201a9bfde2",
+  "png": 382592,
+  "webp": 95888
  },
  "sprites/monsters_xl/elder_willow.png": {
-  "sha1": "f9e63b5872de374692513ffdce4ff12750553b58",
-  "png": 25456,
-  "webp": 17784
+  "sha1": "5f21d54ce10304b6e74aaa53b6cd9709d31ac61c",
+  "png": 166403,
+  "webp": 41866
  },
  "sprites/monsters_xl/evil_druid.png": {
-  "sha1": "010d1a678f07d13a134869579efae2e383a5d028",
-  "png": 208196,
-  "webp": 58366
+  "sha1": "c30292bf1140e14a4f24f6f96cdbae9f32ce7022",
+  "png": 484388,
+  "webp": 137776
  },
  "sprites/monsters_xl/maya.png": {
-  "sha1": "e55a945ac882adfc1d6125e9b5b6665f53e15339",
-  "png": 201856,
-  "webp": 48738
+  "sha1": "1dd6f1271c0a66d40bffcf37f2ebafcba7b8b301",
+  "png": 562578,
+  "webp": 145698
  },
  "sprites/monsters_xl/owl_duke.png": {
   "sha1": "5472a2a879bd4482d6493cbafbb885c11f56f153",
@@ -1390,9 +1570,9 @@
   "webp": 67596
  },
  "sprites/monsters_xl/pharaoh.png": {
-  "sha1": "6d6089cc1271cad92fd31fed013a99eb24ebb2f0",
-  "png": 97799,
-  "webp": 29228
+  "sha1": "be91e35ac03b881404188fd2320c3f3787fa4a99",
+  "png": 354560,
+  "webp": 86924
  },
  "sprites/npcs/1_m_librarymaster.png": {
   "sha1": "c6bdeffc2051488a676ee63d12f71f9e938ceab2",
@@ -1519,6 +1699,21 @@
   "png": 1405,
   "webp": 1286
  },
+ "sprites/portraits/hero_alan_crusader_detail_v2.png": {
+  "sha1": "170a8fe47b8fa768151680cbc4fa0c470aa32c73",
+  "png": 7473,
+  "webp": 2582
+ },
+ "sprites/portraits/hero_alan_first_profession_detail_v1.png": {
+  "sha1": "75b0bf074eb37e5cd9b23089c528fcae4af8b773",
+  "png": 6561,
+  "webp": 2380
+ },
+ "sprites/portraits/hero_alan_knight_detail_v2.png": {
+  "sha1": "c0c2ee95c12a41508fc90474b25aacc57ca04c38",
+  "png": 5578,
+  "webp": 1900
+ },
  "sprites/portraits/hero_alan_swordman.png": {
   "sha1": "684cde32f60e0c1706deec2c2d62f8a0b1e4fd5b",
   "png": 2785,
@@ -1529,15 +1724,170 @@
   "png": 2457,
   "webp": 1422
  },
+ "sprites/portraits/hero_bran_bard_detail_v2.png": {
+  "sha1": "e82fdcfc0f2e8cb87c6042cebae9e063c04338ed",
+  "png": 6930,
+  "webp": 2390
+ },
+ "sprites/portraits/hero_bran_first_profession_detail_v1.png": {
+  "sha1": "c1dbe62d9ec3b056ef0f7d664fbe668648420d42",
+  "png": 6324,
+  "webp": 2270
+ },
+ "sprites/portraits/hero_bran_hunter_detail_v2.png": {
+  "sha1": "81ed8c8fd04e1926b8a18780a13a3a02fdaeb341",
+  "png": 6141,
+  "webp": 2040
+ },
+ "sprites/portraits/hero_dorn_assassin_detail_v2.png": {
+  "sha1": "4e7b67f83b7b84e32ef674b0fd484a97e4a69696",
+  "png": 5737,
+  "webp": 2018
+ },
+ "sprites/portraits/hero_dorn_rogue_detail_v2.png": {
+  "sha1": "3fbae715a7a43534b283f4b49cc92a3d8f8bde19",
+  "png": 5390,
+  "webp": 1790
+ },
  "sprites/portraits/hero_dorn_thief.png": {
   "sha1": "cb75253c428d080ba12d546141e7b7b07caa2a2b",
   "png": 2407,
   "webp": 1378
  },
+ "sprites/portraits/hero_dorn_thief_detail_v2.png": {
+  "sha1": "28a0b7e9e2ebe10ae15750424e7f8e4fa67df82a",
+  "png": 5869,
+  "webp": 2208
+ },
+ "sprites/portraits/hero_greta_alchemist_detail_v2.png": {
+  "sha1": "25441f62ea57e0420d9cd7653151c09c908adce8",
+  "png": 6451,
+  "webp": 2226
+ },
+ "sprites/portraits/hero_greta_blacksmith_detail_v2.png": {
+  "sha1": "7ac0baa6137a65918acaca9b6ee1c7ca07353795",
+  "png": 6733,
+  "webp": 2282
+ },
+ "sprites/portraits/hero_greta_merchant_detail_v2.png": {
+  "sha1": "3c143157792a8b60fce34140f08985e911c3a9b4",
+  "png": 6046,
+  "webp": 2480
+ },
+ "sprites/portraits/hero_iris_crusader_detail_v2.png": {
+  "sha1": "c0bd845d01d6996dee88e5afaf4f0edb1e6490af",
+  "png": 6631,
+  "webp": 2280
+ },
+ "sprites/portraits/hero_iris_first_profession_detail_v1.png": {
+  "sha1": "efc850edf2bf95504a127efd9d8cf0bb08aa97f7",
+  "png": 5605,
+  "webp": 1912
+ },
+ "sprites/portraits/hero_iris_knight_detail_v2.png": {
+  "sha1": "84788239e039b6a681cdcc76f33c2c37e5d1a3cb",
+  "png": 6960,
+  "webp": 2390
+ },
+ "sprites/portraits/hero_kai_magician_details_v2.png": {
+  "sha1": "2385e9e8350ecbbb2b52cc5a2e21335361445d72",
+  "png": 5481,
+  "webp": 1880
+ },
+ "sprites/portraits/hero_kai_sage_detail_v2.png": {
+  "sha1": "4da3d518e923c36809c4b2374083123382399d28",
+  "png": 6707,
+  "webp": 2346
+ },
+ "sprites/portraits/hero_kai_wizard_detail_v2.png": {
+  "sha1": "71c9e2a969995a28563816929a3a71d0cdd04b9f",
+  "png": 6005,
+  "webp": 2126
+ },
+ "sprites/portraits/hero_lira_magician_details_v2.png": {
+  "sha1": "a2ec87c0234cfec1a6aac1be4dae9600e696199e",
+  "png": 6117,
+  "webp": 2182
+ },
+ "sprites/portraits/hero_lira_wizard_detail_v2.png": {
+  "sha1": "3b89750b2d3c38eb79996687ea8487ee85d7a8c9",
+  "png": 6654,
+  "webp": 2456
+ },
+ "sprites/portraits/hero_meilin_first_profession_detail_v1.png": {
+  "sha1": "bb587d2de35f7c8da2e805995bfa51566680bbb0",
+  "png": 5959,
+  "webp": 2280
+ },
+ "sprites/portraits/hero_meilin_hunter_detail_v2.png": {
+  "sha1": "ce889b8f09bd2c2c2fb5d793dd917913aea225b8",
+  "png": 5475,
+  "webp": 1930
+ },
+ "sprites/portraits/hero_otto_alchemist_detail_v2.png": {
+  "sha1": "eaac19a048b439b565a71c43e4f0d1e8e341c35d",
+  "png": 5324,
+  "webp": 1824
+ },
+ "sprites/portraits/hero_otto_blacksmith_detail_v2.png": {
+  "sha1": "294dcee6fb8de646dd283dd921886ba15aee2e5e",
+  "png": 5882,
+  "webp": 2050
+ },
+ "sprites/portraits/hero_otto_merchant_detail_v2.png": {
+  "sha1": "da556fe44b6df0e1b4703ff7a3d85def74ee751a",
+  "png": 6021,
+  "webp": 2236
+ },
+ "sprites/portraits/hero_teo_acolyte_details_v2.png": {
+  "sha1": "616ada8df7ba7de8d1024787d745746d6ef288a6",
+  "png": 6690,
+  "webp": 2308
+ },
+ "sprites/portraits/hero_teo_monk_detail_v2.png": {
+  "sha1": "7bc254ac107d2f7446a75bf621dce13046a7557e",
+  "png": 6214,
+  "webp": 2154
+ },
+ "sprites/portraits/hero_teo_priest_detail_v2.png": {
+  "sha1": "256e441d7abf37a3cc456945ad96b9b30fd1d083",
+  "png": 6959,
+  "webp": 2496
+ },
  "sprites/portraits/hero_vika_acolyte.png": {
   "sha1": "7d1fdba6c58a7d942c513576055fb27467b60211",
   "png": 2359,
   "webp": 1288
+ },
+ "sprites/portraits/hero_vika_acolyte_details_v2.png": {
+  "sha1": "be000223d6724f8b2fbb820d5796ca49db5f83a7",
+  "png": 5411,
+  "webp": 1832
+ },
+ "sprites/portraits/hero_vika_monk_detail_v2.png": {
+  "sha1": "c3df5dc7a7b610f82b3b0eaf6f9202bc9edea8da",
+  "png": 6666,
+  "webp": 2314
+ },
+ "sprites/portraits/hero_vika_priest_detail_v2.png": {
+  "sha1": "6e5bd61ec91b53e5a73b2faed32ecfcf645d0079",
+  "png": 5728,
+  "webp": 2004
+ },
+ "sprites/portraits/hero_zara_assassin_detail_v2.png": {
+  "sha1": "080a6298ebc035874114c4600f67f20c6421bb4c",
+  "png": 6952,
+  "webp": 2484
+ },
+ "sprites/portraits/hero_zara_rogue_detail_v2.png": {
+  "sha1": "dd684a3e34810bdbd2c00a5f0c309c429904c570",
+  "png": 5672,
+  "webp": 2008
+ },
+ "sprites/portraits/hero_zara_thief_detail_v2.png": {
+  "sha1": "6992f4e6c4cc4aeff9ee69ed1bcf72401c1dd2b5",
+  "png": 7050,
+  "webp": 2900
  },
  "sprites/portraits/hunter_f.png": {
   "sha1": "eb0e8fb6249edbef36095fbae3616da82e57b6e6",
@@ -1653,6 +2003,16 @@
   "sha1": "03ce760dff682c7cc029cf04181c8c83cfb85d59",
   "png": 1743,
   "webp": 1442
+ },
+ "sprites/portraits/profession_novice_f_detail_v1.png": {
+  "sha1": "0085a51d5848d80b3349a758e00993f6adf9a27c",
+  "png": 6135,
+  "webp": 2258
+ },
+ "sprites/portraits/profession_novice_m_detail_v1.png": {
+  "sha1": "0dcee780d140174f3e02f90213afc9b6666fc3a4",
+  "png": 5603,
+  "webp": 1994
  },
  "sprites/portraits/rogue.png": {
   "sha1": "69cdf9b8fb7150cd4bf734377032d23e953dbce6",
@@ -3223,365 +3583,5 @@
   "sha1": "ec635ec06e37187e3b752d24973d8a750229b31c",
   "png": 1243,
   "webp": 386
- },
- "sprites/heroes/hero_meilin_first_profession_detail_v1.png": {
-  "sha1": "c7cdf5a56377819c111a06242453c0bab7fa72fe",
-  "png": 140408,
-  "webp": 34974
- },
- "sprites/portraits/hero_meilin_first_profession_detail_v1.png": {
-  "sha1": "bb587d2de35f7c8da2e805995bfa51566680bbb0",
-  "png": 5959,
-  "webp": 2280
- },
- "sprites/heroes/hero_meilin_hunter_detail_v2.png": {
-  "sha1": "75204da623ecaf31a8cf0fd610c09053c5638184",
-  "png": 141854,
-  "webp": 33016
- },
- "sprites/portraits/hero_meilin_hunter_detail_v2.png": {
-  "sha1": "ce889b8f09bd2c2c2fb5d793dd917913aea225b8",
-  "png": 5475,
-  "webp": 1930
- },
- "sprites/heroes/hero_iris_first_profession_detail_v1.png": {
-  "sha1": "42ddee2ae3c56c6f24567925f245d65b09d26fa9",
-  "png": 133231,
-  "webp": 32232
- },
- "sprites/portraits/hero_iris_first_profession_detail_v1.png": {
-  "sha1": "efc850edf2bf95504a127efd9d8cf0bb08aa97f7",
-  "png": 5605,
-  "webp": 1912
- },
- "sprites/heroes/hero_iris_knight_detail_v2.png": {
-  "sha1": "c483d8f21e9b6dae6384e8d65382bafa7adb282a",
-  "png": 129311,
-  "webp": 29412
- },
- "sprites/portraits/hero_iris_knight_detail_v2.png": {
-  "sha1": "84788239e039b6a681cdcc76f33c2c37e5d1a3cb",
-  "png": 6960,
-  "webp": 2390
- },
- "sprites/heroes/hero_iris_crusader_detail_v2.png": {
-  "sha1": "82a085387399ed8b4cee29422c4cb4b0fd0a1c77",
-  "png": 168718,
-  "webp": 40442
- },
- "sprites/portraits/hero_iris_crusader_detail_v2.png": {
-  "sha1": "c0bd845d01d6996dee88e5afaf4f0edb1e6490af",
-  "png": 6631,
-  "webp": 2280
- },
- "sprites/heroes/hero_zara_thief_detail_v2.png": {
-  "sha1": "d723d3acc9ce5954d507c139f37809def4f0c26e",
-  "png": 156562,
-  "webp": 42086
- },
- "sprites/portraits/hero_zara_thief_detail_v2.png": {
-  "sha1": "6992f4e6c4cc4aeff9ee69ed1bcf72401c1dd2b5",
-  "png": 7050,
-  "webp": 2900
- },
- "sprites/heroes/hero_zara_assassin_detail_v2.png": {
-  "sha1": "f93a1d099b2e1ef3eabf8d1c8dcf63d037b387d0",
-  "png": 168308,
-  "webp": 41394
- },
- "sprites/portraits/hero_zara_assassin_detail_v2.png": {
-  "sha1": "080a6298ebc035874114c4600f67f20c6421bb4c",
-  "png": 6952,
-  "webp": 2484
- },
- "sprites/heroes/hero_zara_rogue_detail_v2.png": {
-  "sha1": "2239b74297717d5917a1f57d37e2f84d3d40d71b",
-  "png": 166178,
-  "webp": 40378
- },
- "sprites/portraits/hero_zara_rogue_detail_v2.png": {
-  "sha1": "dd684a3e34810bdbd2c00a5f0c309c429904c570",
-  "png": 5672,
-  "webp": 2008
- },
- "sprites/heroes/hero_lira_magician_details_v2.png": {
-  "sha1": "bf1060ccbb00bf9bdaf2c603b5e77c54b73db248",
-  "png": 130758,
-  "webp": 31162
- },
- "sprites/portraits/hero_lira_magician_details_v2.png": {
-  "sha1": "a2ec87c0234cfec1a6aac1be4dae9600e696199e",
-  "png": 6117,
-  "webp": 2182
- },
- "sprites/heroes/hero_lira_wizard_detail_v2.png": {
-  "sha1": "5482bd6337eb8790d30daff82e6910e0571ad8fa",
-  "png": 172145,
-  "webp": 44332
- },
- "sprites/portraits/hero_lira_wizard_detail_v2.png": {
-  "sha1": "3b89750b2d3c38eb79996687ea8487ee85d7a8c9",
-  "png": 6654,
-  "webp": 2456
- },
- "sprites/heroes/hero_kai_magician_details_v2.png": {
-  "sha1": "01ff6e47f141eb7eb331f0456191243560b8ae42",
-  "png": 146924,
-  "webp": 37014
- },
- "sprites/portraits/hero_kai_magician_details_v2.png": {
-  "sha1": "2385e9e8350ecbbb2b52cc5a2e21335361445d72",
-  "png": 5481,
-  "webp": 1880
- },
- "sprites/heroes/hero_kai_wizard_detail_v2.png": {
-  "sha1": "b817f4a927df765f38898714d5af0bd8d825eb60",
-  "png": 163745,
-  "webp": 42294
- },
- "sprites/portraits/hero_kai_wizard_detail_v2.png": {
-  "sha1": "71c9e2a969995a28563816929a3a71d0cdd04b9f",
-  "png": 6005,
-  "webp": 2126
- },
- "sprites/heroes/hero_kai_sage_detail_v2.png": {
-  "sha1": "859df696ca85bdd914a25c92182f3e264417f7fd",
-  "png": 176127,
-  "webp": 44440
- },
- "sprites/portraits/hero_kai_sage_detail_v2.png": {
-  "sha1": "4da3d518e923c36809c4b2374083123382399d28",
-  "png": 6707,
-  "webp": 2346
- },
- "sprites/heroes/hero_otto_merchant_detail_v2.png": {
-  "sha1": "293c3815b287ed59da8eb4c7c0b61471b5f5d231",
-  "png": 141519,
-  "webp": 34934
- },
- "sprites/portraits/hero_otto_merchant_detail_v2.png": {
-  "sha1": "da556fe44b6df0e1b4703ff7a3d85def74ee751a",
-  "png": 6021,
-  "webp": 2236
- },
- "sprites/heroes/hero_otto_blacksmith_detail_v2.png": {
-  "sha1": "6ea4f7ee353344d0520e36a5d3c0043df4e7179f",
-  "png": 157480,
-  "webp": 37932
- },
- "sprites/portraits/hero_otto_blacksmith_detail_v2.png": {
-  "sha1": "294dcee6fb8de646dd283dd921886ba15aee2e5e",
-  "png": 5882,
-  "webp": 2050
- },
- "sprites/heroes/hero_otto_alchemist_detail_v2.png": {
-  "sha1": "273bbb3119e3d2e4e7a6dacf81ec5ac859ea9c18",
-  "png": 162919,
-  "webp": 38440
- },
- "sprites/portraits/hero_otto_alchemist_detail_v2.png": {
-  "sha1": "eaac19a048b439b565a71c43e4f0d1e8e341c35d",
-  "png": 5324,
-  "webp": 1824
- },
- "sprites/heroes/hero_bran_first_profession_detail_v1.png": {
-  "sha1": "dade2dcdecc72733b1bd11e9ff6a7928549e4d11",
-  "png": 143408,
-  "webp": 36838
- },
- "sprites/portraits/hero_bran_first_profession_detail_v1.png": {
-  "sha1": "c1dbe62d9ec3b056ef0f7d664fbe668648420d42",
-  "png": 6324,
-  "webp": 2270
- },
- "sprites/heroes/hero_bran_hunter_detail_v2.png": {
-  "sha1": "3c5f69e2fe982968ba584bfd71b3d95d7a91e11a",
-  "png": 141099,
-  "webp": 32874
- },
- "sprites/portraits/hero_bran_hunter_detail_v2.png": {
-  "sha1": "81ed8c8fd04e1926b8a18780a13a3a02fdaeb341",
-  "png": 6141,
-  "webp": 2040
- },
- "sprites/heroes/hero_bran_bard_detail_v2.png": {
-  "sha1": "55e7081664734dbdce63b30abc03d8d006b260cb",
-  "png": 151941,
-  "webp": 34558
- },
- "sprites/portraits/hero_bran_bard_detail_v2.png": {
-  "sha1": "e82fdcfc0f2e8cb87c6042cebae9e063c04338ed",
-  "png": 6930,
-  "webp": 2390
- },
- "sprites/heroes/hero_teo_acolyte_details_v2.png": {
-  "sha1": "1d36c4ee6f38838ea5d2cf586541a5e33f3cf7a4",
-  "png": 144492,
-  "webp": 34888
- },
- "sprites/portraits/hero_teo_acolyte_details_v2.png": {
-  "sha1": "616ada8df7ba7de8d1024787d745746d6ef288a6",
-  "png": 6690,
-  "webp": 2308
- },
- "sprites/heroes/hero_teo_priest_detail_v2.png": {
-  "sha1": "3b1bfd46ee8a56f511524fe805e447d292b919dc",
-  "png": 165576,
-  "webp": 41426
- },
- "sprites/portraits/hero_teo_priest_detail_v2.png": {
-  "sha1": "256e441d7abf37a3cc456945ad96b9b30fd1d083",
-  "png": 6959,
-  "webp": 2496
- },
- "sprites/heroes/hero_teo_monk_detail_v2.png": {
-  "sha1": "95a47c4f26bbccf0df9fefcf32eac60cb5919436",
-  "png": 183849,
-  "webp": 45276
- },
- "sprites/portraits/hero_teo_monk_detail_v2.png": {
-  "sha1": "7bc254ac107d2f7446a75bf621dce13046a7557e",
-  "png": 6214,
-  "webp": 2154
- },
- "sprites/heroes/hero_greta_merchant_detail_v2.png": {
-  "sha1": "45ab8ecd918d5b3b6aab8a053fe45f83129df6a6",
-  "png": 133146,
-  "webp": 38056
- },
- "sprites/portraits/hero_greta_merchant_detail_v2.png": {
-  "sha1": "3c143157792a8b60fce34140f08985e911c3a9b4",
-  "png": 6046,
-  "webp": 2480
- },
- "sprites/heroes/hero_greta_blacksmith_detail_v2.png": {
-  "sha1": "798908a89324d32e3ad32b0c67d59081bed6ff57",
-  "png": 149408,
-  "webp": 35788
- },
- "sprites/portraits/hero_greta_blacksmith_detail_v2.png": {
-  "sha1": "7ac0baa6137a65918acaca9b6ee1c7ca07353795",
-  "png": 6733,
-  "webp": 2282
- },
- "sprites/heroes/hero_greta_alchemist_detail_v2.png": {
-  "sha1": "5cebf4a58cc86eb9e1bb4ce97a6d6d3b3af5aa41",
-  "png": 169359,
-  "webp": 40866
- },
- "sprites/portraits/hero_greta_alchemist_detail_v2.png": {
-  "sha1": "25441f62ea57e0420d9cd7653151c09c908adce8",
-  "png": 6451,
-  "webp": 2226
- },
- "sprites/heroes/hero_dorn_thief_detail_v2.png": {
-  "sha1": "306521503aaa8a478a3f3ff49bea20432caabe59",
-  "png": 155848,
-  "webp": 40198
- },
- "sprites/portraits/hero_dorn_thief_detail_v2.png": {
-  "sha1": "28a0b7e9e2ebe10ae15750424e7f8e4fa67df82a",
-  "png": 5869,
-  "webp": 2208
- },
- "sprites/heroes/hero_dorn_assassin_detail_v2.png": {
-  "sha1": "c5ac66dfefb70d53caf62aa8039d10c25fdc0802",
-  "png": 163430,
-  "webp": 40058
- },
- "sprites/portraits/hero_dorn_assassin_detail_v2.png": {
-  "sha1": "4e7b67f83b7b84e32ef674b0fd484a97e4a69696",
-  "png": 5737,
-  "webp": 2018
- },
- "sprites/heroes/hero_dorn_rogue_detail_v2.png": {
-  "sha1": "c0a0fe6bbdf69e739d74e520be237cf73294e509",
-  "png": 162078,
-  "webp": 39798
- },
- "sprites/portraits/hero_dorn_rogue_detail_v2.png": {
-  "sha1": "3fbae715a7a43534b283f4b49cc92a3d8f8bde19",
-  "png": 5390,
-  "webp": 1790
- },
- "sprites/heroes/hero_vika_acolyte_details_v2.png": {
-  "sha1": "7d631cd20e1b72fd572483b4081ac455af2896cf",
-  "png": 127381,
-  "webp": 30428
- },
- "sprites/portraits/hero_vika_acolyte_details_v2.png": {
-  "sha1": "be000223d6724f8b2fbb820d5796ca49db5f83a7",
-  "png": 5411,
-  "webp": 1832
- },
- "sprites/heroes/hero_vika_priest_detail_v2.png": {
-  "sha1": "c349c0e1cdd0ed8250647b958399703a8b9f9b07",
-  "png": 162572,
-  "webp": 41822
- },
- "sprites/portraits/hero_vika_priest_detail_v2.png": {
-  "sha1": "6e5bd61ec91b53e5a73b2faed32ecfcf645d0079",
-  "png": 5728,
-  "webp": 2004
- },
- "sprites/heroes/hero_vika_monk_detail_v2.png": {
-  "sha1": "89f85dbec192776ccda5418de9dd9528fa05ba9f",
-  "png": 183668,
-  "webp": 45332
- },
- "sprites/portraits/hero_vika_monk_detail_v2.png": {
-  "sha1": "c3df5dc7a7b610f82b3b0eaf6f9202bc9edea8da",
-  "png": 6666,
-  "webp": 2314
- },
- "sprites/heroes/hero_alan_first_profession_detail_v1.png": {
-  "sha1": "d1e752518d9fc2678afe58139446f059c8f9dde7",
-  "png": 148885,
-  "webp": 35520
- },
- "sprites/portraits/hero_alan_first_profession_detail_v1.png": {
-  "sha1": "75b0bf074eb37e5cd9b23089c528fcae4af8b773",
-  "png": 6561,
-  "webp": 2380
- },
- "sprites/heroes/hero_alan_knight_detail_v2.png": {
-  "sha1": "5b4fa0c2fd34a551538ca5cf715acbd1c96a8b71",
-  "png": 130104,
-  "webp": 30272
- },
- "sprites/portraits/hero_alan_knight_detail_v2.png": {
-  "sha1": "c0c2ee95c12a41508fc90474b25aacc57ca04c38",
-  "png": 5578,
-  "webp": 1900
- },
- "sprites/heroes/hero_alan_crusader_detail_v2.png": {
-  "sha1": "8d5675295f09e6db6138176387409566dd74b556",
-  "png": 186066,
-  "webp": 39140
- },
- "sprites/portraits/hero_alan_crusader_detail_v2.png": {
-  "sha1": "170a8fe47b8fa768151680cbc4fa0c470aa32c73",
-  "png": 7473,
-  "webp": 2582
- },
- "sprites/heroes/profession_novice_m_detail_v1.png": {
-  "sha1": "48fc95c0a06e3671d2e685ae6372a4e2cef0d2cb",
-  "png": 168285,
-  "webp": 37502
- },
- "sprites/portraits/profession_novice_m_detail_v1.png": {
-  "sha1": "0dcee780d140174f3e02f90213afc9b6666fc3a4",
-  "png": 5603,
-  "webp": 1994
- },
- "sprites/heroes/profession_novice_f_detail_v1.png": {
-  "sha1": "13a3fdd99f15af7da63f719150304c59d821c58b",
-  "png": 159999,
-  "webp": 41698
- },
- "sprites/portraits/profession_novice_f_detail_v1.png": {
-  "sha1": "0085a51d5848d80b3349a758e00993f6adf9a27c",
-  "png": 6135,
-  "webp": 2258
  }
 }

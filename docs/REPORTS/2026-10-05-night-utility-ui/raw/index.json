@@ -1,0 +1,208 @@
+{
+  "purpose": "Complete unmodified raw JSON inputs compressed with deterministic gzip; original PASS/FAIL/interruption flags preserved. Reconstruct with gzip -dc <path>; match originalSha256. No private QA output directory is needed to inspect the evidence.",
+  "reports": [
+    {
+      "path": "raw/chronoworld-utility-ui-dev-final-clean.report.json.gz",
+      "gzipSha256": "ad086740bb465ac163fd53fcaf7cb8a4e69209ac8371346682d71b648e918d1d",
+      "gzipBytes": 31229,
+      "originalPath": "/tmp/chronoworld-utility-ui-dev-final-clean/report.json",
+      "originalSha256": "3cd7e8f67f9c19c57ba20caac2c3ae8e943376a955037933c62908ded78cd606",
+      "originalBytes": 899753,
+      "originalOverallPassed": false,
+      "harnessSha256": "b63f35bbdd007c01621a39929f5027de86be30ebd95a0f956350c767e592207d",
+      "finishedPassedCases": 16,
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n'Mail' !== 'Home'\n\n    at flow (file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:359:67)\n    at async file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:425:11",
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "dev-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-dev-webgl390-final.report.json.gz",
+      "gzipSha256": "ae31931084aad4c48fcc7288efbe6a898332c67d8474d79cf37643c24c3ed857",
+      "gzipBytes": 12038,
+      "originalPath": "/tmp/chronoworld-utility-ui-dev-webgl390-final/report.json",
+      "originalSha256": "2c7abb4d46be79a2d1f2627897f6fe185a84c7f71c17fdcbb914173e4e5611c5",
+      "originalBytes": 299047,
+      "originalOverallPassed": true,
+      "harnessSha256": "c7deba0c5153ff6c2fc79b0edb81cf890fa72c4cfb69f0dbf25775059e8e3b5e",
+      "finishedPassedCases": 5,
+      "failure": null,
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "dev-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-final.report.json.gz",
+      "gzipSha256": "0ebe2beca476b3633890fe174a9498762557e54711385c875f2932dc857ef792",
+      "gzipBytes": 17299,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-final/report.json",
+      "originalSha256": "8f011b7075637092b86d2bca466008df120581082cde90d6a026e758903145b3",
+      "originalBytes": 437261,
+      "originalOverallPassed": false,
+      "harnessSha256": "c7deba0c5153ff6c2fc79b0edb81cf890fa72c4cfb69f0dbf25775059e8e3b5e",
+      "finishedPassedCases": 8,
+      "failure": null,
+      "interruption": "Приёмка остановлена между действиями для общего CPU-окна",
+      "referencedBy": [
+        {
+          "summary": "production-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-canvas390-final.report.json.gz",
+      "gzipSha256": "3b09c8bbe1e3f9f32f87f1fadcaab13cd8d085ca760411f39d3d614757abeea7",
+      "gzipBytes": 8617,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-canvas390-final/report.json",
+      "originalSha256": "8c00abdc866aeebda2ef96e9bddd04e04294561ffcb059226dd754a42b1b8c14",
+      "originalBytes": 214051,
+      "originalOverallPassed": true,
+      "harnessSha256": "c7deba0c5153ff6c2fc79b0edb81cf890fa72c4cfb69f0dbf25775059e8e3b5e",
+      "finishedPassedCases": 2,
+      "failure": null,
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "production-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-webgl-final.report.json.gz",
+      "gzipSha256": "25c2944cad971c2cbcba240fd1dba58c4e62f24c5c3b1a847dbbf408abed7166",
+      "gzipBytes": 21436,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-webgl-final/report.json",
+      "originalSha256": "2865103e46be9cac8266e9eb6bc8f0e944846c4314593cb4ca0a87c43d1c3f4c",
+      "originalBytes": 582004,
+      "originalOverallPassed": true,
+      "harnessSha256": "c7deba0c5153ff6c2fc79b0edb81cf890fa72c4cfb69f0dbf25775059e8e3b5e",
+      "finishedPassedCases": 10,
+      "failure": null,
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "production-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-motion-canvas360.report.json.gz",
+      "gzipSha256": "519fb7e6075b1b5617f3a4f94df80acaa9f2ecdf08029cda1ce3a406225d789b",
+      "gzipBytes": 3573,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-motion-canvas360/report.json",
+      "originalSha256": "c1a93a35349a0c20d2de8a62200f6aafcdf6883744b36788d6a499935c12d5c7",
+      "originalBytes": 32380,
+      "originalOverallPassed": true,
+      "harnessSha256": "db7cb025d9b171d151eb1a9841c5763c5017f707d554a79dcc950e4da050b7db",
+      "finishedPassedCases": 1,
+      "failure": null,
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "motion-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-motion-webgl390-timed.report.json.gz",
+      "gzipSha256": "3042155b7a4af8a4d12d758fd9b1c168ab2003011b6f91a30e7149d3bbdf6d3c",
+      "gzipBytes": 14115,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-motion-webgl390-timed/report.json",
+      "originalSha256": "be39b296e8560f7be5493cd55786ef0780abcbea544a355bbb421ebda41ad27e",
+      "originalBytes": 319019,
+      "originalOverallPassed": true,
+      "harnessSha256": "8ad3d837ecc8b9e7573edaf0eb602c529f196d601a316f477cc0032b68725aa6",
+      "finishedPassedCases": 2,
+      "failure": null,
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "motion-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-motion-webgl390-late-touch.report.json.gz",
+      "gzipSha256": "858570e160e436cc73a9f7cdd9349d3906f80c1a731df175b048ab8c0a275fe9",
+      "gzipBytes": 10079,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-motion-webgl390-late-touch/report.json",
+      "originalSha256": "acadc62c9aca2fc3a942681ab2070d2feb1d7f58f6bc8bbda9a41c4a8f5de59b",
+      "originalBytes": 245661,
+      "originalOverallPassed": true,
+      "harnessSha256": "0998cd15627e4a468f33073d0a451624033d47329306fe152da835803c9b8b3d",
+      "finishedPassedCases": 1,
+      "failure": null,
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "motion-summary.json",
+          "group": "inputs"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-motion-webgl390.report.json.gz",
+      "gzipSha256": "4c2b53a33b4f7ce4937633cc1979df2247267d39e089d11e43de4328d93e48e1",
+      "gzipBytes": 4022,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-motion-webgl390/report.json",
+      "originalSha256": "25637aa7816b531641769da65788a10d4274cee0dc0c2c35c8591c134eb205e0",
+      "originalBytes": 61498,
+      "originalOverallPassed": false,
+      "harnessSha256": "db7cb025d9b171d151eb1a9841c5763c5017f707d554a79dcc950e4da050b7db",
+      "finishedPassedCases": 0,
+      "failure": "page.evaluate: Error: Не найдена кнопка «Отмена»\n    at eval (eval at evaluate (:311:30), <anonymous>:7:24)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at Object.label (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:199:33)\n    at flow (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:397:91)\n    at async file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:437:11",
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "motion-summary.json",
+          "group": "priorFailedInputsRetained"
+        }
+      ]
+    },
+    {
+      "path": "raw/chronoworld-utility-ui-production-motion-webgl390-diagnostic.report.json.gz",
+      "gzipSha256": "df251e05339c1725dee6566210378c6bbc70fd18aba5f729de6669be5cd46587",
+      "gzipBytes": 11039,
+      "originalPath": "/tmp/chronoworld-utility-ui-production-motion-webgl390-diagnostic/report.json",
+      "originalSha256": "c424e196fc959df9999e0a909ff163d345d04b636c5bce4d4b6d147e790f00df",
+      "originalBytes": 171190,
+      "originalOverallPassed": false,
+      "harnessSha256": "1da365fef1803c4938b6a91b2dfcd5c6aca614fdf0593a3d4c76a528b1aee3eb",
+      "finishedPassedCases": 0,
+      "failure": "page.evaluate: Error: Не найдена кнопка «Отмена»\n    at eval (eval at evaluate (:311:30), <anonymous>:7:24)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at Object.label (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:215:33)\n    at flow (/workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:413:91)\n    at async file:///workspace/chronoworld-worktrees/night-utility-ui/scripts/night-utility-ui-qa.mjs:453:11",
+      "interruption": null,
+      "referencedBy": [
+        {
+          "summary": "motion-summary.json",
+          "group": "priorFailedInputsRetained"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "files": 10,
+    "compressedBytes": 133447,
+    "originalBytes": 3261864
+  },
+  "primaryHarness": {
+    "path": "raw/harness-primary-c7deba0c.mjs.gz",
+    "originalSha256": "c7deba0c5153ff6c2fc79b0edb81cf890fa72c4cfb69f0dbf25775059e8e3b5e",
+    "gzipSha256": "b7615e39228d081af74fa90776752cf2d9f059445d5bf32e864f8b8f58f7b490",
+    "gzipBytes": 9319,
+    "originalBytes": 31519,
+    "restoreForExactReproduction": "Decompress to scripts/night-utility-ui-qa.mjs in an isolated checkout that matches the report source fingerprints; relative imports use that path."
+  }
+}

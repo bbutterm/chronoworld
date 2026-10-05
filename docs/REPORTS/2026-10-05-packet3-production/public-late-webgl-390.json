@@ -1,0 +1,2251 @@
+{
+  "started": "2026-10-05T05:13:12.330Z",
+  "url": "https://chronoworld-ecru.vercel.app/",
+  "width": 390,
+  "height": 844,
+  "renderer": "webgl",
+  "scope": "late",
+  "method": "Private lawful late save without UI stock; normal Boot/native navigation; GET-only original compiled bundle with read-only observer append; advancing lawful clock, camera postrender and all modal popInner stability required.",
+  "failures": [],
+  "errors": [],
+  "blocked": [],
+  "sourceRequests": [],
+  "bundles": {
+    "/assets/index-D71usCSU.js": "ee67ba54d6a6a48657c97fdc4289c0c41702cd685c00d2eb5e55d2099c89cd56"
+  },
+  "interactions": [
+    {
+      "kind": "native-click",
+      "key": "Campaign",
+      "name": "Герои",
+      "target": {
+        "name": "",
+        "text": "Герои",
+        "clip": [
+          0,
+          1866.4615384615386
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 405,
+          "y": 1824.4615478515625
+        },
+        "bounds": {
+          "x": 355.5,
+          "y": 1803.9615478515625,
+          "width": 99,
+          "height": 41
+        },
+        "hitCss": 61.388888888888886,
+        "css": {
+          "x": 146.25,
+          "y": 794.8333367241753
+        },
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Heroes",
+      "name": "currencyBalanceTarget",
+      "target": {
+        "name": "currencyBalanceTarget",
+        "clip": [
+          0,
+          1866.4615384615386
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 943,
+          "y": 75
+        },
+        "bounds": {
+          "x": 943,
+          "y": 75,
+          "width": 0,
+          "height": 0
+        },
+        "hitCss": 47.666666666666664,
+        "css": {
+          "x": 340.52777777777777,
+          "y": 163.08333333333331
+        },
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        }
+      }
+    },
+    {
+      "kind": "exact-header-balance",
+      "key": "Heroes",
+      "expected": "Баланс\nЗолото: 226 179\nГемы: 235",
+      "message": "Баланс\nЗолото: 226 179\nГемы: 235"
+    },
+    {
+      "kind": "viewport-and-sdk-insets",
+      "key": "Heroes",
+      "before": {
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        },
+        "savedSha256": "86ca2cc997e037e259fc25a5199d74987fa22be471ca0d9835f413f35029fb92",
+        "offset": 0
+      },
+      "after": {
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        },
+        "savedSha256": "86ca2cc997e037e259fc25a5199d74987fa22be471ca0d9835f413f35029fb92",
+        "offset": 0
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Heroes",
+      "name": "heroCard_h21",
+      "target": {
+        "name": "heroCard_h21",
+        "clip": [
+          460,
+          1686.4615384615386
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 880,
+          "y": 1567.5
+        },
+        "bounds": {
+          "x": 704,
+          "y": 1337,
+          "width": 352,
+          "height": 461
+        },
+        "hitCss": 166.4722222222222,
+        "css": {
+          "x": 317.77777777777777,
+          "y": 702.0416666666666
+        },
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        }
+      }
+    },
+    {
+      "kind": "viewport-and-sdk-insets",
+      "key": "Hero",
+      "before": {
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        },
+        "savedSha256": "245b9ed71ca8a08fc4b176e5e7c77f96f21ef60356526a25801111526b5f0f54",
+        "offset": 0
+      },
+      "after": {
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        },
+        "savedSha256": "245b9ed71ca8a08fc4b176e5e7c77f96f21ef60356526a25801111526b5f0f54",
+        "offset": 0
+      }
+    },
+    {
+      "kind": "sdk-back",
+      "key": "Hero",
+      "expected": "Heroes"
+    },
+    {
+      "kind": "native-click",
+      "key": "Heroes",
+      "name": "classFilter",
+      "target": {
+        "name": "classFilter",
+        "clip": [
+          0,
+          1866.4615384615386
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 242,
+          "y": 370
+        },
+        "bounds": {
+          "x": 48,
+          "y": 304,
+          "width": 388,
+          "height": 132
+        },
+        "hitCss": 47.666666666666664,
+        "css": {
+          "x": 87.38888888888889,
+          "y": 269.6111111111111
+        },
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        }
+      }
+    },
+    {
+      "kind": "viewport-and-sdk-insets",
+      "key": "Heroes",
+      "before": {
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        },
+        "savedSha256": "245b9ed71ca8a08fc4b176e5e7c77f96f21ef60356526a25801111526b5f0f54",
+        "offset": 0
+      },
+      "after": {
+        "view": {
+          "uiHeight": 1866.4615384615386,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 6,
+          "cssW": 390,
+          "cssH": 838,
+          "backW": 390,
+          "backH": 838,
+          "density": 1,
+          "zoom": 0.3611111111111111,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 2320.6153846153848,
+          "safeTop": 0,
+          "safeBottom": 1866.4615384615386
+        },
+        "savedSha256": "245b9ed71ca8a08fc4b176e5e7c77f96f21ef60356526a25801111526b5f0f54",
+        "offset": 0
+      }
+    },
+    {
+      "kind": "sdk-back",
+      "key": "Heroes",
+      "expected": "Heroes"
+    }
+  ],
+  "snapshots": [
+    {
+      "name": "boot-campaign",
+      "key": "Campaign",
+      "savedSha256": "86ca2cc997e037e259fc25a5199d74987fa22be471ca0d9835f413f35029fb92",
+      "active": [
+        "Campaign"
+      ],
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "view": {
+        "uiHeight": 1866.4615384615386,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 6,
+        "cssW": 390,
+        "cssH": 838,
+        "backW": 390,
+        "backH": 838,
+        "density": 1,
+        "zoom": 0.3611111111111111,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 2320.6153846153848,
+        "safeTop": 0,
+        "safeBottom": 1866.4615384615386
+      },
+      "identity": 1,
+      "cameraIdentity": 2,
+      "frames": 50,
+      "cameraFrames": 32,
+      "modals": [],
+      "modalHits": [],
+      "tg": {
+        "visible": false,
+        "handlers": 0
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "226K"
+        },
+        {
+          "name": "",
+          "text": "235"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "10-16"
+        },
+        {
+          "name": "",
+          "text": "10-17"
+        },
+        {
+          "name": "",
+          "text": "10-18"
+        },
+        {
+          "name": "",
+          "text": "Трон Владыки мёртвых"
+        },
+        {
+          "name": "",
+          "text": "История"
+        },
+        {
+          "name": "",
+          "text": "Отряд"
+        },
+        {
+          "name": "",
+          "text": "Изменить"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Бран"
+        },
+        {
+          "name": "",
+          "text": "Кай"
+        },
+        {
+          "name": "",
+          "text": "Лира"
+        },
+        {
+          "name": "",
+          "text": "Вика"
+        },
+        {
+          "name": "",
+          "text": "Глава 10. Нифльхейм"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "chapterProgress",
+          "text": "Глава 10 · 18 / 18"
+        },
+        {
+          "name": "",
+          "text": "11–15"
+        },
+        {
+          "name": "",
+          "text": "Быстрая награда"
+        },
+        {
+          "name": "",
+          "text": "50"
+        },
+        {
+          "name": "",
+          "text": "Все этапы пройдены"
+        },
+        {
+          "name": "",
+          "text": "Добыча за время отдыха"
+        },
+        {
+          "name": "chestFill",
+          "text": "0ч 00м / 12ч"
+        },
+        {
+          "name": "",
+          "text": "Собрать"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        }
+      ]
+    },
+    {
+      "name": "full-Heroes-viewport-alt",
+      "key": "Heroes",
+      "savedSha256": "86ca2cc997e037e259fc25a5199d74987fa22be471ca0d9835f413f35029fb92",
+      "active": [
+        "Heroes"
+      ],
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 4,
+      "frames": 82,
+      "cameraFrames": 15,
+      "bodyOffset": 0,
+      "bodyClip": [
+        460,
+        1230
+      ],
+      "bodyMax": 1042,
+      "bodyLocked": false,
+      "modals": [],
+      "modalHits": [],
+      "tg": {
+        "visible": false,
+        "handlers": 0
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "226K"
+        },
+        {
+          "name": "",
+          "text": "235"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Герои"
+        },
+        {
+          "name": "squadPower",
+          "text": "33 792"
+        },
+        {
+          "name": "",
+          "text": "Мощь отряда"
+        },
+        {
+          "name": "heroExpPool",
+          "text": "55 203 4…"
+        },
+        {
+          "name": "",
+          "text": "Опыт в запасе"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": "Коллекция\n12/12"
+        },
+        {
+          "name": "",
+          "text": "Все классы"
+        },
+        {
+          "name": "",
+          "text": "Фильтр"
+        },
+        {
+          "name": "",
+          "text": "Сила"
+        },
+        {
+          "name": "",
+          "text": "Лира"
+        },
+        {
+          "name": "",
+          "text": "Ур. 100"
+        },
+        {
+          "name": "copies",
+          "text": "+5"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 80"
+        },
+        {
+          "name": "copies",
+          "text": "+1"
+        },
+        {
+          "name": "",
+          "text": "Кай"
+        },
+        {
+          "name": "",
+          "text": "Ур. 80"
+        },
+        {
+          "name": "copies",
+          "text": "+1"
+        },
+        {
+          "name": "",
+          "text": "Бран"
+        },
+        {
+          "name": "",
+          "text": "Ур. 80"
+        },
+        {
+          "name": "copies",
+          "text": "+2"
+        },
+        {
+          "name": "",
+          "text": "Вика"
+        },
+        {
+          "name": "",
+          "text": "Ур. 60"
+        },
+        {
+          "name": "copies",
+          "text": "+4"
+        },
+        {
+          "name": "",
+          "text": "Тео"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+2"
+        },
+        {
+          "name": "",
+          "text": "Дорн"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+3"
+        },
+        {
+          "name": "",
+          "text": "Грета"
+        },
+        {
+          "name": "",
+          "text": "Ур. 5"
+        },
+        {
+          "name": "copies",
+          "text": "+4"
+        },
+        {
+          "name": "",
+          "text": "Ирис"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+6"
+        },
+        {
+          "name": "",
+          "text": "Зара"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+2"
+        },
+        {
+          "name": "",
+          "text": "Отто"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+3"
+        },
+        {
+          "name": "",
+          "text": "Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+5"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        },
+        {
+          "name": "",
+          "text": "Баланс\nЗолото: 226 179\nГемы: 235"
+        }
+      ]
+    },
+    {
+      "name": "full-Hero-viewport-alt",
+      "key": "Hero",
+      "savedSha256": "245b9ed71ca8a08fc4b176e5e7c77f96f21ef60356526a25801111526b5f0f54",
+      "active": [
+        "Hero"
+      ],
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 5,
+      "cameraIdentity": 6,
+      "frames": 132,
+      "cameraFrames": 8,
+      "heroId": "h21",
+      "tab": "skills",
+      "bodyOffset": 0,
+      "bodyClip": [
+        170,
+        988
+      ],
+      "bodyMax": 3490,
+      "bodyLocked": false,
+      "modals": [],
+      "modalHits": [],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "226K"
+        },
+        {
+          "name": "",
+          "text": "235"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Героиня"
+        },
+        {
+          "name": "heroName",
+          "text": "Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Охотница · Урон"
+        },
+        {
+          "name": "heroRarity",
+          "text": "Фиолетовый"
+        },
+        {
+          "name": "",
+          "text": "+4"
+        },
+        {
+          "name": "",
+          "text": "+0"
+        },
+        {
+          "name": "",
+          "text": "+0"
+        },
+        {
+          "name": "",
+          "text": "+0"
+        },
+        {
+          "name": "heroLevel",
+          "text": "Ур. 1 / 60"
+        },
+        {
+          "name": "heroPower",
+          "text": "1 343"
+        },
+        {
+          "name": "",
+          "text": "Мощь"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "1/2"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": "Здоровье"
+        },
+        {
+          "name": "stat_hp",
+          "text": "4 173"
+        },
+        {
+          "name": "",
+          "text": "+55"
+        },
+        {
+          "name": "",
+          "text": "Атака"
+        },
+        {
+          "name": "stat_atk",
+          "text": "284"
+        },
+        {
+          "name": "",
+          "text": "+9"
+        },
+        {
+          "name": "",
+          "text": "Защита"
+        },
+        {
+          "name": "stat_def",
+          "text": "120"
+        },
+        {
+          "name": "",
+          "text": "+1"
+        },
+        {
+          "name": "",
+          "text": "Скорость"
+        },
+        {
+          "name": "stat_spd",
+          "text": "156"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": "Навыки"
+        },
+        {
+          "name": "",
+          "text": "Снаряжение"
+        },
+        {
+          "name": "",
+          "text": "Путь"
+        },
+        {
+          "name": "",
+          "text": "Сменить ветку"
+        },
+        {
+          "name": "",
+          "text": "бесплатно"
+        },
+        {
+          "name": "",
+          "text": "Атака и личная ульта"
+        },
+        {
+          "name": "",
+          "text": "Выстрел"
+        },
+        {
+          "name": "",
+          "text": "Обычная атака"
+        },
+        {
+          "name": "",
+          "text": "Соколиный шквал"
+        },
+        {
+          "name": "",
+          "text": "Полная энергия"
+        },
+        {
+          "name": "",
+          "text": "Унаследованные навыки"
+        },
+        {
+          "name": "",
+          "text": "Капкан"
+        },
+        {
+          "name": "",
+          "text": "Открыто с ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Концентрация"
+        },
+        {
+          "name": "",
+          "text": "Ур. 10"
+        },
+        {
+          "name": "",
+          "text": "Клеймор"
+        },
+        {
+          "name": "",
+          "text": "Ур. 30"
+        },
+        {
+          "name": "",
+          "text": "Сонная ловушка"
+        },
+        {
+          "name": "",
+          "text": "Ур. 50"
+        },
+        {
+          "name": "",
+          "text": "Лучница → Охотница → Снайпер"
+        },
+        {
+          "name": "",
+          "text": "Золотой и выше · ур. 70 · автоматически"
+        },
+        {
+          "name": "",
+          "text": "Разведка боем Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Метка сокола"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Пронизывающий залп"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Сковывающий залп"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 80"
+        },
+        {
+          "name": "",
+          "text": "Выверенный прицел"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 90"
+        },
+        {
+          "name": "",
+          "text": "Запас стрел"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 100"
+        },
+        {
+          "name": "",
+          "text": "Лучница → Танцовщица → Цыганка"
+        },
+        {
+          "name": "",
+          "text": "Золотой и выше · ур. 70 · автоматически"
+        },
+        {
+          "name": "",
+          "text": "Искры Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Взрывной шаг"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Танец марионеток"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Ритм разведки"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 80"
+        },
+        {
+          "name": "",
+          "text": "Первый поворот"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 90"
+        },
+        {
+          "name": "",
+          "text": "Отзвук танца"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 100"
+        },
+        {
+          "name": "otherBranch_dancer",
+          "text": "Другая ветка — Танцовщица"
+        },
+        {
+          "name": "",
+          "text": "Служу тебе"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Бросок стрелы"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Крик"
+        },
+        {
+          "name": "",
+          "text": "Ур. 10 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Не забывай меня"
+        },
+        {
+          "name": "",
+          "text": "Ур. 30 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Поцелуй удачи"
+        },
+        {
+          "name": "",
+          "text": "Ур. 50 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Улучшить"
+        },
+        {
+          "name": "",
+          "text": "100"
+        },
+        {
+          "name": "",
+          "text": "15"
+        },
+        {
+          "name": "",
+          "text": "+35 ур."
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        }
+      ]
+    },
+    {
+      "name": "late-lawful-hero",
+      "key": "Hero",
+      "savedSha256": "245b9ed71ca8a08fc4b176e5e7c77f96f21ef60356526a25801111526b5f0f54",
+      "active": [
+        "Hero"
+      ],
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "view": {
+        "uiHeight": 1866.4615384615386,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 6,
+        "cssW": 390,
+        "cssH": 838,
+        "backW": 390,
+        "backH": 838,
+        "density": 1,
+        "zoom": 0.3611111111111111,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 2320.6153846153848,
+        "safeTop": 0,
+        "safeBottom": 1866.4615384615386
+      },
+      "identity": 5,
+      "cameraIdentity": 6,
+      "frames": 153,
+      "cameraFrames": 29,
+      "heroId": "h21",
+      "tab": "skills",
+      "bodyOffset": 0,
+      "bodyClip": [
+        170,
+        1444.4615384615386
+      ],
+      "bodyMax": 3033.5384615384614,
+      "bodyLocked": false,
+      "modals": [],
+      "modalHits": [],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "226K"
+        },
+        {
+          "name": "",
+          "text": "235"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Героиня"
+        },
+        {
+          "name": "heroName",
+          "text": "Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Охотница · Урон"
+        },
+        {
+          "name": "heroRarity",
+          "text": "Фиолетовый"
+        },
+        {
+          "name": "",
+          "text": "+4"
+        },
+        {
+          "name": "",
+          "text": "+0"
+        },
+        {
+          "name": "",
+          "text": "+0"
+        },
+        {
+          "name": "",
+          "text": "+0"
+        },
+        {
+          "name": "heroLevel",
+          "text": "Ур. 1 / 60"
+        },
+        {
+          "name": "heroPower",
+          "text": "1 343"
+        },
+        {
+          "name": "",
+          "text": "Мощь"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "1/2"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": "Здоровье"
+        },
+        {
+          "name": "stat_hp",
+          "text": "4 173"
+        },
+        {
+          "name": "",
+          "text": "+55"
+        },
+        {
+          "name": "",
+          "text": "Атака"
+        },
+        {
+          "name": "stat_atk",
+          "text": "284"
+        },
+        {
+          "name": "",
+          "text": "+9"
+        },
+        {
+          "name": "",
+          "text": "Защита"
+        },
+        {
+          "name": "stat_def",
+          "text": "120"
+        },
+        {
+          "name": "",
+          "text": "+1"
+        },
+        {
+          "name": "",
+          "text": "Скорость"
+        },
+        {
+          "name": "stat_spd",
+          "text": "156"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": "Навыки"
+        },
+        {
+          "name": "",
+          "text": "Снаряжение"
+        },
+        {
+          "name": "",
+          "text": "Путь"
+        },
+        {
+          "name": "",
+          "text": "Сменить ветку"
+        },
+        {
+          "name": "",
+          "text": "бесплатно"
+        },
+        {
+          "name": "",
+          "text": "Атака и личная ульта"
+        },
+        {
+          "name": "",
+          "text": "Выстрел"
+        },
+        {
+          "name": "",
+          "text": "Обычная атака"
+        },
+        {
+          "name": "",
+          "text": "Соколиный шквал"
+        },
+        {
+          "name": "",
+          "text": "Полная энергия"
+        },
+        {
+          "name": "",
+          "text": "Унаследованные навыки"
+        },
+        {
+          "name": "",
+          "text": "Капкан"
+        },
+        {
+          "name": "",
+          "text": "Открыто с ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Концентрация"
+        },
+        {
+          "name": "",
+          "text": "Ур. 10"
+        },
+        {
+          "name": "",
+          "text": "Клеймор"
+        },
+        {
+          "name": "",
+          "text": "Ур. 30"
+        },
+        {
+          "name": "",
+          "text": "Сонная ловушка"
+        },
+        {
+          "name": "",
+          "text": "Ур. 50"
+        },
+        {
+          "name": "",
+          "text": "Лучница → Охотница → Снайпер"
+        },
+        {
+          "name": "",
+          "text": "Золотой и выше · ур. 70 · автоматически"
+        },
+        {
+          "name": "",
+          "text": "Разведка боем Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Метка сокола"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Пронизывающий залп"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Сковывающий залп"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 80"
+        },
+        {
+          "name": "",
+          "text": "Выверенный прицел"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 90"
+        },
+        {
+          "name": "",
+          "text": "Запас стрел"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 100"
+        },
+        {
+          "name": "",
+          "text": "Лучница → Танцовщица → Цыганка"
+        },
+        {
+          "name": "",
+          "text": "Золотой и выше · ур. 70 · автоматически"
+        },
+        {
+          "name": "",
+          "text": "Искры Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Взрывной шаг"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Танец марионеток"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 70"
+        },
+        {
+          "name": "",
+          "text": "Ритм разведки"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 80"
+        },
+        {
+          "name": "",
+          "text": "Первый поворот"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 90"
+        },
+        {
+          "name": "",
+          "text": "Отзвук танца"
+        },
+        {
+          "name": "",
+          "text": "Ветеран · Золотой · ур. 100"
+        },
+        {
+          "name": "otherBranch_dancer",
+          "text": "Другая ветка — Танцовщица"
+        },
+        {
+          "name": "",
+          "text": "Служу тебе"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Бросок стрелы"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Крик"
+        },
+        {
+          "name": "",
+          "text": "Ур. 10 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Не забывай меня"
+        },
+        {
+          "name": "",
+          "text": "Ур. 30 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Поцелуй удачи"
+        },
+        {
+          "name": "",
+          "text": "Ур. 50 · другая ветка"
+        },
+        {
+          "name": "",
+          "text": "Улучшить"
+        },
+        {
+          "name": "",
+          "text": "100"
+        },
+        {
+          "name": "",
+          "text": "15"
+        },
+        {
+          "name": "",
+          "text": "+35 ур."
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        }
+      ]
+    },
+    {
+      "name": "full-Heroes-viewport-alt",
+      "key": "Heroes",
+      "savedSha256": "245b9ed71ca8a08fc4b176e5e7c77f96f21ef60356526a25801111526b5f0f54",
+      "active": [
+        "Heroes"
+      ],
+      "renderer": 2,
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 7,
+      "frames": 181,
+      "cameraFrames": 70,
+      "bodyOffset": 0,
+      "bodyClip": [
+        460,
+        1230
+      ],
+      "bodyMax": 1042,
+      "bodyLocked": true,
+      "modals": [
+        "bottomSheet"
+      ],
+      "modalHits": [
+        {
+          "layer": "bottomSheet",
+          "type": "Graphics",
+          "rect": {
+            "x": -240,
+            "y": 618,
+            "width": 1560,
+            "height": 1152
+          },
+          "world": {
+            "x": -240,
+            "y": 618,
+            "right": 1320,
+            "bottom": 1770
+          },
+          "parent": "",
+          "parentPosition": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "226K"
+        },
+        {
+          "name": "",
+          "text": "235"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Герои"
+        },
+        {
+          "name": "squadPower",
+          "text": "33 792"
+        },
+        {
+          "name": "",
+          "text": "Мощь отряда"
+        },
+        {
+          "name": "heroExpPool",
+          "text": "55 203 4…"
+        },
+        {
+          "name": "",
+          "text": "Опыт в запасе"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": "Коллекция\n12/12"
+        },
+        {
+          "name": "",
+          "text": "Все классы"
+        },
+        {
+          "name": "",
+          "text": "Фильтр"
+        },
+        {
+          "name": "",
+          "text": "Сила"
+        },
+        {
+          "name": "",
+          "text": "Лира"
+        },
+        {
+          "name": "",
+          "text": "Ур. 100"
+        },
+        {
+          "name": "copies",
+          "text": "+5"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 80"
+        },
+        {
+          "name": "copies",
+          "text": "+1"
+        },
+        {
+          "name": "",
+          "text": "Кай"
+        },
+        {
+          "name": "",
+          "text": "Ур. 80"
+        },
+        {
+          "name": "copies",
+          "text": "+1"
+        },
+        {
+          "name": "",
+          "text": "Бран"
+        },
+        {
+          "name": "",
+          "text": "Ур. 80"
+        },
+        {
+          "name": "copies",
+          "text": "+2"
+        },
+        {
+          "name": "",
+          "text": "Вика"
+        },
+        {
+          "name": "",
+          "text": "Ур. 60"
+        },
+        {
+          "name": "copies",
+          "text": "+4"
+        },
+        {
+          "name": "",
+          "text": "Тео"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+2"
+        },
+        {
+          "name": "",
+          "text": "Дорн"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+3"
+        },
+        {
+          "name": "",
+          "text": "Грета"
+        },
+        {
+          "name": "",
+          "text": "Ур. 5"
+        },
+        {
+          "name": "copies",
+          "text": "+4"
+        },
+        {
+          "name": "",
+          "text": "Ирис"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+6"
+        },
+        {
+          "name": "",
+          "text": "Зара"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+2"
+        },
+        {
+          "name": "",
+          "text": "Отто"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+3"
+        },
+        {
+          "name": "",
+          "text": "Мэйлин"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "copies",
+          "text": "+5"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        },
+        {
+          "name": "",
+          "text": "Класс героя"
+        },
+        {
+          "name": "",
+          "text": "✓ Все классы"
+        },
+        {
+          "name": "",
+          "text": "Мечник"
+        },
+        {
+          "name": "",
+          "text": "Лучник"
+        },
+        {
+          "name": "",
+          "text": "Маг"
+        },
+        {
+          "name": "",
+          "text": "Вор"
+        },
+        {
+          "name": "",
+          "text": "Аколит"
+        },
+        {
+          "name": "",
+          "text": "Торговец"
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Normal Boot startup overlays actually settled before native navigation",
+    "Actual requested renderer reached normal Boot webgl",
+    "Ready native target Campaign/Герои",
+    "Production adaptive layout and visible text≥12CSS in Heroes: []",
+    "Ready native target Heroes/currencyBalanceTarget",
+    "Header balance action≥44CSS in Heroes",
+    "Header toast shows exact current gold and gems in Heroes",
+    "Header balance toast preserves exact save in Heroes",
+    "Viewport resize preserves exact save/scene/camera in Heroes",
+    "Viewport resize preserves stageId in Heroes",
+    "Viewport resize preserves heroId in Heroes",
+    "Viewport resize preserves tab in Heroes",
+    "Viewport resize preserves selected in Heroes",
+    "Viewport resize preserves chosen in Heroes",
+    "Viewport resize preserves branch in Heroes",
+    "Viewport resize preserves back in Heroes",
+    "Viewport resize preserves modals in Heroes",
+    "Viewport resize preserves bodyLocked in Heroes",
+    "Viewport resize preserves editorLocked in Heroes",
+    "Viewport resize preserves tg in Heroes",
+    "Viewport resize preserves/clamps offset in Heroes",
+    "Viewport resize has actual renderer/camera heartbeats in Heroes",
+    "Viewport return preserves exact save/scene/camera in Heroes",
+    "Viewport return preserves stageId in Heroes",
+    "Viewport return preserves heroId in Heroes",
+    "Viewport return preserves tab in Heroes",
+    "Viewport return preserves selected in Heroes",
+    "Viewport return preserves chosen in Heroes",
+    "Viewport return preserves branch in Heroes",
+    "Viewport return preserves back in Heroes",
+    "Viewport return preserves modals in Heroes",
+    "Viewport return preserves bodyLocked in Heroes",
+    "Viewport return preserves editorLocked in Heroes",
+    "Viewport return preserves tg in Heroes",
+    "Viewport return preserves/clamps offset in Heroes",
+    "Viewport return has actual renderer/camera heartbeats in Heroes",
+    "Telegram safe-area event preserves exact save/scene/camera in Heroes",
+    "Telegram safe-area event preserves stageId in Heroes",
+    "Telegram safe-area event preserves heroId in Heroes",
+    "Telegram safe-area event preserves tab in Heroes",
+    "Telegram safe-area event preserves selected in Heroes",
+    "Telegram safe-area event preserves chosen in Heroes",
+    "Telegram safe-area event preserves branch in Heroes",
+    "Telegram safe-area event preserves back in Heroes",
+    "Telegram safe-area event preserves modals in Heroes",
+    "Telegram safe-area event preserves bodyLocked in Heroes",
+    "Telegram safe-area event preserves editorLocked in Heroes",
+    "Telegram safe-area event preserves tg in Heroes",
+    "Telegram safe-area event preserves/clamps offset in Heroes",
+    "Telegram safe-area event has actual renderer/camera heartbeats in Heroes",
+    "Telegram event changes actual CSS top by20 in Heroes",
+    "Telegram inset return preserves exact save/scene/camera in Heroes",
+    "Telegram inset return preserves stageId in Heroes",
+    "Telegram inset return preserves heroId in Heroes",
+    "Telegram inset return preserves tab in Heroes",
+    "Telegram inset return preserves selected in Heroes",
+    "Telegram inset return preserves chosen in Heroes",
+    "Telegram inset return preserves branch in Heroes",
+    "Telegram inset return preserves back in Heroes",
+    "Telegram inset return preserves modals in Heroes",
+    "Telegram inset return preserves bodyLocked in Heroes",
+    "Telegram inset return preserves editorLocked in Heroes",
+    "Telegram inset return preserves tg in Heroes",
+    "Telegram inset return preserves/clamps offset in Heroes",
+    "Telegram inset return has actual renderer/camera heartbeats in Heroes",
+    "Late legal profile actually has collection cards",
+    "Ready native target Heroes/heroCard_h21",
+    "Production adaptive layout and visible text≥12CSS in Hero: []",
+    "Viewport resize preserves exact save/scene/camera in Hero",
+    "Viewport resize preserves stageId in Hero",
+    "Viewport resize preserves heroId in Hero",
+    "Viewport resize preserves tab in Hero",
+    "Viewport resize preserves selected in Hero",
+    "Viewport resize preserves chosen in Hero",
+    "Viewport resize preserves branch in Hero",
+    "Viewport resize preserves back in Hero",
+    "Viewport resize preserves modals in Hero",
+    "Viewport resize preserves bodyLocked in Hero",
+    "Viewport resize preserves editorLocked in Hero",
+    "Viewport resize preserves tg in Hero",
+    "Viewport resize preserves/clamps offset in Hero",
+    "Viewport resize has actual renderer/camera heartbeats in Hero",
+    "Viewport return preserves exact save/scene/camera in Hero",
+    "Viewport return preserves stageId in Hero",
+    "Viewport return preserves heroId in Hero",
+    "Viewport return preserves tab in Hero",
+    "Viewport return preserves selected in Hero",
+    "Viewport return preserves chosen in Hero",
+    "Viewport return preserves branch in Hero",
+    "Viewport return preserves back in Hero",
+    "Viewport return preserves modals in Hero",
+    "Viewport return preserves bodyLocked in Hero",
+    "Viewport return preserves editorLocked in Hero",
+    "Viewport return preserves tg in Hero",
+    "Viewport return preserves/clamps offset in Hero",
+    "Viewport return has actual renderer/camera heartbeats in Hero",
+    "Telegram safe-area event preserves exact save/scene/camera in Hero",
+    "Telegram safe-area event preserves stageId in Hero",
+    "Telegram safe-area event preserves heroId in Hero",
+    "Telegram safe-area event preserves tab in Hero",
+    "Telegram safe-area event preserves selected in Hero",
+    "Telegram safe-area event preserves chosen in Hero",
+    "Telegram safe-area event preserves branch in Hero",
+    "Telegram safe-area event preserves back in Hero",
+    "Telegram safe-area event preserves modals in Hero",
+    "Telegram safe-area event preserves bodyLocked in Hero",
+    "Telegram safe-area event preserves editorLocked in Hero",
+    "Telegram safe-area event preserves tg in Hero",
+    "Telegram safe-area event preserves/clamps offset in Hero",
+    "Telegram safe-area event has actual renderer/camera heartbeats in Hero",
+    "Telegram event changes actual CSS top by20 in Hero",
+    "Telegram inset return preserves exact save/scene/camera in Hero",
+    "Telegram inset return preserves stageId in Hero",
+    "Telegram inset return preserves heroId in Hero",
+    "Telegram inset return preserves tab in Hero",
+    "Telegram inset return preserves selected in Hero",
+    "Telegram inset return preserves chosen in Hero",
+    "Telegram inset return preserves branch in Hero",
+    "Telegram inset return preserves back in Hero",
+    "Telegram inset return preserves modals in Hero",
+    "Telegram inset return preserves bodyLocked in Hero",
+    "Telegram inset return preserves editorLocked in Hero",
+    "Telegram inset return preserves tg in Hero",
+    "Telegram inset return preserves/clamps offset in Hero",
+    "Telegram inset return has actual renderer/camera heartbeats in Hero",
+    "Exactly one visible TGBack handler on Hero",
+    "Ready native target Heroes/classFilter",
+    "Late collection filter opens real root Telegram Back",
+    "Viewport resize preserves exact save/scene/camera in Heroes",
+    "Viewport resize preserves stageId in Heroes",
+    "Viewport resize preserves heroId in Heroes",
+    "Viewport resize preserves tab in Heroes",
+    "Viewport resize preserves selected in Heroes",
+    "Viewport resize preserves chosen in Heroes",
+    "Viewport resize preserves branch in Heroes",
+    "Viewport resize preserves back in Heroes",
+    "Viewport resize preserves modals in Heroes",
+    "Viewport resize preserves bodyLocked in Heroes",
+    "Viewport resize preserves editorLocked in Heroes",
+    "Viewport resize preserves tg in Heroes",
+    "Viewport resize preserves/clamps offset in Heroes",
+    "Viewport resize has actual renderer/camera heartbeats in Heroes",
+    "Viewport return preserves exact save/scene/camera in Heroes",
+    "Viewport return preserves stageId in Heroes",
+    "Viewport return preserves heroId in Heroes",
+    "Viewport return preserves tab in Heroes",
+    "Viewport return preserves selected in Heroes",
+    "Viewport return preserves chosen in Heroes",
+    "Viewport return preserves branch in Heroes",
+    "Viewport return preserves back in Heroes",
+    "Viewport return preserves modals in Heroes",
+    "Viewport return preserves bodyLocked in Heroes",
+    "Viewport return preserves editorLocked in Heroes",
+    "Viewport return preserves tg in Heroes",
+    "Viewport return preserves/clamps offset in Heroes",
+    "Viewport return has actual renderer/camera heartbeats in Heroes",
+    "Telegram safe-area event preserves exact save/scene/camera in Heroes",
+    "Telegram safe-area event preserves stageId in Heroes",
+    "Telegram safe-area event preserves heroId in Heroes",
+    "Telegram safe-area event preserves tab in Heroes",
+    "Telegram safe-area event preserves selected in Heroes",
+    "Telegram safe-area event preserves chosen in Heroes",
+    "Telegram safe-area event preserves branch in Heroes",
+    "Telegram safe-area event preserves back in Heroes",
+    "Telegram safe-area event preserves modals in Heroes",
+    "Telegram safe-area event preserves bodyLocked in Heroes",
+    "Telegram safe-area event preserves editorLocked in Heroes",
+    "Telegram safe-area event preserves tg in Heroes",
+    "Telegram safe-area event preserves/clamps offset in Heroes",
+    "Telegram safe-area event has actual renderer/camera heartbeats in Heroes",
+    "Telegram event changes actual CSS top by20 in Heroes",
+    "Telegram inset return preserves exact save/scene/camera in Heroes",
+    "Telegram inset return preserves stageId in Heroes",
+    "Telegram inset return preserves heroId in Heroes",
+    "Telegram inset return preserves tab in Heroes",
+    "Telegram inset return preserves selected in Heroes",
+    "Telegram inset return preserves chosen in Heroes",
+    "Telegram inset return preserves branch in Heroes",
+    "Telegram inset return preserves back in Heroes",
+    "Telegram inset return preserves modals in Heroes",
+    "Telegram inset return preserves bodyLocked in Heroes",
+    "Telegram inset return preserves editorLocked in Heroes",
+    "Telegram inset return preserves tg in Heroes",
+    "Telegram inset return preserves/clamps offset in Heroes",
+    "Telegram inset return has actual renderer/camera heartbeats in Heroes",
+    "Exactly one visible TGBack handler on Heroes",
+    "Late root modal Back preserves exact save and restores root SDK state",
+    "No page errors, browser source imports or deadline expiry"
+  ],
+  "fixture": {
+    "base": "/tmp/chronoworld-night-data2-rational-seed1/final-save.json",
+    "baseSha256": "0a8737d96cba7d9487e0ecdb656faac392ac7a3c9ccab95e5a3f3838e9d1d41c",
+    "clock": {
+      "now": 1792611767550,
+      "day": "2026-10-21"
+    },
+    "campaignClears": 180,
+    "stock": false,
+    "operations": "Lawful save; deserialize and public markUnlocksSeen only, no stock/campaign/resource changes",
+    "sha256": "86ca2cc997e037e259fc25a5199d74987fa22be471ca0d9835f413f35029fb92",
+    "targetId": "h1",
+    "fodderIds": []
+  },
+  "adapterSha256": "4868635b41989bae84a549f4941e3bcc25afa8b29d013317cd222ee90b6df11b",
+  "rootCommit": "b00888b403f2b6c0031840c89f6583fc96451e6d",
+  "sourceHashes": {
+    "src/game/viewLayout.ts": "250786f0cba0edcd9653751934e6c5e7938e59f538047d1a8cbe631c1e3917c4",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/screen.ts": "a1773c9a391ad6ec89699122cd51d75f20d22213143166e625b66380eaf64881",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0",
+    "src/game/scenes/HeroesScene.ts": "b9e26fb8342357a4be649135b84983f9a4bc3a791e1fb1878753cad5599b2b8e",
+    "src/game/scenes/HeroScene.ts": "aeeaad46e6e71cb5509242b75e7ec4947896948a6f5208ead87fccc9d633791f",
+    "src/game/scenes/AscendScene.ts": "2719a740c319c9b29c03415f1d812284d6e69d3bd9096f599ca56da18634f57b",
+    "src/game/scenes/HeroPickScene.ts": "fffd6072b5609332c44a9b104204d56897cf81e548f53fcccd217d638cd325b1",
+    "src/game/scenes/StageScene.ts": "fb7f64372665e9920a4aeaddc61d40c3f5b60dc8e7a03afaa11cd10720466580",
+    "src/game/scenes/SquadScene.ts": "3a300bd3918c06188b0fdaca03e44794c5aa1a9b296507d2e499a2d2d4a16223",
+    "src/game/squadEditor.ts": "ce615cd949bbc7f05674c7b3e8ec2b732c7fa9d368f4179a0f92867df226840e",
+    "src/game/squadPresets.ts": "51263473f6bce0d75b26618c2ef17ad604a19455edbe4580c68ef4970007f672",
+    "src/game/prepLayout.ts": "55fedc46e63e89ec4ba72fc7c77519864446be475e649831bb5e117262c7b1d3"
+  },
+  "geometry": [
+    {
+      "key": "Heroes",
+      "view": {
+        "uiHeight": 1866.4615384615386,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 6,
+        "cssW": 390,
+        "cssH": 838,
+        "backW": 390,
+        "backH": 838,
+        "density": 1,
+        "zoom": 0.3611111111111111,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 2320.6153846153848,
+        "safeTop": 0,
+        "safeBottom": 1866.4615384615386
+      },
+      "minimum": 13,
+      "tiny": [],
+      "textCount": 39
+    },
+    {
+      "key": "Hero",
+      "view": {
+        "uiHeight": 1866.4615384615386,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 6,
+        "cssW": 390,
+        "cssH": 838,
+        "backW": 390,
+        "backH": 838,
+        "density": 1,
+        "zoom": 0.3611111111111111,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 2320.6153846153848,
+        "safeTop": 0,
+        "safeBottom": 1866.4615384615386
+      },
+      "minimum": 13,
+      "tiny": [],
+      "textCount": 43
+    }
+  ],
+  "pass": true,
+  "finished": "2026-10-05T05:13:29.642Z"
+}

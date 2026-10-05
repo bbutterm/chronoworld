@@ -26,7 +26,7 @@ const KENNEY = /'k:buttonLong_/;
 describe('друзья и рекорды (FriendsScene)', () => {
   it('вкладки и доски — segmented, строки — listRow, без старых кнопок-вкладок', () => {
     expect(friends).toMatch(/segmented\(this, GAME_W \/ 2, ty, CW, TABS/);
-    expect(friends).toMatch(/segmented\(this, GAME_W \/ 2, y \+ 44, CW, kinds/);
+    expect(friends).toMatch(/segmented\(this, GAME_W \/ 2, y \+ TOUCH_COMFORT \/ 2, CW, kinds/);
     expect(friends).toMatch(/listRow\(/);
     expect(friends).not.toMatch(KENNEY);
     expect(friends).not.toMatch(INSTRUCTION);

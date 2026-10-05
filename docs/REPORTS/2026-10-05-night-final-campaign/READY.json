@@ -1,0 +1,142 @@
+{
+  "ready": true,
+  "packet": "final-core-companion-seed1-campaign180",
+  "candidateWorktree": "/workspace/chronoworld-worktrees/night-root-core-candidate",
+  "sourceImmutable": true,
+  "sourceSha256": "115646d8410bc843a7eefb3fbaf38d8086d0c4cf629848798c13e0c3942b136b",
+  "driverCompositeSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "complete": {
+    "stages": 180,
+    "attempts": 561,
+    "losses": 381,
+    "waits12Hours": 22,
+    "gameHours": 279.026
+  },
+  "proof": {
+    "firstWinPairs180": true,
+    "source807Immutable": true,
+    "publicFinalBossReplay": "A",
+    "battleSeqAccounting1237": true
+  },
+  "files": [
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/candidate-manifest.json",
+      "sha256": "d0e5bb1c74a1916cf5021cb385792e1c9b052fd7f709408a692acbec2a2a6907",
+      "bytes": 1653
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/chapters.json",
+      "sha256": "139ee41c4a9a6c4628e90e60a3318be015bd3c1a1d60db14bd5d2b62d5f78951",
+      "bytes": 2350
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/coverage.json",
+      "sha256": "bf24af344f6713d6b792c2fa6804a293200511db8d9b486495290fe79ba9a406",
+      "bytes": 7341
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/first-win-integrity-proof.json",
+      "sha256": "2295a4226ce4bb8a2d411ee49d9088938c9e3f3f9ba750234949e762d01b05d9",
+      "bytes": 94055
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/metadata.json",
+      "sha256": "d87d6821c61b5486a0b77b6a562ba948604aa98771c3305ca2bc9f189136b1c0",
+      "bytes": 394
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/attempts.jsonl.gz",
+      "sha256": "5ad740ee7aa22045c776bfbfa9a5794c6d18549a1fb0061cc9c7429635f883e4",
+      "bytes": 22122
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch10_s13.clock.json.gz",
+      "sha256": "f798b190724ff865b3a7df10f2f0d92dd354c6f99f5856c682353178cd39ff26",
+      "bytes": 87
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch10_s13.json.gz",
+      "sha256": "c6660900ba981a8af66126c499c12080b4c181d5e9862f6661e5e695cd4286d9",
+      "bytes": 7855
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch10_s18.clock.json.gz",
+      "sha256": "66dbc92b90ec29587efe094637f7eb1a5b76f7985adaf7fc1c104219957060a4",
+      "bytes": 87
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch10_s18.json.gz",
+      "sha256": "f3c1aa7782507868941d871c750cd4536825ebedee2cffe5637d2ccda68761ad",
+      "bytes": 7890
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch7_s18.clock.json.gz",
+      "sha256": "dc01a7390e742f7252236af20c4fc941bf955fb53d074d24d0f31318e8d7ad14",
+      "bytes": 86
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch7_s18.json.gz",
+      "sha256": "d18b44087280154658e3153b7f2f7cbf17ad962c45e608e42da03ec3d6d2e715",
+      "bytes": 6824
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch9_s10.clock.json.gz",
+      "sha256": "5e13871021cf4a1d5828956894f4c3b94ffb8e022e64cd424ea3fe7f433e052e",
+      "bytes": 86
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-first-win-ch9_s10.json.gz",
+      "sha256": "2cb4ba558388e2a455477b66ca5a5b5cd7962314a8274969de17eb65aaf56a7d",
+      "bytes": 7366
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-wall-ch2_s6.clock.json.gz",
+      "sha256": "003034ec5ef559d3b46e2236a9a8526a6620da108ae8f8a7e7047e832c965154",
+      "bytes": 60
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/before-wall-ch2_s6.json.gz",
+      "sha256": "5d0852f79d871d4dbf84e7d641718fa8e36d17f61eb2131f2feb18c95d4ea5f3",
+      "bytes": 3141
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/final-clock.json.gz",
+      "sha256": "d81d4c61a433742e6d42840c4b5a0d54ba4b85dc98084f00cfd4f3c19a327cb9",
+      "bytes": 60
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/final-save.json.gz",
+      "sha256": "775a58f7a4e6061a26fc9c9e9d8836a82d6ae2de82f69d2c92881de646f89716",
+      "bytes": 7918
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/index.json",
+      "sha256": "5b21fe0105a7f1b27daa45a906fb91e3635faef4697f247fd2f5d63827bebdd4",
+      "bytes": 5760
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/raw/source-before-ledger.json.gz",
+      "sha256": "e65bfd145c40a240413884dea0f62ad1968f3d03997b6f32f431ac750f6e79be",
+      "bytes": 39474
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/stages.csv",
+      "sha256": "d5bdd2306799f40967d63b3bea6a83c80cae55e5bafd32fd0bf32fd32cf8dd3c",
+      "bytes": 10186
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-final-campaign/summary.json",
+      "sha256": "a026f9d2cfe6f339e4b380ccf5b314e7029aeb75944d95c6c40a60d33050c834",
+      "bytes": 100366
+    },
+    {
+      "path": "docs/qa/night-final-campaign-2026-10-05.md",
+      "sha256": "e5ea579c7b4a5f046ebb627e945a5bd48d3befbaf0692bbf6860bbeb3927833f",
+      "bytes": 5596
+    }
+  ],
+  "noProductChanges": true,
+  "noCommitOrPublish": true,
+  "rootChecks": "Integration and full check remain root owned; candidate152 focused/typecheck PASS supplied in candidate manifest.",
+  "rawOutput": "/tmp/chronoworld-night-final-companions-seed1"
+}

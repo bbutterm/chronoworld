@@ -13,6 +13,7 @@ import { sfx } from './audio';
 import { haptic } from './haptics';
 import type { SfxId } from './audioCatalog';
 import { scrollLayout } from './scroll';
+import { modalInputAllowed } from './modalInput';
 
 /**
  * Событие «отменить нажатие» (на scene.input — его слушатели снимаются при остановке сцены):
@@ -497,9 +498,10 @@ export class ScrollArea {
     this.thumb = scene.add.rectangle(right - 6, top, 8, 40, TINT.frame, 0.8).setOrigin(0.5, 0).setDepth(20).setVisible(false);
     const down = (p: Phaser.Input.Pointer) => {
       this.dragged = false;
-      this.dragFrom = this.inside(p) && !this.locked ? { y: this.wy(p), scroll: this.content.y } : null;
+      this.dragFrom = this.inside(p) && this.canInput() ? { y: this.wy(p), scroll: this.content.y } : null;
     };
     const move = (p: Phaser.Input.Pointer) => {
+      if (!this.canInput()) { this.cancelDrag(); return; }
       if (!this.dragFrom || !p.isDown) return;
       if (!this.dragged && Math.abs(this.wy(p) - this.dragFrom.y) > 14 && this.scrollable) {
         this.dragged = true;
@@ -512,7 +514,7 @@ export class ScrollArea {
       this.dragFrom = null;
     };
     const wheel = (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
-      if (!this.locked && this.inside(p)) this.scrollTo(this.content.y - dy);
+      if (this.canInput() && this.inside(p)) this.scrollTo(this.content.y - dy);
     };
     scene.input.on('pointerdown', down);
     scene.input.on('pointermove', move);
@@ -521,7 +523,10 @@ export class ScrollArea {
     // Маска Phaser не отсекает ввод: карточка под нижним краем полосы (скрыта маской) ловила нажатия поверх
     // нижней навигации, и «КАМПАНИЯ»/«ГЛАВНАЯ» не срабатывали. Каждый кадр новые интерактивные объекты
     // списка получают проверку попадания «указатель внутри полосы» — вне полосы их для ввода как будто нет.
-    const guard = () => this.guardInput(this.content);
+    const guard = () => {
+      if (!this.canInput()) this.cancelDrag();
+      this.guardInput(this.content);
+    };
     scene.events.on(Phaser.Scenes.Events.PRE_UPDATE, guard);
     const shutdown = () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, guard);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, shutdown);
@@ -551,12 +556,25 @@ export class ScrollArea {
         const hit = input.hitAreaCallback;
         // Указатель, по которому идёт проверка, — активный (InputManager ставит его перед hitTest).
         const clipped = ((area: unknown, x: number, y: number, go: Phaser.GameObjects.GameObject): boolean =>
-          this.inside(this.scene.input.activePointer) && hit(area, x, y, go)) as Phaser.Types.Input.HitAreaCallback;
+          this.canInput() && this.inside(this.scene.input.activePointer) && hit(area, x, y, go)) as Phaser.Types.Input.HitAreaCallback;
         CLIPPED_HITS.add(clipped);
         input.hitAreaCallback = clipped;
       }
       if (o instanceof Phaser.GameObjects.Container) this.guardInput(o);
     }
+  }
+
+  /** Модальный слой блокирует глобальные callbacks, не меняя внешнюю explicit-блокировку. */
+  private canInput(): boolean {
+    return !this.locked && modalInputAllowed(this.scene, this.content);
+  }
+
+  /** Начатый под окном жест не возобновится после его закрытия. */
+  private cancelDrag(): void {
+    if (!this.dragFrom) return;
+    this.dragFrom = null;
+    this.dragged = true;
+    this.scene.input.emit(CANCEL_PRESS);
   }
 
   /** Содержимое выше видимой полосы — есть что прокручивать. */
@@ -630,7 +648,7 @@ export class ScrollArea {
   tap(fn: () => void): () => void {
     return () => {
       const p = this.scene.input.activePointer;
-      if (this.locked || this.dragged || !this.inside(p)) return;
+      if (!this.canInput() || this.dragged || !this.inside(p)) return;
       fn();
     };
   }

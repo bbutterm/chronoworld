@@ -8,13 +8,16 @@ import { itemCell } from '../itemIcons';
 import { bump, burst, collect, juiceOn, queueRewardFly, staggerIn } from '../juice';
 import { GAME_W } from '../layout';
 import { rewardIcon } from '../rewardsView';
-import { bottomSheet, confirm, CONTENT_TOP, cta, screen } from '../screen';
-import { commit, now, restartOnNewDay, session, today } from '../session';
+import { bottomSheet, confirm, contentBottom, CONTENT_TOP, cta, refreshScreen, screen } from '../screen';
+import { commit, now, session, today } from '../session';
 import { shopBanner, shopCtx } from '../shopEntry';
 import { skinIcon } from '../skin';
 import { C, COLOR, E, FAMILY, M, R, RARITY, S, T } from '../theme';
-import { button, chip, clampLines, mixHex, plate, pressable, SURFACE, tag, text, toast, type Tone } from '../ui';
+import { button, chip, clampLines, mixHex, plate, pressable, ScrollArea, shieldTaps, SURFACE, tag, text, toast, type Tone } from '../ui';
 import { lockedScreen } from '../unlockBanner';
+
+import { sameShopOffer, utilityShopLayout } from '../utilityScreenLayout';
+import { onViewChange, view } from '../viewport';
 
 /**
  * Раскладка (поле 1080): шапка-витрина с Кафрой, под ней сетка товаров 4 × 2. Плитка — иконка в рамке редкости,
@@ -113,6 +116,7 @@ const priceTone = (s: ShopSlotView): Tone => (!s.affordable ? 'negative' : s.cur
 export interface ShopData {
   /** Только что куплен товар этого слота — плитка отзывается «покупкой». */
   bought?: number;
+  scroll?: number;
 }
 
 /**
@@ -123,6 +127,9 @@ export interface ShopData {
 export class ShopScene extends Phaser.Scene {
   private timer?: Phaser.GameObjects.Container;
   private timerLabel = '';
+  private area!: ScrollArea;
+  private stock!: ShopStatus;
+  private grid = utilityShopLayout(false);
 
   constructor() {
     super('Shop');
@@ -131,35 +138,64 @@ export class ShopScene extends Phaser.Scene {
   create(data: ShopData = {}): void {
     this.timer = undefined;
     screen(this, 'Лавка', 'Home', { to: 'Home' });
-    restartOnNewDay(this);
     const st = shopStatus(session.save, today(), shopCtx());
     if (!st.unlocked) {
       lockedScreen(this, 'shop');
       return;
     }
-    this.banner(st);
+    this.area = new ScrollArea(this, SHOP_L.bannerTop, contentBottom());
+    this.area.content.setName('shopScroll');
+    this.drawStock(data.scroll ?? 0, data.bought);
+    onViewChange(this, () => this.area.setBounds(SHOP_L.bannerTop, contentBottom()));
+    let day = today();
+    this.time.addEvent({ delay: 1000, loop: true, callback: () => {
+      if (today() !== day) {
+        day = today();
+        this.drawStock();
+      } else this.drawTimer();
+    } });
+  }
+
+  private drawStock(scroll = this.area.offset, bought?: number): void {
+    refreshScreen(this);
+    this.area.clear();
+    this.timer = undefined;
+    this.stock = shopStatus(session.save, today(), shopCtx());
+    this.grid = utilityShopLayout(view().adaptive, this.stock.slots.length);
+    collect(this.children, () => this.banner(this.stock)).forEach((part) => this.area.add(part));
     const tiles: Phaser.GameObjects.GameObject[][] = [];
-    st.slots.forEach((s) => tiles.push(collect(this.children, () => this.tile(s))));
+    for (const slot of this.stock.slots) {
+      const parts = collect(this.children, () => this.tile(slot));
+      parts.forEach((part) => this.area.add(part));
+      tiles.push(parts);
+    }
+    this.area.setContentHeight(this.grid.height);
+    this.area.offset = scroll;
     staggerIn(this, 'Shop', tiles);
-    if (data.bought !== undefined) this.boughtFx(data.bought);
-    this.time.addEvent({ delay: 1000, loop: true, callback: () => this.drawTimer() });
+    if (bought !== undefined) this.boughtFx(bought);
+  }
+
+  private visibleTilePos(index: number): { x: number; y: number } {
+    const p = this.grid.tilePos(index);
+    return { x: p.x, y: this.area.content.y + p.y };
   }
 
   /** Витрина: Кафра справа, слева — «Товары дня», таймер и «Обновить». */
   private banner(st: ShopStatus): void {
     const L = SHOP_L;
-    const cy = L.bannerTop + L.bannerH / 2;
-    shopBanner(this, GAME_W / 2, cy, L.bannerW, L.bannerH);
+    const bannerH = this.grid.bannerH;
+    const cy = bannerH / 2;
+    shopBanner(this, GAME_W / 2, cy, L.bannerW, bannerH);
     const left = S.l + S.m;
-    const title = text(this, left, L.bannerTop + S.m + T.title / 2, 'Товары дня', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
+    const title = text(this, left, S.m + T.title / 2, 'Товары дня', T.title, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
     title.setShadow(0, 3, 'rgba(0,0,0,0.85)', 6, false, true);
     this.drawTimer();
 
     // «Обновить» — вторичная (главная на экране — «Купить» в листе товара); цена — рядом: бесплатно — золотой тег.
     const cost = st.nextRefreshCost;
-    const by = L.bannerTop + L.bannerH - S.m - 48;
+    const by = bannerH - S.m - 48;
     const bw = 300;
-    const b = button(this, left + bw / 2, by, bw, 96, '', 'Обновить', () => this.refresh(st), T.heading, { variant: 'secondary' });
+    const b = button(this, left + bw / 2, by, bw, 96, '', 'Обновить', this.area.tap(() => this.refresh(st)), T.heading, { variant: 'secondary' });
     b.container.setName('shopRefresh');
     if (cost === null) b.setEnabled(false);
     const tx = left + bw + S.xs;
@@ -173,8 +209,9 @@ export class ShopScene extends Phaser.Scene {
     if (this.timer?.scene && label === this.timerLabel) return;
     this.timerLabel = label;
     this.timer?.destroy();
-    const y = SHOP_L.bannerTop + S.m + T.title + S.s + 28;
+    const y = S.m + T.title + S.s + 28;
     this.timer = chip(this, S.l + S.m, y, 'hourglass', label, 'neutral', { size: 's', align: 'left' }).setName('shopTimer');
+    this.area.add(this.timer);
   }
 
   private refresh(st: ShopStatus): void {
@@ -185,8 +222,11 @@ export class ShopScene extends Phaser.Scene {
     }
     const run = () => {
       try {
+        const current = shopStatus(session.save, today(), shopCtx());
+        if (current.day !== st.day || current.refreshes !== st.refreshes) return this.drawStock();
         commit(refreshShop(session.save, today(), shopCtx()));
-        this.scene.restart({});
+        shieldTaps(this.sys?.game);
+        this.drawStock();
       } catch (e) {
         toast(this, e instanceof Error ? e.message : String(e), C.error);
       }
@@ -209,9 +249,9 @@ export class ShopScene extends Phaser.Scene {
 
   /** Плитка товара: иконка в рамке редкости, количество на ней, название в 2 строки, цена-чип. Продано — тускло с галкой. */
   private tile(s: ShopSlotView): void {
-    const { x, y } = tilePos(s.index);
-    const w = TILE_W;
-    const h = SHOP_L.tileH;
+    const { x, y } = this.grid.tilePos(s.index);
+    const w = this.grid.tileW;
+    const h = this.grid.tileH;
     const off = s.soldOut || s.dayLimited;
     const parts: Phaser.GameObjects.GameObject[] = [];
     const bg = plate(this, x, y, w, h, { ...SURFACE.raised, r: R.l }).setName(`shopSlot${s.index}`);
@@ -238,7 +278,7 @@ export class ShopScene extends Phaser.Scene {
     } else {
       chip(this, x, py, s.currency === 'gold' ? 'gold' : 'gems', priceLabel(s.price, true), priceTone(s), { size: 's' }).setName(`shopPrice${s.index}`);
     }
-    pressable(this, bg, w, h, () => this.open(s));
+    pressable(this, bg, w, h, this.area.tap(() => this.open(s)));
   }
 
   /** Касание плитки: лист с подробностями и «Купить»; продано — короткий тост. */
@@ -246,6 +286,7 @@ export class ShopScene extends Phaser.Scene {
     if (s.soldOut) return toast(this, `Продано — новый товар через ${timerText(msToMidnight())}`);
     if (s.dayLimited) return toast(this, 'Этот товар можно купить снова завтра');
     const color = frameColor(s);
+    const { day, refreshes } = this.stock;
     bottomSheet(this, slotTitle(s), (content, width, close) => {
       const icon = 200;
       const add = <O extends Phaser.GameObjects.GameObject>(o: O): O => (content.add(o), o);
@@ -277,7 +318,7 @@ export class ShopScene extends Phaser.Scene {
       const b = cta(this, width / 2, by, 'Купить', () => {
         if (!s.affordable) return toast(this, `Не хватает ${s.currency === 'gold' ? 'золота' : 'гемов'}`, C.error);
         close();
-        this.buy(s);
+        this.buy(s, day, refreshes);
       }, { w: 560, h: 128, enabled: s.affordable });
       b.container.setName('shopBuy');
       add(b.container);
@@ -285,16 +326,19 @@ export class ShopScene extends Phaser.Scene {
     });
   }
 
-  private buy(s: ShopSlotView): void {
+  private buy(s: ShopSlotView, day: string, refreshes: number): void {
     try {
+      const current = shopStatus(session.save, today(), shopCtx());
+      if (!sameShopOffer(s, current.slots[s.index], day, current.day, refreshes, current.refreshes)) return this.drawStock();
       const before = { gold: session.save.resources.gold, gems: session.save.currency.gems };
       const r = buyShopSlot(session.save, today(), s.index, shopCtx());
       commit(r.save);
       // Монеты летят в «таблетку», только если валюта прибавилась (мешок золота); трата — отсчёт числа в шапке.
-      if (s.kind === 'gold') queueRewardFly('Shop', tilePos(s.index), before);
-      this.scene.restart({ bought: s.index } satisfies ShopData);
+      if (s.kind === 'gold') queueRewardFly('Shop', this.visibleTilePos(s.index), before);
+      shieldTaps(this.sys?.game);
+      this.drawStock(this.area.offset, s.index);
       // Куда делась покупка (сумка, запас опыта, Таверна) — не видно на экране: короткий тост.
-      if (s.kind !== 'gold') this.events.once(Phaser.Scenes.Events.CREATE, () => toast(this, `Куплено: ${slotTitle(s)}`, C.success));
+      if (s.kind !== 'gold') toast(this, `Куплено: ${slotTitle(s)}`, C.success);
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }
@@ -303,16 +347,16 @@ export class ShopScene extends Phaser.Scene {
   /** Покупка: вспышка над плиткой и подскок её иконки (рутина — тихо, §3 п. 10). */
   private boughtFx(index: number): void {
     if (!juiceOn()) return;
-    const { x, y } = tilePos(index);
+    const { x, y } = this.visibleTilePos(index);
     const iy = y - SHOP_L.tileH / 2 + S.s + SHOP_L.icon / 2;
     burst(this, { x, y: iy });
-    const mark = this.children.getByName(`shopSold${index}`) as Phaser.GameObjects.Image | null;
+    const mark = this.area.content.getByName(`shopSold${index}`) as Phaser.GameObjects.Image | null;
     if (mark) {
       const sx = mark.scaleX;
       mark.setScale(sx * 1.6).setAlpha(0);
       this.tweens.add({ targets: mark, scale: sx, alpha: 1, duration: M.base, ease: E.pop });
     } else {
-      const price = this.children.getByName(`shopPrice${index}`) as Phaser.GameObjects.Container | null;
+      const price = this.area.content.getByName(`shopPrice${index}`) as Phaser.GameObjects.Container | null;
       if (price) bump(this, price);
     }
   }

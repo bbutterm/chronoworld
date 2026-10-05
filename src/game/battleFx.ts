@@ -1026,12 +1026,20 @@ export interface BarkTarget {
  */
 export class BarkLayer {
   private readonly items: { target: BarkTarget; box: Phaser.GameObjects.Container; left: number; w: number; h: number }[] = [];
+  private bottom = GAME_H;
 
   /** minTop — облачко не выше этой линии (низ панели героев, QA RN-16): иначе реплика ложилась на портреты. */
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly minTop = 0,
+    private minTop = 0,
   ) {}
+
+  /** Reposition existing speech without replaying it or resetting its lifetime. */
+  reflow(minTop: number, bottom = GAME_H): void {
+    this.minTop = minTop;
+    this.bottom = bottom;
+    for (const item of this.items) this.place(item);
+  }
 
   show(target: BarkTarget, line: string): void {
     const old = this.items.findIndex((b) => b.target === target);
@@ -1059,7 +1067,7 @@ export class BarkLayer {
   private place(b: { target: BarkTarget; box: Phaser.GameObjects.Container; w: number; h: number }): void {
     const x = Phaser.Math.Clamp(b.target.node.x, b.w / 2 + 10, GAME_W - b.w / 2 - 10);
     const y = Math.max(b.h + 20, this.minTop + b.h + 10, b.target.node.y + b.target.nameY - 40);
-    b.box.setPosition(x, Math.min(y, GAME_H - 40));
+    b.box.setPosition(x, Math.min(y, this.bottom - 40));
   }
 
   /** dt — мс игрового времени. */

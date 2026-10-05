@@ -1,0 +1,23 @@
+{
+  "scope": "Historical separate local compiled proofs; original passed=false attempts remain unchanged. These are not a new combined-root or public-deployment claim.",
+  "files": [
+    {
+      "file": "compiled-canvas.json.gz",
+      "source": "/tmp/night-events-friends-compiled-360-canvas/report.json",
+      "originalBytes": 526232,
+      "originalSha256": "7458776c8e14f77a0739efe162bf0242f15f3f7aa2f0e1ae1fc2a387d74f6259",
+      "storedBytes": 33257,
+      "sha256": "761d6e20c0a68bd3fbb6625c27fd1001e9e536971f87efb3444c47761def1737",
+      "compression": "gzip,mtime=0; original JSON preserved byte-for-byte"
+    },
+    {
+      "file": "compiled-webgl.json.gz",
+      "source": "/tmp/night-events-friends-compiled-390-webgl/report.json",
+      "originalBytes": 547747,
+      "originalSha256": "ce958f801217c10b3f90f6ff3af88d074cd311549d048e326860720f574fb486",
+      "storedBytes": 39478,
+      "sha256": "14e66856e074a5c0526d97da47e0f51c031647ac81f9e30befeb47743144d23a",
+      "compression": "gzip,mtime=0; original JSON preserved byte-for-byte"
+    }
+  ]
+}

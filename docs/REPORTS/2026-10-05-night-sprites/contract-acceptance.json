@@ -1,0 +1,518 @@
+{
+ "passed": true,
+ "checks": {
+  "sheets": 100,
+  "exactEffectiveAnimationContracts": 500,
+  "occupiedFrameSlots": 2400,
+  "transparentSpareCells": 1380,
+  "animations": 500,
+  "effectiveRuntimeFrames": 2398,
+  "referencingMonsterBossUnits": 124,
+  "uniqueSpritesUsed": 100,
+  "preservedOtherSpriteFiles": 263
+ },
+ "errors": [],
+ "archiveSha256": "9d9619658c790577f736ac52b3878e989d3ec02ef1e48ff1c69c8bf336ddc8e8",
+ "manifestSha256": "3718cf0b3c1eefce204cc5a897139d41c221bc2efaa950cb793ab4371d9fa8c6",
+ "spriteRuntimeSha256": "b90ff377135885cf18d5465782b870b0b1800cbba4ce3d940864320ccc3f39e0",
+ "spriteProvenanceSha256": "d822bacc5134604b2b4054c651cded432fbe4ae8f269bc23c438afb915b08b19",
+ "spriteFixesSha256": "b19a17fe9f92643c8ec4848188b7062fd21e7e6a84e56e7e95f3c290f578c43b",
+ "unitDefinitions": [
+  {
+   "id": "mob_fabre",
+   "sprite": "fabre"
+  },
+  {
+   "id": "mob2_elite",
+   "sprite": "penomena"
+  },
+  {
+   "id": "maze_deviruchi",
+   "sprite": "deviruchi"
+  },
+  {
+   "id": "mvp_amon_ra",
+   "sprite": "amon_ra"
+  },
+  {
+   "id": "mob7_boss",
+   "sprite": "dark_lord"
+  },
+  {
+   "id": "mob_elite",
+   "sprite": "elite"
+  },
+  {
+   "id": "mob4_elite",
+   "sprite": "verit"
+  },
+  {
+   "id": "maze_mantis",
+   "sprite": "mantis"
+  },
+  {
+   "id": "orc_warrior",
+   "sprite": "orc_warrior"
+  },
+  {
+   "id": "alde_keeper",
+   "sprite": "clock_tower_manager"
+  },
+  {
+   "id": "mob_vocal",
+   "sprite": "vocal"
+  },
+  {
+   "id": "mvp_eddga",
+   "sprite": "eddga"
+  },
+  {
+   "id": "orc_chonchon",
+   "sprite": "steel_chonchon"
+  },
+  {
+   "id": "mob_moonlight",
+   "sprite": "moonlight_flower"
+  },
+  {
+   "id": "mob_pupa",
+   "sprite": "pupa"
+  },
+  {
+   "id": "mob_boss1",
+   "sprite": "boss1"
+  },
+  {
+   "id": "mob6_elite",
+   "sprite": "hydra"
+  },
+  {
+   "id": "mob4_ranged",
+   "sprite": "marduk"
+  },
+  {
+   "id": "mob2_tank",
+   "sprite": "tank"
+  },
+  {
+   "id": "mob_ranged",
+   "sprite": "ranged"
+  },
+  {
+   "id": "mob5_munak_elder",
+   "sprite": "munak"
+  },
+  {
+   "id": "maze_ghostring",
+   "sprite": "ghostring"
+  },
+  {
+   "id": "mob3_boss",
+   "sprite": "evil_druid"
+  },
+  {
+   "id": "maze_stem_worm",
+   "sprite": "stem_worm"
+  },
+  {
+   "id": "mob_boss2",
+   "sprite": "boss2"
+  },
+  {
+   "id": "maze_scribe",
+   "sprite": "deviruchi"
+  },
+  {
+   "id": "mvp_maya",
+   "sprite": "maya"
+  },
+  {
+   "id": "mob_eclipse",
+   "sprite": "eclipse"
+  },
+  {
+   "id": "mob5_support",
+   "sprite": "sohee"
+  },
+  {
+   "id": "mob_tank",
+   "sprite": "tank"
+  },
+  {
+   "id": "mvp_moonlight",
+   "sprite": "moonlight_flower"
+  },
+  {
+   "id": "mob6_boss",
+   "sprite": "drake"
+  },
+  {
+   "id": "mob_melee",
+   "sprite": "melee"
+  },
+  {
+   "id": "mob_poporing",
+   "sprite": "poporing"
+  },
+  {
+   "id": "mob_fast",
+   "sprite": "fast"
+  },
+  {
+   "id": "sewer_tarou",
+   "sprite": "tarou"
+  },
+  {
+   "id": "mob5_ranged",
+   "sprite": "horong"
+  },
+  {
+   "id": "mvp_mastering",
+   "sprite": "mastering"
+  },
+  {
+   "id": "mvp_osiris",
+   "sprite": "osiris"
+  },
+  {
+   "id": "mob7_fast",
+   "sprite": "bloody_murderer"
+  },
+  {
+   "id": "sewer_bug_leader",
+   "sprite": "thief_bug_male"
+  },
+  {
+   "id": "maze_baphomet",
+   "sprite": "boss2"
+  },
+  {
+   "id": "mob7_melee",
+   "sprite": "dullahan"
+  },
+  {
+   "id": "mob3_melee",
+   "sprite": "ghoul"
+  },
+  {
+   "id": "mob7_bridge_warden",
+   "sprite": "bloody_knight"
+  },
+  {
+   "id": "mob6_ranged",
+   "sprite": "marse"
+  },
+  {
+   "id": "mob6_support",
+   "sprite": "obeaune"
+  },
+  {
+   "id": "maze_vagabond_wolf",
+   "sprite": "vagabond_wolf"
+  },
+  {
+   "id": "mob7_ranged",
+   "sprite": "banshee"
+  },
+  {
+   "id": "alde_mimic",
+   "sprite": "mimic"
+  },
+  {
+   "id": "alde_rideword",
+   "sprite": "rideword"
+  },
+  {
+   "id": "mob7_tank",
+   "sprite": "gibbet"
+  },
+  {
+   "id": "mob2_boss",
+   "sprite": "elder_willow"
+  },
+  {
+   "id": "mob4_tank",
+   "sprite": "sandman"
+  },
+  {
+   "id": "mob4_ancient_mummy",
+   "sprite": "ancient_mummy"
+  },
+  {
+   "id": "mvp_dark_lord",
+   "sprite": "dark_lord"
+  },
+  {
+   "id": "mob_lunatic",
+   "sprite": "lunatic"
+  },
+  {
+   "id": "orc_archer",
+   "sprite": "orc_archer"
+  },
+  {
+   "id": "mob6_tank",
+   "sprite": "kukre"
+  },
+  {
+   "id": "sewer_bug_egg",
+   "sprite": "thief_bug_egg"
+  },
+  {
+   "id": "maze_side_winder",
+   "sprite": "side_winder"
+  },
+  {
+   "id": "mob3_ranged",
+   "sprite": "dark_priest"
+  },
+  {
+   "id": "mob6_bosun",
+   "sprite": "pirate_skel"
+  },
+  {
+   "id": "mob6_fast",
+   "sprite": "swordfish"
+  },
+  {
+   "id": "mvp_baphomet",
+   "sprite": "boss2"
+  },
+  {
+   "id": "mob2_fast",
+   "sprite": "rocker"
+  },
+  {
+   "id": "mob4_fast",
+   "sprite": "scorpion"
+  },
+  {
+   "id": "mob3_knight",
+   "sprite": "abysmal_knight"
+  },
+  {
+   "id": "alde_alarm",
+   "sprite": "alarm"
+  },
+  {
+   "id": "mob_mastering",
+   "sprite": "mastering"
+  },
+  {
+   "id": "alde_elder",
+   "sprite": "elder"
+  },
+  {
+   "id": "mob5_elite",
+   "sprite": "nine_tail"
+  },
+  {
+   "id": "mob4_melee",
+   "sprite": "mummy"
+  },
+  {
+   "id": "mob_mistress",
+   "sprite": "mistress"
+  },
+  {
+   "id": "mob3_fast",
+   "sprite": "gargoyle"
+  },
+  {
+   "id": "mob_osiris",
+   "sprite": "osiris"
+  },
+  {
+   "id": "mob_drake",
+   "sprite": "drake"
+  },
+  {
+   "id": "mob6_melee",
+   "sprite": "pirate_skel"
+  },
+  {
+   "id": "orc_zombie",
+   "sprite": "orc_zombie"
+  },
+  {
+   "id": "alde_clock",
+   "sprite": "clock"
+  },
+  {
+   "id": "mob_lord_of_death",
+   "sprite": "lord_of_death"
+  },
+  {
+   "id": "mvp_pharaoh",
+   "sprite": "pharaoh"
+  },
+  {
+   "id": "mvp_orc_lord",
+   "sprite": "orc_lord"
+  },
+  {
+   "id": "orc_lady",
+   "sprite": "orc_lady"
+  },
+  {
+   "id": "mob_dark_lord",
+   "sprite": "dark_lord"
+  },
+  {
+   "id": "mob4_support",
+   "sprite": "isis"
+  },
+  {
+   "id": "mob3_elite",
+   "sprite": "mimic"
+  },
+  {
+   "id": "maze_whisper",
+   "sprite": "whisper"
+  },
+  {
+   "id": "sewer_golden_bug",
+   "sprite": "elite"
+  },
+  {
+   "id": "orc_high",
+   "sprite": "high_orc"
+  },
+  {
+   "id": "mob_rocker",
+   "sprite": "rocker"
+  },
+  {
+   "id": "mob5_fast",
+   "sprite": "smokie"
+  },
+  {
+   "id": "orc_lord",
+   "sprite": "orc_lord"
+  },
+  {
+   "id": "mob5_tank",
+   "sprite": "munak"
+  },
+  {
+   "id": "sewer_plankton",
+   "sprite": "plankton"
+  },
+  {
+   "id": "alde_punk",
+   "sprite": "punk"
+  },
+  {
+   "id": "mob7_elite",
+   "sprite": "loli_ruri"
+  },
+  {
+   "id": "mob_mandragora",
+   "sprite": "mandragora"
+  },
+  {
+   "id": "mob2_ranged",
+   "sprite": "ranged"
+  },
+  {
+   "id": "mvp_turtle_general",
+   "sprite": "turtle_general"
+  },
+  {
+   "id": "mob3_tank",
+   "sprite": "raydric"
+  },
+  {
+   "id": "sewer_bug_male",
+   "sprite": "thief_bug_male"
+  },
+  {
+   "id": "mob7_support",
+   "sprite": "quve"
+  },
+  {
+   "id": "sewer_familiar",
+   "sprite": "familiar"
+  },
+  {
+   "id": "mob_marin",
+   "sprite": "marin"
+  },
+  {
+   "id": "mob5_boss",
+   "sprite": "moonlight_flower"
+  },
+  {
+   "id": "mvp_mistress",
+   "sprite": "mistress"
+  },
+  {
+   "id": "mob5_melee",
+   "sprite": "bongun"
+  },
+  {
+   "id": "maze_baphomet_jr",
+   "sprite": "baphomet_jr"
+  },
+  {
+   "id": "alde_owl_baron",
+   "sprite": "owl_baron"
+  },
+  {
+   "id": "mvp_doppelganger",
+   "sprite": "doppelganger"
+  },
+  {
+   "id": "mob2_melee",
+   "sprite": "melee"
+  },
+  {
+   "id": "sewer_thief_bug",
+   "sprite": "thief_bug"
+  },
+  {
+   "id": "orc_skeleton",
+   "sprite": "orc_skeleton"
+  },
+  {
+   "id": "mob4_boss",
+   "sprite": "osiris"
+  },
+  {
+   "id": "mob_archangeling",
+   "sprite": "archangeling"
+  },
+  {
+   "id": "mob_drops",
+   "sprite": "drops"
+  },
+  {
+   "id": "mob_angeling",
+   "sprite": "angeling"
+  },
+  {
+   "id": "mob2_giant",
+   "sprite": "poporing"
+  },
+  {
+   "id": "sewer_bug_female",
+   "sprite": "thief_bug_female"
+  },
+  {
+   "id": "orc_hero",
+   "sprite": "boss1"
+  },
+  {
+   "id": "alde_owl_duke",
+   "sprite": "owl_duke"
+  },
+  {
+   "id": "maze_hunter_fly",
+   "sprite": "hunter_fly"
+  },
+  {
+   "id": "mvp_dracula",
+   "sprite": "dracula"
+  }
+ ]
+}

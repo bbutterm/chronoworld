@@ -1,0 +1,860 @@
+{
+ "ready": true,
+ "sourceAssetsFrozen": true,
+ "archiveUrl": "https://transfiles.ru/gcod5",
+ "archiveSha256": "9d9619658c790577f736ac52b3878e989d3ec02ef1e48ff1c69c8bf336ddc8e8",
+ "archiveBytes": 23175578,
+ "usedSheets": 100,
+ "replacedPng": 75,
+ "replacedWebp": 75,
+ "unchangedPng": 25,
+ "referencingUnitDefinitions": 124,
+ "preservedRegistryEntries": 132,
+ "changedRuntimeFiles": 153,
+ "checks": {
+  "archiveFileHashes": 202,
+  "spriteFrameAndAnimationContracts": true,
+  "pngWebpExactRgba": 100,
+  "contentCheck": "PASS",
+  "generatedTests": 20,
+  "existing25Tests": 2,
+  "fullSpriteChecker": "FAIL: preexisting 65 checks plus unchanged budget threshold; no new non-budget failures"
+ },
+ "runtimeBytes": {
+  "before": 6337211,
+  "after": 9181381,
+  "increase": 2844170,
+  "limit": 3000000
+ },
+ "files": {
+  "assets-webp/index.json": {
+   "sha256": "24fa1ccf520c3627d61cd5009a8a8e28434c894db98ef5eb1e22a2ebfba6ac07",
+   "bytes": 91681,
+   "beforeSha256": "69f763d3079bddd49ce4c10971d60febfe4c2611be188cb060e9413e2dada38a"
+  },
+  "assets-webp/sprites/bosses/banshee.webp": {
+   "sha256": "b3839a93b48cf930c9eaf45616ef1b63e323f2012ecc7200d595b25d0c24e9fe",
+   "bytes": 69426,
+   "beforeSha256": "41b61ceae5e8ba20bb8da15ab3b23929857b93c72896e9ee725f3ebc51829244"
+  },
+  "assets-webp/sprites/bosses/boss2.webp": {
+   "sha256": "c846e7c25be3912889bd845196bb3f2b6873a76820365a8f906fa2fb16550782",
+   "bytes": 81720,
+   "beforeSha256": "2980989da68beb47c953e1c8c24f3af1a8f41ff8a4615baa742e976352e00b8f"
+  },
+  "assets-webp/sprites/bosses/dark_lord.webp": {
+   "sha256": "19c9f2ac1571f52da89aee1060235384aabce57399db7733dd20957c8e9bb41d",
+   "bytes": 182064,
+   "beforeSha256": "8c05061130fc8be22ab011e69dded9b7ad4c2e84c662ec8532bc29c51097b79b"
+  },
+  "assets-webp/sprites/bosses/deviruchi.webp": {
+   "sha256": "8c798723f26533cef6020c8e96d0b2e74b317e0678dadd570b108498a8c563c3",
+   "bytes": 21546,
+   "beforeSha256": "d1e00bf546efd998c5fc75047c26ae922a9c7aa37f8581bb31ff8adc4141f6d5"
+  },
+  "assets-webp/sprites/bosses/drake.webp": {
+   "sha256": "efe1b7c49a12a99d0aee1c494ae0fbd3f25d6ebbc7e0b874a68d1433c5f35e7a",
+   "bytes": 71492,
+   "beforeSha256": "4cd0d373601680ee76ef5b01033b73fef986d56f8b81f57b02341a4c4583249a"
+  },
+  "assets-webp/sprites/bosses/dullahan.webp": {
+   "sha256": "c061fb3061f02676e8875b62d1f116ac05f7927e797869e1c59ac6bcb74acfdf",
+   "bytes": 73452,
+   "beforeSha256": "c56ed3f01b689254ca532780665e4b831231eebc8c30693accda3d08b77284d5"
+  },
+  "assets-webp/sprites/bosses/elder.webp": {
+   "sha256": "f640e3af3b0e423dc80f7c6fb63409460668cea33116b3d6c8a7f364c2556d72",
+   "bytes": 100638,
+   "beforeSha256": "c84e7c50c93badfaac8de601ef4c719ef47458146f4da5f42b03dfe8bb09ca20"
+  },
+  "assets-webp/sprites/bosses/familiar.webp": {
+   "sha256": "8e815a1feb15b10da7fc8fcd35109651cf248c8611bc8f4b21f3e527abf6e561",
+   "bytes": 9716,
+   "beforeSha256": "ecea15d7a0b70f1c272ee2ba19b49f0ae5757cafb1565532c9ce70995847f6b5"
+  },
+  "assets-webp/sprites/bosses/ghostring.webp": {
+   "sha256": "77ff0f04f200769524b96cebbe7377dc0b80cbe76de7abbf43b67f9de440c057",
+   "bytes": 12688,
+   "beforeSha256": "9bdb3592a4e5ccc378cfc3bf0838466dbf2c92ad7d2abcf31e56b9caa825c4e2"
+  },
+  "assets-webp/sprites/bosses/horong.webp": {
+   "sha256": "3626818818e62acfff6907a9f8635efefa7e64229b91b897c0991affaf3bbc55",
+   "bytes": 16518,
+   "beforeSha256": "ecd4ec31f88af3bd7576a29ffedc16db2edbab5bd4698d84f94912f14e4a169a"
+  },
+  "assets-webp/sprites/bosses/isis.webp": {
+   "sha256": "764c12fbca41965e4491eb8aca6f93f1c9f953bacc11b7adb9c3f862318f061d",
+   "bytes": 95546,
+   "beforeSha256": "754d39efdd2faf37cc04d303857b8a8d1ccc1bc25cfcffc6b0d3902c2589350f"
+  },
+  "assets-webp/sprites/bosses/mastering.webp": {
+   "sha256": "48ced4abbdb3c9c1bc79817c6697da188fd4ae06a8970ffeca37c6b7987ec71d",
+   "bytes": 32358,
+   "beforeSha256": "68a7896421992343069d9f51916a582fbdfbe5bd0412ba102f0a5b0eae754fb3"
+  },
+  "assets-webp/sprites/bosses/mistress.webp": {
+   "sha256": "34e8b2987f5e8728c1bf47148d85992690a54579d7f24e91763e515086fa798b",
+   "bytes": 17302,
+   "beforeSha256": "d9b7df5605d2eeda3e3753f7090a8e9802ba876c1a1565f76ffc4710a1ccb409"
+  },
+  "assets-webp/sprites/bosses/moonlight_flower.webp": {
+   "sha256": "a9769d9706784d2a721107a4734c7f788dbd1a521fa9c84dd1594afea57f739b",
+   "bytes": 47632,
+   "beforeSha256": "3c181a7e7c43dcd46059d962b81ef97f264cc0608184be247fd989ee57adfe2c"
+  },
+  "assets-webp/sprites/bosses/orc_lady.webp": {
+   "sha256": "5d3cd9c58830739d6623eb0f8890c2dc7f37341957aa1a0eff46618d367dd7d5",
+   "bytes": 58716,
+   "beforeSha256": "f74bbebf5003f34153ad3f719851b3877c5a50b435e7b9c14e905c614aef521a"
+  },
+  "assets-webp/sprites/bosses/orc_lord.webp": {
+   "sha256": "09f320a055f7937a988e830b1eb56e6a8464c9e94f23b2dd61ee69aab44bc7ca",
+   "bytes": 92266,
+   "beforeSha256": "302114505b8c4087ce754f6465803db3e687241c68a1dacd61b29e4d864f9318"
+  },
+  "assets-webp/sprites/bosses/orc_skeleton.webp": {
+   "sha256": "d08d43dab29fc941ad22d128b049992f3af9ba7b139fa6530524824f16d379b7",
+   "bytes": 47472,
+   "beforeSha256": "f9b8a8898390e6d9fcc1889b10d00d21fc96a4317e46af9e354f46ffa7b1714a"
+  },
+  "assets-webp/sprites/bosses/orc_zombie.webp": {
+   "sha256": "89cfec8976e3bf789f4765bf76ef09a5d47f64054374a7a8da83a093422c69df",
+   "bytes": 61920,
+   "beforeSha256": "32e37198acbdb7b294a1cce62931a24192daa293a185cc6dd03f5aa957191eb4"
+  },
+  "assets-webp/sprites/bosses/osiris.webp": {
+   "sha256": "410d61f11bcc3366c191dcb34b4fbe236554c4a961350954fbf18a9b78d42ad4",
+   "bytes": 35586,
+   "beforeSha256": "873fbc4faed786f52b756d9e006a9f56276d9a5e609ba1765f08838ade637bea"
+  },
+  "assets-webp/sprites/bosses/smokie.webp": {
+   "sha256": "a7d757d87fb3bc60f50b50e681f53d4afe5c7c6163316631378a683bec3dd4c2",
+   "bytes": 20662,
+   "beforeSha256": "2ac3c392c2d83056bc845ab57db945b7ee480bf75f82602ab49b2df5885929d1"
+  },
+  "assets-webp/sprites/bosses/sohee.webp": {
+   "sha256": "32f36755c78e67882430b10cbb14a59bd2af582f80406e7690bf455e6fed41ce",
+   "bytes": 61568,
+   "beforeSha256": "e080ea5ed53fc19b42569f49faf3f92e0e036b621331cb01edd2f77eb610c96d"
+  },
+  "assets-webp/sprites/bosses/swordfish.webp": {
+   "sha256": "6f801a88188d7a43a1379a776e10a87e716020b717097f8609797fdc645f400b",
+   "bytes": 40598,
+   "beforeSha256": "6679209a6e5117c105be22d76a414f77f23f3aa017227217b3a9cdfc6907894f"
+  },
+  "assets-webp/sprites/bosses/vagabond_wolf.webp": {
+   "sha256": "0257da0a4e3c917807daa29ad14f23d9ccebe4e762ba4e8b749794445702106d",
+   "bytes": 29796,
+   "beforeSha256": "fe64aa95510b970a5fe5e89247d52c440c5e69ea4094afe5908d1fe3cf740a09"
+  },
+  "assets-webp/sprites/bosses/vocal.webp": {
+   "sha256": "b5874ae9a117cefe9caa5f4248e785fb4db23f8587f14f85e042cffdcbd85f85",
+   "bytes": 38890,
+   "beforeSha256": "5b76d49626b56036d47afc59152c9bdfef79e6db666300439ee30a873eb9fce1"
+  },
+  "assets-webp/sprites/bosses_xl/abysmal_knight.webp": {
+   "sha256": "a5d8d1686f2de77acc0986583687dcf1512e2959b2637e02b2c53f0cc535a422",
+   "bytes": 466854,
+   "beforeSha256": "0dd3c89aee7e0696ac82be9e15fdbce73c40b03ea313496d306b657dd153d173"
+  },
+  "assets-webp/sprites/bosses_xl/alarm.webp": {
+   "sha256": "3ad9f3d2b77b61555fbeb662a8605e4e3380ef19c5582a33a711e3030e23122d",
+   "bytes": 127778,
+   "beforeSha256": "1365dc708861ba749439079ce0c9fae1bf1ecb1dbdeb70e147b2840318044f44"
+  },
+  "assets-webp/sprites/bosses_xl/bloody_knight.webp": {
+   "sha256": "9f46dc867636b530fdaaebcc3833d7920a093b15e85c40ea7dc438dd450514a6",
+   "bytes": 274724,
+   "beforeSha256": "23bf2a83cc29664cbe7acc435099310e4f176fe90f153cef39b7868b615b5778"
+  },
+  "assets-webp/sprites/bosses_xl/clock_tower_manager.webp": {
+   "sha256": "389d0bd92c51d0d3d51fe956ec8a42e06f9f83c0196db0f89700cbb920aee76e",
+   "bytes": 107512,
+   "beforeSha256": "ee3a703db28b26d635e3a0bad8cac4e47cdd6351079fbb1577832dccd8234110"
+  },
+  "assets-webp/sprites/bosses_xl/dracula.webp": {
+   "sha256": "2ba8caa777c6987a1fc5c259cb6c7f50d0f7c3b527f0fc81d223b319040fcc2f",
+   "bytes": 72468,
+   "beforeSha256": "b44bdd052c0114ce668915cd465a140149614ac66471842fbcfb62266e2cef7c"
+  },
+  "assets-webp/sprites/bosses_xl/lord_of_death.webp": {
+   "sha256": "ea717177b8aa7ff73d4ed64f2ebf5adde636ff972beebab9ec75679ecf61f7e1",
+   "bytes": 447972,
+   "beforeSha256": "6103a8926480d6b2d4ff0195a57bc718cbf19c0943c3159ac4235b6c484c5648"
+  },
+  "assets-webp/sprites/bosses_xl/owl_baron.webp": {
+   "sha256": "3605043332f5ce6973a642231d920896dc8f56cae4cd412cd4b277b6d2074d25",
+   "bytes": 72930,
+   "beforeSha256": "d3e675fe56549a6c5ccc7747c0414e2f0a3436a5deee4df42ebecbe29ae5c28d"
+  },
+  "assets-webp/sprites/monsters/angeling.webp": {
+   "sha256": "7618ab40fcf34612974c57a834b5d8b4e3203354db2ad5ab8914e07f5070ca8c",
+   "bytes": 29112,
+   "beforeSha256": "35552881b148ebe5bfd9c5af4c319776b6edbbf393442185c8988c1c80e58f3f"
+  },
+  "assets-webp/sprites/monsters/archangeling.webp": {
+   "sha256": "61c18ce0dc1665c82bfead35c997bcaecdb69db58b0f056523b7331f9f2ec8ec",
+   "bytes": 31788,
+   "beforeSha256": "f0de41006531edf2b3be702f5c634387dc3b1e085b3e47f820c855e3752a2b09"
+  },
+  "assets-webp/sprites/monsters/baphomet_jr.webp": {
+   "sha256": "88bee45d1eabeed4fbfab80edded521fc5c6db5e44f749420a47f03b1d8a76f1",
+   "bytes": 13480,
+   "beforeSha256": "61db1373f47b0a78e19f2f24f2b53fccdf23038206a226d0f17a5ef4952cc760"
+  },
+  "assets-webp/sprites/monsters/bloody_murderer.webp": {
+   "sha256": "659884ed9fe392ba92a0d21336070d3e74da071f9ee514eb79ed6ca8c76c8933",
+   "bytes": 136962,
+   "beforeSha256": "92d14a6077d9b7f933667b94023459a6d4ced885eb2e67992076e54e1a50ee10"
+  },
+  "assets-webp/sprites/monsters/bongun.webp": {
+   "sha256": "378fce6ef3444cafd31206a665d3c89663d403f6765c5e21db93f9be7006fd47",
+   "bytes": 39996,
+   "beforeSha256": "48833121a179ed2d43130605c8d0d57f52dc10b0c0ac04d1fbb3bd7539a6dfe2"
+  },
+  "assets-webp/sprites/monsters/doppelganger.webp": {
+   "sha256": "d31cd298df716ca355e7675d0a4a89769f7169430640abe3cbbc8496fb2675de",
+   "bytes": 25376,
+   "beforeSha256": "3ad7d54cc7a94d5247fde882bae59a1f8d475a49c12c3ce3311657ee2b5c7d1d"
+  },
+  "assets-webp/sprites/monsters/eclipse.webp": {
+   "sha256": "94638d3a0d1d3d7b5912c09ba8c1b4335aad2ecd5d00b5663fde952825da1563",
+   "bytes": 12870,
+   "beforeSha256": "fe34f767c0606d7c36f9172931c0164e33b051e989868b6e582601ccdb324d1f"
+  },
+  "assets-webp/sprites/monsters/gargoyle.webp": {
+   "sha256": "420f0e850183080adb5b771b3981edbd309315d97ddcd2d5c543f54343406c1e",
+   "bytes": 39042,
+   "beforeSha256": "089fbd102c67ccb5556c5aab92d512867beb02132a1daafb4730e3ccebcb385c"
+  },
+  "assets-webp/sprites/monsters/gibbet.webp": {
+   "sha256": "cab95c58c1622d2c64989cf70056386d9aff2eb7afd25e3096332689e337c1d5",
+   "bytes": 88838,
+   "beforeSha256": "5ff8ab5c180fc54c0cfa367c5a9715583a0b1bf767afce336ce8f018a8dce816"
+  },
+  "assets-webp/sprites/monsters/high_orc.webp": {
+   "sha256": "ac7e9996c55d691b17d500503aa8561fe4b7e8a2b6a19ba5acde9a329b4d7d3d",
+   "bytes": 88628,
+   "beforeSha256": "49bece86f454aab516625f9733147284e0c9a6cdfeb51c9ebafdc6762d6a63cb"
+  },
+  "assets-webp/sprites/monsters/hunter_fly.webp": {
+   "sha256": "27c41fde1bbcf9172af7fe944d03663d045731f8084bc15cfd1750b0fd1e55c2",
+   "bytes": 8044,
+   "beforeSha256": "2ad7466466d7a49da4aeba935352e6f2a9a09e1fd0c3330adfbcd6cce4c0c56d"
+  },
+  "assets-webp/sprites/monsters/hydra.webp": {
+   "sha256": "aa9d8d74d0b89a44c86fd34c60ab7f6d6ee439b5b5cf05e9bef9e863c5d5242b",
+   "bytes": 25512,
+   "beforeSha256": "0cf56d8dac4d659a597d3117832a73f4f877e0690b998213a995bd413d1bdbab"
+  },
+  "assets-webp/sprites/monsters/kukre.webp": {
+   "sha256": "9e461273216ff89ae9dba79e0321a39e8f94401a3d4b26469fee0ab65d11c835",
+   "bytes": 5564,
+   "beforeSha256": "c41346a918b47bcebe220e5119d7ad7a26575bbd87807a385e76371a8e1b0352"
+  },
+  "assets-webp/sprites/monsters/loli_ruri.webp": {
+   "sha256": "f00147aa2882566df31688651f72aa95b56fd6f8348856dd1748eba9124f9826",
+   "bytes": 83480,
+   "beforeSha256": "89b1194b5b7b0ab2d036d8a66ae76f76d5576e892020d3c331d8fb1faecb1a5a"
+  },
+  "assets-webp/sprites/monsters/mantis.webp": {
+   "sha256": "08ad7592d2bc93094ac8ee161e2f3d9918129913fbe1eda1df0d3bdc88b1acd2",
+   "bytes": 20482,
+   "beforeSha256": "53c92f693e45a5a9738ebbf34e82c52da2f7560031c1805fe80a08580516002d"
+  },
+  "assets-webp/sprites/monsters/marse.webp": {
+   "sha256": "f1a32c78de148e349fd4bd6b74dee5a961dc7d70ebe70d53b0e8e690be6b29b8",
+   "bytes": 15762,
+   "beforeSha256": "1138c30006e01b4a48ac1f2cd79862dbb3aaab9d98c085d8162d928784e3f483"
+  },
+  "assets-webp/sprites/monsters/mimic.webp": {
+   "sha256": "018a9189080171e1b64d29c1580a7c6e2aee3e5bd16acfa9ed1856ba20624408",
+   "bytes": 33760,
+   "beforeSha256": "47058d16d7ba2bcb2d9599133c535925e47c5197e8f81f2c1a14483c43b5f109"
+  },
+  "assets-webp/sprites/monsters/munak.webp": {
+   "sha256": "1e4f0d3989ac18a1a3edc5298b9550788241348c8b7bfa84b34f5360bd7d0540",
+   "bytes": 26444,
+   "beforeSha256": "13191048f4037b354d1d8fc946af7d4982ad14db13d2a769f8db052dbce86053"
+  },
+  "assets-webp/sprites/monsters/nine_tail.webp": {
+   "sha256": "e10010b9528e72b4cd1250220560522c98ae7de7266cd743d634ed632cb95e48",
+   "bytes": 30046,
+   "beforeSha256": "83cb5d9d61222526eea809f84666112ce910b2db0a328a889d1751dbf770185b"
+  },
+  "assets-webp/sprites/monsters/obeaune.webp": {
+   "sha256": "c7d95bc7e34eccc6238df068bcc9fc579a196af6ac00be57da55046a01831e07",
+   "bytes": 31960,
+   "beforeSha256": "a63a14860fd72f6f94c303bb5215e076bba8cabc615ed4f9aeea943568baeba3"
+  },
+  "assets-webp/sprites/monsters/orc_archer.webp": {
+   "sha256": "7eece0ae59dfdf24b27aee1cbf8bd4cca574fa9145965ad1a9595d84b21c6805",
+   "bytes": 56404,
+   "beforeSha256": "49561c10e8f4e1ae58ba835773dce865269441aa906c0ff19d055333ba0d1031"
+  },
+  "assets-webp/sprites/monsters/orc_warrior.webp": {
+   "sha256": "95c5293e143d786a097ae93e57c62364f47a01cc7d54c0d260dd287bd1d53ddd",
+   "bytes": 76198,
+   "beforeSha256": "88a14c1da173a79434079eb68ca51920648c2d7715d54275b98e5a4deb100be8"
+  },
+  "assets-webp/sprites/monsters/penomena.webp": {
+   "sha256": "f0dee44cea1551eacdc903ded1a0bb467d9d31d1118ed501bdec273b8cabb29e",
+   "bytes": 27246,
+   "beforeSha256": "fcfa7c7b273fdc0667f9eea0a7f88c7a91f242f867fc5054ba92d6d90ae9e59c"
+  },
+  "assets-webp/sprites/monsters/plankton.webp": {
+   "sha256": "4a732faa5f85bd3c8100b5b7d1294c2653c354a5a1bf74b30be81d8d525859f8",
+   "bytes": 7450,
+   "beforeSha256": "f060c31a3e71bb1ed5f2e592e0a11ed08596f5fda6bfd0d28adeb18b21d2bac4"
+  },
+  "assets-webp/sprites/monsters/punk.webp": {
+   "sha256": "241f1c5ea7fd1bb13766c60cdc3caadab14ba6a9cd181475f6a61c8cbd25c5bf",
+   "bytes": 15770,
+   "beforeSha256": "c7ab3091a73fd542ff13cab68c5ca5635fc8c77b0eae34d713b7e52e80914689"
+  },
+  "assets-webp/sprites/monsters/quve.webp": {
+   "sha256": "c4b71a136cc046ddbb2d2dbb722e55fbfdf056438be4120d3472996e59a1bd22",
+   "bytes": 8348,
+   "beforeSha256": "93da6890ef31f9e9896f11ca51c06cd0a6f4bed72f15d0c3c156a1218a7a3f7a"
+  },
+  "assets-webp/sprites/monsters/rideword.webp": {
+   "sha256": "1634debcef7554ba0b6f87fe0a2dbac01fd704e9a64126ddfcc05d021f48ca2e",
+   "bytes": 13464,
+   "beforeSha256": "ff74c3ceb7bb8571cc92b1721cd48107eb5ec552d1d47be08b6431a0e5e2876a"
+  },
+  "assets-webp/sprites/monsters/scorpion.webp": {
+   "sha256": "d511d06b5ae23e541cf01550c1f1ea58d632ef0dc06537e8e76498e1c5d7ebca",
+   "bytes": 38530,
+   "beforeSha256": "1808fca91db7925a669c801881699240e4a0705161a43a177eca1a6b043c7a3a"
+  },
+  "assets-webp/sprites/monsters/side_winder.webp": {
+   "sha256": "725967de8f90b523f6ef48ad876db90b966b8d0a45469c8735833d5b196ad4f4",
+   "bytes": 11390,
+   "beforeSha256": "66a3ff4eb419e5d074171f31f259329752bbce47477342b95419e528619aaabc"
+  },
+  "assets-webp/sprites/monsters/steel_chonchon.webp": {
+   "sha256": "6a4432b71eb47b0c4945366a701b8fc9b3b093becb740e8e610c799becd47605",
+   "bytes": 9506,
+   "beforeSha256": "0b173b3b1cc154b8782a587920ded7adfbbda66ccd4bf0296f6c9ceba0063eb6"
+  },
+  "assets-webp/sprites/monsters/stem_worm.webp": {
+   "sha256": "5ff8d957988a527aab09a9bae48708b253cf08ee39b49039fddc391de88a1fb9",
+   "bytes": 21630,
+   "beforeSha256": "b23b154ea75ea47d7ef4e25abea6fa29989878f86f0701b02c76cdb953b63231"
+  },
+  "assets-webp/sprites/monsters/tarou.webp": {
+   "sha256": "a9e666caee43686efc49736fd1fdeeede5d12bc073fa5ab57b892f795803d604",
+   "bytes": 4306,
+   "beforeSha256": "ef13d7a6c035195038f22be722007aca7979c44b1e427c3d25d46e6a72abc06a"
+  },
+  "assets-webp/sprites/monsters/thief_bug.webp": {
+   "sha256": "f0547a278895fbf18dcb20d7ea8259376ce45672e1a3481e8f1efc2cf496c53d",
+   "bytes": 4032,
+   "beforeSha256": "fd545db6a314c8d1c788bca3d5493526c42a9efe123e1ee870e33ab2862da1d5"
+  },
+  "assets-webp/sprites/monsters/thief_bug_egg.webp": {
+   "sha256": "1140935484393f5669dacc392af575c7e94c2357b5ee14d845dde4c0fd7f2365",
+   "bytes": 2660,
+   "beforeSha256": "cecdb2226edf6d07198d99e46608d3341008d18cc0e993e6b71ecd3dd72776aa"
+  },
+  "assets-webp/sprites/monsters/turtle_general.webp": {
+   "sha256": "218ae7f521e3abbaa3ccaa7246ae44b25710169685977a01a8c9e7c50726e49c",
+   "bytes": 116908,
+   "beforeSha256": "f409db046555017146ec78bdc9e52e6b647568e9b71467ba2ba46513422b49b0"
+  },
+  "assets-webp/sprites/monsters/whisper.webp": {
+   "sha256": "1aefb27b2f4b92d9b0cef0cc57237a3f520c0c42dc13b112fd718e90c658f2d2",
+   "bytes": 21710,
+   "beforeSha256": "eb35139468e5728ec8051358a7363a3ae99fd63b8ec5bca747d3c17c96ef1674"
+  },
+  "assets-webp/sprites/monsters_xl/amon_ra.webp": {
+   "sha256": "a9a39a5e82dd2755a76135d8c755a9f34814fb290a5f96b61219a32678ed9873",
+   "bytes": 113762,
+   "beforeSha256": "683c0cc3359a3d41fc4e990d7b90274c1c2d1578225225046033ebfa9be850ed"
+  },
+  "assets-webp/sprites/monsters_xl/ancient_mummy.webp": {
+   "sha256": "816a8702f15be21df20b0ce6ce04aab9638a67580b8225966549c1a7bccd0888",
+   "bytes": 47836,
+   "beforeSha256": "cea849ffccc6c6194119e61ce4fe6ba7f558bb198cd8125892c7e71ec19c0a78"
+  },
+  "assets-webp/sprites/monsters_xl/clock.webp": {
+   "sha256": "74d7cc129f7af64ac2da8c7306a3d96ffd427d0424b8c67e02dc81dabf52a6d4",
+   "bytes": 180652,
+   "beforeSha256": "cd12bfaf0f01b2f49dbc117a6a15c73950dfb18f7702b3a00584fb928f41101b"
+  },
+  "assets-webp/sprites/monsters_xl/eddga.webp": {
+   "sha256": "46084b8f54f09ca7a65beec49da567f9b20edfb853927588f1cdaf416376da60",
+   "bytes": 95888,
+   "beforeSha256": "baee9cbae4ddada77f5eb96e0cea8f36fd87a426ee8a3ec1928a7573de4ab0df"
+  },
+  "assets-webp/sprites/monsters_xl/elder_willow.webp": {
+   "sha256": "20b8f7dd75078c3d64613ee662c7071618f658fcf684609a0ad52cf47dc530c9",
+   "bytes": 41866,
+   "beforeSha256": "1a90886e48ddad9c3b86677f48545ff31bf145b4efbe3fbe27f8ea4694f161cc"
+  },
+  "assets-webp/sprites/monsters_xl/evil_druid.webp": {
+   "sha256": "a40c459e999f671e83c2ff930adc5c7c132976b3d3185da9c1de52b7aae24f1c",
+   "bytes": 137776,
+   "beforeSha256": "a23e1df215b46dfd803a91d40acae20267510a1a17107e900cbb5825613dc977"
+  },
+  "assets-webp/sprites/monsters_xl/maya.webp": {
+   "sha256": "4f45961e8762dd288b95a576d26b686acbdce3b90ddcc9bfda76c03eb7fb7c32",
+   "bytes": 145698,
+   "beforeSha256": "0b043cd4ad34976afdc5df7a0eec9b695b8a0476101190ac79bb818dc162812c"
+  },
+  "assets-webp/sprites/monsters_xl/pharaoh.webp": {
+   "sha256": "0a5963e98e9a75468ef9390a6633cc6dd60ea8c56205740b908f7bfb864061d0",
+   "bytes": 86924,
+   "beforeSha256": "872e14b12f88048223c46764c56ecf438e55fa64965b9f288bfcf3a007512f26"
+  },
+  "assets/sprites/bosses/banshee.png": {
+   "sha256": "267f6b1d694e670b2988b137a80aeb216429eda2324c7e5d11465e44df537a69",
+   "bytes": 289834,
+   "beforeSha256": "65f498789a49c454ed435bf127a6bfbcb52f38c35737f8debf78f10852dd2032"
+  },
+  "assets/sprites/bosses/boss2.png": {
+   "sha256": "ceb6eb74193a88d3a799a8c1f92f98d4a6b54340ca85ecff27dcd9ea02a676e0",
+   "bytes": 374077,
+   "beforeSha256": "1f29ce8f16b5b84094dd9aff51677de60422ce300c633d2acd68e7a69348ad88"
+  },
+  "assets/sprites/bosses/dark_lord.png": {
+   "sha256": "d7daccac4481633f3611918e533b0b7c3b1ff210db84195bf14feb6c74375663",
+   "bytes": 756767,
+   "beforeSha256": "aac08c65fb288f077a0dbe94d06e1b5805d14fb0c004a14b43dc6957bd0fe8e7"
+  },
+  "assets/sprites/bosses/deviruchi.png": {
+   "sha256": "abd1d8b7642f4d83aff72a51103dbb9381a9873ecb76064c6454eb69cdc27320",
+   "bytes": 99014,
+   "beforeSha256": "c8496614ac86aed7a02cb6401430c3863a6ee1c4893211227cf42efb79c6c72e"
+  },
+  "assets/sprites/bosses/drake.png": {
+   "sha256": "fa397b613e74ca663a6a204a56b2cb62103e676a5f95531b629126e79534f0c3",
+   "bytes": 288190,
+   "beforeSha256": "ed917e3fe486c098b7c9f5fa2d73df8e0ed9d473111db39a67f2f3215239c9ff"
+  },
+  "assets/sprites/bosses/dullahan.png": {
+   "sha256": "ce2f0579135c468cbfd753e417b85f84f19f6d48b1298a2f6757bf7f08f3e39c",
+   "bytes": 337300,
+   "beforeSha256": "e4af546d1e0abdd60311d13d2076c02c8883878e8e38be5568be29d2c6b66570"
+  },
+  "assets/sprites/bosses/elder.png": {
+   "sha256": "5dcb4e2819a9f34e16817351302a5c0984b20673462f64e7b299526758f60cbd",
+   "bytes": 523867,
+   "beforeSha256": "5967f183014bdb65affa98919be319e286d2488eb656c29638429956c3bc64a2"
+  },
+  "assets/sprites/bosses/familiar.png": {
+   "sha256": "4ef1b2fc264e942350ab8b10818b9e021de945d17304d66f5856dc6d685ba189",
+   "bytes": 60611,
+   "beforeSha256": "f32072c7a60ef5c0854a43d79a0474d5beffd501ba96785c4017284a7d923586"
+  },
+  "assets/sprites/bosses/ghostring.png": {
+   "sha256": "d2fe73071045b014c90c8c05c976568ebe6f895ba3aa968741fb43eaeabf5890",
+   "bytes": 90680,
+   "beforeSha256": "a216a36774a114316bc1c2c0aeb7d7b2b4a415cbe6dcc33e7471ded51a0dddf7"
+  },
+  "assets/sprites/bosses/horong.png": {
+   "sha256": "f2c032111c3eb51ff70187f79e3b84780bdf700ee897eb2f1eaeb736b2595a86",
+   "bytes": 73251,
+   "beforeSha256": "81ade406edefd2baa59bd59f3569a112e32bd4d675bdd8b11a5a99bfbbd0d1fd"
+  },
+  "assets/sprites/bosses/isis.png": {
+   "sha256": "7aac8cdc276e6bd59e446d9aa156026caea4ed0ae7b2086766c5a82bbc2e8c15",
+   "bytes": 404229,
+   "beforeSha256": "83837a2edb9676e8832b1c3ee39a71d2fc6898ec703471a79b28cfdc0fd1541a"
+  },
+  "assets/sprites/bosses/mastering.png": {
+   "sha256": "a558d72b2663033ab5e53cf87334f3c819cffdac7d7cdef9d7b8ede48629dea5",
+   "bytes": 176151,
+   "beforeSha256": "598eec5685a2194775f212dd1afc2f671822333b7cf418051dbc2ee4b54aa03f"
+  },
+  "assets/sprites/bosses/mistress.png": {
+   "sha256": "3ad187586ffe173ea5a424954d9d97f9307383653f7f03c901c54ffbfa1c4d8f",
+   "bytes": 97952,
+   "beforeSha256": "29ec6ddbfbf0b2addded91180625e08d11fa758fffca3a2ca416dc7a5ee31c27"
+  },
+  "assets/sprites/bosses/moonlight_flower.png": {
+   "sha256": "7e566a3a021e18db718d53a4918b18e24fd00fbf32a171d23ca305c1cced7d23",
+   "bytes": 213432,
+   "beforeSha256": "e036a556ee4e12a3634bc8bf7aa7cf2ed1599e1e5131acc4efa618d0a03ea8f6"
+  },
+  "assets/sprites/bosses/orc_lady.png": {
+   "sha256": "0c8d5ea3047880940669751eb4d4da7d55b72bf3e39894334938ba2d3fa28d42",
+   "bytes": 255612,
+   "beforeSha256": "327dd0f024888607321fe262fe41343046635dbd80c02008a7b064dd9ae71ede"
+  },
+  "assets/sprites/bosses/orc_lord.png": {
+   "sha256": "93a52f44651598e01b16a439a8695f5d57ae804e776fb6e53fdc082b17fba05a",
+   "bytes": 388298,
+   "beforeSha256": "b3297ece6f4361d2e3312268e17ecbbe504af1cea679657b417c7d127d268334"
+  },
+  "assets/sprites/bosses/orc_skeleton.png": {
+   "sha256": "2edd954665a5d03488eec121fca301cc20a627ea3f4fea57a5568356801f0102",
+   "bytes": 234524,
+   "beforeSha256": "fa77b1fb8955be216fddebe059f64734cc20ff0c88eb8f3290d0b20eb7c7ab8a"
+  },
+  "assets/sprites/bosses/orc_zombie.png": {
+   "sha256": "ce932dc3d7d2b59886db5853495730243bbc4b2f3958fcf5ee83bb502612da4c",
+   "bytes": 273918,
+   "beforeSha256": "46cd22abd939f8545b89fd74e9aef0ab709fa5c500ce56d68ebc607cc13ed95c"
+  },
+  "assets/sprites/bosses/osiris.png": {
+   "sha256": "b3c9325eeb74f7a7415a99685cef9738fef7245a296fb9defb66409394c05940",
+   "bytes": 156625,
+   "beforeSha256": "af11a0887dbbab7b44b67a46c8b35db6b4b8258a606992453a5c2ba0f4af770a"
+  },
+  "assets/sprites/bosses/smokie.png": {
+   "sha256": "d721803b51217bbeeded2e5a7b9b98b7be82b68d9dc5a9ee51c2d07890404f50",
+   "bytes": 110564,
+   "beforeSha256": "d6992d189b783aaccf48e716e40dc69b70db7fe804e74fd87788b6c18b45d884"
+  },
+  "assets/sprites/bosses/sohee.png": {
+   "sha256": "466a358fb1293ec6d8dae20e873a6137c97e1bf49a7ce6a7b1bd13e595694cc7",
+   "bytes": 254001,
+   "beforeSha256": "8146bde3714ec85527101c2f7577f6d751e2b0f1b8647bdcf195ee38f48ccc4c"
+  },
+  "assets/sprites/bosses/swordfish.png": {
+   "sha256": "a5898508452aab133d1bb72b124d8f23ac3a248d38f03cce417d43a15e54a8ca",
+   "bytes": 230008,
+   "beforeSha256": "6d42273709f1842fe04e94bd4fa840c8ec92af3dc55b53d27da5baf870c9a044"
+  },
+  "assets/sprites/bosses/vagabond_wolf.png": {
+   "sha256": "c8715c938fb53679fef813074864960ab4d1510ee94813f9138ba158712e9029",
+   "bytes": 155467,
+   "beforeSha256": "c6c9045acc2ece5fe8d779bef11d89dd504adcc09b325c922029c509d793f324"
+  },
+  "assets/sprites/bosses/vocal.png": {
+   "sha256": "936adfd73e718dbcfaf71a8b4ce5b369025b0849f76f125a6164afe109834af9",
+   "bytes": 199309,
+   "beforeSha256": "d2dd4336a05004e05bd87372e226e42983a9d6052eda957a75eff6375d563a3d"
+  },
+  "assets/sprites/bosses_xl/abysmal_knight.png": {
+   "sha256": "15c3047abf78b61151a6476175c47dd0e61a91b63a3995caa2ff38f2a29c9997",
+   "bytes": 1630238,
+   "beforeSha256": "a4c53df2e32613fb6449280e2d3686555779496b1de3150443442489beb49f83"
+  },
+  "assets/sprites/bosses_xl/alarm.png": {
+   "sha256": "0b2825b9c70110bc7c0d171e65fce7bbd5a0307ad4a38415d58812fbf98d516b",
+   "bytes": 480608,
+   "beforeSha256": "d2761213a337c006691eee03d317a47cbf9bb13f9ce88185b22ac77bcbab74ba"
+  },
+  "assets/sprites/bosses_xl/bloody_knight.png": {
+   "sha256": "56497cef89cc9c9ffd12615f23c6732036c1846d16561f1d8caf4e6d0998bafe",
+   "bytes": 1045037,
+   "beforeSha256": "7cd260877916930633c906cb61b459d93489c17d2370eb8dcf24e591d3e1f5f6"
+  },
+  "assets/sprites/bosses_xl/clock_tower_manager.png": {
+   "sha256": "4f5eacb364b19e3c4b3b2fb00d774ab452b124c229ca1255c19e9a79adeca8af",
+   "bytes": 442638,
+   "beforeSha256": "9fec5ce432ffe647fc3af9c4f34b8fc4b6d3cf66b0ec9713b761fb6e253ceb45"
+  },
+  "assets/sprites/bosses_xl/dracula.png": {
+   "sha256": "f745378515d8e21240e881d6eaf1868dc2e1c941a1e45ca048dea986f8eacc0a",
+   "bytes": 259938,
+   "beforeSha256": "0923cabe80305c02f85ea18cae744c8dbea8143682f5660d5b6f6f89a9a3ddaa"
+  },
+  "assets/sprites/bosses_xl/lord_of_death.png": {
+   "sha256": "1832f2f1567cecc6157a23ec1d613beff77b6da2a8a324e2d49a121af5776692",
+   "bytes": 1449711,
+   "beforeSha256": "19293c0944e6d33ba8d9cb4921bd2be6b3c5ec3d1656fd4077b2bc84a81a75ce"
+  },
+  "assets/sprites/bosses_xl/owl_baron.png": {
+   "sha256": "9406f856dedb48703eec1f0249e6d38836235edc2033eac81513e423353a5b71",
+   "bytes": 310480,
+   "beforeSha256": "3f535540d1d3f81b6089ffc50c9387f62a0fa0a78fbf07fe439cd8df65082506"
+  },
+  "assets/sprites/monsters/angeling.png": {
+   "sha256": "7332ab8bc66ca2cbd57af7654516a7f5715ce83edfa2dc32fea675ae8c38febd",
+   "bytes": 123647,
+   "beforeSha256": "9fed7352057b00fd5e1ec4630a3a1b7dbb5cb9a0d5146d355751af0a20b82f7d"
+  },
+  "assets/sprites/monsters/archangeling.png": {
+   "sha256": "f451be2eb30ff83b34e0c0e14e30b30ef1edf266026ec121ed5f66d8a1f84ab2",
+   "bytes": 139034,
+   "beforeSha256": "2d8b3e58c35efdf9c02631e48562da44b0b6db8d20c2e2101b77876045194472"
+  },
+  "assets/sprites/monsters/baphomet_jr.png": {
+   "sha256": "c66d70e77e31d9deafd6acd2c77ff162f8ffe2d2fa9858a5428d99e1fd7ea0e7",
+   "bytes": 76589,
+   "beforeSha256": "6d0ca271ff00e696ed486bfc4e698a52f9ed58b22d3527a70d7f6f11294cfa48"
+  },
+  "assets/sprites/monsters/bloody_murderer.png": {
+   "sha256": "964418acb7d30db829eccd3ae4ee926a86f451eb91efaaa34edd9e644513429e",
+   "bytes": 491587,
+   "beforeSha256": "b9c6000595b26e35cf32b9240309b77579ef8cc9f8177ce6bff8c32429fd35e2"
+  },
+  "assets/sprites/monsters/bongun.png": {
+   "sha256": "76ea435d870c9a6dce7c0b0ab9a1a9d7dd0a31bcf41222b4ebb8199d4a3620c4",
+   "bytes": 159424,
+   "beforeSha256": "cf1c8f673ac7746371b0343d2eedb688808f3b13ec157685d875c8b62aaaf708"
+  },
+  "assets/sprites/monsters/doppelganger.png": {
+   "sha256": "fde41d20a5a74e6b7f37338a39638b824ecb3d5133edd9181f34c04bb537f52f",
+   "bytes": 109142,
+   "beforeSha256": "af3c2011852b5eab433980babe37af3ec7709d87f215099ddf0ec5350a790fbd"
+  },
+  "assets/sprites/monsters/eclipse.png": {
+   "sha256": "277267a7a4ca1f374e8d313a461f8a66ffa64bd2bf38ce8c75789e73ff050817",
+   "bytes": 82833,
+   "beforeSha256": "1a2fcf8a8e8d7757cf26ef6fe5e5a4a0de4453bf23dc93671da282707afddf91"
+  },
+  "assets/sprites/monsters/gargoyle.png": {
+   "sha256": "87dbcdc9740633d1aef195e8db90c32b117df11b7bb17a53ea6e19f9d7dbe5fb",
+   "bytes": 201229,
+   "beforeSha256": "9bb12dda6e5a102586c402efb1c28d56787ea7f38944aa849f30f051b9bcb8ce"
+  },
+  "assets/sprites/monsters/gibbet.png": {
+   "sha256": "0341c89f039dae67d91dc697887979c3fbcb71a447939e26ff5b860b034c1eba",
+   "bytes": 396313,
+   "beforeSha256": "1d9f729849ed1148ceac3e77d282ffc3d0717e68d41ee529e9221f7b2b931514"
+  },
+  "assets/sprites/monsters/high_orc.png": {
+   "sha256": "02e7d2e5da37002a10db10e37265df9855023f7b16b6e7e3261cc471422e0925",
+   "bytes": 323378,
+   "beforeSha256": "d0a2a9752288d76e6cdbbf81bd8c575ceb833939b241a5fa033141ad1a11e035"
+  },
+  "assets/sprites/monsters/hunter_fly.png": {
+   "sha256": "8b4ce4e8909367bcb7341188997409977507b7486c97cab110d7d81da8beb0b6",
+   "bytes": 43435,
+   "beforeSha256": "009e90761019b5d5d9abcfe1fb86a2e79ae348cd70997ebe1a7d56fdb95b55fd"
+  },
+  "assets/sprites/monsters/hydra.png": {
+   "sha256": "01312a8ab2177740ca0eb51ed009df3f90de0e072b7542599a0f4e36611a529c",
+   "bytes": 137918,
+   "beforeSha256": "2e29755c837276aba50a5f43f2408d93eae318645e8f14bc8913263fa3c74348"
+  },
+  "assets/sprites/monsters/kukre.png": {
+   "sha256": "4414d1284d24665313fdce27b9e3c98d6b5a51853120eaccec91fdaf55b3d1dc",
+   "bytes": 36684,
+   "beforeSha256": "022b4e3fabd315dae4fc3a6721a570ca1132dfd9bbd8ea037961104209c3fe1f"
+  },
+  "assets/sprites/monsters/loli_ruri.png": {
+   "sha256": "65c6d1e618d055de8c3fd0e2d47c9e33100dd1b480cbf256667796ff4136ac45",
+   "bytes": 375587,
+   "beforeSha256": "a4cf4acb779557cedc364d88dbda502ea5e5a10ce2fc989b25d3e53e7a859784"
+  },
+  "assets/sprites/monsters/mantis.png": {
+   "sha256": "91de146a42cc70880a8a1aafd4d865ec57ffe217d78177a2b4d4f6e06341cd48",
+   "bytes": 96050,
+   "beforeSha256": "b6f21669e7587c144fd62acb897c178c07efe43209eefedf8b9479b27b7b2758"
+  },
+  "assets/sprites/monsters/marse.png": {
+   "sha256": "0a02b6d2bd50e24d486778ee56c3d3b51a2632dc19c655a9d900260d0bef3bce",
+   "bytes": 106386,
+   "beforeSha256": "9e16ae60b21e689710985cc848e460a9c623a573bf6ab45f356019e1cd729c9b"
+  },
+  "assets/sprites/monsters/mimic.png": {
+   "sha256": "3499c06a494a46ea0e63e11ef3ef178ec0dcece6035ae751b60f877b6d8ff206",
+   "bytes": 144499,
+   "beforeSha256": "a55bc086144d51b8572dd7127ce7d795a0790ba190654bf01e2841c9e4f70ef9"
+  },
+  "assets/sprites/monsters/munak.png": {
+   "sha256": "ae6b83cc12ea16f516323d5f67549f46c40a86f2e3eda51dd6be00df8aa6ec72",
+   "bytes": 158468,
+   "beforeSha256": "c8b551ec4920912f55c05fb3e9fac3ad1ab8816a423aac5c58b4220f04a4d4c2"
+  },
+  "assets/sprites/monsters/nine_tail.png": {
+   "sha256": "45d3e28b7a71e1c6ea97ffcee380ee3a4f80a9162790aadc1153e37bb4e8572e",
+   "bytes": 155589,
+   "beforeSha256": "b10e2ffa07617df3e974634042d7006341d05f2673b1848463bab06f49d98706"
+  },
+  "assets/sprites/monsters/obeaune.png": {
+   "sha256": "7fd5b84f2c6b82cb75dc5d30cfc9526a6a5543900aeac46ca777a1fbb3721f58",
+   "bytes": 177561,
+   "beforeSha256": "a97bd9ec0705251b9f968eb08e1304cb8ae6bd4d84a5f633c315390701080bb7"
+  },
+  "assets/sprites/monsters/orc_archer.png": {
+   "sha256": "fea72be490fb263e72a8fc984b51210b08b1b206c72f584084990331428da830",
+   "bytes": 233350,
+   "beforeSha256": "cc328e7897ea631014c02ffd5577bbb14299d2369a595e85b6f5036d38b0457e"
+  },
+  "assets/sprites/monsters/orc_warrior.png": {
+   "sha256": "0b1378aab52b82c72e65e04939fc4ef5ba985d83595848f2e5ee07fe2c6a8245",
+   "bytes": 270798,
+   "beforeSha256": "35af5bf90ff9b95df5b781d080ea9b1e0527071bd99fdf79f8684c8ad7d9d174"
+  },
+  "assets/sprites/monsters/penomena.png": {
+   "sha256": "17977fb9e3c12d8170698f29b3ad377d3402ad7b30c42fc6dbd93df4475ba3a0",
+   "bytes": 152649,
+   "beforeSha256": "bc54c5c8a5fa79bd2acdc2fe883b630b7907cd5b323d472be443e4d6960ccc3e"
+  },
+  "assets/sprites/monsters/plankton.png": {
+   "sha256": "6e17a16df410ed463e1bbe3178d9024c3424c33c6b7ebfc10a4db364355bd14c",
+   "bytes": 41855,
+   "beforeSha256": "691e1f9781ccfad97f6ed8cda7c44f1d51161e9e41ce6832ef2d3634873c2a1a"
+  },
+  "assets/sprites/monsters/punk.png": {
+   "sha256": "b2a2851548fe15bc462ef8b313c6de8a4432889c896d221d08d6a1d42bfbe351",
+   "bytes": 57661,
+   "beforeSha256": "ab8c64fe1fa80cd58347df8cb813ec61d5353e57cf8ae86c478f2f2252fec5d9"
+  },
+  "assets/sprites/monsters/quve.png": {
+   "sha256": "bd3eee3977d5418fa1dde0fb16434dc110a99026c1fcf52cc8bb8b8c7337d963",
+   "bytes": 41804,
+   "beforeSha256": "63bd214ab8d7ab1433f420acc69e38b28c0966ffe5af99016e67d3d7e16c1691"
+  },
+  "assets/sprites/monsters/rideword.png": {
+   "sha256": "503994787013e62f687980d2325eefa49087147f80e271596ba3c755ad82d629",
+   "bytes": 74409,
+   "beforeSha256": "38ade8ae52ab5baaaf6d0410dcfff1c2b7a4d131c707af51492cd7e923edb183"
+  },
+  "assets/sprites/monsters/scorpion.png": {
+   "sha256": "5c36057e584ba5b2e8181070e41086f09b8adfa1f858797c91aed8b4f0fb9df7",
+   "bytes": 165488,
+   "beforeSha256": "0f187ff3c0ec6ac94e03c18ddffc98aff53c165ad693c8f2f2e12e55075fea39"
+  },
+  "assets/sprites/monsters/side_winder.png": {
+   "sha256": "82a1f806e6d3dc686e723ca531746f08d54f4bb65e9d05c9f215c80466b83693",
+   "bytes": 63447,
+   "beforeSha256": "97c5225d8d6eff42fa20532d39405e569f29b6a0b610ef45fc04cc7b478a1f8d"
+  },
+  "assets/sprites/monsters/steel_chonchon.png": {
+   "sha256": "6462171e641f6e4eb1252338f25bee3336fe6b96eb3eb065228937fc55c1167c",
+   "bytes": 54280,
+   "beforeSha256": "6858bee66a7427974271d947e232d90e8ffaa9f3033eacd183691872aeb169f0"
+  },
+  "assets/sprites/monsters/stem_worm.png": {
+   "sha256": "6c4d1fd30033077f084a5fae35577cd5c56cc15084e2aa48864cac9423af4b2e",
+   "bytes": 104832,
+   "beforeSha256": "ea45132d8fdc45c3e337d457d75a74e845116c6f8d29c280540a83bc7fcd328d"
+  },
+  "assets/sprites/monsters/tarou.png": {
+   "sha256": "5758871a66a0c5a15c006360877e43b2961bbd446fc7e76ba542a0822f643340",
+   "bytes": 30908,
+   "beforeSha256": "8a4c47fdbaba13c5e6987db3a39b1d9be1187256b43a7303a47f1ab953ee7acd"
+  },
+  "assets/sprites/monsters/thief_bug.png": {
+   "sha256": "e531b36ca6df831542d53fba21d7c52557bb5f819e5577501ec0107a528e2013",
+   "bytes": 26786,
+   "beforeSha256": "eb573668e654635062f717005f2708a55d693ce8873b6075dd87dfe6ebbf81d6"
+  },
+  "assets/sprites/monsters/thief_bug_egg.png": {
+   "sha256": "68f64f5076040e53175dd786767eb88280e0f26ec0b1cb6b5b76ba45e9e442ce",
+   "bytes": 21470,
+   "beforeSha256": "90a88840576be3f5a353f673d807337630bdcdf5aaa08c3e243591338176367c"
+  },
+  "assets/sprites/monsters/turtle_general.png": {
+   "sha256": "e7e00844cc0aa6014e2dfb01f98ef05b34112431ccdfb44a8121902d36e392e3",
+   "bytes": 478457,
+   "beforeSha256": "017883b51f86b19ba05b203223705e9fb576318d621e9df6ab3822758ac2a09e"
+  },
+  "assets/sprites/monsters/whisper.png": {
+   "sha256": "19f93e6469ba6c6a41bd92e31af5c6af917b0ce9a424422c7ddb721f2e847db1",
+   "bytes": 84400,
+   "beforeSha256": "734c0a7b6bb781f0404c7e8bca85eb17ff121e5573b23905e55fc813dcf09cca"
+  },
+  "assets/sprites/monsters_xl/amon_ra.png": {
+   "sha256": "e73c679c69368b62faa31268243d66aacaa2077b5261e678503a3178c30d521a",
+   "bytes": 642843,
+   "beforeSha256": "d3ba7cff27bc353c8c8f556b9617e3c8e28129ee73c710fc8bd4799d3220ee0b"
+  },
+  "assets/sprites/monsters_xl/ancient_mummy.png": {
+   "sha256": "a486aaa5a831ca5b70bcc751ff8cfe3940bf8086adf69a4722ad6ab4326415fb",
+   "bytes": 208365,
+   "beforeSha256": "afe4ec6fbe01330fbad61566bf68e74dd22fd9e9efe466c0f336f02e9d3a494f"
+  },
+  "assets/sprites/monsters_xl/clock.png": {
+   "sha256": "cdb5ce37aca4f33fff877a5fbcb9ada34e6e7fc8a15a6583fab7bb7c3d69b8f7",
+   "bytes": 515823,
+   "beforeSha256": "9afc5b3f9ad652e136d9bcf0a4810d096272dae221b4e54179dac2496b9daf0f"
+  },
+  "assets/sprites/monsters_xl/eddga.png": {
+   "sha256": "53e30f0f49755a5094c6cb183c4ed9cf4237c931bc1623f3d839618caa1f4b80",
+   "bytes": 382592,
+   "beforeSha256": "ebfe18b3963d8289c9e7c6719cc740559b933833791f93ac03cbde44ef113e21"
+  },
+  "assets/sprites/monsters_xl/elder_willow.png": {
+   "sha256": "83506ea8bc0797dc1e9d134b2480d6007e1b46c44df5237b176d4eb8ffe8f177",
+   "bytes": 166403,
+   "beforeSha256": "1727ab56ff83e3824b4222efe9426da8e70371b5bfb87d0eda2dab626260fa2e"
+  },
+  "assets/sprites/monsters_xl/evil_druid.png": {
+   "sha256": "4bbf2b91be0d2c952abe5b4ccf7122334278f1f9f1439f53134683cfce154efd",
+   "bytes": 484388,
+   "beforeSha256": "2b4b2d450f5b9253aada0122c7126333d971ace984c9ea3861025dd439f4477e"
+  },
+  "assets/sprites/monsters_xl/maya.png": {
+   "sha256": "a31c284c1adcabeb7f0d029279099fcc70b99bf71507581325360acd99b7f62b",
+   "bytes": 562578,
+   "beforeSha256": "e7d234d725028b5545a883ff781643d78baadd900b2b6ea66a24b0ec974a8f14"
+  },
+  "assets/sprites/monsters_xl/pharaoh.png": {
+   "sha256": "813a3bffda366433766f9bfb2ea616c752ae4c473d09f717ca6f5d88e80fa15c",
+   "bytes": 354560,
+   "beforeSha256": "a16fb5c41554d6ce180b40a3f1c71afa7fb7239cf46ff599a9f652f372231c67"
+  },
+  "assets/sprites/sprites.json": {
+   "sha256": "b90ff377135885cf18d5465782b870b0b1800cbba4ce3d940864320ccc3f39e0",
+   "bytes": 66907,
+   "beforeSha256": "67b4d866095e527a0e4eca43d5ea4c74f70ddd9ba92ebecea3ea94174aa30de6"
+  },
+  "assets/sprites/sprites.provenance.json": {
+   "sha256": "d822bacc5134604b2b4054c651cded432fbe4ae8f269bc23c438afb915b08b19",
+   "bytes": 699651,
+   "beforeSha256": "28f2eafdb41004f200bad97f2e463520d6a199931eefc7294c3cd5b1a96074aa"
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/README.md": {
+   "sha256": "ca1dd2222ed36e3850dcf84ff34b9b23c35c72e54275b2d58144f83987e5d19c",
+   "bytes": 1850
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/acceptance-adapter.py.gz": {
+   "sha256": "1cd2f0b40a6d3b232c90b5af23d46a0dd1403f72635ad0b4d1f3b279e5674a57",
+   "bytes": 1750
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/assets-report-after.log": {
+   "sha256": "b2adb98ab9270dedb4f7bd3b79e153ae301c34b3126da2519fa507bcb51eb33c",
+   "bytes": 1869
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/assets-report-before.log": {
+   "sha256": "ecd48358c6c327a2ac7df8deec4d151bba41ea4147e25679f6e59afe3d4eea14",
+   "bytes": 1852
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/check-sprites-after.log": {
+   "sha256": "6848f25b25fe830200f7c0615e88dcdbf5c0828727c7efffe48db0f1333ef712",
+   "bytes": 3128
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/check-sprites-before.log": {
+   "sha256": "326637ca4edf98e46f2f2e762375a84e0f7e49ac683ff1b63c0194aeced8593e",
+   "bytes": 3127
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/content-check.log": {
+   "sha256": "8ec9c51ee9da58874ce7010beec602b37029f39959a3a38aea3fdbf636ed4fd3",
+   "bytes": 1318
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/contract-acceptance.json": {
+   "sha256": "6fe00c83532699dbced04deca0257ead9c519a6f1191d76fdef73a72dd636d8b",
+   "bytes": 7909
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/existing-25-tests.log": {
+   "sha256": "4248476a8b7328eb5e18d868e31fcf46d29624e0ae5ce36ca82ba3eb9bbe4d49",
+   "bytes": 100
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/generated-tests.log": {
+   "sha256": "d8b7cf1200ccecd4ddc827a92c290b40d58fc1950658693d5a76b8edd83c1853",
+   "bytes": 119
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/integration-ledger.json": {
+   "sha256": "7cf43ccad6437b646c5eb7c931a12a0452dda9ff0e2fc5caeae83cffd2a09bc4",
+   "bytes": 21254
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/preservation-report.json": {
+   "sha256": "ba5688df69e10e2ba7937680fb3721db9c73f6f74e52a038b4aeb848902cc1e7",
+   "bytes": 3667
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/runtime-acceptance.json": {
+   "sha256": "6e34e1a0a3366b180e448be70af0549c36ee5d5d2bd27ed27b7a6d922b9baea3",
+   "bytes": 30347
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/submission-metadata.tar.gz": {
+   "sha256": "f3b660ae3af572913be0b28107e2b43e89326ce993f7dc4b9a3fe7b2830f4ee6",
+   "bytes": 70069
+  },
+  "docs/REPORTS/2026-10-05-night-sprites/webp-generation.log": {
+   "sha256": "27c7ccbc638cd57e4f2d903c15c27ae6ac6c90299fc49491f7b4a546db6dc186",
+   "bytes": 194
+  },
+  "docs/qa/night-sprites-2026-10-05.md": {
+   "sha256": "1104cc821e21a5dd3abb4bd0a000c24f6ca53b3efd9833c3e48800fe4158bc57",
+   "bytes": 6601
+  }
+ }
+}

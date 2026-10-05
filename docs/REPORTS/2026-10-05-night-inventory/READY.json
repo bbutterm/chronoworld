@@ -1,0 +1,77 @@
+{
+  "sourceRoot": "/workspace/chronoworld-worktrees/night-root-inventory",
+  "status": "OWN source and DEV/compiled accepted; shared modal guard release gate pending",
+  "exclusiveFiles": [
+    {
+      "path": "src/game/scenes/InventoryScene.ts",
+      "sha256": "6ea6685075b0d43f6bd035a93911334c08243d20c7ec8b4030363731c95017bf",
+      "bytes": 57849
+    },
+    {
+      "path": "src/game/inventoryScreenLayout.ts",
+      "sha256": "fb1bcee13f9f4efbcae3ccd27966e5ab66233166ab1b0812cdf690729611e5c0",
+      "bytes": 1402
+    },
+    {
+      "path": "tests/inventory-resize-lifecycle.test.ts",
+      "sha256": "4a8066d14f6a7da7aa0265a013b0b8b6411d2ecfcbab7242e2e8af18ade9db85",
+      "bytes": 4125
+    },
+    {
+      "path": "tests/game-ascend-inventory.test.ts",
+      "sha256": "bfa44d560ef0f6645055d35abb40ebdb5a7000331e9daed6ec5a12343e828b69",
+      "bytes": 5228
+    },
+    {
+      "path": "scripts/night-inventory-ui-qa.cjs",
+      "sha256": "b3fe924b32c0a3d93169f8fdb4035ffe72d23a18f8174a29bb8230edd1f2bfb4",
+      "bytes": 16811
+    },
+    {
+      "path": "docs/qa/inventory-short-viewport-2026-10-05.md",
+      "sha256": "87ff2eef5997f00af77daca68cb45c54f1e26c01474bee37e88ed981ff691cfc",
+      "bytes": 6186
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-inventory/card-inserted-390.png",
+      "sha256": "6e6ea09a45808a33cf7468e9e161da0cb01efe72bb42bf3e49110daf19eabae6",
+      "bytes": 133369
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-inventory/cards-table-360.png",
+      "sha256": "9d391cd5a62485a445ca1583b88fb3960f21ae3411f0777ae90565e437c8e1d7",
+      "bytes": 89613
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-inventory/compiled-report.json",
+      "sha256": "a2dcf66338531f5553f32ad2faebb957829e00300e545889204c32294a73db5f",
+      "bytes": 10912
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-inventory/dev-report.json",
+      "sha256": "5dc15f3dccb3c580a24edff1d437b896192d265909a67a289560676889da0478",
+      "bytes": 29072
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-inventory/gear-360.png",
+      "sha256": "df06e71b885fb7de82f8c32d93c1bbe4a95542ced1d3876ecd6087a86ab7e426",
+      "bytes": 84338
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-inventory/mvp-stock-390.png",
+      "sha256": "c426073d5b09cb6c68aad7290e94a587a55efaf6b718b447aaa6b297974082a6",
+      "bytes": 133687
+    }
+  ],
+  "checks": {
+    "focused": 12,
+    "newMeaningful": 3,
+    "typecheck": "PASS",
+    "build": "PASS",
+    "devPhases": 54,
+    "compiledPhases": 54,
+    "compiledErrors": 0,
+    "compiledSourceRequests": 0
+  },
+  "readonlyPolicyExcluded": "c24b9f2ae43a4aa39ad8aaa55526133d8261bd907e03f5240f5c378d4c21e8d1"
+}

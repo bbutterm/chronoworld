@@ -38,13 +38,13 @@ import {
 import { GAME } from '../content';
 import { equipmentComparison, equipBlocker, formatNumber, heroSprite, inventoryRows, itemStatsText, RARITY_COLORS, RARITY_NAMES, SLOT_NAMES, STAT_KEYS, STAT_LABELS, type InventoryRow } from '../flow';
 import { GAME_W } from '../layout';
-import { bottomSheet, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, cta, emptyCard, screen, type BottomSheet } from '../screen';
+import { bottomSheet, confirm, CONTENT_TOP, contentBottom, cta, emptyCard, screen, type BottomSheet } from '../screen';
 import { cardArtId, showCardArt } from '../cardArt';
 import { commit, session } from '../session';
 import { BTN, button, chip, ellipsize, icon, listRow, mixHex, plate, pressable, ScrollArea, segmented, stat, SURFACE, tag, text, toast, type Tone } from '../ui';
 import { randomLine } from '../loreView';
 import { itemLegend, itemModal } from '../loreView';
-import { C, COLOR, COLOR_N, FAMILY, R, S, T, TOUCH } from '../theme';
+import { C, COLOR, COLOR_N, R, S, T, TOUCH } from '../theme';
 import { itemCell, itemIconKey, itemTile, oreIcon } from '../itemIcons';
 import { burst, juiceOn, staggerIn } from '../juice';
 import { markHint } from '../hints';
@@ -54,6 +54,8 @@ import { cardIcon, drawHeroCard, heroCardIcon, heroCardSize, rarityColor } from 
 import { heroFace } from '../portraitFrame';
 import type { HeroBack, HeroData } from './HeroScene';
 import { heroCardsList, heroCardsTable, inventoryUi, RARITY_ORDER, type HeroCardsRow } from '../heroesView';
+import { minimumTouchSize, onViewChange } from '../viewport';
+import { inventoryFilters, inventoryWindow } from '../inventoryScreenLayout';
 
 /**
  * K6. Инвентарь (в духе AFK Arena / RO).
@@ -89,9 +91,9 @@ const CELL = 112;
 /** Сколько строк сверх видимых держать построенными выше и ниже окна прокрутки. */
 const ROW_BUFFER = 2;
 /** Карточка «надето сейчас» (выбор для слота): с предметом / пусто; строка слота карты MVP. */
-const CUR_H = 272;
+const CUR_H = 320;
 const CUR_H_EMPTY = 184;
-const CARD_ROW_H = 120;
+const CARD_ROW_H = 144;
 /** «Карты героев», таблица: левый край столбцов редкостей, ширина столбца, центр столбца i (плашки сводки — над ними). */
 const TBL_X0 = 400;
 const TBL_CELL = (GAME_W - S.xs - TBL_X0) / 5;
@@ -197,7 +199,7 @@ export class InventoryScene extends Phaser.Scene {
       pressable(this, this.add.zone(cx, cy, cellSize, cellSize), cellSize, cellSize, () => itemModal(this, cur.def, { refine: lvl, card: cur.instance.card ?? null }));
       ellipsize(text(this, tx, top + 62, refinedName(cur.def, lvl), T.heading, RARITY_COLORS[cur.def.rarity], { fontStyle: 'bold' }).setOrigin(0, 0.5).setName('curItemName'), GAME_W - LEFT - S.m - tx);
       ellipsize(text(this, tx, top + 116, itemStatsText(statsOf(cur.def, cur.instance)), T.caption, COLOR.textSecondary).setOrigin(0, 0.5), GAME_W - LEFT - S.m - tx);
-      const by = top + 200;
+      const by = top + 216;
       let bx = tx;
       if (this.canRefine(cur.instance, cur.def)) {
         const rb = button(this, bx + 150, by, 300, BTN.m, '', 'Заточить', () => this.refineSheet(cur.instance.id), T.body, { variant: 'secondary', sound: null });
@@ -431,12 +433,13 @@ export class InventoryScene extends Phaser.Scene {
     screen(this, 'Инвентарь', 'Heroes', { to: 'Heroes' });
     // Вкладки экрана (запоминаются на сессию): снаряжение, карты героев, карты MVP из охоты (BUG-187).
     const tabs = ['gear', 'cards', 'mvp'] as const;
-    const seg = segmented(this, GAME_W / 2, TOP + 52, CW, ['Снаряжение', 'Герои', 'Карты MVP'], Math.max(0, tabs.indexOf(inventoryUi.tab)), (i) => {
+    const touch = Math.max(104, minimumTouchSize());
+    const seg = segmented(this, GAME_W / 2, TOP + touch / 2, CW, ['Снаряжение', 'Герои', 'Карты MVP'], Math.max(0, tabs.indexOf(inventoryUi.tab)), (i) => {
       inventoryUi.tab = tabs[i];
       this.scene.restart({});
-    });
+    }, { h: touch });
     seg.container.setName('invTabs');
-    const below = TOP + 52 + 44 + S.s;
+    const below = TOP + touch + S.s;
     if (inventoryUi.tab === 'cards') {
       this.cards(below);
       return;
@@ -450,23 +453,27 @@ export class InventoryScene extends Phaser.Scene {
 
   /** Фильтр — иконки слотов («Все» и 4 слота) и переключатель «Свободные»; ниже — сетка плиток предметов. */
   private gear(filter: Slot | null, top: number): void {
-    const fy = top + 44;
+    const layout = inventoryFilters(CW, minimumTouchSize(), S.xxs);
     const opts: (Slot | null)[] = [null, ...SLOTS];
-    const fw = 112;
     opts.forEach((s, i) => {
-      const x = LEFT + fw / 2 + i * (fw + S.xs);
+      const box = layout.boxes[i];
+      const x = LEFT + box.x;
+      const fy = top + box.y;
+      const fw = box.w;
       const on = s === filter;
-      const bg = plate(this, x, fy, fw, 88, on ? { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.6), borderW: 3, r: R.m, hl: 0.14 } : { ...SURFACE.sunken, r: R.m }).setName(`invFilter_${s ?? 'all'}`);
+      const bg = plate(this, x, fy, fw, box.h, on ? { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.6), borderW: 3, r: R.m, hl: 0.14 } : { ...SURFACE.sunken, r: R.m }).setName(`invFilter_${s ?? 'all'}`);
       if (s) this.add.image(x, fy, itemIconKey(this, s)).setDisplaySize(60, 60).setTint(on ? COLOR_N.title : COLOR_N.textSecondary);
       else text(this, x, fy, 'Все', T.caption, on ? COLOR.title : COLOR.textSecondary, { fontStyle: 'bold' });
-      pressable(this, bg, fw, 88, () => {
+      pressable(this, bg, fw, box.h, () => {
         if (!on) this.scene.restart({ filter: s });
       });
     });
-    const fx = GAME_W - LEFT - 130;
-    const fbg = plate(this, fx, fy, 260, 88, freeOnly ? { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.6), borderW: 3, r: R.m, hl: 0.14 } : { ...SURFACE.sunken, r: R.m }).setName('invFreeOnly');
+    const freeBox = layout.boxes[5];
+    const fx = LEFT + freeBox.x;
+    const fy = top + freeBox.y;
+    const fbg = plate(this, fx, fy, freeBox.w, freeBox.h, freeOnly ? { fill: COLOR.surfaceRaised, border: mixHex(COLOR.border, COLOR.accent, 0.6), borderW: 3, r: R.m, hl: 0.14 } : { ...SURFACE.sunken, r: R.m }).setName('invFreeOnly');
     text(this, fx, fy, 'Свободные', T.caption, freeOnly ? COLOR.title : COLOR.textSecondary, { fontStyle: 'bold' });
-    pressable(this, fbg, 260, 88, () => {
+    pressable(this, fbg, freeBox.w, freeBox.h, () => {
       freeOnly = !freeOnly;
       this.scene.restart({ filter });
     });
@@ -476,14 +483,15 @@ export class InventoryScene extends Phaser.Scene {
     const sale = salvagePlan(session.save, GAME);
     const itemDefs = new Map(session.save.inventory.items.map((item) => [item.id, GAME.equipment.items[item.itemId]]));
     const saleIds = sale.instanceIds.filter((id) => !filter || itemDefs.get(id)?.slot === filter);
-    let gridTop = fy + 44 + S.s;
+    let gridTop = top + layout.height + S.s;
     if (saleIds.length) {
-      const saleY = gridTop + 44;
+      const saleH = minimumTouchSize();
+      const saleY = gridTop + saleH / 2;
       const plan = salvagePlan(session.save, GAME, saleIds);
       text(this, LEFT, saleY, `Лишние копии: ${plan.instanceIds.length}`, T.caption, COLOR.textSecondary).setOrigin(0, 0.5).setName('invSaleCount');
-      const sell = button(this, GAME_W - LEFT - 210, saleY, 420, 88, '', 'Продать повторы', () => this.sell(plan.instanceIds, true), T.caption, { variant: 'secondary' });
+      const sell = button(this, GAME_W - LEFT - 210, saleY, 420, saleH, '', 'Продать повторы', () => this.sell(plan.instanceIds, true), T.caption, { variant: 'secondary' });
       sell.container.setName('invSellDuplicates');
-      gridTop += 88 + S.s;
+      gridTop += saleH + S.s;
     }
     if (!rows.length) {
       emptyCard(this, gridTop + 300, filter || freeOnly ? 'Здесь пусто' : 'Пока пусто', 'bag', filter || freeOnly ? undefined : { label: 'В кампанию', onClick: () => this.scene.start('Campaign') });
@@ -574,18 +582,19 @@ export class InventoryScene extends Phaser.Scene {
         }
         y += S.l;
         const controlW = (width - S.s) / 2;
-        const protect = button(this, controlW / 2, y + 48, controlW, 96, '', row.instance.locked ? 'Снять защиту' : row.count > 1 ? 'Защитить одну' : 'Защитить', go(() => {
+        const controlH = Math.max(96, minimumTouchSize());
+        const protect = button(this, controlW / 2, y + controlH / 2, controlW, controlH, '', row.instance.locked ? 'Снять защиту' : row.count > 1 ? 'Защитить одну' : 'Защитить', go(() => {
           commit(lockItem(session.save, row.instance.id, !row.instance.locked));
           this.scene.restart({ ...this.data0 });
         }), T.caption, { variant: 'secondary' });
         protect.container.setName('itemLock');
         content.add(protect.container);
         if (!salvageProtection(row.instance) && salvageValue(def, GAME) > 0) {
-          const sell = button(this, controlW + S.s + controlW / 2, y + 48, controlW, 96, '', `Продать · ${formatNumber(salvageValue(def, GAME))}`, go(() => this.sell([row.instance.id])), T.caption, { variant: 'secondary' });
+          const sell = button(this, controlW + S.s + controlW / 2, y + controlH / 2, controlW, controlH, '', `Продать · ${formatNumber(salvageValue(def, GAME))}`, go(() => this.sell([row.instance.id])), T.caption, { variant: 'secondary' });
           sell.container.setName('itemSell');
           content.add(sell.container);
         }
-        y += 96 + S.s;
+        y += controlH + S.s;
         // Действия: свободный — «Надеть» (главная) и «Заточить»; надетый — «Заточить» (главная) и «К герою».
         type Act = { label: string; fn: () => void; name: string };
         const wear: Act = { label: 'Надеть', fn: go(() => this.wearSheet(row)), name: 'itemWear' };
@@ -595,12 +604,13 @@ export class InventoryScene extends Phaser.Scene {
         const primary = heroId ? (refine ?? toHero!) : wear;
         const secondary = heroId ? (refine ? toHero! : lore) : (refine ?? lore);
         const bw = (width - S.s) / 2;
-        const sb = button(this, bw / 2, y + 64, bw, 128, '', secondary.label, secondary.fn, T.heading, { variant: 'secondary', sound: null });
+        const actionH = Math.max(128, minimumTouchSize());
+        const sb = button(this, bw / 2, y + actionH / 2, bw, actionH, '', secondary.label, secondary.fn, T.heading, { variant: 'secondary', sound: null });
         sb.container.setName(secondary.name);
-        const pb = cta(this, bw + S.s + bw / 2, y + 64, primary.label, primary.fn, { w: bw, h: 128 });
+        const pb = cta(this, bw + S.s + bw / 2, y + actionH / 2, primary.label, primary.fn, { w: bw, h: actionH });
         pb.container.setName(primary.name);
         content.add([sb.container, pb.container]);
-        return y + 128;
+        return y + actionH;
       },
       { onClose: () => (next ? next() : this.lockList(false)) },
     );
@@ -702,12 +712,12 @@ export class InventoryScene extends Phaser.Scene {
       emptyCard(this, top + 360, 'Карт MVP пока нет', 'bag', { label: 'На охоту', onClick: () => this.scene.start('Hunt') });
       return;
     }
-    const rowH = 136;
-    const area = (this.area = new ScrollArea(this, top, CONTENT_BOTTOM + 10));
+    const rowH = Math.max(136, minimumTouchSize());
+    const area = this.openList(top);
     defs.forEach((c, i) => {
       const y = i * (rowH + S.xs) + rowH / 2;
       const free = this.cardTargets(c.slot);
-      const trailing = button(this, 0, 0, 240, BTN.m, '', free.length ? 'Вставить' : 'Предметы', area.tap(() => this.cardTargetSheet(c.id)), T.body, { variant: 'secondary' }).container.setSize(240, BTN.m).setName(`mvpCardInsert_${c.id}`);
+      const trailing = button(this, 0, 0, 240, BTN.m, '', free.length ? 'Вставить' : 'Предметы', area.tap(() => this.cardTargetSheet(c.id)), T.body, { variant: 'secondary' }).container.setName(`mvpCardInsert_${c.id}`);
       const r = listRow(this, GAME_W / 2, y, CW, {
         icon: (s, x, iy, size) => s.add.image(x, iy, itemIconKey(s, c.slot)).setDisplaySize(size, size).setTint(COLOR_N.textSecondary),
         title: own[c.id] > 1 ? `${c.name} ×${own[c.id]}` : c.name,
@@ -815,13 +825,14 @@ export class InventoryScene extends Phaser.Scene {
     const counts = onlyRow ? onlyRow.counts : table.totals;
     const total = onlyRow ? onlyRow.total : table.total;
 
-    const rowY = top + 44;
+    const touch = minimumTouchSize();
+    const rowY = top + touch / 2;
     const views = ['table', 'grid'] as const;
     const seg = segmented(this, LEFT + 260, rowY, 520, ['Таблица', 'Карты'], views.indexOf(view), (i) => {
       inventoryUi.view = views[i];
       inventoryUi.template = null;
       this.scene.restart({});
-    });
+    }, { h: touch });
     seg.container.setName('cardsView');
     if (only) {
       button(this, GAME_W - LEFT - 200, rowY, 400, BTN.m, '', `${GAME.content.heroes[only].name} ✕`, () => {
@@ -831,22 +842,23 @@ export class InventoryScene extends Phaser.Scene {
     }
 
     // Сводка по редкостям: слева «Всего» и число, справа 5 плашек (ромб цвета редкости и число) — это и фильтр
-    // (повторное нажатие снимает), и итоги столбцов таблицы (плашки стоят ровно над столбцами).
-    const chipY = rowY + 44 + S.s + 60;
-    const CHIP_H = 120;
-    text(this, LEFT, chipY - 26, onlyRow ? onlyRow.name : 'Всего', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
-    text(this, LEFT, chipY + 24, String(total), T.display, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5).setName('cardsTotal');
+    // (повторное нажатие снимает), и итоги столбцов таблицы. Отдельная строка сохраняет44CSSpx на узком экране.
+    const CHIP_H = Math.max(120, touch);
+    const summaryY = rowY + touch / 2 + S.s + 28;
+    text(this, LEFT, summaryY, `Всего карт: ${total}`, T.body, COLOR.textSecondary).setOrigin(0, 0.5).setName('cardsTotal');
+    const chipY = summaryY + 28 + S.s + CHIP_H / 2;
+    const rarityW = (CW - 4 * S.xxs) / 5;
     RARITY_ORDER.forEach((r, i) => {
       const on = rarity === r;
       const n = counts[r];
-      const x = colX(i);
+      const x = LEFT + rarityW / 2 + i * (rarityW + S.xxs);
       const col = rarityColor(r);
-      const bg = plate(this, x, chipY, TBL_CELL - 10, CHIP_H, on ? { fill: mixHex(COLOR.surfaceRaised, col, 0.2), border: COLOR.accent, borderW: 4, r: R.m, hl: 0.14 } : { ...SURFACE.sunken, border: mixHex(COLOR.surfaceSunken, col, 0.5), borderW: 2, r: R.m }).setName(`cardsRarity_${r}`);
+      const bg = plate(this, x, chipY, rarityW, CHIP_H, on ? { fill: mixHex(COLOR.surfaceRaised, col, 0.2), border: COLOR.accent, borderW: 4, r: R.m, hl: 0.14 } : { ...SURFACE.sunken, border: mixHex(COLOR.surfaceSunken, col, 0.5), borderW: 2, r: R.m }).setName(`cardsRarity_${r}`);
       const d = 15;
       this.add.polygon(x, chipY - 28, [d, 0, 2 * d, d, d, 2 * d, 0, d], parseInt(col.slice(1, 7), 16)).setStrokeStyle(3, 0x000000);
       text(this, x, chipY + 22, String(n), T.heading, n ? COLOR.textPrimary : COLOR.textTertiary, { fontStyle: 'bold' }).setName(`cardsCount_${r}`);
       if (!n && !on) bg.setAlpha(0.6);
-      pressable(this, bg, TBL_CELL - 10, CHIP_H, () => {
+      pressable(this, bg, rarityW, CHIP_H, () => {
         sfx('ui_toggle');
         inventoryUi.rarity = on ? null : (r as CardRarity);
         this.scene.restart({});
@@ -895,8 +907,8 @@ export class InventoryScene extends Phaser.Scene {
       emptyCard(this, top + 300, 'Карт нет', 'bag');
       return;
     }
-    const RH = 144;
-    const area = (this.area = new ScrollArea(this, top, contentBottom() + 10));
+    const RH = Math.max(144, minimumTouchSize() + 12);
+    const area = this.openList(top);
     area.setContentHeight(rows.length * RH + 10);
     rows.forEach((row, i) => {
       const y = RH * (i + 0.5);
@@ -942,23 +954,34 @@ export class InventoryScene extends Phaser.Scene {
     if (this.area) this.area.locked = on;
   }
 
+  /** Маска и область ввода обновляются без перезапуска сцены и потери выбранных фильтров. */
+  private openList(top: number): ScrollArea {
+    const area = (this.area = new ScrollArea(this, top, contentBottom() + 10));
+    area.content.setName('inventoryScroll');
+    const offView = onViewChange(this, () => area.setBounds(top, contentBottom() + 10));
+    area.content.once(Phaser.GameObjects.Events.DESTROY, offView);
+    return area;
+  }
+
   /**
    * Строки с прокруткой пальцем. T4-11: строятся только видимые строки (плюс запас ROW_BUFFER); при прокрутке ушедшие
    * из окна уничтожаются, новые достраиваются — 3000 предметов открываются так же быстро, как 30. draw(i, y, area) —
    * строка i с центром y (координаты содержимого списка).
    */
   private list(count: number, rowH: number, top: number, draw: (i: number, y: number, area: ScrollArea) => void, buffer = ROW_BUFFER): void {
-    const bottom = CONTENT_BOTTOM + 10;
-    const area = (this.area = new ScrollArea(this, top, bottom));
+    const area = this.openList(top);
     area.setContentHeight(rowH * count + S.xs);
     const built = new Map<number, Phaser.GameObjects.GameObject[]>();
     let lastOffset = NaN;
+    let lastHeight = NaN;
     const sync = () => {
       const off = area.offset;
-      if (off === lastOffset) return;
+      const [clipTop, clipBottom] = area.content.getData('clip') as [number, number];
+      const height = clipBottom - clipTop;
+      if (off === lastOffset && height === lastHeight) return;
       lastOffset = off;
-      const from = Math.max(0, Math.floor(off / rowH) - buffer);
-      const to = Math.min(count - 1, Math.ceil((off + bottom - top) / rowH) + buffer);
+      lastHeight = height;
+      const { from, to } = inventoryWindow(count, rowH, off, height, buffer);
       for (const [i, objs] of built) {
         if (i >= from && i <= to) continue;
         for (const o of objs) o.destroy();

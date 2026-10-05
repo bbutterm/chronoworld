@@ -1,0 +1,346 @@
+{
+  "complete": true,
+  "sourceImmutable": true,
+  "sourceFileCount": 807,
+  "sourceSha256": "115646d8410bc843a7eefb3fbaf38d8086d0c4cf629848798c13e0c3942b136b",
+  "driverCompositeSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "campaignReasonCounts": {
+    "wipe": 457,
+    "timeout": 104
+  },
+  "lossReasonCounts": {
+    "wipe": 277,
+    "timeout": 104
+  },
+  "firstWall": {
+    "stage": "ch2_s6",
+    "hour": 0.623,
+    "waitNumber": 1,
+    "willWait": true,
+    "power": 3746,
+    "recommended": 4000,
+    "blockers": {
+      "not_enough_exp": 5
+    },
+    "resources": {
+      "gold": 1022,
+      "exp": 3010,
+      "gems": 138,
+      "scrolls": 0
+    }
+  },
+  "wallsByStage": {
+    "ch2_s6": 1,
+    "ch2_s10": 1,
+    "ch4_s9": 2,
+    "ch5_s9": 1,
+    "ch5_s16": 3,
+    "ch6_s1": 1,
+    "ch7_s11": 1,
+    "ch7_s15": 2,
+    "ch9_s10": 3,
+    "ch10_s6": 2,
+    "ch10_s10": 1,
+    "ch10_s13": 4
+  },
+  "initialCompanionsPresent": [
+    "h1",
+    "h2",
+    "h3"
+  ],
+  "finalCompanions": [
+    {
+      "id": "h1",
+      "templateId": "alan",
+      "rarity": "red",
+      "level": 100,
+      "branch": "knight",
+      "training": {
+        "exp": 3950079,
+        "gold": 4925250
+      },
+      "journey": {
+        "branchLevels": {
+          "knight": 100
+        },
+        "focus": "resolve",
+        "lastBranch": "knight",
+        "peakLevel": 100
+      }
+    },
+    {
+      "id": "h2",
+      "templateId": "bran",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "hunter",
+      "training": {
+        "exp": 0,
+        "gold": 0
+      },
+      "journey": {
+        "branchLevels": {
+          "hunter": 1
+        },
+        "lastBranch": "hunter",
+        "peakLevel": 5
+      }
+    },
+    {
+      "id": "h3",
+      "templateId": "vika",
+      "rarity": "gold",
+      "level": 80,
+      "branch": "priest",
+      "training": {
+        "exp": 2254030,
+        "gold": 2512200
+      },
+      "journey": {
+        "branchLevels": {
+          "priest": 80
+        },
+        "focus": "precision",
+        "lastBranch": "priest",
+        "peakLevel": 80
+      }
+    },
+    {
+      "id": "h4",
+      "templateId": "teo",
+      "rarity": "red",
+      "level": 96,
+      "branch": "priest",
+      "training": {
+        "exp": 3564968,
+        "gold": 4354800
+      },
+      "journey": {
+        "branchLevels": {
+          "priest": 96
+        },
+        "focus": "precision",
+        "lastBranch": "priest",
+        "peakLevel": 96
+      }
+    },
+    {
+      "id": "h8",
+      "templateId": "dorn",
+      "rarity": "purple",
+      "level": 15,
+      "branch": "assassin",
+      "training": {
+        "exp": 0,
+        "gold": 0
+      },
+      "journey": {
+        "branchLevels": {
+          "assassin": 60
+        },
+        "focus": "precision",
+        "lastBranch": "assassin",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h9",
+      "templateId": "iris",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "knight",
+      "training": {
+        "exp": 0,
+        "gold": 0
+      },
+      "journey": {
+        "branchLevels": {
+          "knight": 60
+        },
+        "focus": "precision",
+        "lastBranch": "knight",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h11",
+      "templateId": "lira",
+      "rarity": "purple",
+      "level": 60,
+      "branch": "sage",
+      "training": {
+        "exp": 1092250,
+        "gold": 1053150
+      },
+      "journey": {
+        "branchLevels": {
+          "sage": 60
+        },
+        "focus": "precision",
+        "lastBranch": "sage",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h13",
+      "templateId": "greta",
+      "rarity": "purple",
+      "level": 5,
+      "branch": "blacksmith",
+      "training": {
+        "exp": 0,
+        "gold": 0
+      },
+      "journey": {
+        "branchLevels": {
+          "blacksmith": 60
+        },
+        "focus": "precision",
+        "lastBranch": "blacksmith",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h19",
+      "templateId": "otto",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "blacksmith",
+      "training": {
+        "exp": 0,
+        "gold": 0
+      },
+      "journey": {
+        "branchLevels": {
+          "blacksmith": 1
+        },
+        "focus": "resolve",
+        "lastBranch": "blacksmith",
+        "peakLevel": 13
+      }
+    },
+    {
+      "id": "h20",
+      "templateId": "zara",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "assassin",
+      "training": {
+        "exp": 0,
+        "gold": 0
+      },
+      "journey": {
+        "branchLevels": {
+          "assassin": 60
+        },
+        "focus": "precision",
+        "lastBranch": "assassin",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h21",
+      "templateId": "meilin",
+      "rarity": "purple",
+      "level": 1,
+      "branch": "hunter",
+      "training": {
+        "exp": 0,
+        "gold": 0
+      },
+      "journey": {
+        "branchLevels": {
+          "hunter": 60
+        },
+        "focus": "precision",
+        "lastBranch": "hunter",
+        "peakLevel": 60
+      }
+    },
+    {
+      "id": "h23",
+      "templateId": "kai",
+      "rarity": "purple",
+      "level": 60,
+      "branch": "wizard",
+      "training": {
+        "exp": 1092250,
+        "gold": 1053150
+      },
+      "journey": {
+        "branchLevels": {
+          "wizard": 60
+        },
+        "focus": "precision",
+        "lastBranch": "wizard",
+        "peakLevel": 60
+      }
+    }
+  ],
+  "chapter7WinningParty": [
+    "alan",
+    "iris",
+    "zara",
+    "lira",
+    "vika"
+  ],
+  "tavernChoices": {
+    "c_tav1": "yes",
+    "c_tav10": "alan",
+    "c_tav2": "share",
+    "c_tav3": "yes",
+    "c_tav4": "bell",
+    "c_tav5": "alan",
+    "c_tav7": "ask"
+  },
+  "tavernSeen": [
+    "tav_ch1",
+    "bond_greta",
+    "bond_alan",
+    "tav_ch2",
+    "bond_dorn",
+    "bond_iris",
+    "tav_ch3",
+    "bond_vika",
+    "bond_zara",
+    "tav_ch4",
+    "bond_teo",
+    "bond_meilin",
+    "bond_lira",
+    "tav_ch5",
+    "tav_ch6",
+    "tav_ch7",
+    "bond_kai",
+    "tav_ch8",
+    "tav_ch9",
+    "tav_ch10"
+  ],
+  "bondCompletedQuestIds": [
+    "bq_alan",
+    "bq_iris",
+    "bq_zara",
+    "bq_teo",
+    "bq_dorn",
+    "bq_lira",
+    "bq_meilin",
+    "bq_vika",
+    "bq_greta"
+  ],
+  "sideModeCoverage": {
+    "towerFightActions": 517,
+    "towerBestFloor": 24,
+    "towerRuns": 82,
+    "arenaRoundActions": 71,
+    "arenaCompletedRuns": 12,
+    "arenaBestWins": 3,
+    "bondQuestAttempts": 11,
+    "bondQuestGoalCompletions": 9
+  },
+  "coverageLimits": [
+    "One fresh seed1 policy result for the combined candidate. Does not attribute progress to an individual fix, prove optimality or universal win rate.",
+    "Campaign180 complete; Tower and Arena only exercised as bounded side modes, not fully completed (bestFloor24, Arena bestWins3).",
+    "All actor statistics/resources/wins from public actions. The maximum-development QA heuristic performs many resets/equipment swaps; action counts are not human click telemetry.",
+    "Game clock uses fixed +12h stalls and modeled active actions; scripted completion duration is not a prediction of casual player retention or physical iPhone performance.",
+    "One final-boss replay uses recorded driver seed/time; an actual UI can use a different stageSeed and must verify its own outcome."
+  ]
+}
