@@ -263,3 +263,4 @@
   {"id":"creator_f","class":"hero","file":"sprites/heroes/creator_f.png","portrait":"sprites/portraits/creator_f.png","hitFrames":{"attack":3,"cast":4},"bbox":{"idle":[88,60,126,152],"walk":[81,64,131,152],"attack":[79,62,142,161],"cast":[79,62,137,153],"hurt":[87,72,132,151],"death":[68,116,139,167]}}
  ]
 }
+
