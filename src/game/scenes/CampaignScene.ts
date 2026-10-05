@@ -71,6 +71,8 @@ export class CampaignScene extends Phaser.Scene {
   private compactLayout = false;
   private mapStageCount = 5;
   private mapArea?: ScrollArea;
+  private mapHeader: Phaser.GameObjects.GameObject[] = [];
+  private mapPage = 0;
   private footer: Phaser.GameObjects.GameObject[] = [];
   private footerBottom = 0;
 
@@ -94,9 +96,9 @@ export class CampaignScene extends Phaser.Scene {
     this.hintId = null;
     this.hintView = null;
     this.chestPulsing = false;
-    // Telegram сообщает insets асинхронно: scroll-body нужен уже до первого сокращения безопасной высоты.
-    this.compactLayout = true;
+    this.compactLayout = campaignLayout(contentBottom()).compact;
     this.mapArea = undefined;
+    this.mapHeader = [];
     this.mapStageCount = 5;
     this.footer = [];
     // Сцена-синглтон живёт всю игру: после выхода не держать её уничтоженные объекты (npm run perf — «dead»).
@@ -106,6 +108,7 @@ export class CampaignScene extends Phaser.Scene {
       this.chestView = undefined;
       this.claimBtn = undefined;
       this.mapArea = undefined;
+      this.mapHeader = [];
       this.footer = [];
     });
     restartOnNewDay(this);
@@ -125,16 +128,14 @@ export class CampaignScene extends Phaser.Scene {
     const bg = screenBackground(this);
     if (bg) setThemeBackground(bg, 'map', themeOfChapter(chapter.id));
 
-    if (this.compactLayout) {
-      this.mapArea = new ScrollArea(this, this.layout.bodyTop, this.layout.bodyBottom);
-      this.mapArea.content.setName('campaignMapScroll');
-    } else this.add.rectangle(GAME_W / 2, (this.layout.squadY - 135 + contentBottom()) / 2, GAME_W, contentBottom() - this.layout.squadY + 135, COLOR_N.surface);
-    this.map(chapter.id, ci, chapters.length, data?.page);
-    this.intoMapFlow(() => this.squadStrip());
-    this.mapArea?.setContentHeight(this.layout.bodyHeight);
+    // Область нужна и на полном экране: Telegram может прислать безопасные отступы позже.
+    // При достаточной высоте карта и отряд помещаются в неё без прокрутки.
+    this.mapArea = new ScrollArea(this, this.layout.bodyTop, this.layout.bodyBottom);
+    this.mapArea.content.setName('campaignMapScroll');
+    this.drawMap(data?.page);
     const footerBefore = new Set(this.children.list);
-    const footerTop = this.compactLayout ? this.layout.bodyBottom + 12 : this.layout.squadY - 135;
-    if (this.compactLayout) this.add.rectangle(GAME_W / 2, (footerTop + contentBottom()) / 2, GAME_W, contentBottom() - footerTop, COLOR_N.surface);
+    const footerTop = this.layout.bodyBottom + 12;
+    this.add.rectangle(GAME_W / 2, (footerTop + contentBottom()) / 2, GAME_W, contentBottom() - footerTop, COLOR_N.surface);
     this.fastRewards();
     this.fightCta();
     this.chest();
@@ -142,10 +143,14 @@ export class CampaignScene extends Phaser.Scene {
     this.footerBottom = contentBottom();
     onViewChange(this, () => {
       const bottom = contentBottom();
+      const offset = this.mapArea?.offset ?? 0;
+      const wasCompact = this.compactLayout;
+      this.compactLayout = campaignLayout(bottom).compact;
+      this.drawMap(this.mapPage);
+      if (wasCompact && this.compactLayout && this.mapArea) this.mapArea.offset = offset;
       const dy = bottom - this.footerBottom;
       for (const o of this.footer) if (o.scene && 'y' in o) (o as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform).y += dy;
       this.footerBottom = bottom;
-      this.mapArea?.setBounds(this.layout.bodyTop, this.layout.bodyBottom);
       this.hintView?.destroy();
       this.hintView = null;
       this.hintId = null;
@@ -186,6 +191,19 @@ export class CampaignScene extends Phaser.Scene {
 
   // ---------- карта главы ----------
 
+  /** Перестроить карту при раскрытии окна, сохранив участок и текущий сюжетный диалог. */
+  private drawMap(page?: number): void {
+    for (const o of this.mapHeader) if (o.scene) o.destroy();
+    this.mapArea?.clear();
+    const before = new Set(this.children.list);
+    const chapter = CONTENT.chapters[this.chapterIndex];
+    this.map(chapter.id, this.chapterIndex, CONTENT.chapters.length, page);
+    this.mapHeader = this.children.list.filter((o) => !before.has(o));
+    this.intoMapFlow(() => this.squadStrip());
+    this.mapArea?.setBounds(this.layout.bodyTop, this.layout.bodyBottom);
+    this.mapArea?.setContentHeight(this.layout.bodyHeight);
+  }
+
   private map(chapterId: string, ci: number, count: number, pageArg?: number): void {
     const chapter = CONTENT.chapters[ci];
     // Название главы — на ленте (между стрелками глав); стрелки — квадратные иконки-кнопки.
@@ -206,6 +224,7 @@ export class CampaignScene extends Phaser.Scene {
     const pageOf = (i: number) => pages.findIndex((p) => i >= p.from && i < p.to);
     const auto = cur >= 0 ? pageOf(cur) : all.every((s) => stageStatus(session.save, s.id, GAME) === 'cleared') ? pages.length - 1 : 0;
     const page = Phaser.Math.Clamp(pageArg ?? auto, 0, pages.length - 1);
+    this.mapPage = page;
     const stages = all.slice(pages[page].from, pages[page].to);
     this.mapStageCount = stages.length;
     const paged = pages.length > 1;

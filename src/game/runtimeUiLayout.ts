@@ -4,8 +4,8 @@ export function campaignLayout(contentBottom: number, stageCount = 5, compact = 
   const rowY = cardY - 242;
   const bodyTop = 390;
   const mapTop = compact ? bodyTop + 110 : 450;
-  const mapBottom = compact ? mapTop + Math.max(0, stageCount - 1) * 180 : rowY - 208 - 298;
-  const squadY = compact ? mapBottom + 480 : rowY - 208;
+  const mapBottom = compact ? mapTop + Math.max(0, stageCount - 1) * 180 : rowY - 230 - 298;
+  const squadY = compact ? mapBottom + 480 : rowY - 230;
   return {
     compact, bodyTop, bodyBottom: rowY - 126, bodyHeight: squadY + 104 - bodyTop,
     mapTop, mapBottom, objectiveY: compact ? mapBottom + 132 : squadY - 192,
