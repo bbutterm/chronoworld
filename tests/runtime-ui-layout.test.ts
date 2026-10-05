@@ -4,6 +4,7 @@ import { campaignLayout, campaignPages, heroFooterLayout } from '../src/game/run
 import { computeView } from '../src/game/viewLayout';
 import { COLOR, S } from '../src/game/theme';
 import { VIEW_CHANGED } from '../src/game/viewport';
+import { scrollLayout } from '../src/game/scroll';
 
 describe('approved runtime layout bounds', () => {
   it.each([[360, 780], [390, 844], [360, 640]])('keeps squad, battle, loot and hero actions above navigation at %sx%s', (w, h) => {
@@ -24,6 +25,18 @@ describe('approved runtime layout bounds', () => {
     const pages = campaignPages(n);
     expect(pages.flatMap(p => Array.from({ length: p.to - p.from }, (_, i) => p.from + i))).toEqual(Array.from({ length: n }, (_, i) => i));
     expect(pages.every(p => p.to - p.from <= 5)).toBe(true);
+  });
+  it.each([[360, 640], [390, 844], [430, 932]])('fits the complete campaign map and squad without scrolling at %sx%s', (w, h) => {
+    const view = computeView(w, h, 2, undefined, 2, true);
+    const bottom = 1730 + Math.min(360, view.safeBottom - 1920);
+    for (const n of [1, 3, 5]) {
+      const c = campaignLayout(bottom, n);
+      const area = scrollLayout(c.bodyHeight, c.bodyTop, c.bodyBottom);
+      expect(c.compact).toBe(false);
+      expect(area.maxOffset).toBe(0);
+      expect(c.mapTop).toBeGreaterThan(c.bodyTop);
+      expect(c.squadY + 80).toBeLessThanOrEqual(c.bodyBottom);
+    }
   });
   it('body labels meet 4.5:1 on both warm surfaces', () => {
     const luminance = (hex: string) => {
