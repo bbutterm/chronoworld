@@ -631,7 +631,8 @@ export function bottomSheet(
     const top = bottom - h;
     bg.clear().fillStyle(COLOR_N.surface, 0.98).fillRoundedRect(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y, { tl: R.xl, tr: R.xl, bl: 0, br: 0 });
     bg.lineStyle(3, COLOR_N.border, 1).strokeRoundedRect(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y, { tl: R.xl, tr: R.xl, bl: 0, br: 0 });
-    bg.setInteractive(new Phaser.Geom.Rectangle(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y), Phaser.Geom.Rectangle.Contains);
+    // InputPlugin.enable сохраняет старый hitArea при повторном setInteractive.
+    (bg.input!.hitArea as Phaser.Geom.Rectangle).setTo(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y);
     grip.setY(top + S.s);
     head.setY(top + 80);
     x.setY(top + 80);

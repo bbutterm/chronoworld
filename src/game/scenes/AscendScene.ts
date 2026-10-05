@@ -398,13 +398,30 @@ export class AscendScene extends Phaser.Scene {
     });
   }
 
+  /** Окно удерживает именно ту полосу, поверх которой открылось, включая анимацию закрытия. */
+  private lockBodyFor(open: () => Phaser.GameObjects.Container | null): Phaser.GameObjects.Container | null {
+    const body = this.body;
+    const wasLocked = body?.locked ?? false;
+    if (body) body.locked = true;
+    const restore = () => { if (body) body.locked = wasLocked; };
+    try {
+      const layer = open();
+      if (layer) layer.once(Phaser.GameObjects.Events.DESTROY, restore);
+      else restore();
+      return layer;
+    } catch (error) {
+      restore();
+      throw error;
+    }
+  }
+
   private sources(hero: HeroState): void {
     const name = heroTemplate(GAME, hero.templateId).name;
-    noticeModal(this, 'Где взять копии', [
+    this.lockBodyFor(() => noticeModal(this, 'Где взять копии', [
       `Карты этого героя (${name}) и любых других героев:`,
       ...copySources(session.save, hero.templateId, GAME).map((s) => `• ${s}`),
       'Опыт и золото, вложенные в выбранные копии, вернутся в запас.',
-    ]);
+    ]));
   }
 
   private autoFill(hero: HeroState): void {
@@ -467,7 +484,7 @@ export class AscendScene extends Phaser.Scene {
       return;
     }
     const cap = fodderSlotCaption(req.fodder[group], hero, GAME);
-    const sheet = bottomSheet(this, `${cap.who}, ${cap.rarity}`, (content, width, close) => {
+    this.lockBodyFor(() => bottomSheet(this, `${cap.who}, ${cap.rarity}`, (content, width, close) => {
       const cols = 4;
       const w = Math.floor((width - (cols - 1) * S.s) / cols);
       const { h } = heroCardSize(w);
@@ -502,8 +519,7 @@ export class AscendScene extends Phaser.Scene {
         content.add(text(this, x, y + h / 2 + 30, label, T.caption, o.tag ? COLOR.warning : o.chosen ? COLOR.textTertiary : COLOR.textSecondary, { fontStyle: 'bold' }));
       });
       return Math.ceil(opts.length / cols) * rowH - S.xs;
-    });
-    sheet.layer.setName('fodderPicker');
+    }).layer.setName('fodderPicker'));
   }
 
   // ---------- кнопка и подтверждение ----------
@@ -536,6 +552,8 @@ export class AscendScene extends Phaser.Scene {
   }
 
   private confirmAscend(hero: HeroState, req: AscendRequirement): void {
+    // popOut clears the modal name before DESTROY; its registered layer still owns input while closing.
+    if (this.children.getByName('confirmModal') || this.children.list?.some(layer => layer.getData?.('screenModal'))) return;
     const st = ascendButtonState(session.save, hero.id, this.chosen, GAME, { branchChosen: !!this.branch });
     if (!st.ready) {
       toast(this, st.reason && /экспедици/i.test(st.reason) ? st.reason : shortReason(st.reason)?.text ?? (this.chosen.length ? 'Пока нельзя' : 'Выберите копии или используйте «Авто»'), C.error, 3500);
@@ -549,7 +567,12 @@ export class AscendScene extends Phaser.Scene {
     if (!hero.branch && restored) lines.push(`Восстановится прежняя профессия: ${heroCard({ ...hero, rarity: req.to, branch: restored }, GAME).jobName}`);
     if (this.chosen.length) lines.push(`Будет использовано: ${this.chosen.length} ${this.chosen.length === 1 ? 'карта' : 'карты'} · ${formatNumber(req.gold)} золота`);
     if (valuableFodder(session.save, this.chosen).length) lines.push('Выбраны синие карточки и выше');
-    confirm(this, lines.join('\n'), 'Вознести', () => this.doAscend(hero, choose ? this.branch : undefined));
+    this.lockBodyFor(() => {
+      const previous = this.children.getByName('confirmModal');
+      confirm(this, lines.join('\n'), 'Вознести', () => this.doAscend(hero, choose ? this.branch : undefined));
+      const layer = this.children.getByName('confirmModal');
+      return layer && layer !== previous ? layer as Phaser.GameObjects.Container : null;
+    });
   }
 
   private doAscend(hero: HeroState, branch?: string): void {

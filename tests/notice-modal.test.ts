@@ -4,7 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('phaser', () => ({ default: {
   Scene: class {},
-  Geom: { Rectangle: class { static Contains = () => true; } },
+  Geom: { Rectangle: class {
+    constructor(public x = 0, public y = 0, public width = 0, public height = 0) {}
+    setTo(x: number, y: number, width: number, height: number) { Object.assign(this, { x, y, width, height }); return this; }
+    static Contains = (r: { x: number; y: number; width: number; height: number }, x: number, y: number) => x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height;
+  } },
   GameObjects: { Events: { DESTROY: 'destroy' }, Container: class {} },
   Scenes: { Events: { PRE_UPDATE: 'preupdate', SHUTDOWN: 'shutdown' } },
   Math: { Clamp: (n: number, min: number, max: number) => Math.min(max, Math.max(min, n)) },
@@ -22,6 +26,7 @@ const { T } = await import('../src/game/theme');
 const { ExpeditionsScene } = await import('../src/game/scenes/ExpeditionsScene');
 const { lootLines } = await import('../src/game/chestView');
 const { GAME } = await import('../src/game/content');
+const viewport = await import('../src/game/viewport');
 
 /** Geometry/event double only: real noticeModal, popIn and ScrollArea execute below.
  * Text metrics approximate wrapping; actual font rendering is covered by browser QA. */
@@ -31,11 +36,17 @@ class Node extends EventEmitter {
   scene: object | undefined = {};
   name = '';
   data = new Map<string, unknown>();
+  input?: { enabled: boolean; hitArea: { x: number; y: number; width: number; height: number; setTo?: (...args: number[]) => unknown }; hitAreaCallback?: (area: unknown, x: number, y: number) => boolean };
   constructor(public x = 0, public y = 0, public width = 0, public height = 0, public text = '', public size = 0) { super(); }
   setName(n: string) { this.name = n; return this; }
   setDepth() { return this; }
-  setInteractive() { return this; }
-  disableInteractive() { return this; }
+  setInteractive(area?: NonNullable<Node['input']>['hitArea'], hit?: NonNullable<Node['input']>['hitAreaCallback']) {
+    // Phaser InputPlugin.enable keeps the old region when this object already owns input.
+    if (!this.input) this.input = { enabled: true, hitArea: area ?? { x: 0, y: 0, width: this.width, height: this.height }, hitAreaCallback: hit };
+    this.input.enabled = true;
+    return this;
+  }
+  disableInteractive() { if (this.input) this.input.enabled = false; return this; }
   clear() { return this; }
   fillStyle() { return this; }
   lineStyle() { return this; }
@@ -74,7 +85,7 @@ function setup() {
   const nodes: Node[] = [];
   const make = (x = 0, y = 0, w = 0, h = 0) => { const n = new Node(x, y, w, h); nodes.push(n); return n; };
   const masks: { x: number; y: number; width: number; height: number }[] = [];
-  const graphics = { fillStyle() { return this; },
+  const graphics = { clear() { return this; }, fillStyle() { return this; },
     fillRect(x: number, y: number, width: number, height: number) { masks.push({ x, y, width, height }); return this; },
     createGeometryMask() { return {}; }, destroy: vi.fn() };
   const scene = {
@@ -111,6 +122,40 @@ const longParagraphs = Array.from({ length: 12 }, (_, i) => `Событие ${i 
 beforeEach(() => vi.restoreAllMocks());
 
 describe('noticeModal: читаемый текст без уменьшения шрифта', () => {
+  it('resize390→360 обновляет существующий hitArea листа: видимая шапка не закрывает его через shade', () => {
+    vi.spyOn(juice, 'juiceOn').mockReturnValue(false);
+    vi.spyOn(ui, 'ellipsize').mockImplementation((t) => t);
+    const insets = { top: 136, bottom: 34, left: 0, right: 0 };
+    let current = viewport.computeView(390, 844, 1, insets, 2, true);
+    vi.spyOn(viewport, 'view').mockImplementation(() => current);
+    const h = setup();
+    const sheet = bottomSheet(h.scene as unknown as Parameters<typeof bottomSheet>[0], 'Детали', () => 400);
+    const layer = sheet.layer as unknown as Node;
+    const bg = h.nodes.find((n) => n.input?.hitAreaCallback)!;
+    const hit = bg.input!.hitArea;
+    const initialTop = hit.y;
+    const initialMask = h.masks.at(-1)!;
+    current = viewport.computeView(360, 640, 1, insets, 2, true);
+    h.scene.events.emit(viewport.VIEW_CHANGED, current);
+    const header = h.nodes.find((n) => n.text === 'Детали')!;
+    const headerY = header.y + header.parentContainer!.y;
+    expect(bg.input!.hitArea).toBe(hit);
+    expect(hit.y).toBeLessThan(initialTop);
+    expect(hit.y).toBeCloseTo(headerY - 80);
+    expect(h.masks.at(-1)!.y).toBeLessThan(initialMask.y);
+    const shade = layer.list[0];
+    const routeUp = (y: number) => {
+      if (!bg.input!.hitAreaCallback!(hit, 540, y)) shade.emit('pointerup');
+    };
+    // Native swipe ends in the visible header, which now consumes it above the full-screen shade.
+    routeUp(headerY - 60);
+    expect(layer.scene).toBeDefined();
+    expect(hit.height).toBeGreaterThan(400);
+    routeUp(hit.y - 1);
+    expect(layer.scene).toBeUndefined();
+    expect(h.scene.events.listenerCount(viewport.VIEW_CHANGED)).toBe(0);
+  });
+
   it('короткий текст целиком, без прокрутки и с прежней кнопкой закрытия', () => {
     const h = setup();
     const layer = h.open(['Получена награда.']);
