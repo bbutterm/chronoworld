@@ -15,10 +15,10 @@ import {
 } from '../../core';
 import { CONTENT, GAME } from '../content';
 import { formatNumber, ROLE_NAMES, STAT_KEYS, STAT_LABELS } from '../flow';
-import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from '../layout';
-import { bottomSheet, confirm, CONTENT_BOTTOM, CONTENT_TOP, cta, noticeModal, screen } from '../screen';
+import { BLEED_X, BLEED_Y, GAME_W } from '../layout';
+import { bottomSheet, confirm, contentBottom, CONTENT_BOTTOM, CONTENT_TOP, cta, noticeModal, registerModal, screen } from '../screen';
 import { commit, session, today } from '../session';
-import { button, chip, ellipsize, emptyState, infoButton, mixHex, plate, pressable, rewardRow, stat, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
+import { button, chip, ellipsize, emptyState, infoButton, mixHex, plate, pressable, rewardRow, ScrollArea, stat, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
 import { markHint } from '../hints';
 import { C, COLOR, COLOR_N, E, FAMILY, M, R, S, T, Z } from '../theme';
 import { sfx } from '../audio';
@@ -42,11 +42,9 @@ import { openBranchPicker } from '../branchPicker';
 import { skillIcon } from '../skillIcons';
 import { openSkillDetail } from '../skillDetail';
 import type { HeroData } from './HeroScene';
+import { onViewChange, view } from '../viewport';
 
 const TOP = CONTENT_TOP;
-/** Главная кнопка «Вознести» и строка причины над ней. */
-const BTN_Y = CONTENT_BOTTOM - 80;
-const REASON_Y = BTN_Y - 112;
 /** Ширина контента: поля экрана S.l. */
 const CW = GAME_W - 2 * S.l;
 const LEFT = S.l;
@@ -118,11 +116,15 @@ export class AscendScene extends Phaser.Scene {
   /** Выбранная ветка (переход с выбором ветки, у героя ветки ещё нет). */
   private branch: string | undefined;
   private slotPos: { x: number; y: number }[] = [];
+  private body: ScrollArea | null = null;
+  private get buttonY(): number { return contentBottom() - 80; }
+  private get reasonY(): number { return this.buttonY - 112; }
 
   create(data: HeroData): void {
     this.heroId = data.heroId;
     this.heroReturn = { heroId: data.heroId, tab: data.tab, back: data.back };
     this.slotPos = [];
+    this.body = null;
     const hero = session.save.heroes.find((h) => h.id === data.heroId);
     screen(this, 'Вознесение', 'Heroes', { to: 'Hero', data: this.heroReturn });
     if (!hero || !GAME.content.heroes[hero.templateId]) return;
@@ -130,7 +132,8 @@ export class AscendScene extends Phaser.Scene {
     this.branch = req && needsBranchPick(hero, req.to, GAME) && branchFor?.heroId === hero.id && req.branches?.some((b) => b.job === branchFor!.job) ? branchFor.job : undefined;
     const prev = ascendPreview(hero, GAME, this.branch);
     if (!req || !prev) {
-      emptyState(this, GAME_W / 2, GAME_H / 2, 'Максимальная редкость');
+      const empty = emptyState(this, GAME_W / 2, (CONTENT_TOP + contentBottom()) / 2, 'Максимальная редкость');
+      onViewChange(this, () => empty.setY((CONTENT_TOP + contentBottom()) / 2));
       return;
     }
     // Выбор корма: прежний для этой карточки (только ещё подходящие), иначе — пусто.
@@ -140,10 +143,25 @@ export class AscendScene extends Phaser.Scene {
 
     const choosing = needsBranchPick(hero, req.to, GAME);
     const lay = this.layout(prev, req, choosing);
+    const beforeBody = new Set(this.children.list);
     let y = this.compare(hero, req, lay.cardW);
     y = this.gains(hero, req, prev, y + S.s, choosing);
     this.fodderBlock(hero, req, y + S.l, lay.slotW);
+    const bodyParts = this.children.list.filter(o => !beforeBody.has(o));
+    this.body = new ScrollArea(this, TOP, this.reasonY - 40);
+    this.body.content.setName('ascendBody');
+    this.body.add(this.add.container(0, -TOP, bodyParts));
+    this.body.setContentHeight(y + S.l + this.fodderH(lay.slotW, fodderSlots(req).length) - TOP + S.m);
+    const beforeFooter = new Set(this.children.list);
     this.footer(hero, req);
+    const footerParts = this.children.list.filter(o => !beforeFooter.has(o) && 'y' in o) as (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform)[];
+    let buttonY = this.buttonY;
+    onViewChange(this, () => {
+      const next = this.buttonY;
+      for (const o of footerParts) o.y += next - buttonY;
+      buttonY = next;
+      this.body?.setBounds(TOP, this.reasonY - 40);
+    });
   }
 
   private reopen(): void {
@@ -152,7 +170,8 @@ export class AscendScene extends Phaser.Scene {
 
   /** Размеры карточек и слотов: всё влезает над строкой причины (на фиолетовом добавляются ветки). */
   private layout(prev: AscendPreview, req: AscendRequirement, choosing: boolean): { cardW: number; slotW: number } {
-    const room = REASON_Y - 40 - TOP;
+    // На коротком экране содержимое прокручивается: карточки и текст сохраняют читаемый размер.
+    const room = CONTENT_BOTTOM - 80 - 112 - 40 - TOP;
     const n = fodderSlots(req).length;
     for (const [cardW, slotW] of [
       [300, 180],
@@ -309,6 +328,7 @@ export class AscendScene extends Phaser.Scene {
 
   private openBranches(hero: HeroState, selected: string): void {
     openBranchPicker(this, {
+      lock: this.body ?? undefined,
       templateId: hero.templateId,
       title: 'Ветка второй профессии',
       subtitle: `${heroTemplate(GAME, hero.templateId).name} получит её при вознесении.`,
@@ -489,6 +509,8 @@ export class AscendScene extends Phaser.Scene {
   // ---------- кнопка и подтверждение ----------
 
   private footer(hero: HeroState, req: AscendRequirement): void {
+    const BTN_Y = this.buttonY;
+    const REASON_Y = this.reasonY;
     const st = ascendButtonState(session.save, hero.id, this.chosen, GAME, { branchChosen: !!this.branch });
     const goldOk = session.save.resources.gold >= req.gold;
     const why = shortReason(st.reason);
@@ -532,7 +554,8 @@ export class AscendScene extends Phaser.Scene {
 
   private doAscend(hero: HeroState, branch?: string): void {
     const before = { power: powerOf(hero), rarity: hero.rarity, card: heroCard(hero, GAME), stats: heroCard(hero, GAME).stats };
-    const fodder = this.slotPos.slice(0, this.chosen.length);
+    const shift = this.body ? this.body.content.y - TOP : 0;
+    const fodder = this.slotPos.slice(0, this.chosen.length).map(p => ({ x: p.x, y: p.y + shift }));
     try {
       const r = actAscend(session.save, today(), hero.id, this.chosen, GAME, branch ? { branch } : {});
       commit(r.save);
@@ -567,19 +590,29 @@ export class AscendScene extends Phaser.Scene {
     const jobChanged = !!(asc && asc.type === 'ascended' && asc.jobChanged);
     const motion = juiceOn();
     // Подложка экрана (под моментом) и передний слой (над затемнением момента).
-    const back = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, 1).setAlpha(0.95).setDepth(Z.modal).setInteractive();
+    if (this.body) this.body.locked = true;
+    const back = this.add.rectangle(GAME_W / 2, view().uiHeight / 2, GAME_W + 2 * BLEED_X, view().uiHeight + 2 * BLEED_Y, COLOR_N.bg, 1).setAlpha(0.95).setDepth(Z.modal).setInteractive();
     const layer = this.add.container(0, 0).setDepth(MOMENT_DEPTH + 10).setName('ascendReveal');
+    const returnToHero = () => this.scene.start('Hero', this.heroReturn);
+    registerModal(layer, returnToHero);
+    const revealTop = CONTENT_TOP + 160;
+    const area = new ScrollArea(this, revealTop, view().uiHeight - 230);
+    area.content.setName('ascendRevealBody');
+    area.locked = motion;
+    const body = this.add.container(0, -revealTop);
+    area.add(body);
+    layer.add(area.parts);
     const cy = 760;
     const W = 420;
     const cardH = heroCardSize(W).h;
     const halo = this.add.image(GAME_W / 2, cy, glowTexture(this)).setDisplaySize(800, 900).setTint(pal.tint).setAlpha(0).setBlendMode(Phaser.BlendModes.ADD);
-    layer.add(halo);
+    body.add(halo);
     const oldCard = drawHeroCard(this, GAME_W / 2, cy, hero, { w: W, rarity: before.rarity, figure: 'sprite', showIcons: false, level: hero.level });
-    layer.add(oldCard);
+    body.add(oldCard);
 
     // Итог (появляется после вспышки): мощь, статы столбиками, профессия/навык, возврат корма, реплика.
     const info = this.add.container(0, 0).setAlpha(motion ? 0 : 1);
-    layer.add(info);
+    body.add(info);
     let y = cy + cardH / 2 + 64;
     const powerLine = text(this, GAME_W / 2, y, formatNumber(before.power), T.display, COLOR.gold, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setName('revealPower');
     const plus = tag(this, GAME_W / 2 + 230, y, `+${formatNumber(power - before.power)}`, 'positive').setName('revealPlus');
@@ -624,10 +657,16 @@ export class AscendScene extends Phaser.Scene {
       info.add(q);
       y += q.height + S.s;
     }
-    const doneY = Math.min(GAME_H - 130, Math.max(y + 90, CONTENT_BOTTOM - 70));
-    const done = cta(this, GAME_W / 2, doneY, 'Отлично!', () => this.scene.start('Hero', this.heroReturn), { w: 520 });
+    area.setContentHeight(y + S.l - revealTop);
+    const done = cta(this, GAME_W / 2, view().uiHeight - 120, 'Отлично!', returnToHero, { w: 520 });
     done.container.setName('revealDone').setAlpha(motion ? 0 : 1);
     layer.add(done.container);
+    const offView = onViewChange(this, () => {
+      back.setPosition(GAME_W / 2, view().uiHeight / 2).setSize(GAME_W + 2 * BLEED_X, view().uiHeight + 2 * BLEED_Y);
+      done.container.setY(view().uiHeight - 120);
+      area.setBounds(revealTop, view().uiHeight - 230);
+    });
+    layer.once(Phaser.GameObjects.Events.DESTROY, offView);
 
     const title = { at: { x: GAME_W / 2, y: 250 }, subtitle: `${rarityName(before.rarity)} → ${rarityName(hero.rarity)}`, color: pal.light };
     const finish = () => {
@@ -636,11 +675,12 @@ export class AscendScene extends Phaser.Scene {
       countUp(this, powerLine, before.power, power, (n) => formatNumber(n), { duration: M.count, delay: motion ? 250 : 0 });
       if (!motion) {
         halo.setAlpha(0.5);
+        area.locked = false;
         return;
       }
       this.cameras.main.shake(220, 0.006);
       // Вспышка цвета новой редкости, белое ядро, волна-кольцо.
-      const flash = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, pal.tint, 0.85).setDepth(MOMENT_DEPTH + 20).setBlendMode(Phaser.BlendModes.ADD);
+      const flash = this.add.rectangle(GAME_W / 2, view().uiHeight / 2, GAME_W + 2 * BLEED_X, view().uiHeight + 2 * BLEED_Y, pal.tint, 0.85).setDepth(MOMENT_DEPTH + 20).setBlendMode(Phaser.BlendModes.ADD);
       this.tweens.add({ targets: flash, alpha: 0, duration: 520, onComplete: () => flash.destroy() });
       const core = this.add.image(GAME_W / 2, cy, glowTexture(this)).setDisplaySize(900, 900).setTint(0xffffff).setBlendMode(Phaser.BlendModes.ADD).setDepth(MOMENT_DEPTH + 21);
       this.tweens.add({ targets: core, alpha: 0, scale: core.scale * 1.6, duration: M.emphasis, onComplete: () => core.destroy() });
@@ -651,14 +691,14 @@ export class AscendScene extends Phaser.Scene {
       this.tweens.add({ targets: halo, alpha: 0.35, duration: 1100, delay: 500, yoyo: true, repeat: -1, ease: E.inOut });
       this.tweens.add({ targets: info, alpha: 1, duration: M.slow, delay: M.fast });
       // Кнопка — последней (§4.6: не нажать случайно).
-      this.tweens.add({ targets: done.container, alpha: 1, duration: M.base, delay: 1000 });
+      this.tweens.add({ targets: done.container, alpha: 1, duration: M.base, delay: 1000, onComplete: () => { area.locked = false; } });
       plus.setScale(0.4).setAlpha(0);
       this.tweens.add({ targets: plus, alpha: 1, scale: 1, duration: M.slow, delay: 700, ease: E.pop });
     };
     const makeNew = () => drawHeroCard(this, GAME_W / 2, cy, hero, { w: W, figure: 'sprite', showIcons: false, glow: true });
     if (!motion) {
       oldCard.destroy();
-      layer.addAt(makeNew(), layer.getIndex(info));
+      body.addAt(makeNew(), body.getIndex(info));
       finish();
       return;
     }
@@ -685,7 +725,7 @@ export class AscendScene extends Phaser.Scene {
           onComplete: () => {
             oldCard.destroy();
             const nc = makeNew();
-            layer.addAt(nc, layer.getIndex(info));
+            body.addAt(nc, body.getIndex(info));
             nc.setScale(0, 1.08);
             this.tweens.add({ targets: nc, scaleX: 1.12, duration: 200, ease: E.out, onComplete: () => this.tweens.add({ targets: nc, scaleX: 1, scaleY: 1, duration: 260, ease: E.pop }) });
             finish();

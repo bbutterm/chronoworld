@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { heroBrowseLayout } from '../src/game/heroBrowseLayout';
 import { TOUCH_COMFORT } from '../src/game/theme';
@@ -8,15 +9,17 @@ const harness = vi.hoisted(() => {
     const obj: any = { width: 140, add: () => obj, setName: () => obj, setOrigin: () => obj, setDisplaySize: () => obj, setTint: () => obj, setStrokeStyle: () => obj };
     return obj;
   };
-  return { controls, node, closed: vi.fn(), restart: vi.fn(), delayed: vi.fn(), title: '' };
+  return { controls, node, closed: vi.fn(), restart: vi.fn(), delayed: vi.fn(), title: '', layer: null as any };
 });
-vi.mock('phaser', () => ({ default: { Scene: class {} } }));
+vi.mock('phaser', () => ({ default: { Scene: class {}, GameObjects: { Events: { DESTROY: 'destroy' } } } }));
 vi.mock('../src/game/content', () => ({ GAME: { content: { jobs: { swordman: { name: 'Мечник' }, mage: { name: 'Маг' }, archer: { name: 'Лучник' }, acolyte: { name: 'Послушник' }, merchant: { name: 'Торговец' }, thief: { name: 'Вор' } } } } }));
 vi.mock('../src/game/screen', () => ({ bottomSheet: (_s: unknown, title: string, build: Function) => {
   harness.controls.length = 0;
   harness.title = title;
-  const layer = { name: 'bottomSheet' };
-  harness.closed.mockImplementation(() => { layer.name = ''; });
+  const events = new EventEmitter();
+  const layer = { name: 'bottomSheet', once: events.once.bind(events), destroy() { layer.name = ''; events.emit('destroy'); } };
+  harness.layer = layer;
+  harness.closed.mockImplementation(() => layer.destroy());
   build(harness.node(), 984, harness.closed);
   return { layer };
 } }));
@@ -48,7 +51,7 @@ import { loadGameContext } from '../scripts/lib/content-node';
 
 function scene() {
   const s = new HeroesScene();
-  Object.assign(s, { scene: { restart: harness.restart }, time: { delayedCall: harness.delayed } });
+  Object.assign(s, { area: { locked: false }, scene: { restart: harness.restart }, time: { delayedCall: harness.delayed } });
   return s;
 }
 beforeEach(() => {
@@ -132,6 +135,36 @@ describe('подписанные меню героев', () => {
     expect(harness.restart).toHaveBeenCalledWith({ keep: true });
     const order = restored.map(g => g.hero.id);
     expect(browseNeighbours(order, order[0], () => true).next).toBe(order[1]);
+  });
+
+  it('лист блокирует коллекцию до уничтожения, затем возвращает исходный доступ', () => {
+    const s = scene();
+    s['openClasses']();
+    expect(s['area'].locked).toBe(true);
+    harness.layer.destroy();
+    expect(s['area'].locked).toBe(false);
+    s['openSort']();
+    expect(s['area'].locked).toBe(true);
+    harness.layer.destroy();
+    expect(s['area'].locked).toBe(false);
+  });
+
+  it('уничтожение старого листа не снимает блокировку новой коллекции после перезапуска', () => {
+    const s = scene(), oldArea = s['area'];
+    s['openClasses']();
+    const oldLayer = harness.layer, nextArea = { locked: true };
+    Object.assign(s, { area: nextArea });
+    oldLayer.destroy();
+    expect(oldArea.locked).toBe(false);
+    expect(nextArea.locked).toBe(true);
+  });
+
+  it('лист сохраняет блокировку, которая существовала до открытия', () => {
+    const s = scene();
+    s['area'].locked = true;
+    s['openSort']();
+    harness.layer.destroy();
+    expect(s['area'].locked).toBe(true);
   });
 });
 

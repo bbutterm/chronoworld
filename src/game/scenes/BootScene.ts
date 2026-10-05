@@ -7,7 +7,7 @@ import { heroSprite } from '../flow';
 import { session } from '../session';
 import { BOOT, drawBoot } from '../bootLook';
 import { FONT, GAME_W } from '../layout';
-import { queuePortraitFiles, requestPortrait, setupSprites } from '../sprites';
+import { portraitKey, queuePortraitFiles, requestPortrait, setupSprites } from '../sprites';
 import { installAudio } from '../audio';
 import { sceneSoundOf } from '../sceneAudio';
 
@@ -82,7 +82,9 @@ export class BootScene extends Phaser.Scene {
     const queueAll = () => {
       queueAssets(this);
       // U: листы юнитов (до 12 МБ каждый в памяти GPU) не грузим — только маленькие файлы портретов.
-      queuePortraitFiles(this, Object.keys(spriteRoles()));
+      // Личные/половые варианты тоже берём до revokePack: их файлы уже могут лежать в пакете загрузки.
+      const own = session.save.heroes.map((h) => heroSprite(h, GAME));
+      queuePortraitFiles(this, [...new Set([...Object.keys(spriteRoles()), ...own])]);
     };
     const pack = bootPack();
     if (!pack) {
@@ -136,9 +138,13 @@ export class BootScene extends Phaser.Scene {
     setupSprites(this, spriteRoles());
     // Звук (issue #26): шины громкости, заглушки, музыка экранов по старту сцен.
     installAudio(this.game, sceneSoundOf);
-    // Небольшой набор портретов сразу: герои игрока (список героев, отряд). Листы для них грузятся по одному
-    // и сразу выгружаются — в памяти остаются только портреты. Остальные портреты — по требованию экранов.
+    // Файлы портретов героев уже прошли preload. Если файла нет/он не загрузился, requestPortrait
+    // последовательно вырезает портрет из листа и выгружает лист. Остальные портреты — по требованию экранов.
     const own = [...new Set(session.save.heroes.map((h) => heroSprite(h, GAME)))];
+    for (const id of own) {
+      const key = portraitKey(id);
+      if (this.game.textures.exists(key)) this.game.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+    }
     let started = false;
     const go = () => {
       if (started) return;

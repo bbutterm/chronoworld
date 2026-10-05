@@ -5,9 +5,9 @@ import { CONTENT, GAME } from '../content';
 import { shortfallHint, stageNeeds, stageNo, stageSeed, type StageNeeds } from '../flow';
 import { GAME_W } from '../layout';
 import { COMBAT as COMBAT_CFG } from '../../core';
-import { cta, powerCompare, screen, updatePowerCompare } from '../screen';
+import { CONTENT_TOP, cta, powerCompare, screen, updatePowerCompare } from '../screen';
 import { commit, session, today } from '../session';
-import { BTN, button, ellipsize, infoButton, pressable, rewardRow, tag, text, toast, tutorialHint, type ButtonView, type ChipSpec } from '../ui';
+import { BTN, button, ellipsize, infoButton, pressable, rewardRow, ScrollArea, tag, text, toast, tutorialHint, type ButtonView, type ChipSpec } from '../ui';
 import { monsterTeaser, roleName } from '../loreView';
 import { ctaShine } from '../decor';
 import { markHint, pickPrepHint } from '../hints';
@@ -24,8 +24,19 @@ import type { HeroCardDrop } from '../../core';
 import { encounterThreat } from '../tactics';
 import { squadChoices } from '../squadChoice';
 import { showSquadChoices } from '../squadChoiceView';
+import { onViewChange, view } from '../viewport';
+import { formationBodyRows } from '../prepLayout';
 
-import { STAGE_LAYOUT as L } from '../stageLayout';
+import { STAGE_LAYOUT as BASE_LAYOUT } from '../stageLayout';
+
+// Предупреждение о расстановке, угроза и кнопки ростера имеют отдельные цели нажатия.
+const bodyRows = formationBodyRows(BASE_LAYOUT.field.bottom, true);
+const L = {
+  ...BASE_LAYOUT,
+  threat: bodyRows.threat,
+  rosterHeadY: bodyRows.rosterHeadY,
+  roster: { top: bodyRows.rosterTop, bottom: bodyRows.rosterTop + BASE_LAYOUT.roster.bottom - BASE_LAYOUT.roster.top },
+};
 
 /** Шанс карты героя: «6%», «×1», «≈1.5» (как dropText ядра, только число). */
 function dropValue(x: number): string {
@@ -61,6 +72,8 @@ export class StageScene extends Phaser.Scene {
   private threatText: Phaser.GameObjects.Text | null = null;
   private tacticText: Phaser.GameObjects.Text | null = null;
   private choosingSquad = false;
+  private body!: ScrollArea;
+  private get fightY(): number { return view().uiHeight - 110; }
 
   constructor() {
     super('Stage');
@@ -75,10 +88,14 @@ export class StageScene extends Phaser.Scene {
     this.threatText = null;
     this.tacticText = null;
     this.choosingSquad = false;
+    this.fightBtns = [];
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
     screen(this, `${stageNo(stage, GAME)} · ${stage.name}`, null, { to: 'Campaign', data: { chapter } });
+    const beforeBody = new Set(this.children.list);
+    this.body = new ScrollArea(this, CONTENT_TOP, this.fightY - 120);
+    this.body.content.setName('stageBody');
 
     // --- Награда: один ряд чипов (повтор — уже с множителем повтора) ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';
@@ -88,7 +105,7 @@ export class StageScene extends Phaser.Scene {
     rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(Math.floor(stage.rewards.gold * k), Math.floor(stage.rewards.jobExp * k), drop), { size: 's' }).setName('stageRewards');
     if (!first) {
       if (!replay.remaining) text(this, GAME_W / 2, L.rewardY, 'Тренировка · без добычи', T.caption, COLOR.textSecondary).setName('stagePractice');
-      text(this, GAME_W / 2, L.rewardY + 40, replay.remaining > 0 ? `Добыча за повторы: ещё ${replay.remaining} из ${replay.limit} побед сегодня` : `Сегодня получены все ${replay.limit} наград за повторы`, T.caption, COLOR.textSecondary).setName('stageReplayBudget');
+      text(this, GAME_W / 2, L.rewardY + 48, replay.remaining > 0 ? `Добыча за повторы: ещё ${replay.remaining} из ${replay.limit} побед сегодня` : `Сегодня получены все ${replay.limit} наград за повторы`, T.caption, COLOR.textSecondary).setName('stageReplayBudget');
     }
 
     // --- Поле (отряд против противника) и список героев ---
@@ -100,6 +117,7 @@ export class StageScene extends Phaser.Scene {
       field: L.field,
       enemies,
       roster: L.roster,
+      scrollBody: { area: this.body, origin: CONTENT_TOP },
       onChange: () => this.onSquadChange(),
     });
 
@@ -123,36 +141,68 @@ export class StageScene extends Phaser.Scene {
     // --- Список героев: заголовок, «Авто» и «Пресеты» — вторичные ---
     text(this, S.l, L.rosterHeadY, 'Герои', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
     const autoX = GAME_W - S.l - 260 - S.xs - 110;
-    button(this, autoX, L.rosterHeadY, 220, BTN.m, '', 'Авто', () => this.auto(), T.body, { variant: 'secondary' });
+    button(this, autoX, L.rosterHeadY, 220, BTN.m, '', 'Авто', () => this.auto(), T.body, { variant: 'secondary' }).container.setName('autoBtn');
     button(this, GAME_W - S.l - 130, L.rosterHeadY, 260, BTN.m, '', 'Пресеты', () =>
       this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } }, presets: true }),
-    T.body, { variant: 'secondary' });
+    T.body, { variant: 'secondary' }).container.setName('presetsBtn');
+
+    this.editor.draw();
+    this.enemyTaps(resolveStageEnemies(stage, session.save.campaignChoices).map((e) => e?.unit ?? null));
+    this.editor.addToBody(this.children.list.filter(o => !beforeBody.has(o)));
 
     if (first) {
-      const fight = cta(this, GAME_W / 2, L.fightY, 'В бой', () => this.fight(), { w: 640 });
+      const fight = cta(this, GAME_W / 2, this.fightY, 'В бой', () => this.fight(), { w: 640 });
       ctaShine(this, fight.container, 640, 140);
       this.fightBtns = [fight];
     } else {
       // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
-      const skip = button(this, GAME_W / 2 - 260, L.fightY, 460, BTN.cta, '', 'Быстрый бой', () => this.skipBattle(), T.body, { variant: 'secondary' });
-      const again = cta(this, GAME_W / 2 + 250, L.fightY, replay.remaining > 0 ? 'Повторить' : 'Тренировка', () => this.fight(), { w: 480, h: BTN.cta });
+      const skip = button(this, GAME_W / 2 - 260, this.fightY, 460, BTN.cta, '', 'Быстрый бой', () => this.skipBattle(), T.body, { variant: 'secondary' });
+      const again = cta(this, GAME_W / 2 + 250, this.fightY, replay.remaining > 0 ? 'Повторить' : 'Тренировка', () => this.fight(), { w: 480, h: BTN.cta });
       this.fightBtns = [skip, again];
     }
-    this.editor.draw();
-    this.enemyTaps(resolveStageEnemies(stage, session.save.campaignChoices).map((e) => e?.unit ?? null));
+    this.onSquadChange();
     // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.
     // Обучение: после Таверны сильнейшие герои вне отряда — сначала «Авто» (prep_auto), иначе «В бой».
     const ids = (sq: readonly (string | null)[]) => JSON.stringify(sq.filter(Boolean).sort());
     const benchStronger = ids(autoFormation(session.save, GAME)) !== ids(session.save.squad);
     const hint = pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone });
-    if (hint === 'prep_auto') this.autoHint = tutorialHint(this, hint, autoX, L.rosterHeadY, 'above', { w: 220, h: BTN.m });
-    else if (hint === 'stage_fight') tutorialHint(this, hint, GAME_W / 2, L.fightY, 'above', { w: 640, h: 140 });
+    if (hint === 'prep_auto') {
+      this.body.offset = Math.max(0, L.rosterHeadY - (this.fightY - 280));
+      this.autoHint = tutorialHint(this, hint, autoX, L.rosterHeadY - this.body.offset, 'above', { w: 220, h: BTN.m });
+      if (this.autoHint && this.body.content.mask) this.autoHint.setMask(this.body.content.mask);
+    }
+    const fightHint = hint === 'stage_fight' ? tutorialHint(this, hint, GAME_W / 2, this.fightY, 'above', { w: 640, h: 140 }) : null;
+    let hintOffset = this.body.offset;
+    const followAutoHint = () => {
+      if (!this.autoHint?.scene) return;
+      this.autoHint.y += hintOffset - this.body.offset;
+      hintOffset = this.body.offset;
+    };
+    this.events.on(Phaser.Scenes.Events.UPDATE, followAutoHint);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.events.off(Phaser.Scenes.Events.UPDATE, followAutoHint));
+    let footerY = this.fightY;
+    onViewChange(this, () => {
+      const delta = this.fightY - footerY;
+      for (const b of this.fightBtns) b.container.setY(this.fightY);
+      if (fightHint?.scene) fightHint.y += delta;
+      footerY = this.fightY;
+      this.editor.setBodyBounds(CONTENT_TOP, this.fightY - 120);
+      followAutoHint();
+    });
   }
 
   /** Лист разведки: нужная мощь, уровень врагов (и нужный уровень героев при нехватке), враги по видам. */
   private openScout(): void {
+    if (this.editor.locked) return;
+    const before = new Set(this.children.list);
+    this.editor.locked = true;
+    this.body.locked = true;
     const needs = stageNeeds(session.save, this.stageId, GAME);
     scoutSheet(this, enemySquad(this.stageId, GAME, session.save.campaignChoices), Object.values(squadDefs(session.save)), needs);
+    const unlock = () => { this.editor.locked = false; this.body.locked = false; };
+    const modal = this.children.list.find(o => !before.has(o) && o.getData('screenModal'));
+    if (modal) modal.once(Phaser.GameObjects.Events.DESTROY, unlock);
+    else unlock();
   }
 
   /**
@@ -206,6 +256,7 @@ export class StageScene extends Phaser.Scene {
     if (options.length) {
       this.choosingSquad = true;
       this.editor.locked = true;
+      this.body.locked = true;
       showSquadChoices(this, options, (option) => {
         markHint('prep_auto');
         this.autoHint?.destroy();
@@ -215,6 +266,7 @@ export class StageScene extends Phaser.Scene {
       }, () => {
         this.choosingSquad = false;
         this.editor.locked = false;
+        this.body.locked = false;
       });
       return;
     }

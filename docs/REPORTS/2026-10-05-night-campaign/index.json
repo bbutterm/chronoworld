@@ -72,6 +72,45 @@
       "attempts": 783,
       "campaignLosses": 603,
       "cpuTimeSeconds": null
+    },
+    {
+      "artifact": "data2-rational-seed1-summary.json",
+      "status": "complete",
+      "seedBase": 1,
+      "policy": "free_fast_rewards_when_rarity_capped",
+      "phase": "data2",
+      "cleared": 180,
+      "totalWaits": 32,
+      "elapsedHours": 403.713,
+      "attempts": 774,
+      "campaignLosses": 594,
+      "cpuTimeSeconds": 90.271
+    },
+    {
+      "artifact": "data2-rational-seed2-summary.json",
+      "status": "complete",
+      "seedBase": 2,
+      "policy": "free_fast_rewards_when_rarity_capped",
+      "phase": "data2",
+      "cleared": 180,
+      "totalWaits": 18,
+      "elapsedHours": 226.233,
+      "attempts": 526,
+      "campaignLosses": 346,
+      "cpuTimeSeconds": 34.171
+    },
+    {
+      "artifact": "data2-rational-seed3-summary.json",
+      "status": "complete",
+      "seedBase": 3,
+      "policy": "free_fast_rewards_when_rarity_capped",
+      "phase": "data2",
+      "cleared": 180,
+      "totalWaits": 30,
+      "elapsedHours": 373.677,
+      "attempts": 648,
+      "campaignLosses": 468,
+      "cpuTimeSeconds": 76.988
     }
   ],
   "controlledIdentityRepeats": "model-optimization-proof.json",
@@ -79,5 +118,8 @@
     "first-win-evidence-seed2.json",
     "first-win-evidence-seed3.json"
   ],
-  "coverageLimit": "Limited squad/branch/arena heuristic, core-only simulated play, not an optimality or physical-device UI proof."
+  "coverageLimit": "Limited squad/branch/arena heuristic, core-only simulated play, not an optimality or physical-device UI proof.",
+  "data2SourceSha256": "cf7be27c0f75ec6ce6f3e894d795fee71ebf4bf3585ec10bb5cd06de9561421c",
+  "data2ScriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "data2CohortInterpretation": "All 3 fresh accounts completed 180; waits 32/18/30. Account roster/RNG variation remains; do not attribute seed2 speedup to a uniform patch effect."
 }

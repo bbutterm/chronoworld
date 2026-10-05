@@ -1,0 +1,77 @@
+{
+  "sourceDigest": "434a17a23e327bf5bdd058b0eda62451adba16283c89919736c22fe516d43ab4",
+  "source": "/workspace/chronoworld-worktrees/night-class-balance",
+  "driver": "/workspace/chronoworld-worktrees/night-full-campaign/scripts/night-playthrough.ts",
+  "simulatedContextsOnly": true,
+  "comparison": "Только ch1_s4/enemies/2 unit; mult=.9818 и остальные данные одинаковы",
+  "intro": {
+    "before": {
+      "willow": {
+        "stage": "ch1_s5",
+        "order": 6,
+        "slot": 0
+      },
+      "poporing": {
+        "stage": "ch1_s4",
+        "order": 5,
+        "slot": 2
+      }
+    },
+    "after": {
+      "willow": {
+        "stage": "ch1_s4",
+        "order": 5,
+        "slot": 2
+      },
+      "poporing": {
+        "stage": "ch1_s6",
+        "order": 8,
+        "slot": 1
+      }
+    }
+  },
+  "regressionSeeds": [],
+  "cohorts": [
+    {
+      "revision": "before",
+      "seeds": 32,
+      "completed": 32,
+      "cleared": 576,
+      "attempts": 576,
+      "losses": 0,
+      "waits": 0,
+      "ch1_s4Duration": {
+        "min": 13.5,
+        "median": 15.1,
+        "max": 15.1
+      },
+      "ch1_s4Ults": {
+        "teamUltMedian": 0.0,
+        "teamUltTotal": 0,
+        "battlesWithoutUlt": 32,
+        "firstUltMedian": null
+      }
+    },
+    {
+      "revision": "after",
+      "seeds": 32,
+      "completed": 32,
+      "cleared": 576,
+      "attempts": 576,
+      "losses": 0,
+      "waits": 0,
+      "ch1_s4Duration": {
+        "min": 18.3,
+        "median": 18.6,
+        "max": 19.6
+      },
+      "ch1_s4Ults": {
+        "teamUltMedian": 1.0,
+        "teamUltTotal": 24,
+        "battlesWithoutUlt": 11,
+        "firstUltMedian": 18.6
+      }
+    }
+  ],
+  "scope": "32 одинаковых seed 1…32, реальные игровые действия из newGame, maxStages18/maxWaits0; after отличается только ch1_s4/enemies/2.unit. Это не 32 независимых распределения удачи таверны."
+}

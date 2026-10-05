@@ -3,14 +3,15 @@ import { BRANCH_RARITY, branchOptions, branchPreview, heroCard, heroTemplate, ty
 import { CONTENT, GAME } from './content';
 import { formatNumber, heroSprite, ROLE_NAMES, STAT_KEYS, STAT_LABELS } from './flow';
 import { rarityPalette } from './heroCard';
-import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
+import { BLEED_X, BLEED_Y, GAME_W } from './layout';
 import { bottomSheet, popIn, popOut, registerModal, unitFigure } from './screen';
 import { openSkillDetail } from './skillDetail';
 import { skillIcon } from './skillIcons';
 import { spriteView } from './sprites';
 import { skillSummary } from './skillFacts';
-import { BTN, button, ellipsize, plate, pressable, SURFACE, tag, text } from './ui';
+import { BTN, button, ellipsize, plate, pressable, ScrollArea, SURFACE, tag, text } from './ui';
 import { C, COLOR, COLOR_N, FAMILY, R, S, T, TOUCH_COMFORT } from './theme';
+import { onViewChange, view } from './viewport';
 
 /**
  * Выбор ветки второй профессии (docs/design/heroes-v2.md, разделы 3 и 5) — общий компонент вознесения синий →
@@ -43,6 +44,8 @@ export interface BranchPickerOptions {
   /** Экземпляр героя (для предупреждения «в отряде не останется лекаря»). */
   heroId?: string;
   save?: SaveState;
+  /** Прокрутка карточки под открытым окном. */
+  lock?: ScrollArea;
 }
 
 const DEPTH = 9200;
@@ -50,7 +53,6 @@ const PANEL_W = 504;
 const PANEL_GAP = 24;
 const TOP = 340;
 const PANEL_H = 1280;
-const BTN_Y = GAME_H - 120;
 
 /** Роль в родительном падеже — «не останется лекаря». */
 const ROLE_GEN: Record<string, string> = { tank: 'танка', damage: 'бойца урона', healer: 'лекаря', support: 'поддержки' };
@@ -82,8 +84,13 @@ export function branchRoleWarning(save: SaveState, heroId: string, job: string):
 export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions): Phaser.GameObjects.Container {
   const branches = branchOptions(opts.templateId, GAME);
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName('branchPicker');
-  const shade = scene.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, COLOR_N.bg, 0.96).setInteractive();
+  const shade = scene.add.rectangle(GAME_W / 2, view().uiHeight / 2, GAME_W + 2 * BLEED_X, view().uiHeight + 2 * BLEED_Y, COLOR_N.bg, 0.96).setInteractive();
   layer.add(shade);
+  const wasLocked = opts.lock?.locked;
+  if (opts.lock) opts.lock.locked = true;
+  layer.once(Phaser.GameObjects.Events.DESTROY, () => {
+    if (opts.lock) opts.lock.locked = wasLocked ?? false;
+  });
   let finished = false;
   const close = () => {
     if (finished || !layer.scene) return;
@@ -96,8 +103,16 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
 
   let selected: string | null = opts.selected && opts.selected !== opts.current ? opts.selected : null;
   const highlights: { job: string; frame: Phaser.GameObjects.Rectangle; mark: Phaser.GameObjects.Container }[] = [];
-  const warn = text(scene, GAME_W / 2, BTN_Y - 118, '', T.caption, COLOR.warning, { wordWrap: { width: GAME_W - 2 * S.l } }).setName('branchWarning');
+  let buttonY = view().uiHeight - 120;
+  const warn = text(scene, GAME_W / 2, buttonY - 100, '', T.caption, COLOR.warning, { wordWrap: { width: GAME_W - 2 * S.l } }).setOrigin(0.5, 1).setName('branchWarning');
   layer.add(warn);
+  const area = new ScrollArea(scene, TOP, buttonY - 168);
+  area.content.setName('branchBody');
+  const body = scene.add.container(0, -TOP);
+  area.add(body);
+  area.setContentHeight(PANEL_H);
+  const resizeBody = () => area.setBounds(TOP, buttonY - 100 - Math.max(44, warn.height) - S.s);
+  const footer: Phaser.GameObjects.Container[] = [];
   let confirmBtn: ReturnType<typeof button> | null = null;
   const refresh = () => {
     for (const h of highlights) {
@@ -108,6 +123,7 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
     const why = selected ? (opts.blocked?.(selected) ?? null) : null;
     const w = why ?? (selected && opts.heroId && opts.save ? branchRoleWarning(opts.save, opts.heroId, selected) : null);
     warn.setText(w ?? '');
+    resizeBody();
     if (confirmBtn) {
       confirmBtn.setLabel(opts.confirmLabel?.(selected) ?? 'Выбрать профессию');
       confirmBtn.setEnabled(!!selected && !why);
@@ -119,7 +135,7 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
     const x = GAME_W / 2 + (i === 0 ? -1 : 1) * (PANEL_W / 2 + PANEL_GAP / 2);
     const preview = branchPreview(opts.templateId, b.job, GAME, recipient);
     const shown = preview.card.advanced ? b.advanced! : b;
-    const h = branchPanel(scene, layer, x, { ...shown, job: b.job, jobName: preview.card.jobName }, b.job === opts.current, branchStats(opts, b.job), preview.hero);
+    const h = branchPanel(scene, body, x, { ...shown, job: b.job, jobName: preview.card.jobName }, b.job === opts.current, branchStats(opts, b.job), preview.hero);
     highlights.push({ job: b.job, frame: h.frame, mark: h.mark });
     const pick = !opts.viewOnly && b.job !== opts.current;
     if (pick) pressable(scene, h.frame, PANEL_W, PANEL_H, () => {
@@ -137,10 +153,10 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
   });
 
   if (opts.viewOnly) {
-    layer.add(button(scene, GAME_W / 2, BTN_Y, 460, BTN.l, '', 'Закрыть', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchClose'));
+    footer.push(button(scene, GAME_W / 2, buttonY, 460, BTN.l, '', 'Закрыть', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchClose'));
   } else {
-    layer.add(button(scene, S.l + 170, BTN_Y, 340, BTN.l, '', 'Отмена', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchCancel'));
-    confirmBtn = button(scene, GAME_W - S.l - 300, BTN_Y, 600, BTN.cta, '', 'Выбрать профессию', () => {
+    footer.push(button(scene, S.l + 170, buttonY, 340, BTN.l, '', 'Отмена', close, T.heading, { sound: 'ui_back', variant: 'secondary' }).container.setName('branchCancel'));
+    confirmBtn = button(scene, GAME_W - S.l - 300, buttonY, 600, BTN.cta, '', 'Выбрать профессию', () => {
       if (finished || !selected) return;
       if (opts.blocked?.(selected)) {
         refresh();
@@ -151,10 +167,23 @@ export function openBranchPicker(scene: Phaser.Scene, opts: BranchPickerOptions)
       popOut(scene, layer, () => opts.onConfirm?.(job));
     }, T.heading, { variant: 'primary' });
     confirmBtn.container.setName('branchConfirm');
-    layer.add(confirmBtn.container);
+    footer.push(confirmBtn.container);
   }
+  layer.add(footer);
   refresh();
   popIn(scene, layer, shade);
+  // popIn меняет начало координат обычных детей; маска списка остаётся в координатах экрана.
+  layer.add(area.parts);
+  const offView = onViewChange(scene, () => {
+    if (finished) return;
+    const next = view().uiHeight - 120;
+    for (const o of footer) o.y += next - buttonY;
+    warn.y += next - buttonY;
+    buttonY = next;
+    shade.setPosition(GAME_W / 2, view().uiHeight / 2).setSize(GAME_W + 2 * BLEED_X, view().uiHeight + 2 * BLEED_Y);
+    resizeBody();
+  });
+  layer.once(Phaser.GameObjects.Events.DESTROY, offView);
   return layer;
 }
 

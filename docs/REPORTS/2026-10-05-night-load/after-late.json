@@ -1,0 +1,719 @@
+{
+  "root": "/workspace/chronoworld-worktrees/night-cold-load",
+  "cpu": 1,
+  "network": "none",
+  "browser": "151.0.7922.173",
+  "launchGraphics": "SwiftShader software WebGL",
+  "injectedFailures": {
+    "failPack": false,
+    "failPortrait": ""
+  },
+  "suppliedSave": "/workspace/chronoworld-worktrees/night-cold-load/tests/fixtures/boot-late-save.json",
+  "suppliedNow": 1792645536853,
+  "profileOverhead": false,
+  "scope": "Local production build via Vite preview; no physical phone FPS measurement",
+  "diagnosticOnly": true,
+  "measurements": [
+    {
+      "warm": false,
+      "index": 1,
+      "marks": [
+        {
+          "name": "cw:script",
+          "start": 932.5
+        },
+        {
+          "name": "cw:fonts",
+          "start": 937.5
+        },
+        {
+          "name": "cw:boot-frame",
+          "start": 1578.9000000059605
+        },
+        {
+          "name": "scene:Campaign:start",
+          "start": 3609.9000000059605
+        },
+        {
+          "name": "cw:home",
+          "start": 3735.7000000029802
+        }
+      ],
+      "paint": [
+        {
+          "name": "first-paint",
+          "start": 612
+        },
+        {
+          "name": "first-contentful-paint",
+          "start": 612
+        }
+      ],
+      "http": [
+        {
+          "url": "/",
+          "type": "Document",
+          "start": 0,
+          "end": 15.498000000661705,
+          "encodedDataLength": 3203,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-400.woff2",
+          "type": "Font",
+          "start": 25.635000005422626,
+          "end": 37.72600000229431,
+          "encodedDataLength": 23268,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-700.woff2",
+          "type": "Font",
+          "start": 25.98299999954179,
+          "end": 37.880000003497116,
+          "encodedDataLength": 23196,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/philosopher-700.woff2",
+          "type": "Font",
+          "start": 26.06000000378117,
+          "end": 42.5390000018524,
+          "encodedDataLength": 19960,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/assets/index-D1B46ywc.js",
+          "type": "Script",
+          "start": 26.155999999900814,
+          "end": 222.84800000488758,
+          "encodedDataLength": 773693,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/rolldown-runtime-CbXtAM7H.js",
+          "type": "Script",
+          "start": 26.25800000532763,
+          "end": 54.24499999935506,
+          "encodedDataLength": 937,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/phaser-B6Ef8M8A.js",
+          "type": "Script",
+          "start": 26.326999999582767,
+          "end": 106.67800000373973,
+          "encodedDataLength": 247568,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/boot-webp-2462047fb2.bin",
+          "type": "Other",
+          "start": 26.387000005342998,
+          "end": 58.53400000341935,
+          "encodedDataLength": 477862,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/backgrounds/bg_map_ch10.jpg",
+          "type": "Image",
+          "start": 3735.1630000048317,
+          "end": 3753.759999999602,
+          "encodedDataLength": 367791,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_alan_knight_detail_v2.webp",
+          "type": "Image",
+          "start": 3735.3629999997793,
+          "end": 3751.4850000006845,
+          "encodedDataLength": 30540,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_zara_assassin_detail_v2.webp",
+          "type": "Image",
+          "start": 3735.43900000368,
+          "end": 3751.8090000012307,
+          "encodedDataLength": 41662,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/heroes/professor_f.png",
+          "type": "Image",
+          "start": 3735.504000003857,
+          "end": 3752.0560000048135,
+          "encodedDataLength": 30431,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/heroes/sniper_f.png",
+          "type": "Image",
+          "start": 3735.569000004034,
+          "end": 3752.1489999999176,
+          "encodedDataLength": 30354,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_vika_priest_detail_v2.webp",
+          "type": "Image",
+          "start": 3735.627000001841,
+          "end": 3752.231999998912,
+          "encodedDataLength": 42090,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/music_map_niflheim.ogg",
+          "type": "Media",
+          "start": 3738.9120000007097,
+          "end": 3763.3140000034473,
+          "encodedDataLength": 860196,
+          "status": 206,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        }
+      ],
+      "errors": [],
+      "warnings": [],
+      "memory": {
+        "jsHeapAfterGC": 15177748,
+        "games": [
+          {
+            "textureBytes": 43658732,
+            "viewport": [
+              720,
+              1280
+            ],
+            "scenes": [
+              "Campaign"
+            ],
+            "topTextures": [
+              {
+                "key": "skin_atlas",
+                "dims": "1024x1004",
+                "bytes": 4112384,
+                "sources": [
+                  "skin_atlas"
+                ]
+              },
+              {
+                "key": "skin_bg_forest",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_forest"
+                ]
+              },
+              {
+                "key": "skin_bg_battle",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_battle"
+                ]
+              },
+              {
+                "key": "skin_bg_map_niflheim",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_map_niflheim"
+                ]
+              },
+              {
+                "key": "bg_map_ch10",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "bg_map_ch10"
+                ]
+              },
+              {
+                "key": "skin_banner_victory",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_victory"
+                ]
+              },
+              {
+                "key": "skin_banner_defeat",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_defeat"
+                ]
+              },
+              {
+                "key": "ui_kenney",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "ui_kenney"
+                ]
+              },
+              {
+                "key": "skin_rays",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "skin_rays"
+                ]
+              },
+              {
+                "key": "boot_bg",
+                "dims": "390x660",
+                "bytes": 1029600,
+                "sources": [
+                  "boot_bg"
+                ]
+              },
+              {
+                "key": "spr_hero_alan_knight_detail_v2",
+                "dims": "488x503",
+                "bytes": 981856,
+                "sources": [
+                  "spr_hero_alan_knight_detail_v2"
+                ]
+              },
+              {
+                "key": "spr_hero_zara_assassin_detail_v2",
+                "dims": "203x950",
+                "bytes": 771400,
+                "sources": [
+                  "spr_hero_zara_assassin_detail_v2"
+                ]
+              },
+              {
+                "key": "spr_professor_f",
+                "dims": "214x836",
+                "bytes": 715616,
+                "sources": [
+                  "spr_professor_f"
+                ]
+              },
+              {
+                "key": "spr_sniper_f",
+                "dims": "271x638",
+                "bytes": 691592,
+                "sources": [
+                  "spr_sniper_f"
+                ]
+              },
+              {
+                "key": "spr_hero_vika_priest_detail_v2",
+                "dims": "306x529",
+                "bytes": 647496,
+                "sources": [
+                  "spr_hero_vika_priest_detail_v2"
+                ]
+              }
+            ],
+            "portraitFilters": [
+              {
+                "key": "portrait_archer_first",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_acolyte",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_alchemist",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_bard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_blacksmith",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_champion_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin_cross_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_clown_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_creator_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_guard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_gypsy_f",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_priest_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_wizard_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_archer",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_warrior",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_lord_knight_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_magician",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_merchant",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_monk",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_novice",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_paladin_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_professor_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_rogue",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_priest",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sniper_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_stalker_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_swordman",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_thief",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_whitesmith_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_mage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_alan_knight_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_kai_wizard_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_bran_hunter_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_iris_knight_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_vika_priest_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_otto_blacksmith_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_professor_f",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_dorn_assassin_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_teo_priest_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sage_f",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_greta_blacksmith_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sniper_f",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_vika_acolyte_details_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_zara_assassin_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_kai_magician_details_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_lira_magician_details_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_meilin_hunter_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_meilin_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_dorn_thief_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_zara_thief_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_iris_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_greta_merchant_detail_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_teo_acolyte_details_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_alan_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_otto_merchant_detail_v2",
+                "filters": [
+                  1
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

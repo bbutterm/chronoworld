@@ -1,0 +1,137 @@
+{
+  "errors": [],
+  "cases": [
+    {
+      "kind": "Heroes",
+      "issue": "Telegram Back does not close root sheet",
+      "beforeModals": [
+        "bottomSheet"
+      ],
+      "afterModals": [
+        "bottomSheet"
+      ]
+    },
+    {
+      "kind": "Stage",
+      "issue": "Overlapping practical touch targets",
+      "pos": {
+        "point": {
+          "x": 310,
+          "y": 469.1666666666667
+        },
+        "overlap": {
+          "name": "enemyInfo4",
+          "x": 930,
+          "y": 999.5,
+          "w": 190,
+          "h": 15
+        },
+        "fix": {
+          "visible": true,
+          "center": {
+            "x": 882,
+            "y": 1058
+          },
+          "hitW": 300,
+          "hitH": 132
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      },
+      "beforeSquad": [
+        "h1",
+        "h2",
+        null,
+        null,
+        "h3"
+      ],
+      "afterSquad": [
+        "h1",
+        "h2",
+        null,
+        null,
+        "h3"
+      ],
+      "modals": []
+    },
+    {
+      "kind": "Squad",
+      "issue": "Overlapping practical touch targets",
+      "pos": {
+        "point": {
+          "x": 309,
+          "y": 453.3333333333333
+        },
+        "overlap": {
+          "name": "presetsBtn",
+          "x": 927,
+          "y": 952,
+          "w": 210,
+          "h": 52
+        },
+        "fix": {
+          "visible": true,
+          "center": {
+            "x": 882,
+            "y": 912
+          },
+          "hitW": 300,
+          "hitH": 132
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      },
+      "beforeSquad": [
+        "h1",
+        "h2",
+        null,
+        null,
+        "h3"
+      ],
+      "afterSquad": [
+        "h1",
+        "h2",
+        null,
+        null,
+        "h3"
+      ],
+      "modals": [
+        "bottomSheet"
+      ]
+    }
+  ]
+}

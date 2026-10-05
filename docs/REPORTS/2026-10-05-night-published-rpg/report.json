@@ -1,0 +1,653 @@
+{
+  "merge": "41bbcc0718060d11d64248c8d2c0028177eae785",
+  "origin": "https://chronoworld-ecru.vercel.app",
+  "started": "2026-10-04T23:43:18.070Z",
+  "runs": [
+    {
+      "mode": "webgl",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        {
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 780,
+            "backH": 1676,
+            "density": 2,
+            "zoom": 0.7222222222222222,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 5,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 0.9935947521865889,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        },
+        {
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 780,
+            "backH": 1676,
+            "density": 2,
+            "zoom": 0.7222222222222222,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 14,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        },
+        {
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 780,
+            "backH": 1676,
+            "density": 2,
+            "zoom": 0.7222222222222222,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 26,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        },
+        {
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 780,
+            "backH": 1676,
+            "density": 2,
+            "zoom": 0.7222222222222222,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 39,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        }
+      ],
+      "renderer": 2,
+      "gl": "WebGL 1.0 (OpenGL ES 2.0 Chromium)"
+    },
+    {
+      "mode": "canvas",
+      "width": 360,
+      "height": 640,
+      "rows": [
+        {
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 720,
+            "backH": 1248,
+            "density": 2,
+            "zoom": 0.6666666666666666,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 10,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        },
+        {
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 720,
+            "backH": 1248,
+            "density": 2,
+            "zoom": 0.6666666666666666,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 23,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        },
+        {
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 720,
+            "backH": 1248,
+            "density": 2,
+            "zoom": 0.6666666666666666,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 40,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        },
+        {
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 720,
+            "backH": 1248,
+            "density": 2,
+            "zoom": 0.6666666666666666,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "scenes": [
+            "Adventure"
+          ],
+          "frames": 59,
+          "nav": [
+            {
+              "name": "nav_Campaign",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Heroes",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Home",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "nav_Adventure",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "tiles": [
+            {
+              "name": "expeditionsTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "towerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "huntTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            },
+            {
+              "name": "autobattlerTile",
+              "visible": true,
+              "alpha": 1,
+              "interactive": true
+            }
+          ],
+          "sourceNull": 0
+        }
+      ],
+      "renderer": 1
+    }
+  ],
+  "errors": [],
+  "bundle": "/assets/index-BttPMNUr.js",
+  "bundleSha256": "b1ad26049a402159d3a42bb0275401cd478c25260d8710d971b7981cd0318736",
+  "environmentNote": "Production and local bundle names can differ because Vercel supplies VITE settings; commit deployment status and release behavior are checked independently.",
+  "finished": "2026-10-04T23:44:15.866Z"
+}

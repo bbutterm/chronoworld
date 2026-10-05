@@ -3,6 +3,20 @@
  * перенос и обмен слотов, геометрия поля «как в бою» и попадание пальца в слот. Тестируются в tests/game-prep.test.ts.
  */
 import { assignSlot } from './flow';
+import { S, TOUCH_COMFORT } from './theme';
+
+/** Полосы под полем учитывают всю цель нажатия, включая невидимые края маленьких кнопок. */
+export function formationBodyRows(fieldBottom: number, withThreat = false) {
+  const warningY = fieldBottom + S.xs + TOUCH_COMFORT / 2;
+  const next = warningY + TOUCH_COMFORT + S.m;
+  const rosterHeadY = next + (withThreat ? TOUCH_COMFORT + S.m : 0);
+  return {
+    warningY,
+    threat: { titleY: next - 18, adviceY: next + 26, zoneY: next, zoneH: 88 },
+    rosterHeadY,
+    rosterTop: rosterHeadY + TOUCH_COMFORT / 2 + 14,
+  };
+}
 
 export type Squad = (string | null)[];
 

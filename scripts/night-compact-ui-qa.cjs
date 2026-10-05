@@ -161,9 +161,12 @@ function controls(page, run, fixture) {
       const v = window.__view();
       const s = v.cssW / v.worldW;
       const all = window.__qaWalk(scene.children.list);
+      const bg = scene.children.list.find((o) => o.type === 'Image' && o.x === 540 && o.y === 960 && o.displayWidth === 1080 && o.displayHeight === 1920);
+      const title = all.find((o) => o.name === 'screenTitle');
       return {
         scene: scene.scene.key, renderer: game.renderer.type, frames: window.__qaFrames, view: v,
         invalidFrames: all.filter((o) => o.frame && !o.frame.source).map((o) => o.texture?.key),
+        headerAboveBleed: !title || (bg?.getData('bleed') ?? []).every((o) => scene.children.getIndex(o) < scene.children.getIndex(title)),
         controls: all.filter((o) => o.name && o.input?.hitArea).map((o) => {
           const m = o.getWorldTransformMatrix();
           return { name: o.name, x: v.cssLeft + (m.tx - v.worldX) * s, y: v.cssTop + (m.ty - v.worldY) * s,
@@ -178,13 +181,14 @@ function controls(page, run, fixture) {
     await page.screenshot({ path: path.join(out, `${run.mode}-${run.fixture.startsWith('новая') ? 'cold' : 'choice'}-${label}.png`) });
     assert.equal(step.scene, expectedScene, `${label}: переход фактически не состоялся`);
     assert.equal(step.invalidFrames.length, 0, `${label}: уничтожена texture source`);
+    assert(step.headerAboveBleed, `${label}: шапка закрыта продолжением фона после resize`);
     assert.deepEqual(run.errors, [], `${label}: ошибки браузера`);
     assert(step.frames > (run.steps.at(-2)?.frames ?? -1), `${label}: остановился renderer`);
     if (fixture.supportsAdaptiveLayout(step.scene)) {
       assert(step.view.adaptive, `${label}: adaptive policy не выбрана до create`);
       const h = page.viewportSize().height;
       assert(Math.abs(step.view.uiHeight - (h - 170) * 3) < 0.01, `${label}: интерфейс сжат по высоте`);
-      for (const control of step.controls.filter((o) => o.name.startsWith('nav_') || ['fightCta', 'chestClaim', 'campaignChoice_block', 'campaignChoice_evacuate'].includes(o.name))) {
+      for (const control of step.controls.filter((o) => o.name.startsWith('nav_') || ['currencyBalanceTarget', 'pill_gold', 'pill_gems', 'fightCta', 'chestClaim', 'campaignChoice_block', 'campaignChoice_evacuate'].includes(o.name))) {
         assert(control.height >= 43.9, `${label}: ${control.name} меньше44CSSpx`);
       }
       for (const text of step.text.filter((o) => ['chapterProgress', 'campaignObjective', 'dialogueBody', 'pageText'].includes(o.name))) assert(text.font >= 11.99, `${label}: мелкий текст ${text.name}`);
@@ -196,7 +200,28 @@ function controls(page, run, fixture) {
     await page.setViewportSize({ width: 360, height: h });
     await page.evaluate(() => { for (const fn of window.__tgEvents.viewportChanged ?? []) fn({ isStateStable: true }); });
   };
-  return { objects, tap, labelName, dismiss, shot, resize };
+  const balance = async () => {
+    for (const name of ['pill_gold', 'pill_gems']) {
+      // Тапаем обе визуальные строки. Одна цель должна сообщать обе суммы без пересекающихся input-зон.
+      await tap(name);
+      const values = await page.evaluate(() => {
+        const scene = window.__game.scene.getScenes(true).at(-1);
+        const all = window.__qaWalk(scene.children.list);
+        const target = all.find((o) => o.name === 'currencyBalanceTarget');
+        const save = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
+        const label = all.filter((o) => o.type === 'Text' && o.text.startsWith('Баланс\n')).at(-1)?.text;
+        return { target: !!target?.input, separateInputs: all.filter((o) => ['pill_gold', 'pill_gems'].includes(o.name) && o.input).length,
+          gold: save.resources.gold, gems: save.currency.gems, label };
+      });
+      assert(values.target && values.separateInputs === 0, 'Строки валют перехватывают тапы друг друга');
+      assert(values.label, `Тап ${name} не открыл баланс`);
+      const gold = /Золото: ([\d\s\u00a0]+)/.exec(values.label)?.[1].replace(/\D/g, '');
+      const gems = /Гемы: ([\d\s\u00a0]+)/.exec(values.label)?.[1].replace(/\D/g, '');
+      assert.equal(Number(gold), values.gold, 'Баланс показывает устаревшее/сокращённое золото');
+      assert.equal(Number(gems), values.gems, 'Баланс показывает устаревшие/сокращённые гемы');
+    }
+  };
+  return { objects, tap, labelName, dismiss, shot, resize, balance };
 }
 
 async function coldFlow(browser, mode, fixture) {
@@ -212,8 +237,9 @@ async function coldFlow(browser, mode, fixture) {
     await c.resize(640); await c.shot('intro-short', 'Campaign');
     await c.tap('pagesNext'); const second = await c.shot('intro-next', 'Campaign');
     assert.notEqual(second.text.find((t) => t.name === 'pageTitle').text, first.text.find((t) => t.name === 'pageTitle').text);
-    await c.dismiss(); await c.shot('map', 'Campaign');
+    await c.dismiss(); await c.balance(); await c.shot('map-balance', 'Campaign');
     await c.tap('nav_Adventure'); await c.dismiss();
+    await c.balance();
     const adventure = await c.shot('adventure', 'Adventure');
     await page.mouse.move(178, 490); await page.mouse.down(); await page.mouse.move(178, 240, { steps: 24 }); await page.mouse.up();
     const dragged = await c.shot('adventure-drag', 'Adventure');

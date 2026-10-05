@@ -3,7 +3,7 @@ import { ascendAll, ascendAllSummary, chooseBranch, heroCard, jobTitle, heroesWi
 import { GAME } from '../content';
 import { ascendReady, formatNumber, ROLE_NAMES } from '../flow';
 import { GAME_W } from '../layout';
-import { bottomSheet, confirm, CONTENT_BOTTOM, CONTENT_TOP, contentBottom, screen } from '../screen';
+import { bottomSheet, confirm, CONTENT_TOP, contentBottom, screen } from '../screen';
 import { countUp, pulse, staggerIn } from '../juice';
 import { commit, session } from '../session';
 import { sfx } from '../audio';
@@ -17,6 +17,7 @@ import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, 
 import { heroStoryNew, toastOpenedStories } from '../heroStoryView';
 import { lockLabel } from '../unlockBanner';
 import { openBranchPicker } from '../branchPicker';
+import { onViewChange } from '../viewport';
 
 const COLS = 3;
 /** Сетка на всю ширину контента (1080 − 2·S.l = 984): 3 × 304 + 2 × 36. */
@@ -143,6 +144,12 @@ export class HeroesScene extends Phaser.Scene {
     // Сетка карточек.
     const listTop = rowBottom + S.s;
     this.area = new ScrollArea(this, listTop, contentBottom() + 10);
+    this.area.content.setName('heroesBody');
+    let ascendAllButton: Phaser.GameObjects.Container | null = null;
+    onViewChange(this, () => {
+      this.area.setBounds(listTop, contentBottom() + 10);
+      ascendAllButton?.setY(contentBottom() - TOUCH_COMFORT / 2 - S.xs);
+    });
     // Копии одного героя — одной плиткой (лучший экземпляр) с «+N»; все экземпляры — на карточке и в корме вознесения.
     const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)));
     const heroes = groups.map((g) => g.hero);
@@ -197,9 +204,10 @@ export class HeroesScene extends Phaser.Scene {
     // «Вознести всех» — плавающая главная кнопка справа внизу, только когда есть кого (§3 п. 1 и 11).
     if (ascendAll(save, GAME).done.length) {
       const bw = 360;
-      const bh = 112;
+      const bh = TOUCH_COMFORT;
       const all = button(this, GAME_W - L - bw / 2, contentBottom() - bh / 2 - S.xs, bw, bh, 'ui_btn_primary', 'Вознести всех', () => this.ascendAllConfirm(), T.heading, { sound: 'ui_toggle' });
       all.container.setName('ascendAllBtn').setDepth(Z.sticky);
+      ascendAllButton = all.container;
       pulse(this, all.container, 1.04);
       contentH += bh + S.s;
     }
@@ -213,14 +221,14 @@ export class HeroesScene extends Phaser.Scene {
     if (gi >= 0 && !hintDone('equip_gear')) {
       const p = at(lead + gi);
       const cy = listTop + p.y;
-      if (cy + tileH / 2 <= CONTENT_BOTTOM) tutorialHint(this, 'equip_gear', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Наденьте трофеи' });
+      if (cy + tileH / 2 <= contentBottom()) tutorialHint(this, 'equip_gear', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Наденьте трофеи' });
       return;
     }
     const ai = heroes.findIndex((x) => ready.has(x.id));
     if (ai >= 0 && !hintDone('ascend')) {
       const p = at(lead + ai);
       const cy = listTop + p.y;
-      if (cy + tileH / 2 <= CONTENT_BOTTOM) tutorialHint(this, 'ascend', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Копий хватает — вознесите' });
+      if (cy + tileH / 2 <= contentBottom()) tutorialHint(this, 'ascend', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Копий хватает — вознесите' });
     }
   }
 
@@ -253,6 +261,7 @@ export class HeroesScene extends Phaser.Scene {
       });
       return Math.ceil(options.length / 2) * (CTRL_H + gap);
     });
+    this.lockUnderModal(sheet.layer);
   }
 
   /** Сортировка выбирается явно, направление показано до выбора. */
@@ -273,6 +282,7 @@ export class HeroesScene extends Phaser.Scene {
       });
       return SORT_ORDER.length * (CTRL_H + S.xs);
     });
+    this.lockUnderModal(sheet.layer);
   }
 
   /** Значок сортировки «по убыванию»: три полосы от длинной к короткой (в шрифте нет ↕ — Graphics). */
@@ -340,6 +350,15 @@ export class HeroesScene extends Phaser.Scene {
       }
       return y;
     });
+    this.lockUnderModal(sheet.layer);
+  }
+
+  /** Жесты внутри листа не двигают коллекцию за ним; старый слой не разблокирует новый экран. */
+  private lockUnderModal(layer: Phaser.GameObjects.Container): void {
+    const area = this.area;
+    const wasLocked = area.locked;
+    area.locked = true;
+    layer.once(Phaser.GameObjects.Events.DESTROY, () => { area.locked = wasLocked; });
   }
 
   /** Строка-вход «Таверна» под короткой сеткой (начало игры): открыта — касание ведёт туда; закрыта — когда откроется. Высота. */

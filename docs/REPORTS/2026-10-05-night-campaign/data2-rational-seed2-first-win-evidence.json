@@ -1,0 +1,400 @@
+{
+  "source": {
+    "gitHead": "d71207a90c677b74089c12159b367d24bd99da98",
+    "scriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+    "sourceSha256": "cf7be27c0f75ec6ce6f3e894d795fee71ebf4bf3585ec10bb5cd06de9561421c",
+    "seedBase": 2,
+    "maxWaits": 180,
+    "maxStages": 180,
+    "naiveMaxFarm": false,
+    "preserveCompanions": false,
+    "waitHours": 12,
+    "artificialResources": false
+  },
+  "stages": [
+    {
+      "stage": "ch2_s10",
+      "snapshot": "/tmp/chronoworld-night-data2-rational-seed2/saves/before-first-win-ch2_s10.json",
+      "snapshotSha256": "a9571c554a6b93b4a54bd2cf872cab965a7450453500771547e09fd344895d6a",
+      "clock": {
+        "now": 1791292498303,
+        "day": "2026-10-06",
+        "seed": 156,
+        "stage": "ch2_s10"
+      },
+      "beforeResources": {
+        "resources": {
+          "gold": 214,
+          "heroExp": 835
+        },
+        "currency": {
+          "blessedOre": 12,
+          "gems": 207,
+          "scrolls": 0
+        }
+      },
+      "beforeBattleSeq": 154,
+      "beforeSquad": [
+        "h1",
+        "h6",
+        "h13",
+        "h3",
+        "h25"
+      ],
+      "firstWinAttempt": {
+        "stage": "ch2_s10",
+        "attempt": 13,
+        "seed": 156,
+        "phase": "normal",
+        "winner": "A",
+        "reason": "wipe",
+        "duration": 43.8,
+        "hours": 36.979,
+        "ults": {
+          "A": 9,
+          "B": 12,
+          "firstA": 18.3
+        },
+        "activeMinutes": 59,
+        "power": 4475,
+        "recommended": 5100,
+        "ratio": 0.877,
+        "remainingEnemyHp": 0,
+        "resources": {
+          "gold": 214,
+          "exp": 835,
+          "gems": 207,
+          "scrolls": 0
+        },
+        "squad": [
+          "h1:alan:green:18:tier1:resolve",
+          "h6:iris:green:18:tier1:precision",
+          "h13:zara:blue:18:tier1:precision",
+          "h3:vika:green:18:tier1:precision",
+          "h25:teo:blue:18:tier1:precision"
+        ]
+      },
+      "notPreviouslyCleared": true
+    },
+    {
+      "stage": "ch7_s10",
+      "snapshot": "/tmp/chronoworld-night-data2-rational-seed2/saves/before-first-win-ch7_s10.json",
+      "snapshotSha256": "b246c67d97393f8c7acb6a4d602547c612c66137bf84f5f0811776d5b4adf6e3",
+      "clock": {
+        "now": 1791790658803,
+        "day": "2026-10-12",
+        "seed": 834,
+        "stage": "ch7_s10"
+      },
+      "beforeResources": {
+        "resources": {
+          "gold": 36153,
+          "heroExp": 3150942
+        },
+        "currency": {
+          "blessedOre": 28,
+          "gems": 172,
+          "scrolls": 0
+        }
+      },
+      "beforeBattleSeq": 832,
+      "beforeSquad": [
+        "h17",
+        "h6",
+        "h64",
+        "h5",
+        "h14"
+      ],
+      "firstWinAttempt": {
+        "stage": "ch7_s10",
+        "attempt": 18,
+        "seed": 834,
+        "phase": "candidate",
+        "winner": "A",
+        "reason": "wipe",
+        "duration": 67.7,
+        "hours": 175.36,
+        "ults": {
+          "A": 15,
+          "B": 14,
+          "firstA": 16
+        },
+        "activeMinutes": 442,
+        "power": 17920,
+        "recommended": 16800,
+        "ratio": 1.067,
+        "remainingEnemyHp": 0,
+        "resources": {
+          "gold": 36153,
+          "exp": 3150942,
+          "gems": 172,
+          "scrolls": 0
+        },
+        "squad": [
+          "h17:alan:purple:60:knight:resolve",
+          "h6:iris:gold:72:knight:precision",
+          "h64:zara:gold:71:assassin:precision",
+          "h5:kai:purple:60:wizard:precision",
+          "h14:teo:purple:60:priest:precision"
+        ]
+      },
+      "notPreviouslyCleared": true
+    },
+    {
+      "stage": "ch8_s18",
+      "snapshot": "/tmp/chronoworld-night-data2-rational-seed2/saves/before-first-win-ch8_s18.json",
+      "snapshotSha256": "dbced22385eb1474502db00edefe23a70d2fde5181a6766f580fee5e5b2c5665",
+      "clock": {
+        "now": 1791880272203,
+        "day": "2026-10-13",
+        "seed": 917,
+        "stage": "ch8_s18"
+      },
+      "beforeResources": {
+        "resources": {
+          "gold": 22549,
+          "heroExp": 7073217
+        },
+        "currency": {
+          "blessedOre": 31,
+          "gems": 177,
+          "scrolls": 0
+        }
+      },
+      "beforeBattleSeq": 915,
+      "beforeSquad": [
+        "h17",
+        "h6",
+        "h64",
+        "h9",
+        "h14"
+      ],
+      "firstWinAttempt": {
+        "stage": "ch8_s18",
+        "attempt": 26,
+        "seed": 917,
+        "phase": "boost",
+        "winner": "A",
+        "reason": "wipe",
+        "duration": 78.4,
+        "hours": 200.255,
+        "ults": {
+          "A": 15,
+          "B": 18,
+          "firstA": 16
+        },
+        "activeMinutes": 495,
+        "power": 19656,
+        "recommended": 20400,
+        "ratio": 0.964,
+        "remainingEnemyHp": 0,
+        "resources": {
+          "gold": 22549,
+          "exp": 7073217,
+          "gems": 177,
+          "scrolls": 0
+        },
+        "squad": [
+          "h17:alan:purple:60:knight:resolve",
+          "h6:iris:gold:80:knight:precision",
+          "h64:zara:gold:80:assassin:precision",
+          "h9:lira:purple:60:sage:precision",
+          "h14:teo:purple:60:priest:precision"
+        ]
+      },
+      "notPreviouslyCleared": true
+    },
+    {
+      "stage": "ch9_s10",
+      "snapshot": "/tmp/chronoworld-night-data2-rational-seed2/saves/before-first-win-ch9_s10.json",
+      "snapshotSha256": "776abb82f3283f2a19e1111a4cf36e7cb9e4f48d4d815908af0e3ccb2b63b659",
+      "clock": {
+        "now": 1791971581453,
+        "day": "2026-10-14",
+        "seed": 1034,
+        "stage": "ch9_s10"
+      },
+      "beforeResources": {
+        "resources": {
+          "gold": 62870,
+          "heroExp": 12266172
+        },
+        "currency": {
+          "blessedOre": 22,
+          "gems": 94,
+          "scrolls": 0
+        }
+      },
+      "beforeBattleSeq": 1032,
+      "beforeSquad": [
+        "h17",
+        "h6",
+        "h64",
+        "h9",
+        "h14"
+      ],
+      "firstWinAttempt": {
+        "stage": "ch9_s10",
+        "attempt": 1,
+        "seed": 1034,
+        "phase": "normal",
+        "winner": "A",
+        "reason": "wipe",
+        "duration": 73,
+        "hours": 225.617,
+        "ults": {
+          "A": 17,
+          "B": 22,
+          "firstA": 15.2
+        },
+        "activeMinutes": 577,
+        "power": 22810,
+        "recommended": 26000,
+        "ratio": 0.877,
+        "remainingEnemyHp": 0,
+        "resources": {
+          "gold": 62870,
+          "exp": 12266172,
+          "gems": 94,
+          "scrolls": 0
+        },
+        "squad": [
+          "h17:alan:purple:60:knight:resolve",
+          "h6:iris:red:85:knight:precision",
+          "h64:zara:gold:80:assassin:precision",
+          "h9:lira:purple:60:sage:precision",
+          "h14:teo:purple:60:priest:precision"
+        ]
+      },
+      "notPreviouslyCleared": true
+    },
+    {
+      "stage": "ch10_s13",
+      "snapshot": "/tmp/chronoworld-night-data2-rational-seed2/saves/before-first-win-ch10_s13.json",
+      "snapshotSha256": "16d73a64cf553acdb8b19307025a66a792bc76075329e4c90e48ba75340da4ee",
+      "clock": {
+        "now": 1791973571803,
+        "day": "2026-10-14",
+        "seed": 1085,
+        "stage": "ch10_s13"
+      },
+      "beforeResources": {
+        "resources": {
+          "gold": 6535,
+          "heroExp": 14649227
+        },
+        "currency": {
+          "blessedOre": 27,
+          "gems": 79,
+          "scrolls": 0
+        }
+      },
+      "beforeBattleSeq": 1083,
+      "beforeSquad": [
+        "h17",
+        "h6",
+        "h64",
+        "h9",
+        "h14"
+      ],
+      "firstWinAttempt": {
+        "stage": "ch10_s13",
+        "attempt": 1,
+        "seed": 1085,
+        "phase": "normal",
+        "winner": "A",
+        "reason": "wipe",
+        "duration": 82.6,
+        "hours": 226.172,
+        "ults": {
+          "A": 20,
+          "B": 30,
+          "firstA": 16.1
+        },
+        "activeMinutes": 610,
+        "power": 25794,
+        "recommended": 22200,
+        "ratio": 1.162,
+        "remainingEnemyHp": 0,
+        "resources": {
+          "gold": 6535,
+          "exp": 14649227,
+          "gems": 79,
+          "scrolls": 0
+        },
+        "squad": [
+          "h17:alan:purple:60:knight:resolve",
+          "h6:iris:red:100:knight:precision",
+          "h64:zara:gold:80:assassin:precision",
+          "h9:lira:purple:60:sage:precision",
+          "h14:teo:purple:60:priest:precision"
+        ]
+      },
+      "notPreviouslyCleared": true
+    },
+    {
+      "stage": "ch10_s18",
+      "snapshot": "/tmp/chronoworld-night-data2-rational-seed2/saves/before-first-win-ch10_s18.json",
+      "snapshotSha256": "c208f13e86e314ba49e93a03fe9e1956fc8c115f58270033cab1d27147c04657",
+      "clock": {
+        "now": 1791973795203,
+        "day": "2026-10-14",
+        "seed": 1090,
+        "stage": "ch10_s18"
+      },
+      "beforeResources": {
+        "resources": {
+          "gold": 28203,
+          "heroExp": 15388496
+        },
+        "currency": {
+          "blessedOre": 27,
+          "gems": 79,
+          "scrolls": 0
+        }
+      },
+      "beforeBattleSeq": 1088,
+      "beforeSquad": [
+        "h17",
+        "h6",
+        "h64",
+        "h9",
+        "h14"
+      ],
+      "firstWinAttempt": {
+        "stage": "ch10_s18",
+        "attempt": 1,
+        "seed": 1090,
+        "phase": "normal",
+        "winner": "A",
+        "reason": "wipe",
+        "duration": 77.5,
+        "hours": 226.233,
+        "ults": {
+          "A": 15,
+          "B": 22,
+          "firstA": 16.9
+        },
+        "activeMinutes": 614,
+        "power": 25986,
+        "recommended": 25100,
+        "ratio": 1.035,
+        "remainingEnemyHp": 0,
+        "resources": {
+          "gold": 28203,
+          "exp": 15388496,
+          "gems": 79,
+          "scrolls": 0
+        },
+        "squad": [
+          "h17:alan:purple:60:knight:resolve",
+          "h6:iris:red:100:knight:precision",
+          "h64:zara:gold:80:assassin:precision",
+          "h9:lira:purple:60:sage:precision",
+          "h14:teo:purple:60:priest:precision"
+        ]
+      },
+      "notPreviouslyCleared": true
+    }
+  ]
+}

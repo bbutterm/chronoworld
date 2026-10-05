@@ -1,0 +1,4278 @@
+{
+  "root": "/workspace/chronoworld-worktrees/night-cold-load",
+  "cpu": 1,
+  "network": "none",
+  "browser": "151.0.7922.173",
+  "launchGraphics": "SwiftShader software WebGL",
+  "injectedFailures": {
+    "failPack": true,
+    "failPortrait": "hero_vika_acolyte_details_v2"
+  },
+  "suppliedSave": null,
+  "suppliedNow": 0,
+  "profileOverhead": false,
+  "scope": "Local production build via Vite preview; no physical phone FPS measurement",
+  "diagnosticOnly": true,
+  "measurements": [
+    {
+      "warm": false,
+      "index": 1,
+      "marks": [
+        {
+          "name": "cw:script",
+          "start": 1451.3000000044703
+        },
+        {
+          "name": "cw:fonts",
+          "start": 1457.5
+        },
+        {
+          "name": "cw:boot-frame",
+          "start": 2423.5
+        },
+        {
+          "name": "scene:Campaign:start",
+          "start": 7174.39999999851
+        },
+        {
+          "name": "cw:home",
+          "start": 7313
+        }
+      ],
+      "paint": [
+        {
+          "name": "first-paint",
+          "start": 956
+        },
+        {
+          "name": "first-contentful-paint",
+          "start": 956
+        }
+      ],
+      "http": [
+        {
+          "url": "/",
+          "type": "Document",
+          "start": 0,
+          "end": 63.889999997627456,
+          "encodedDataLength": 3203,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-400.woff2",
+          "type": "Font",
+          "start": 84.97999999963213,
+          "end": 165.5239999963669,
+          "encodedDataLength": 23268,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-700.woff2",
+          "type": "Font",
+          "start": 85.30700000119396,
+          "end": 165.59499999857508,
+          "encodedDataLength": 23196,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/philosopher-700.woff2",
+          "type": "Font",
+          "start": 85.3789999964647,
+          "end": 169.22299999714596,
+          "encodedDataLength": 19960,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/assets/index-D1B46ywc.js",
+          "type": "Script",
+          "start": 85.49800000037067,
+          "end": 413.45799999544397,
+          "encodedDataLength": 773693,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/rolldown-runtime-CbXtAM7H.js",
+          "type": "Script",
+          "start": 88.9919999972335,
+          "end": 172.74199999519624,
+          "encodedDataLength": 937,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/phaser-B6Ef8M8A.js",
+          "type": "Script",
+          "start": 89.09999999741558,
+          "end": 251.89600000157952,
+          "encodedDataLength": 247568,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/boot-webp-2462047fb2.bin",
+          "type": "Other",
+          "start": 89.16499999759253,
+          "end": 147.37400000012713,
+          "encodedDataLength": 83,
+          "status": 404,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/ui/kenney_uipack_rpg_sheet.xml",
+          "type": "XHR",
+          "start": 2444.904999996652,
+          "end": 2478.684000001522,
+          "encodedDataLength": 1335,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_slot_empty.webp",
+          "type": "Image",
+          "start": 2446.871000000101,
+          "end": 2510.783999998239,
+          "encodedDataLength": 650,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/fx/fx_hit.webp",
+          "type": "Image",
+          "start": 2447.0409999994445,
+          "end": 2534.7879999972065,
+          "encodedDataLength": 11546,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/fx/fx_arrow.webp",
+          "type": "Image",
+          "start": 2447.121999997762,
+          "end": 2510.893999999098,
+          "encodedDataLength": 2944,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/fx/fx_magic.webp",
+          "type": "Image",
+          "start": 2447.1899999989546,
+          "end": 2535.610999999335,
+          "encodedDataLength": 16752,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/fx/fx_heal.webp",
+          "type": "Image",
+          "start": 2447.3030000008293,
+          "end": 2535.954999999376,
+          "encodedDataLength": 8940,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/fx/fx_shield.webp",
+          "type": "Image",
+          "start": 2447.4019999979646,
+          "end": 2536.3129999968805,
+          "encodedDataLength": 11064,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/fx/fx_death.webp",
+          "type": "Image",
+          "start": 2447.4909999989904,
+          "end": 2544.808999999077,
+          "encodedDataLength": 8210,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/kenney_uipack_rpg_sheet.webp",
+          "type": "Image",
+          "start": 2447.571999997308,
+          "end": 2547.8259999945294,
+          "encodedDataLength": 18940,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_hp_player.webp",
+          "type": "Image",
+          "start": 2447.6680000007036,
+          "end": 2547.7570000002743,
+          "encodedDataLength": 536,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_hp_enemy.webp",
+          "type": "Image",
+          "start": 2447.8299999973387,
+          "end": 2548.8839999961783,
+          "encodedDataLength": 540,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_energy.webp",
+          "type": "Image",
+          "start": 2447.9260000007343,
+          "end": 2549.3769999957294,
+          "encodedDataLength": 536,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_bar_base.webp",
+          "type": "Image",
+          "start": 2448.045999997703,
+          "end": 2549.908000000869,
+          "encodedDataLength": 412,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ro/icons/ui_ult_guard.webp",
+          "type": "Image",
+          "start": 2448.112999998557,
+          "end": 2554.05299999984,
+          "encodedDataLength": 610,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ro/icons/ui_ult_warrior.webp",
+          "type": "Image",
+          "start": 2448.2369999968796,
+          "end": 2554.294999994454,
+          "encodedDataLength": 666,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ro/icons/ui_ult_assassin.webp",
+          "type": "Image",
+          "start": 2448.3319999999367,
+          "end": 2554.1569999986677,
+          "encodedDataLength": 672,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ro/icons/ui_ult_archer.webp",
+          "type": "Image",
+          "start": 2448.445999994874,
+          "end": 2562.700999995286,
+          "encodedDataLength": 682,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ro/icons/ui_ult_mage.webp",
+          "type": "Image",
+          "start": 2448.5659999991185,
+          "end": 2562.8020000003744,
+          "encodedDataLength": 542,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ro/icons/ui_ult_priestess.webp",
+          "type": "Image",
+          "start": 2448.663999995915,
+          "end": 2562.8729999953066,
+          "encodedDataLength": 590,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_chest_empty.webp",
+          "type": "Image",
+          "start": 2448.7630000003264,
+          "end": 2566.105999998399,
+          "encodedDataLength": 12912,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_chest_filling.webp",
+          "type": "Image",
+          "start": 2448.878999995941,
+          "end": 2566.2069999962114,
+          "encodedDataLength": 12528,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_chest_full.webp",
+          "type": "Image",
+          "start": 2448.984999995446,
+          "end": 2576.631999996607,
+          "encodedDataLength": 18684,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_nav_campaign.webp",
+          "type": "Image",
+          "start": 2449.0719999957946,
+          "end": 2576.8949999983306,
+          "encodedDataLength": 8046,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_nav_campaign_active.webp",
+          "type": "Image",
+          "start": 2449.163999997836,
+          "end": 2576.728000000003,
+          "encodedDataLength": 9906,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_nav_heroes.webp",
+          "type": "Image",
+          "start": 2449.2350000000442,
+          "end": 2577.074000000721,
+          "encodedDataLength": 8110,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_nav_heroes_active.webp",
+          "type": "Image",
+          "start": 2449.315999998362,
+          "end": 2585.0979999959236,
+          "encodedDataLength": 10508,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_nav_home.webp",
+          "type": "Image",
+          "start": 2449.397999997018,
+          "end": 2585.2129999984754,
+          "encodedDataLength": 8332,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_nav_home_active.webp",
+          "type": "Image",
+          "start": 2449.4879999983823,
+          "end": 2595.4339999952936,
+          "encodedDataLength": 10066,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_icon_gold.webp",
+          "type": "Image",
+          "start": 2449.563999995007,
+          "end": 2595.53899999446,
+          "encodedDataLength": 7358,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/ui_icon_gem.webp",
+          "type": "Image",
+          "start": 2449.6199999994133,
+          "end": 2595.313999998325,
+          "encodedDataLength": 3214,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/tiles/tile_grass_01.webp",
+          "type": "Image",
+          "start": 2449.68499999959,
+          "end": 2595.6220000007306,
+          "encodedDataLength": 13494,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/tiles/tile_grass_02.webp",
+          "type": "Image",
+          "start": 2449.7950000004494,
+          "end": 2597.5150000012945,
+          "encodedDataLength": 13014,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/tiles/tile_grass_dry.webp",
+          "type": "Image",
+          "start": 2659.31499999715,
+          "end": 2697.071999995387,
+          "encodedDataLength": 10576,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/tiles/tile_dirt.webp",
+          "type": "Image",
+          "start": 2659.5069999966654,
+          "end": 2697.231999998621,
+          "encodedDataLength": 14170,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/tiles/tile_stone.webp",
+          "type": "Image",
+          "start": 2659.6229999995558,
+          "end": 2697.4300000001676,
+          "encodedDataLength": 15536,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ac_chargearrow.webp",
+          "type": "Image",
+          "start": 2659.704999998212,
+          "end": 2696.2930000008782,
+          "encodedDataLength": 558,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ac_concentration.webp",
+          "type": "Image",
+          "start": 2659.769999998389,
+          "end": 2696.647999997367,
+          "encodedDataLength": 470,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ac_double.webp",
+          "type": "Image",
+          "start": 2659.865000001446,
+          "end": 2696.9259999968926,
+          "encodedDataLength": 566,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ac_owl.webp",
+          "type": "Image",
+          "start": 2659.9280000009458,
+          "end": 2736.0179999959655,
+          "encodedDataLength": 520,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ac_shower.webp",
+          "type": "Image",
+          "start": 2659.985999998753,
+          "end": 2736.3169999953243,
+          "encodedDataLength": 574,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ac_vulture.webp",
+          "type": "Image",
+          "start": 2660.0449999968987,
+          "end": 2736.518999998225,
+          "encodedDataLength": 552,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_al_angelus.webp",
+          "type": "Image",
+          "start": 2663.764999997511,
+          "end": 2738.134999999602,
+          "encodedDataLength": 496,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_al_blessing.webp",
+          "type": "Image",
+          "start": 2663.8959999982035,
+          "end": 2738.204000001133,
+          "encodedDataLength": 502,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_al_crucis.webp",
+          "type": "Image",
+          "start": 2663.966000000073,
+          "end": 2738.348999999289,
+          "encodedDataLength": 522,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_al_dp.webp",
+          "type": "Image",
+          "start": 2664.035000001604,
+          "end": 2749.711999997089,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_al_heal.webp",
+          "type": "Image",
+          "start": 2664.1319999980624,
+          "end": 2750.7449999975506,
+          "encodedDataLength": 506,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_al_holylight.webp",
+          "type": "Image",
+          "start": 2664.1939999972237,
+          "end": 2750.8170000000973,
+          "encodedDataLength": 510,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_al_incagi.webp",
+          "type": "Image",
+          "start": 2664.6140000011656,
+          "end": 2750.9399999980815,
+          "encodedDataLength": 492,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_am_acidterror.webp",
+          "type": "Image",
+          "start": 2664.7179999999935,
+          "end": 2751.282999997784,
+          "encodedDataLength": 558,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_am_cp_armor.webp",
+          "type": "Image",
+          "start": 2664.787999994587,
+          "end": 2751.4420000006794,
+          "encodedDataLength": 504,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_am_demonstration.webp",
+          "type": "Image",
+          "start": 2664.9229999966337,
+          "end": 2772.1139999994193,
+          "encodedDataLength": 562,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_am_potionpitcher.webp",
+          "type": "Image",
+          "start": 2664.9899999974878,
+          "end": 2772.356999994372,
+          "encodedDataLength": 536,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_am_spheremine.webp",
+          "type": "Image",
+          "start": 2666.0229999979492,
+          "end": 2772.5849999987986,
+          "encodedDataLength": 498,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_as_enchantpoison.webp",
+          "type": "Image",
+          "start": 2666.126999996777,
+          "end": 2773.154999995313,
+          "encodedDataLength": 522,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_as_grimtooth.webp",
+          "type": "Image",
+          "start": 2666.1979999989853,
+          "end": 2773.3509999961825,
+          "encodedDataLength": 530,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_as_katar.webp",
+          "type": "Image",
+          "start": 2666.2989999967976,
+          "end": 2773.62500000163,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_as_sonicblow.webp",
+          "type": "Image",
+          "start": 2666.3679999983287,
+          "end": 2785.7769999973243,
+          "encodedDataLength": 574,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_as_splasher.webp",
+          "type": "Image",
+          "start": 2666.451999997662,
+          "end": 2789.591000000655,
+          "encodedDataLength": 526,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_as_venomknife.webp",
+          "type": "Image",
+          "start": 2666.557999997167,
+          "end": 2789.808000001358,
+          "encodedDataLength": 694,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_asc_meteorassault.webp",
+          "type": "Image",
+          "start": 2666.6279999990365,
+          "end": 2789.976000000024,
+          "encodedDataLength": 512,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ba_appleidun.webp",
+          "type": "Image",
+          "start": 2666.6929999992135,
+          "end": 2790.185999998357,
+          "encodedDataLength": 506,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ba_assassincross.webp",
+          "type": "Image",
+          "start": 2666.7469999956666,
+          "end": 2790.588999996544,
+          "encodedDataLength": 504,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ba_frostjoke.webp",
+          "type": "Image",
+          "start": 2666.810999995505,
+          "end": 2798.6949999976787,
+          "encodedDataLength": 496,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ba_musicalstrike.webp",
+          "type": "Image",
+          "start": 2666.866999999911,
+          "end": 2803.026999994472,
+          "encodedDataLength": 532,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ba_poembragi.webp",
+          "type": "Image",
+          "start": 2708.953000001202,
+          "end": 2804.6209999956773,
+          "encodedDataLength": 532,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ba_whistle.webp",
+          "type": "Image",
+          "start": 2709.083000001556,
+          "end": 2806.730999996944,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_bs_adrenaline.webp",
+          "type": "Image",
+          "start": 2709.1489999947953,
+          "end": 2806.8229999989853,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_bs_hammerfall.webp",
+          "type": "Image",
+          "start": 2709.2090000005555,
+          "end": 2806.918999995105,
+          "encodedDataLength": 580,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_bs_iron.webp",
+          "type": "Image",
+          "start": 2709.265999998024,
+          "end": 2807.235000000219,
+          "encodedDataLength": 544,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_bs_overthrust.webp",
+          "type": "Image",
+          "start": 2709.3219999951543,
+          "end": 2809.5029999967664,
+          "encodedDataLength": 492,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_bs_weaponperfect.webp",
+          "type": "Image",
+          "start": 3049.615999996604,
+          "end": 3068.229999997129,
+          "encodedDataLength": 488,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cg_arrowvulcan.webp",
+          "type": "Image",
+          "start": 3049.771999998484,
+          "end": 3070.3409999987343,
+          "encodedDataLength": 494,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_aciddemonstration.webp",
+          "type": "Image",
+          "start": 3049.8420000003534,
+          "end": 3085.3399999978137,
+          "encodedDataLength": 642,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_autoguard.webp",
+          "type": "Image",
+          "start": 3049.898999997822,
+          "end": 3085.4360000012093,
+          "encodedDataLength": 500,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_defender.webp",
+          "type": "Image",
+          "start": 3049.9539999946137,
+          "end": 3085.548999995808,
+          "encodedDataLength": 524,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_devotion.webp",
+          "type": "Image",
+          "start": 3050.0059999976656,
+          "end": 3085.6459999995423,
+          "encodedDataLength": 488,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_grandcross.webp",
+          "type": "Image",
+          "start": 3053.2939999975497,
+          "end": 3085.7299999988754,
+          "encodedDataLength": 468,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_holycross.webp",
+          "type": "Image",
+          "start": 3053.4029999980703,
+          "end": 3085.8139999982086,
+          "encodedDataLength": 524,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_shieldcharge.webp",
+          "type": "Image",
+          "start": 3053.5059999965597,
+          "end": 3097.959999999148,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_slimpitcher.webp",
+          "type": "Image",
+          "start": 3053.576999998768,
+          "end": 3098.1160000010277,
+          "encodedDataLength": 592,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_cr_trust.webp",
+          "type": "Image",
+          "start": 3053.638999997929,
+          "end": 3098.043999998481,
+          "encodedDataLength": 470,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_dc_dontforgetme.webp",
+          "type": "Image",
+          "start": 3053.6989999964135,
+          "end": 3098.171999998158,
+          "encodedDataLength": 498,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_dc_fortunekiss.webp",
+          "type": "Image",
+          "start": 3053.7639999965904,
+          "end": 3098.22400000121,
+          "encodedDataLength": 504,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_dc_scream.webp",
+          "type": "Image",
+          "start": 3053.894999997283,
+          "end": 3098.2769999973243,
+          "encodedDataLength": 492,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_dc_serviceforyou.webp",
+          "type": "Image",
+          "start": 3053.968000000168,
+          "end": 3105.7569999975385,
+          "encodedDataLength": 504,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_dc_throwarrow.webp",
+          "type": "Image",
+          "start": 3054.030999999668,
+          "end": 3107.196999997541,
+          "encodedDataLength": 498,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_hp_assumptio.webp",
+          "type": "Image",
+          "start": 3054.120000000694,
+          "end": 3108.141999997315,
+          "encodedDataLength": 514,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ht_anklesnare.webp",
+          "type": "Image",
+          "start": 3054.218999997829,
+          "end": 3108.3329999964917,
+          "encodedDataLength": 464,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ht_beastbane.webp",
+          "type": "Image",
+          "start": 3054.314000000886,
+          "end": 3108.5279999970226,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ht_blitzbeat.webp",
+          "type": "Image",
+          "start": 3054.4089999966673,
+          "end": 3108.8109999982407,
+          "encodedDataLength": 558,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ht_claymoretrap.webp",
+          "type": "Image",
+          "start": 3054.536999996344,
+          "end": 3115.0179999967804,
+          "encodedDataLength": 486,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ht_sandman.webp",
+          "type": "Image",
+          "start": 3054.6489999978803,
+          "end": 3134.6899999989546,
+          "encodedDataLength": 476,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ht_steelcrow.webp",
+          "type": "Image",
+          "start": 3054.7399999995832,
+          "end": 3134.777999999642,
+          "encodedDataLength": 532,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_hw_magicpower.webp",
+          "type": "Image",
+          "start": 3054.853000001458,
+          "end": 3134.951000000001,
+          "encodedDataLength": 510,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_hw_souldrain.webp",
+          "type": "Image",
+          "start": 3054.9360000004526,
+          "end": 3136.0060000006342,
+          "encodedDataLength": 530,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_kn_autocounter.webp",
+          "type": "Image",
+          "start": 3055.075999996916,
+          "end": 3136.069000000134,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_kn_bowlingbash.webp",
+          "type": "Image",
+          "start": 3055.179999995744,
+          "end": 3141.349999998056,
+          "encodedDataLength": 572,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_kn_brandishspear.webp",
+          "type": "Image",
+          "start": 3055.700999997498,
+          "end": 3148.7960000013118,
+          "encodedDataLength": 580,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_kn_chargeatk.webp",
+          "type": "Image",
+          "start": 3055.804999996326,
+          "end": 3153.135000000475,
+          "encodedDataLength": 550,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_kn_twohandquicken.webp",
+          "type": "Image",
+          "start": 3055.9119999961695,
+          "end": 3153.459000001021,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_lk_parrying.webp",
+          "type": "Image",
+          "start": 3056.0029999978724,
+          "end": 3153.7009999956354,
+          "encodedDataLength": 516,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_lk_spiralpierce.webp",
+          "type": "Image",
+          "start": 3056.0919999988982,
+          "end": 3153.866000000562,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mc_cartrevolution.webp",
+          "type": "Image",
+          "start": 3108.649999994668,
+          "end": 3159.535999999207,
+          "encodedDataLength": 502,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mc_fryingpan.webp",
+          "type": "Image",
+          "start": 3108.7719999995898,
+          "end": 3160.3109999996377,
+          "encodedDataLength": 542,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mc_loud.webp",
+          "type": "Image",
+          "start": 3108.872999997402,
+          "end": 3164.0970000007655,
+          "encodedDataLength": 466,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mc_mammonite.webp",
+          "type": "Image",
+          "start": 3108.952999995381,
+          "end": 3164.163000001281,
+          "encodedDataLength": 546,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mc_overcharge.webp",
+          "type": "Image",
+          "start": 3109.0449999974226,
+          "end": 3164.2250000004424,
+          "encodedDataLength": 488,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mc_pushcart.webp",
+          "type": "Image",
+          "start": 3109.106999996584,
+          "end": 3164.271000001463,
+          "encodedDataLength": 504,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_coldbolt.webp",
+          "type": "Image",
+          "start": 3109.1689999957453,
+          "end": 3169.279000001552,
+          "encodedDataLength": 470,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_energycoat.webp",
+          "type": "Image",
+          "start": 3109.2250000001513,
+          "end": 3169.3799999993644,
+          "encodedDataLength": 480,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_fireball.webp",
+          "type": "Image",
+          "start": 3109.2889999999898,
+          "end": 3176.7519999993965,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_firebolt.webp",
+          "type": "Image",
+          "start": 3109.5209999984945,
+          "end": 3177.868999999191,
+          "encodedDataLength": 472,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_firewall.webp",
+          "type": "Image",
+          "start": 3109.588999999687,
+          "end": 3178.256999999576,
+          "encodedDataLength": 482,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_frostdiver.webp",
+          "type": "Image",
+          "start": 3109.653999999864,
+          "end": 3178.394999995362,
+          "encodedDataLength": 482,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_safetywall.webp",
+          "type": "Image",
+          "start": 3109.9249999970198,
+          "end": 3188.367999995535,
+          "encodedDataLength": 432,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_srecovery.webp",
+          "type": "Image",
+          "start": 3110.002000001259,
+          "end": 3188.7389999974403,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mg_thunderstorm.webp",
+          "type": "Image",
+          "start": 3193.4069999988424,
+          "end": 3213.8530000011087,
+          "encodedDataLength": 500,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_balkyoung.webp",
+          "type": "Image",
+          "start": 3193.5599999997066,
+          "end": 3214.560000000347,
+          "encodedDataLength": 548,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_bladestop.webp",
+          "type": "Image",
+          "start": 3199.083999999857,
+          "end": 3240.9259999985807,
+          "encodedDataLength": 496,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_callspirits.webp",
+          "type": "Image",
+          "start": 3199.163999997836,
+          "end": 3241.8829999951413,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_extremityfist.webp",
+          "type": "Image",
+          "start": 3199.222999995982,
+          "end": 3242.0419999980368,
+          "encodedDataLength": 510,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_investigate.webp",
+          "type": "Image",
+          "start": 3199.279000000388,
+          "end": 3242.1289999983856,
+          "encodedDataLength": 486,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_ironhand.webp",
+          "type": "Image",
+          "start": 3199.3409999995492,
+          "end": 3244.0690000003087,
+          "encodedDataLength": 496,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_steelbody.webp",
+          "type": "Image",
+          "start": 3199.522999995679,
+          "end": 3244.395000001532,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_mo_tripleattack.webp",
+          "type": "Image",
+          "start": 3199.6069999950123,
+          "end": 3257.045999998809,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_nv_firstaid.webp",
+          "type": "Image",
+          "start": 3199.6969999963767,
+          "end": 3256.9539999967674,
+          "encodedDataLength": 446,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_pr_impositio.webp",
+          "type": "Image",
+          "start": 3199.7649999975692,
+          "end": 3257.1269999971264,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_pr_kyrie.webp",
+          "type": "Image",
+          "start": 3199.8380000004545,
+          "end": 3257.209999996121,
+          "encodedDataLength": 524,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_pr_lexaeterna.webp",
+          "type": "Image",
+          "start": 3199.905999994371,
+          "end": 3257.29699999647,
+          "encodedDataLength": 556,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_pr_magnificat.webp",
+          "type": "Image",
+          "start": 3199.9680000008084,
+          "end": 3257.3819999961415,
+          "encodedDataLength": 552,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_pr_magnus.webp",
+          "type": "Image",
+          "start": 3200.0279999992927,
+          "end": 3274.065999998129,
+          "encodedDataLength": 542,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_pr_sanctuary.webp",
+          "type": "Image",
+          "start": 3200.0909999987925,
+          "end": 3274.249999994936,
+          "encodedDataLength": 540,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_rg_backstap.webp",
+          "type": "Image",
+          "start": 3200.154999998631,
+          "end": 3274.5040000008885,
+          "encodedDataLength": 500,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_rg_closeconfine.webp",
+          "type": "Image",
+          "start": 3200.2169999977923,
+          "end": 3274.664999997185,
+          "encodedDataLength": 548,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_rg_plagiarism.webp",
+          "type": "Image",
+          "start": 3200.2809999976307,
+          "end": 3274.766999995336,
+          "encodedDataLength": 526,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_rg_raid.webp",
+          "type": "Image",
+          "start": 3200.3509999995003,
+          "end": 3274.92699999857,
+          "encodedDataLength": 522,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_rg_snatcher.webp",
+          "type": "Image",
+          "start": 3200.411999998323,
+          "end": 3279.155999996874,
+          "encodedDataLength": 534,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_rg_striparmor.webp",
+          "type": "Image",
+          "start": 3202.9489999986254,
+          "end": 3285.565999998653,
+          "encodedDataLength": 526,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_rg_stripweapon.webp",
+          "type": "Image",
+          "start": 3203.0620000005,
+          "end": 3285.7460000013816,
+          "encodedDataLength": 520,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sa_deluge.webp",
+          "type": "Image",
+          "start": 3203.127000000677,
+          "end": 3285.9209999951418,
+          "encodedDataLength": 494,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sa_dispell.webp",
+          "type": "Image",
+          "start": 3203.2259999978123,
+          "end": 3286.114999995334,
+          "encodedDataLength": 522,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sa_freecast.webp",
+          "type": "Image",
+          "start": 3203.2970000000205,
+          "end": 3286.26699999586,
+          "encodedDataLength": 530,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sa_magicrod.webp",
+          "type": "Image",
+          "start": 3203.353999997489,
+          "end": 3286.421999997401,
+          "encodedDataLength": 498,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sa_spellbreaker.webp",
+          "type": "Image",
+          "start": 3203.4119999952964,
+          "end": 3289.2749999955413,
+          "encodedDataLength": 514,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sa_volcano.webp",
+          "type": "Image",
+          "start": 3306.89899999561,
+          "end": 3352.400999996462,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sm_autoberserk.webp",
+          "type": "Image",
+          "start": 3307.048999995459,
+          "end": 3362.941999999748,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sm_bash.webp",
+          "type": "Image",
+          "start": 3307.127000000037,
+          "end": 3363.428999997268,
+          "encodedDataLength": 554,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sm_endure.webp",
+          "type": "Image",
+          "start": 3307.2009999959846,
+          "end": 3363.625999998476,
+          "encodedDataLength": 442,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sm_magnum.webp",
+          "type": "Image",
+          "start": 3307.2600000014063,
+          "end": 3363.8089999949443,
+          "encodedDataLength": 578,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sm_provoke.webp",
+          "type": "Image",
+          "start": 3307.316999998875,
+          "end": 3364.0099999975064,
+          "encodedDataLength": 468,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sm_recovery.webp",
+          "type": "Image",
+          "start": 3307.3759999970207,
+          "end": 3365.7289999973727,
+          "encodedDataLength": 500,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sm_twohand.webp",
+          "type": "Image",
+          "start": 3307.4439999982133,
+          "end": 3378.7029999948572,
+          "encodedDataLength": 538,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_sn_falconassault.webp",
+          "type": "Image",
+          "start": 3307.5519999983953,
+          "end": 3378.8839999979245,
+          "encodedDataLength": 488,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_tf_double.webp",
+          "type": "Image",
+          "start": 3307.6139999975567,
+          "end": 3379.1129999954137,
+          "encodedDataLength": 516,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_tf_miss.webp",
+          "type": "Image",
+          "start": 3307.6709999950253,
+          "end": 3379.0249999947264,
+          "encodedDataLength": 502,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_tf_poison.webp",
+          "type": "Image",
+          "start": 3307.732000001124,
+          "end": 3379.194000001007,
+          "encodedDataLength": 466,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_tf_sprinklesand.webp",
+          "type": "Image",
+          "start": 3307.79099999927,
+          "end": 3379.328999995778,
+          "encodedDataLength": 462,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_tf_steal.webp",
+          "type": "Image",
+          "start": 3307.8469999964,
+          "end": 3386.239999999816,
+          "encodedDataLength": 486,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_ws_carttermination.webp",
+          "type": "Image",
+          "start": 3307.905000001483,
+          "end": 3394.680999997945,
+          "encodedDataLength": 612,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_earthspike.webp",
+          "type": "Image",
+          "start": 3307.968000000983,
+          "end": 3394.7819999957574,
+          "encodedDataLength": 470,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_frostnova.webp",
+          "type": "Image",
+          "start": 3308.090999998967,
+          "end": 3394.918999998481,
+          "encodedDataLength": 496,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_heavendrive.webp",
+          "type": "Image",
+          "start": 3308.1810000003316,
+          "end": 3395.0279999990016,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_jupitel.webp",
+          "type": "Image",
+          "start": 3308.2809999978053,
+          "end": 3395.09900000121,
+          "encodedDataLength": 502,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_meteor.webp",
+          "type": "Image",
+          "start": 3308.3689999984927,
+          "end": 3403.6399999968125,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_quagmire.webp",
+          "type": "Image",
+          "start": 3308.485000001383,
+          "end": 3409.7249999977066,
+          "encodedDataLength": 482,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_stormgust.webp",
+          "type": "Image",
+          "start": 3308.5829999981797,
+          "end": 3409.890999995696,
+          "encodedDataLength": 456,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/skill_wz_vermilion.webp",
+          "type": "Image",
+          "start": 3308.6849999963306,
+          "end": 3410.063999996055,
+          "encodedDataLength": 514,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_abyss_blade.webp",
+          "type": "Image",
+          "start": 3308.7909999958356,
+          "end": 3410.2469999997993,
+          "encodedDataLength": 466,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_adventurers_suit.webp",
+          "type": "Image",
+          "start": 3308.878999996523,
+          "end": 3412.150999996811,
+          "encodedDataLength": 552,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_alarm_mask.webp",
+          "type": "Image",
+          "start": 3308.9729999992414,
+          "end": 3414.1789999994216,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_arbalest.webp",
+          "type": "Image",
+          "start": 3309.0660000016214,
+          "end": 3443.7209999960032,
+          "encodedDataLength": 570,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_axe.webp",
+          "type": "Image",
+          "start": 3309.1720000011264,
+          "end": 3438.691999996081,
+          "encodedDataLength": 480,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_bandana.webp",
+          "type": "Image",
+          "start": 3309.2689999975846,
+          "end": 3444.786000000022,
+          "encodedDataLength": 460,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_battle_axe.webp",
+          "type": "Image",
+          "start": 3309.358999998949,
+          "end": 3444.865999998001,
+          "encodedDataLength": 532,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_biretta.webp",
+          "type": "Image",
+          "start": 3309.4549999950686,
+          "end": 3452.3239999980433,
+          "encodedDataLength": 466,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_blessed_ore.webp",
+          "type": "Image",
+          "start": 3337.532999998075,
+          "end": 3452.533999996376,
+          "encodedDataLength": 448,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_bloody_axe.webp",
+          "type": "Image",
+          "start": 3363.5819999981322,
+          "end": 3464.259000000311,
+          "encodedDataLength": 564,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_boots.webp",
+          "type": "Image",
+          "start": 3373.5349999988102,
+          "end": 3464.442999997118,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_bow.webp",
+          "type": "Image",
+          "start": 3373.670000000857,
+          "end": 3464.5949999976438,
+          "encodedDataLength": 430,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_cap.webp",
+          "type": "Image",
+          "start": 3373.7379999947734,
+          "end": 3464.7189999959664,
+          "encodedDataLength": 422,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_captain_coat.webp",
+          "type": "Image",
+          "start": 3373.799000000872,
+          "end": 3464.7789999944507,
+          "encodedDataLength": 546,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_chain_mail.webp",
+          "type": "Image",
+          "start": 3373.853999997664,
+          "end": 3464.8659999947995,
+          "encodedDataLength": 506,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_claymore.webp",
+          "type": "Image",
+          "start": 3373.9089999944554,
+          "end": 3478.748999994423,
+          "encodedDataLength": 422,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_clockwork_mail.webp",
+          "type": "Image",
+          "start": 3395.057999994606,
+          "end": 3482.0379999946454,
+          "encodedDataLength": 538,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_composite_bow.webp",
+          "type": "Image",
+          "start": 3395.175999998173,
+          "end": 3482.3859999960405,
+          "encodedDataLength": 478,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_cotton_shirt.webp",
+          "type": "Image",
+          "start": 3395.238999997673,
+          "end": 3482.7299999960815,
+          "encodedDataLength": 500,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_crescent_scythe.webp",
+          "type": "Image",
+          "start": 3395.2989999961574,
+          "end": 3483.1090000006952,
+          "encodedDataLength": 466,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_crown.webp",
+          "type": "Image",
+          "start": 3395.375000000058,
+          "end": 3483.6429999995744,
+          "encodedDataLength": 498,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_dagger.webp",
+          "type": "Image",
+          "start": 3395.4329999978654,
+          "end": 3487.312999997812,
+          "encodedDataLength": 418,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_dark_lord_robe.webp",
+          "type": "Image",
+          "start": 3495.0889999963692,
+          "end": 3549.316999997245,
+          "encodedDataLength": 592,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_desert_sandals.webp",
+          "type": "Image",
+          "start": 3495.214999995369,
+          "end": 3549.5609999998123,
+          "encodedDataLength": 520,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_full_plate.webp",
+          "type": "Image",
+          "start": 3495.2849999972386,
+          "end": 3549.6520000015153,
+          "encodedDataLength": 584,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_gems.webp",
+          "type": "Image",
+          "start": 3495.3469999964,
+          "end": 3552.864999997837,
+          "encodedDataLength": 380,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_geta.webp",
+          "type": "Image",
+          "start": 3495.405000001483,
+          "end": 3553.01899999904,
+          "encodedDataLength": 590,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_gjoll_helm.webp",
+          "type": "Image",
+          "start": 3495.50299999828,
+          "end": 3553.0949999956647,
+          "encodedDataLength": 524,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_gladius.webp",
+          "type": "Image",
+          "start": 3495.580999995582,
+          "end": 3560.8270000011544,
+          "encodedDataLength": 446,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_gold.webp",
+          "type": "Image",
+          "start": 3495.642999994743,
+          "end": 3561.2790000013774,
+          "encodedDataLength": 614,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_greaves.webp",
+          "type": "Image",
+          "start": 3495.7050000011805,
+          "end": 3561.492000000726,
+          "encodedDataLength": 526,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_helm.webp",
+          "type": "Image",
+          "start": 3495.7700000013574,
+          "end": 3561.6049999953248,
+          "encodedDataLength": 438,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_helm_of_darkness.webp",
+          "type": "Image",
+          "start": 3495.8320000005187,
+          "end": 3567.2930000000633,
+          "encodedDataLength": 532,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_hero_card.webp",
+          "type": "Image",
+          "start": 3495.889999998326,
+          "end": 3567.6620000012917,
+          "encodedDataLength": 540,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_hero_exp.webp",
+          "type": "Image",
+          "start": 3495.9509999971488,
+          "end": 3576.5109999993,
+          "encodedDataLength": 534,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_isis_mantle.webp",
+          "type": "Image",
+          "start": 3496.0099999952945,
+          "end": 3576.9339999969816,
+          "encodedDataLength": 544,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_jellopy.webp",
+          "type": "Image",
+          "start": 3496.1269999985234,
+          "end": 3577.1289999975124,
+          "encodedDataLength": 396,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_katar.webp",
+          "type": "Image",
+          "start": 3496.2180000002263,
+          "end": 3577.2199999992154,
+          "encodedDataLength": 490,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_keeper_hammer.webp",
+          "type": "Image",
+          "start": 3496.3209999987157,
+          "end": 3579.40399999643,
+          "encodedDataLength": 502,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_kitsune_mask.webp",
+          "type": "Image",
+          "start": 3503.1830000007176,
+          "end": 3582.001999995555,
+          "encodedDataLength": 520,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_knife.webp",
+          "type": "Image",
+          "start": 3503.2779999964987,
+          "end": 3585.0250000003143,
+          "encodedDataLength": 406,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_knuckle.webp",
+          "type": "Image",
+          "start": 3503.3429999966756,
+          "end": 3588.434999997844,
+          "encodedDataLength": 494,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_mace.webp",
+          "type": "Image",
+          "start": 3503.4039999954985,
+          "end": 3586.0649999958696,
+          "encodedDataLength": 466,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_majestic_goat.webp",
+          "type": "Image",
+          "start": 3503.5009999992326,
+          "end": 3589.3189999987953,
+          "encodedDataLength": 520,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_maze_boots.webp",
+          "type": "Image",
+          "start": 3503.58899999992,
+          "end": 3589.4550000011805,
+          "encodedDataLength": 558,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_moonlight_dagger.webp",
+          "type": "Image",
+          "start": 3503.6609999951907,
+          "end": 3589.702999997826,
+          "encodedDataLength": 550,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_ninja_suit.webp",
+          "type": "Image",
+          "start": 3503.7220000012894,
+          "end": 3595.164999998815,
+          "encodedDataLength": 508,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_old_blue_box.webp",
+          "type": "Image",
+          "start": 3503.786000001128,
+          "end": 3597.39499999705,
+          "encodedDataLength": 520,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_owl_boots.webp",
+          "type": "Image",
+          "start": 3503.8449999992736,
+          "end": 3597.6359999986016,
+          "encodedDataLength": 670,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_pact_robe.webp",
+          "type": "Image",
+          "start": 3503.906999998435,
+          "end": 3597.8179999947315,
+          "encodedDataLength": 546,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_pharaoh_headdress.webp",
+          "type": "Image",
+          "start": 3503.971999998612,
+          "end": 3597.9870000010123,
+          "encodedDataLength": 592,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_pirate_bandana.webp",
+          "type": "Image",
+          "start": 3504.033999997773,
+          "end": 3598.330000000715,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_pirate_saber.webp",
+          "type": "Image",
+          "start": 3505.530999995244,
+          "end": 3618.9269999958924,
+          "encodedDataLength": 484,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_red_potion.webp",
+          "type": "Image",
+          "start": 3505.660999995598,
+          "end": 3619.1479999979492,
+          "encodedDataLength": 518,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_rod.webp",
+          "type": "Image",
+          "start": 3557.969999994384,
+          "end": 3619.3589999966207,
+          "encodedDataLength": 404,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_saint_robe.webp",
+          "type": "Image",
+          "start": 3558.099999994738,
+          "end": 3619.5889999944484,
+          "encodedDataLength": 566,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_sandals.webp",
+          "type": "Image",
+          "start": 3558.1719999972847,
+          "end": 3619.7679999968386,
+          "encodedDataLength": 474,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_scrolls.webp",
+          "type": "Image",
+          "start": 3652.2489999988466,
+          "end": 3675.5209999973886,
+          "encodedDataLength": 510,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_sea_boots.webp",
+          "type": "Image",
+          "start": 3652.373999997508,
+          "end": 3676.1849999966216,
+          "encodedDataLength": 604,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_sentry_greaves.webp",
+          "type": "Image",
+          "start": 3652.4389999976847,
+          "end": 3680.515000000014,
+          "encodedDataLength": 530,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_shoes.webp",
+          "type": "Image",
+          "start": 3652.5519999995595,
+          "end": 3681.8050000001676,
+          "encodedDataLength": 462,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_silk_robe.webp",
+          "type": "Image",
+          "start": 3652.6190000004135,
+          "end": 3682.0539999971515,
+          "encodedDataLength": 534,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_sleipnir.webp",
+          "type": "Image",
+          "start": 3652.6799999992363,
+          "end": 3685.301999998046,
+          "encodedDataLength": 604,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_sograt_scimitar.webp",
+          "type": "Image",
+          "start": 3652.7379999970435,
+          "end": 3685.7959999979357,
+          "encodedDataLength": 456,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_staff.webp",
+          "type": "Image",
+          "start": 3652.801999996882,
+          "end": 3686.595999999554,
+          "encodedDataLength": 474,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_sword.webp",
+          "type": "Image",
+          "start": 3652.8629999957047,
+          "end": 3687.6159999956144,
+          "encodedDataLength": 416,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_treasure_chest.webp",
+          "type": "Image",
+          "start": 3652.9299999965588,
+          "end": 3688.518999995722,
+          "encodedDataLength": 662,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_valkyrie_armor.webp",
+          "type": "Image",
+          "start": 3652.989999995043,
+          "end": 3688.9569999984815,
+          "encodedDataLength": 726,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_valkyrie_boots.webp",
+          "type": "Image",
+          "start": 3653.048000000126,
+          "end": 3693.939999997383,
+          "encodedDataLength": 556,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_violin.webp",
+          "type": "Image",
+          "start": 3653.1160000013188,
+          "end": 3735.436999995727,
+          "encodedDataLength": 508,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/ui/icons/item_wizardry_staff.webp",
+          "type": "Image",
+          "start": 3653.1810000014957,
+          "end": 3735.710000000836,
+          "encodedDataLength": 436,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/fx/damage/numbers.webp",
+          "type": "Image",
+          "start": 3653.238999999303,
+          "end": 3735.867999996117,
+          "encodedDataLength": 1580,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/acolyte.webp",
+          "type": "Image",
+          "start": 3653.2959999967716,
+          "end": 3736.152999998012,
+          "encodedDataLength": 1216,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/alchemist.webp",
+          "type": "Image",
+          "start": 3653.3549999949173,
+          "end": 3736.0110000008717,
+          "encodedDataLength": 1210,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/archer_first.webp",
+          "type": "Image",
+          "start": 3653.416000001016,
+          "end": 3736.3269999987097,
+          "encodedDataLength": 1304,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/assassin.webp",
+          "type": "Image",
+          "start": 3653.5709999952815,
+          "end": 3748.4049999984563,
+          "encodedDataLength": 1336,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/assassin_cross_m.png",
+          "type": "Image",
+          "start": 3653.6399999968125,
+          "end": 3750.014999997802,
+          "encodedDataLength": 2814,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/bard.webp",
+          "type": "Image",
+          "start": 3653.725999996823,
+          "end": 3750.9419999987585,
+          "encodedDataLength": 1310,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/blacksmith.webp",
+          "type": "Image",
+          "start": 3653.7869999956456,
+          "end": 3751.444999994419,
+          "encodedDataLength": 1372,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/champion_m.png",
+          "type": "Image",
+          "start": 3653.8460000010673,
+          "end": 3751.903999997012,
+          "encodedDataLength": 2839,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/clown_m.png",
+          "type": "Image",
+          "start": 3653.900999997859,
+          "end": 3752.446999998938,
+          "encodedDataLength": 3228,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/creator_m.png",
+          "type": "Image",
+          "start": 3653.9510000002338,
+          "end": 3759.6750000011525,
+          "encodedDataLength": 2681,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/guard.webp",
+          "type": "Image",
+          "start": 3654.006999997364,
+          "end": 3761.177000000316,
+          "encodedDataLength": 1552,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/gypsy_f.png",
+          "type": "Image",
+          "start": 3654.061000001093,
+          "end": 3761.64499999868,
+          "encodedDataLength": 2822,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/high_priest_m.png",
+          "type": "Image",
+          "start": 3654.116999998223,
+          "end": 3762.25500000146,
+          "encodedDataLength": 2914,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/high_wizard_m.png",
+          "type": "Image",
+          "start": 3654.167000000598,
+          "end": 3762.461999998777,
+          "encodedDataLength": 3017,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/archer.webp",
+          "type": "Image",
+          "start": 3654.216999995697,
+          "end": 3763.5929999960354,
+          "encodedDataLength": 1326,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/warrior.webp",
+          "type": "Image",
+          "start": 3654.270999999426,
+          "end": 3774.035999995249,
+          "encodedDataLength": 1294,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/lord_knight_m.png",
+          "type": "Image",
+          "start": 3654.3239999955404,
+          "end": 3774.5240000003832,
+          "encodedDataLength": 3167,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/magician.webp",
+          "type": "Image",
+          "start": 3690.644999995129,
+          "end": 3774.242999999842,
+          "encodedDataLength": 1202,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/merchant.webp",
+          "type": "Image",
+          "start": 3690.761999998358,
+          "end": 3774.6269999988726,
+          "encodedDataLength": 1284,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/monk.webp",
+          "type": "Image",
+          "start": 3690.824999997858,
+          "end": 3774.71499999956,
+          "encodedDataLength": 1156,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/novice.webp",
+          "type": "Image",
+          "start": 3690.882999995665,
+          "end": 3774.8050000009243,
+          "encodedDataLength": 1154,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/paladin_m.png",
+          "type": "Image",
+          "start": 3690.942000001087,
+          "end": 3792.644000001019,
+          "encodedDataLength": 3285,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/priest.webp",
+          "type": "Image",
+          "start": 3695.1999999946565,
+          "end": 3796.6659999947296,
+          "encodedDataLength": 1242,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/professor_m.png",
+          "type": "Image",
+          "start": 3695.3519999951823,
+          "end": 3797.043999999005,
+          "encodedDataLength": 2977,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/rogue.webp",
+          "type": "Image",
+          "start": 3695.421999997052,
+          "end": 3797.4209999956656,
+          "encodedDataLength": 1092,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/sage.webp",
+          "type": "Image",
+          "start": 3695.517000000109,
+          "end": 3797.8319999965606,
+          "encodedDataLength": 1334,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/sniper_m.png",
+          "type": "Image",
+          "start": 3695.5919999963953,
+          "end": 3798.217999996268,
+          "encodedDataLength": 3124,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/stalker_m.png",
+          "type": "Image",
+          "start": 3695.6559999962337,
+          "end": 3806.3209999963874,
+          "encodedDataLength": 2610,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/swordman.webp",
+          "type": "Image",
+          "start": 3771.359999998822,
+          "end": 3806.9140000006882,
+          "encodedDataLength": 1350,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/thief.webp",
+          "type": "Image",
+          "start": 3771.5119999993476,
+          "end": 3809.1050000002724,
+          "encodedDataLength": 1224,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/sprites/portraits/whitesmith_m.png",
+          "type": "Image",
+          "start": 3771.588999996311,
+          "end": 3809.4579999960843,
+          "encodedDataLength": 2956,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/mage.webp",
+          "type": "Image",
+          "start": 3771.6489999947953,
+          "end": 3809.583999995084,
+          "encodedDataLength": 1184,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 3771.7349999948055,
+          "end": 3809.666000001016,
+          "encodedDataLength": 2646,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 3771.795000000566,
+          "end": 3834.898000000976,
+          "encodedDataLength": 2536,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 3771.993999995175,
+          "end": 3793.690999998944,
+          "encodedDataLength": 41,
+          "status": 404,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 5577.172999997856,
+          "end": 5581.923999998253,
+          "encodedDataLength": 41,
+          "status": 404,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 5583.2139999984065,
+          "end": 5595.187999999325,
+          "encodedDataLength": 30696,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 5617.521000000124,
+          "end": 5621.055999996315,
+          "encodedDataLength": 41,
+          "status": 404,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/backgrounds/bg_map_ch1.jpg",
+          "type": "Image",
+          "start": 7310.036999995646,
+          "end": 7341.533999999228,
+          "encodedDataLength": 461939,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 7310.194999998203,
+          "end": 7340.359999994689,
+          "encodedDataLength": 35788,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 7310.269000001426,
+          "end": 7351.521999997203,
+          "encodedDataLength": 37106,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/ui_tap.ogg",
+          "type": "Fetch",
+          "start": 7314.015999996627,
+          "end": 7357.5849999979255,
+          "encodedDataLength": 3439,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/coin.ogg",
+          "type": "Fetch",
+          "start": 7314.234999998007,
+          "end": 7361.900999996578,
+          "encodedDataLength": 1623,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/chest_open.ogg",
+          "type": "Fetch",
+          "start": 7314.5020000010845,
+          "end": 7362.1490000005,
+          "encodedDataLength": 9082,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/music_map_meadow.ogg",
+          "type": "Media",
+          "start": 7335.256999998819,
+          "end": 7365.194999998494,
+          "encodedDataLength": 680411,
+          "status": 206,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/unlock.ogg",
+          "type": "Fetch",
+          "start": 7499.211999995168,
+          "end": 7547.073999994609,
+          "encodedDataLength": 12102,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/refine_success.ogg",
+          "type": "Fetch",
+          "start": 7500.6890000004205,
+          "end": 7547.952000000805,
+          "encodedDataLength": 17457,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/refine_fail.ogg",
+          "type": "Fetch",
+          "start": 7541.377000001376,
+          "end": 7559.521999995923,
+          "encodedDataLength": 9728,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/bless_pick.ogg",
+          "type": "Fetch",
+          "start": 7567.0329999993555,
+          "end": 7577.155999999377,
+          "encodedDataLength": 10475,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/level_up.ogg",
+          "type": "Fetch",
+          "start": 7575.770999996166,
+          "end": 7595.164999998815,
+          "encodedDataLength": 15844,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/job_change.ogg",
+          "type": "Fetch",
+          "start": 7587.118999996164,
+          "end": 7600.890000001527,
+          "encodedDataLength": 15844,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/rarity_up.ogg",
+          "type": "Fetch",
+          "start": 7592.100999994727,
+          "end": 7607.582999997248,
+          "encodedDataLength": 21255,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/summon_common.ogg",
+          "type": "Fetch",
+          "start": 7616.036999999778,
+          "end": 7648.017999999865,
+          "encodedDataLength": 12306,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/summon_rare.ogg",
+          "type": "Fetch",
+          "start": 7651.554999996733,
+          "end": 7658.501999998407,
+          "encodedDataLength": 18096,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/summon_epic.ogg",
+          "type": "Fetch",
+          "start": 7653.568999994604,
+          "end": 7659.267999995791,
+          "encodedDataLength": 21431,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/summon_legendary.ogg",
+          "type": "Fetch",
+          "start": 7667.0959999974,
+          "end": 7679.451999996672,
+          "encodedDataLength": 20080,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing.ogg",
+          "type": "Fetch",
+          "start": 7678.396999996039,
+          "end": 7684.943000000203,
+          "encodedDataLength": 2026,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_v2.ogg",
+          "type": "Fetch",
+          "start": 7698.043999997026,
+          "end": 7734.692999998515,
+          "encodedDataLength": 2852,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_dagger.ogg",
+          "type": "Fetch",
+          "start": 7706.86299999943,
+          "end": 7735.321000000113,
+          "encodedDataLength": 1863,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_dagger_v2.ogg",
+          "type": "Fetch",
+          "start": 7752.326000001631,
+          "end": 7767.793999999412,
+          "encodedDataLength": 2232,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_blunt.ogg",
+          "type": "Fetch",
+          "start": 7754.621000000043,
+          "end": 7769.0309999961755,
+          "encodedDataLength": 2399,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_blunt_v2.ogg",
+          "type": "Fetch",
+          "start": 7756.501999996544,
+          "end": 7769.422999997914,
+          "encodedDataLength": 3396,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_sword.ogg",
+          "type": "Fetch",
+          "start": 7775.176999995892,
+          "end": 7785.070999998425,
+          "encodedDataLength": 3663,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_dagger.ogg",
+          "type": "Fetch",
+          "start": 7786.759999995411,
+          "end": 7800.21499999566,
+          "encodedDataLength": 2394,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_blunt.ogg",
+          "type": "Fetch",
+          "start": 7787.368999997852,
+          "end": 7800.271000000066,
+          "encodedDataLength": 2652,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_blunt_v2.ogg",
+          "type": "Fetch",
+          "start": 7837.223999995331,
+          "end": 7845.385000000533,
+          "encodedDataLength": 2629,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_arrow.ogg",
+          "type": "Fetch",
+          "start": 7837.58300000045,
+          "end": 7848.848000001453,
+          "encodedDataLength": 2296,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_claw.ogg",
+          "type": "Fetch",
+          "start": 7837.807999996585,
+          "end": 7849.592999999004,
+          "encodedDataLength": 1897,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_claw_v2.ogg",
+          "type": "Fetch",
+          "start": 7855.389999996987,
+          "end": 7861.517999997886,
+          "encodedDataLength": 1848,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_claw_v3.ogg",
+          "type": "Fetch",
+          "start": 7857.164000000921,
+          "end": 7866.620000000694,
+          "encodedDataLength": 2326,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_claw_v4.ogg",
+          "type": "Fetch",
+          "start": 7859.76899999514,
+          "end": 7870.555999994394,
+          "encodedDataLength": 1610,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_claw_v5.ogg",
+          "type": "Fetch",
+          "start": 7867.395000001125,
+          "end": 7884.051000000909,
+          "encodedDataLength": 1884,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_magic.ogg",
+          "type": "Fetch",
+          "start": 7890.155000000959,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/crit.ogg",
+          "type": "Fetch",
+          "start": 7890.506999996433,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/crit_v2.ogg",
+          "type": "Fetch",
+          "start": 7890.758999994432,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        }
+      ],
+      "errors": [],
+      "warnings": [
+        "Expected injected 404: http://localhost:5198/assets/boot-webp-2462047fb2.bin",
+        "Пакет загрузки не загрузился — грузим файлы по одному",
+        "Expected injected 404: http://localhost:5198/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+        "Ассет portrait_hero_vika_acolyte_details_v2 не загрузился, рисую плейсхолдер",
+        "Expected injected 404: http://localhost:5198/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+        "Expected injected 404: http://localhost:5198/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp"
+      ],
+      "memory": {
+        "jsHeapAfterGC": 14376292,
+        "games": [
+          {
+            "textureBytes": 32143984,
+            "viewport": [
+              720,
+              1280
+            ],
+            "scenes": [
+              "Campaign"
+            ],
+            "topTextures": [
+              {
+                "key": "skin_atlas",
+                "dims": "1024x1004",
+                "bytes": 4112384,
+                "sources": [
+                  "skin_atlas"
+                ]
+              },
+              {
+                "key": "skin_bg_forest",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_forest"
+                ]
+              },
+              {
+                "key": "skin_bg_battle",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_battle"
+                ]
+              },
+              {
+                "key": "bg_map_ch1",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "bg_map_ch1"
+                ]
+              },
+              {
+                "key": "skin_banner_victory",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_victory"
+                ]
+              },
+              {
+                "key": "skin_banner_defeat",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_defeat"
+                ]
+              },
+              {
+                "key": "ui_kenney",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "ui_kenney"
+                ]
+              },
+              {
+                "key": "skin_rays",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "skin_rays"
+                ]
+              },
+              {
+                "key": "boot_bg",
+                "dims": "390x660",
+                "bytes": 1029600,
+                "sources": [
+                  "boot_bg"
+                ]
+              },
+              {
+                "key": "spr_hero_alan_first_profession_detail_v1",
+                "dims": "370x569",
+                "bytes": 842120,
+                "sources": [
+                  "spr_hero_alan_first_profession_detail_v1"
+                ]
+              },
+              {
+                "key": "spr_hero_bran_first_profession_detail_v1",
+                "dims": "335x433",
+                "bytes": 580220,
+                "sources": [
+                  "spr_hero_bran_first_profession_detail_v1"
+                ]
+              },
+              {
+                "key": "spr_hero_vika_acolyte_details_v2",
+                "dims": "336x417",
+                "bytes": 560448,
+                "sources": [
+                  "spr_hero_vika_acolyte_details_v2"
+                ]
+              },
+              {
+                "key": "boot_ribbon",
+                "dims": "820x150",
+                "bytes": 492000,
+                "sources": [
+                  "boot_ribbon"
+                ]
+              },
+              {
+                "key": "ui_chest_empty",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_empty"
+                ]
+              },
+              {
+                "key": "ui_chest_filling",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_filling"
+                ]
+              }
+            ],
+            "portraitFilters": [
+              {
+                "key": "portrait_archer_first",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_alchemist",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_acolyte",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin_cross_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_champion_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_clown_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_blacksmith",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_bard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_creator_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_priest_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_wizard_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_archer",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_guard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_gypsy_f",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_monk",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_novice",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_warrior",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_magician",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_lord_knight_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_merchant",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sniper_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_paladin_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_priest",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_professor_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_rogue",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_stalker_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_swordman",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_alan_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_thief",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_whitesmith_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_mage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_bran_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_vika_acolyte_details_v2",
+                "filters": [
+                  1
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

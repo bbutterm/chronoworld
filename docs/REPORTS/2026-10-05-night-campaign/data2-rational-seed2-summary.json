@@ -1,0 +1,236 @@
+{
+  "gitHead": "d71207a90c677b74089c12159b367d24bd99da98",
+  "scriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "sourceSha256": "cf7be27c0f75ec6ce6f3e894d795fee71ebf4bf3585ec10bb5cd06de9561421c",
+  "seedBase": 2,
+  "maxWaits": 180,
+  "maxStages": 180,
+  "naiveMaxFarm": false,
+  "preserveCompanions": false,
+  "waitHours": 12,
+  "artificialResources": false,
+  "status": "complete",
+  "cleared": 180,
+  "campaignStages": 180,
+  "elapsedHours": 226.233,
+  "activeMinutes": 614,
+  "totalWaits": 18,
+  "campaignAttempts": 526,
+  "campaignLosses": 346,
+  "wallTimeSeconds": 41.128,
+  "cpuTimeSeconds": 34.171,
+  "actionCounts": {
+    "reset_training": 274,
+    "tavern_evening": 10,
+    "tower": 434,
+    "hunt": 20,
+    "arena_round": 60,
+    "replay": 62,
+    "training_focus": 15,
+    "wait_12h": 18,
+    "salvage": 60,
+    "campaign_choice": 1,
+    "bond_quest": 7,
+    "mvp_card": 1
+  },
+  "income": {
+    "offline": {
+      "gold": 9053565,
+      "gems": 60,
+      "exp": 12888134
+    },
+    "fast_rewards": {
+      "gold": 1951440,
+      "gems": 5,
+      "exp": 2778120
+    },
+    "campaign": {
+      "gold": 5830644,
+      "gems": 150,
+      "exp": 8302717
+    },
+    "tower": {
+      "gold": 402707,
+      "gems": 63,
+      "exp": 573246
+    },
+    "hunt": {
+      "gold": 315200,
+      "gems": 136,
+      "exp": 442800
+    },
+    "expeditions": {
+      "gold": 61008,
+      "gems": 226,
+      "exp": 83184
+    },
+    "quests": {
+      "gold": 7000,
+      "gems": 900,
+      "exp": 3000
+    },
+    "achievements": {
+      "gold": 1700,
+      "gems": 340,
+      "exp": 0
+    },
+    "events": {
+      "gold": 11920,
+      "gems": 1120,
+      "exp": 22070
+    },
+    "mail": {
+      "gold": 5800,
+      "gems": 0,
+      "exp": 5000
+    },
+    "heroes": {
+      "gold": 142921695,
+      "gems": 0,
+      "exp": 155674696
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 32400,
+      "gems": 0,
+      "exp": 0
+    },
+    "refine": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "spend": {
+    "offline": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "fast_rewards": {
+      "gold": 0,
+      "gems": 1490,
+      "exp": 0
+    },
+    "campaign": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "tower": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "hunt": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "expeditions": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "quests": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "achievements": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "events": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "mail": {
+      "gold": 0,
+      "gems": 0,
+      "exp": 0
+    },
+    "heroes": {
+      "gold": 153694595,
+      "gems": 0,
+      "exp": 165155555
+    },
+    "summon": {
+      "gold": 0,
+      "gems": 1350,
+      "exp": 0
+    },
+    "shop": {
+      "gold": 395000,
+      "gems": 81,
+      "exp": 0
+    },
+    "refine": {
+      "gold": 6476500,
+      "gems": 0,
+      "exp": 0
+    }
+  },
+  "finalResources": {
+    "gold": 28984,
+    "exp": 15617412,
+    "gems": 79,
+    "scrolls": 0
+  },
+  "development": {
+    "summons": 93,
+    "ascensions": 38,
+    "levelUps": 10839,
+    "branchChoices": 17,
+    "equips": 79862,
+    "refines": 175,
+    "refineFailures": 7,
+    "shopBuys": {
+      "scroll": 3,
+      "item_rare": 1,
+      "item_common": 1,
+      "card_blue": 2
+    }
+  },
+  "finalSquad": [
+    "h17:alan:purple:60:knight:resolve",
+    "h6:iris:red:100:knight:precision",
+    "h64:zara:gold:80:assassin:precision",
+    "h9:lira:purple:60:sage:precision",
+    "h14:teo:purple:60:priest:precision"
+  ],
+  "heroPowers": [
+    {
+      "id": "h17",
+      "power": 4124
+    },
+    {
+      "id": "h6",
+      "power": 9990
+    },
+    {
+      "id": "h64",
+      "power": 5392
+    },
+    {
+      "id": "h9",
+      "power": 3482
+    },
+    {
+      "id": "h14",
+      "power": 3024
+    }
+  ],
+  "campaignTimeouts": 0,
+  "balanceOverlay": {
+    "ch1_s4/enemies/2/unit": "mob_tank",
+    "power/recommendedStages/ch9_s10": 0.5436
+  },
+  "sideModeCoverageLimit": "limited model paths; campaign attempts fully logged, side-mode battle seeds not all separately exported"
+}
