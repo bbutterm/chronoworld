@@ -9,14 +9,16 @@
 точный legacy training ledger. Check185files/2080Vitest+3Node, build/e2e/18UIпобед главы1/CI/Vercel PASS.
 Owner upload проверен22:13:03UTC: новых спрайтов нет, прежнийready25 ужеPR142. Новую графику ждём.
 
-Совмещённый следующий пакет в `codex/night-rpg-balance-2026-10-05` от `cb9346b`: цель всего комбо,
+Совмещённый пакет опубликован [PR #144](https://github.com/bbutterm/chronoworld/pull/144), main `41bbcc0`: цель всего комбо,
 DOT/facts, PvE100с и первое сражение8с, явный rarity exchange с сохранением спутника/своего пути,
 expedition profession guard, heroPower28,66× на поздней коллекции, PostgreSQL TCP readiness.
 Компактные Campaign/Adventure + story/dialogue/modal/resize (прочие сцены classic до своей приёмки).
 Lord fit/projection/input: independent390WebGL/360Canvas severe0/345 каждый, max0,648%/0,678%, click/Result/backPASS.
 Локальный полныйcheck197files/2153Vitest+3Node PASS, SQL4migration/concurrentclaims и Deno3functions PASS.
 Build/e2e29снимков/e2e:chapter118побед+глава2PASS на замороженном source. Compacthelper44DEV+22compiledPASS.
-CI/main/Vercel проверяются при публикации. BUGLOG178:169исправлено,7открыто/частично,2ждутарт.
+CI check/backend зелёные (run37244092986); Vercel main опубликован. Настоящий bundle `index-BttPMNUr.js`
+проверен четырьмя Adventure-снимками и тремя Heroes→Adventure возвратами на каждом renderer:
+0errors, живые источники, растущий render heartbeat; облачные записи отключены в частном браузере.
 
 Шестьfreshпрофилей прошли180/180: baseline48/37 ожиданий; AFTER рациональныеseeds1/2/3 —31/33/29;
 спутникиseed1 —24,4 обмена,12 исходныхid сохранены. Три optimizationreplay сохранили исходные попытки/ledger
@@ -26,7 +28,26 @@ CI/main/Vercel проверяются при публикации. BUGLOG178:169
 [кампания](qa/night-campaign-2026-10-05.md), [классы](qa/night-class-balance-2026-10-05.md),
 [RPG](qa/night-rpg-economy-2026-10-05.md), [RPG UI](qa/night-rpg-ui-2026-10-05.md),
 [боссы](qa/night-boss-ui-2026-10-05.md). Источники и границы приёмки внутри; полный BUGLOG пересверяется.
-Дальше: compactгерои/отряд/город/бой/режимы, честная калибровка ориентиров, холодная загрузка; новые ассеты позже.
+Следующий пакет `codex/night-compact-polish-2026-10-05` от `41bbcc0`: compactHero/Ascend и следующие
+Heroes/HeroPick/Stage/Squad после своей приёмки; Telegram Back для модальных окон, единая44CSS цель баланса,
+NEAREST-портреты собственных героев без повторных запросов. Intro Willow вместо Poporing на1-4:
+32парных законных первых глав по18побед без новых проигрышей/ожиданий; медиана боя15,1→18,6с.
+Ориентир ch9_s10 17200→26000 не является проверкой допуска к бою. Три новых data2 fresh профиля180/180:
+403,713/226,233/373,677ч,32/18/30 ожиданий; различия дневного RNG не выдаются за причинный эффект одной замены.
+Полная приёмка этого кандидата: check203files/2190Vitest+3Node, build, исходныйe2e29 и
+chapter1UI18побед+переходchapter2 PASS. Восемь compiled mobile цепочек:82physicaltaps/52resize,
+0errors/sourceimports, Stage mouse0→4/4→0 exactsave и touchhold/swipe PASS. Сначала найденный
+mouse drag исправлен в продукте; e2e не ослаблялся. Bundle index-D_qI0UNK SHA256bfd10c912207c5cb….
+Остальное в отдельных изолированных worktree: compactгород/бой/режимы/инвентарь/награды и личный путь Арены.
+Новые ассеты — после загрузки владельцем. BUGLOG178:170исправлено,6открыто/частично,2ждутарт.
+
+Дополнительная проверка этого кандидата выявила три пропуска прокрутки под окнами Ascend и старую область
+нажатия нижнего листа после изменения viewport 390→360. Исправлены удержание исходного списка до DESTROY,
+повторное открытие подтверждения во время отмены и обновление существующего Phaser Rectangle.
+Окончательный локальный check: 204 файла / 2203 Vitest и 3 Node, все проверки зелёные; build зелёный.
+Предыдущие 2190 тестов и восемь compiled цепочек выше относятся к исходной приёмке до этих дополнений.
+Новые независимые native проверки и публикация закрепляются в отдельном отчёте
+[модальных окон](qa/night-packet3-native-2026-10-05.md).
 
 ## Графика (04.10.2026) — поверх текущей переработки
 

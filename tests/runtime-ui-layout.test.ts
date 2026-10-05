@@ -48,11 +48,16 @@ vi.mock('../src/game/ui', () => ({
 const taps: (() => void)[] = [];
 function node(): any { const n: any = { setName: () => n, setOrigin: () => n }; return n; }
 
-it('every actual squad card and edit control opens the existing editor with a campaign return route', async () => {
-  const { CampaignScene } = await import('../src/game/scenes/CampaignScene');
-  const { session } = await import('../src/game/session');
-  const { newGame } = await import('../src/core');
-  const { GAME } = await import('../src/game/content');
+// Loading the scene/content fixture belongs to collection, as in the other scene harnesses.
+// The callback test measures its six interactions, rather than cold module transformation.
+const [{ CampaignScene }, { session }, { newGame }, { GAME }] = await Promise.all([
+  import('../src/game/scenes/CampaignScene'),
+  import('../src/game/session'),
+  import('../src/core'),
+  import('../src/game/content'),
+]);
+
+it('every actual squad card and edit control opens the existing editor with a campaign return route', () => {
   session.save = newGame(GAME, 0);
   const s = new CampaignScene();
   const start = vi.fn();

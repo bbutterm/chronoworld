@@ -9,6 +9,7 @@ import { commit, session } from './session';
 import { portraitKey } from './sprites';
 import { button, chip, mixHex, plate, SURFACE, tag, text, toast } from './ui';
 import { C, COLOR, R, S, T, TOUCH } from './theme';
+import { minimumTouchSize, view } from './viewport';
 
 /**
  * Пресеты отряда листом снизу (итерация 4): вместо постоянной секции на экране «Отряд» — кнопка-закладка «Пресеты»
@@ -42,8 +43,10 @@ export function openPresetsSheet(scene: Phaser.Scene, opts: PresetsSheetOpts): B
       const max = GAME.meta.expeditions.presets.max;
       const full = save.presets.length >= max;
       let y = 0;
-      const head = text(scene, 0, y + 44, `${save.presets.length} / ${max}`, T.body, COLOR.textSecondary).setOrigin(0, 0.5);
-      const saveBtn = button(scene, width - 230, y + 44, 460, 96, '', 'Сохранить текущий', () => {
+      const saveH = Math.max(96, minimumTouchSize());
+      const headY = view().adaptive ? saveH / 2 : 44;
+      const head = text(scene, 0, y + headY, `${save.presets.length} / ${max}`, T.body, COLOR.textSecondary).setOrigin(0, 0.5);
+      const saveBtn = button(scene, width - 230, y + headY, 460, saveH, '', 'Сохранить текущий', () => {
         const same = session.save.presets.find((p) => presetMatches(p, session.save.squad));
         if (same) {
           toast(scene, `Такой пресет уже есть: «${same.name}»`);
@@ -61,7 +64,7 @@ export function openPresetsSheet(scene: Phaser.Scene, opts: PresetsSheetOpts): B
       saveBtn.container.setName('presetSave');
       if (full) saveBtn.setEnabled(false);
       content.add([head, saveBtn.container]);
-      y += 88 + S.s;
+      y += (view().adaptive ? saveH : 88) + S.s;
       if (!save.presets.length) {
         content.add(text(scene, width / 2, y + 60, 'Пока пусто', T.body, COLOR.textTertiary));
         return y + 120;

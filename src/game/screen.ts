@@ -5,7 +5,7 @@ import { adventureBadge, campaignBadge, cityBadge } from './navBadges';
 import { GAME } from './content';
 import { anim, lazyPortrait, portraitKey, spriteView, whenSprites } from './sprites';
 import { formatNumber, heroesNavBadge, POWER_COLORS, POWER_TINTS, type PowerCheck, type PowerTone } from './flow';
-import { onViewChange, view } from './viewport';
+import { minimumTouchSize, onViewChange, view } from './viewport';
 import { button, ellipsize, emptyState, icon, panel, ScrollArea, shieldTaps, text, toast, type ButtonView, type Panel } from './ui';
 import { hasArt } from './assets';
 import { RO_ICON_TINT, roIcon } from './itemIcons';
@@ -14,7 +14,7 @@ import { SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { animateCurrency, heartbeat, juiceOn, type CurrencyPill } from './juice';
 import { sfx } from './audio';
 import { haptic } from './haptics';
-import { setTgBack } from './telegram';
+import { ModalBack } from './modalBack';
 import { isLeaving } from './transitions';
 import { BACK, BADGE, badgeLabel, compactNumber, GEAR, HEADER_CY, navTabCenter, parseGrouped, PILL, powerShortfall, titleLeft } from './frame';
 
@@ -55,6 +55,13 @@ export type BackTarget = { label?: string; to: string; data?: object };
 
 /** Стабильный признак модального слоя: name экран может менять для поиска и QA. */
 const MODAL_DATA = 'screenModal';
+const modalBacks = new WeakMap<Phaser.Scene, ModalBack>();
+const screenFrames = new WeakMap<Phaser.Scene, () => void>();
+
+/** Обновить баланс и chrome после награды без перезапуска содержимого, списка или модального окна. */
+export function refreshScreen(scene: Phaser.Scene): void {
+  screenFrames.get(scene)?.();
+}
 
 /**
  * Общий каркас экрана: фон, шапка (одна полоса: «‹», название, валюта), нижняя навигация (если active задан)
@@ -79,11 +86,20 @@ export function screen(
   scene.add.image(GAME_W / 2, GAME_H / 2, 'skin_bg_forest').setDisplaySize(GAME_W, GAME_H);
   const fullW = GAME_W + 2 * BLEED_X;
   const goBack = back ? backAction(scene, back) : null;
-  const off = setTgBack(goBack);
-  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, off);
+  modalBacks.get(scene)?.destroy();
+  const modalBack = new ModalBack(goBack, () => { if (!isLeaving(scene)) closeTopModal(scene); }, () => scene.sys.isActive());
+  modalBacks.set(scene, modalBack);
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    modalBack.destroy();
+    if (modalBacks.get(scene) === modalBack) modalBacks.delete(scene);
+  });
   let frame: Phaser.GameObjects.GameObject[] = [];
   const frameIndex = scene.children.length;
   const drawFrame = () => {
+    // Продолжения фона появляются после create и вставляются перед шапкой. При resize сохраняем её
+    // фактическую позицию: исходный index уже указывал бы внутрь bleed, закрывающего верх заголовка.
+    const currentIndices = frame.filter((o) => o.scene).map((o) => scene.children.getIndex(o)).filter((i) => i >= 0);
+    const insertAt = currentIndices.length ? Math.min(...currentIndices) : frameIndex;
     for (const o of frame) if (o.scene) o.destroy();
     const before = new Set(scene.children.list);
     // Шапка — одна тёмная полоса без орнамента: градиент к бронзе и тонкая кромка по низу (бронза + золотой блик).
@@ -96,7 +112,7 @@ export function screen(
     // полоса ресурсов AFK Arena, — названию и плашке игрока в шапке достаётся вся ширина. На 9:16 — две строки справа.
     const band = topBand();
     let currencyLeft: number;
-    if (band >= BAND_MIN) {
+    if (band >= Math.max(BAND_MIN, view().adaptive ? minimumTouchSize() : 0)) {
       bandStrip(scene, band);
       currencyLabels(scene, -band / 2);
       currencyLeft = GAME_W - S.xs;
@@ -121,8 +137,12 @@ export function screen(
     if (active) navBar(scene, active, fullW);
     frame = scene.children.list.filter((o) => !before.has(o));
     // Шапка остаётся под дополнениями сцены (например, портретом лагеря Home), как при первом create.
-    frame.forEach((o, i) => scene.children.moveTo(o, frameIndex + i));
+    frame.forEach((o, i) => scene.children.moveTo(o, insertAt + i));
   };
+  screenFrames.set(scene, drawFrame);
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    if (screenFrames.get(scene) === drawFrame) screenFrames.delete(scene);
+  });
   drawFrame();
   onViewChange(scene, drawFrame);
   const warnings = takeWarnings();
@@ -148,6 +168,8 @@ function backAction(scene: Phaser.Scene, back: BackTarget): () => void {
 /** Зарегистрировать окно для Back независимо от его имени; close сохраняет очистку самого окна. */
 export function registerModal(layer: Phaser.GameObjects.Container, close: () => void): void {
   layer.setData(MODAL_DATA, true).setData('close', close);
+  const back = modalBacks.get(layer.scene);
+  if (back) layer.once(Phaser.GameObjects.Events.DESTROY, back.opened(layer));
 }
 
 /** Закрыть верхнее зарегистрированное окно. Закрывающийся слой тоже перехватывает Back. */
@@ -609,7 +631,8 @@ export function bottomSheet(
     const top = bottom - h;
     bg.clear().fillStyle(COLOR_N.surface, 0.98).fillRoundedRect(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y, { tl: R.xl, tr: R.xl, bl: 0, br: 0 });
     bg.lineStyle(3, COLOR_N.border, 1).strokeRoundedRect(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y, { tl: R.xl, tr: R.xl, bl: 0, br: 0 });
-    bg.setInteractive(new Phaser.Geom.Rectangle(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y), Phaser.Geom.Rectangle.Contains);
+    // InputPlugin.enable сохраняет старый hitArea при повторном setInteractive.
+    (bg.input!.hitArea as Phaser.Geom.Rectangle).setTo(GAME_W / 2 - fullW / 2, top, fullW, h + BLEED_Y);
     grip.setY(top + S.s);
     head.setY(top + 80);
     x.setY(top + 80);
@@ -665,6 +688,14 @@ function fitTitle(t: Phaser.GameObjects.Text, maxW: number): void {
 function currencyLabels(scene: Phaser.Scene, rowY?: number): number {
   const right = GAME_W - S.xs;
   const pills: CurrencyPill[] = [];
+  // Две визуальные строки на телефоне — одна цель «Баланс»: отдельные цели44CSSpx пересеклись бы.
+  const combined = view().adaptive && rowY === undefined;
+  const exactBalance = (kind?: CurrencyPill['kind']) => {
+    const message = kind
+      ? `${kind === 'gems' ? 'Гемы' : 'Золото'}: ${formatNumber(kind === 'gems' ? session.save.currency.gems : session.save.resources.gold)}`
+      : `Баланс\nЗолото: ${formatNumber(session.save.resources.gold)}\nГемы: ${formatNumber(session.save.currency.gems)}`;
+    toast(scene, message, kind ? kind === 'gems' ? C.gem : C.gold : C.title, kind ? 2000 : undefined);
+  };
   const row = (xRight: number, y: number, kind: CurrencyPill['kind'], value: number): number => {
     const gem = kind === 'gems';
     const t = text(scene, 0, 0, '88 888', T.body, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(1, 0.5);
@@ -695,12 +726,11 @@ function currencyLabels(scene: Phaser.Scene, rowY?: number): number {
     const box = scene.add.container(cx, y, [bg, halo, ico, t]).setName(`pill_${kind}`);
     // Точное число — по нажатию (сокращённое не всегда хватает для решения «хватит ли на покупку»).
     // В двух строках цели ограничены межстрочным шагом, иначе золото и гемы перехватывают тапы друг друга.
-    const hitH = rowY === undefined ? PILL.h + 8 : Math.max(PILL.h, TOUCH);
+    const hitH = rowY === undefined ? PILL.h + 8 : Math.max(PILL.h, minimumTouchSize());
     box.setSize(w, hitH);
-    tappable(scene, box, w, hitH, () => {
-      const v = gem ? session.save.currency.gems : session.save.resources.gold;
-      toast(scene, `${gem ? 'Гемы' : 'Золото'}: ${formatNumber(v)}`, gem ? C.gem : C.gold, 2000);
-    }, null);
+    if (!combined) {
+      tappable(scene, box, w, hitH, () => exactBalance(kind), null);
+    }
     pills.push({ kind, value, text: t, box, icon: { x: cx + ix, y } });
     return xRight - w;
   };
@@ -710,6 +740,12 @@ function currencyLabels(scene: Phaser.Scene, rowY?: number): number {
     left = row(gemsLeft - PILL.gap, rowY, 'gold', session.save.resources.gold);
   } else {
     left = Math.min(row(right, HEADER_CY - PILL.h / 2 - 4, 'gold', session.save.resources.gold), row(right, HEADER_CY + PILL.h / 2 + 4, 'gems', session.save.currency.gems));
+  }
+  if (combined) {
+    const w = right - left;
+    const h = minimumTouchSize();
+    const balance = scene.add.container((right + left) / 2, HEADER_CY).setSize(w, h).setName('currencyBalanceTarget').setData('label', 'Баланс');
+    tappable(scene, balance, w, h, () => exactBalance(), null);
   }
   animateCurrency(scene, pills);
   return left;

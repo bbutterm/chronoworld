@@ -64,6 +64,7 @@ import { roIconImage } from '../itemIcons';
 import { chargeBreakBadge, ultBreaksCharge } from '../ultBadge';
 import { linkText, startTavernEvening } from './TavernEveningScene';
 import { hasHeroStory, heroStoryNew, heroStoryProgress, openHeroStory, toastOpenedStories } from '../heroStoryView';
+import { onViewChange } from '../viewport';
 
 /** Редкость в родительном падеже: «растёт до красного». */
 const RARITY_GEN: Record<string, string> = { green: 'зелёного', blue: 'синего', purple: 'фиолетового', gold: 'золотого', red: 'красного' };
@@ -122,6 +123,32 @@ interface Snapshot {
   level: number;
 }
 
+/** Один жест прокручивает витрину и выбранную вкладку; вложенные списки не перехватывают его. */
+class HeroBodyScroll extends ScrollArea {
+  private readonly tabContent: Phaser.GameObjects.Container;
+
+  constructor(scene: Phaser.Scene, bottom: number) {
+    super(scene, CONTENT_TOP, bottom);
+    this.content.setName('heroBody');
+    this.tabContent = scene.add.container(0, TAB_TOP - CONTENT_TOP + S.xxs).setName('heroTabContent');
+    this.content.add(this.tabContent);
+  }
+
+  override add<O extends Phaser.GameObjects.GameObject>(o: O): O {
+    this.tabContent.add(o);
+    return o;
+  }
+
+  override clear(): void {
+    this.tabContent.removeAll(true);
+    this.setContentHeight(0);
+  }
+
+  override setContentHeight(height: number): void {
+    super.setContentHeight(TAB_TOP - CONTENT_TOP + S.xxs + height);
+  }
+}
+
 /**
  * H4 «Герой» — карточка как в AFK Arena: витрина цвета редкости, герой в стойке крупно, имя заголовочной гарнитурой,
  * редкость (ромбы), класс и роль, мощь крупно, уровень с полосой; статы с прибавкой за следующий уровень; одна главная
@@ -142,7 +169,9 @@ export class HeroScene extends Phaser.Scene {
   private back?: HeroBack;
   /** Счётчик плиток навыков (имена skillRow_N для e2e и скриншотов). */
   private skillRows = 0;
-  private tabArea!: ScrollArea;
+  private tabArea!: HeroBodyScroll;
+  private overview: Phaser.GameObjects.Container | null = null;
+  private footerObjects: (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform)[] = [];
   private figure: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image | null = null;
   private ui!: {
     level: Phaser.GameObjects.Text;
@@ -165,6 +194,8 @@ export class HeroScene extends Phaser.Scene {
     this.heroId = data.heroId;
     this.back = data.back;
     this.figure = null;
+    this.overview = null;
+    this.footerObjects = [];
     this.holdTimer = this.repeatTimer = undefined;
     this.holdFired = false;
     let hero = this.hero();
@@ -179,13 +210,30 @@ export class HeroScene extends Phaser.Scene {
     const ups = gearUpgrades(session.save, hero.id, GAME);
     this.tab = data.tab ?? heroesUi.tab ?? (ups.length && !hintDone('equip_gear') ? 'gear' : 'skills');
 
-    this.add.rectangle(GAME_W / 2, (CONTENT_TOP + contentBottom()) / 2, GAME_W, contentBottom() - CONTENT_TOP, COLOR_N.surface);
+    const surface = this.add.rectangle(GAME_W / 2, (CONTENT_TOP + contentBottom()) / 2, GAME_W, contentBottom() - CONTENT_TOP, COLOR_N.surface);
+    const beforeBody = new Set(this.children.list);
     this.showcase(hero, c);
     this.statsStrip();
-    this.actions(hero);
     this.tabs();
-    this.renderDynamic(null);
     this.renderTab();
+    const bodyParts = new Set(this.tabArea.parts);
+    const overviewParts = this.children.list.filter(o => !beforeBody.has(o) && !bodyParts.has(o) && o !== this.ui.info);
+    this.overview = this.add.container(0, -CONTENT_TOP, overviewParts).setName('heroOverview');
+    this.tabArea.content.addAt(this.overview, 0);
+    const beforeFooter = new Set(this.children.list);
+    this.actions(hero);
+    this.footerObjects = this.children.list.filter(o => !beforeFooter.has(o) && 'y' in o) as (Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform)[];
+    this.renderDynamic(null);
+    let footerY = this.footer.actionY;
+    onViewChange(this, () => {
+      this.stopHold();
+      surface.setPosition(GAME_W / 2, (CONTENT_TOP + contentBottom()) / 2).setSize(GAME_W, contentBottom() - CONTENT_TOP);
+      const next = this.footer.actionY;
+      for (const o of this.footerObjects) o.y += next - footerY;
+      footerY = next;
+      this.tabArea.setBounds(CONTENT_TOP, this.footer.tabBottom - S.xxs);
+      this.renderDynamic(null);
+    });
 
     const stop = () => this.stopHold();
     this.input.on('pointerup', stop);
@@ -221,7 +269,10 @@ export class HeroScene extends Phaser.Scene {
     this.add.ellipse(FIG_X, FEET_Y + 4, 260, 42, 0x000000, 0.24);
     unitFigure(this, heroSprite(hero, GAME), FIG_X, FEET_Y, 390, {
       maxScale: 3.4,
-      onReady: (o) => { this.figure = o; },
+      onReady: (o) => {
+        this.figure = o;
+        this.overview?.add(o);
+      },
     });
     this.swipeBrowse(hero);
 
@@ -299,12 +350,14 @@ export class HeroScene extends Phaser.Scene {
     const nb = this.neighbours(hero);
     if (!nb.prev && !nb.next) return;
     const zone = this.add.zone(GAME_W / 2, SHOW_Y, GAME_W, SHOW_H).setInteractive();
-    let from: number | null = null;
-    zone.on('pointerdown', (p: Phaser.Input.Pointer) => (from = p.worldX));
+    let from: { x: number; y: number } | null = null;
+    zone.on('pointerdown', (p: Phaser.Input.Pointer) => (from = { x: p.worldX, y: p.worldY }));
     const up = (p: Phaser.Input.Pointer) => {
       if (from === null) return;
-      const dx = p.worldX - from;
+      const dx = p.worldX - from.x;
+      const dy = p.worldY - from.y;
       from = null;
+      if (this.tabArea.locked || Math.abs(dx) < Math.abs(dy) * 1.25) return;
       const id = dx > 140 ? nb.prev : dx < -140 ? nb.next : null;
       if (!id) return;
       sfx('ui_tab');
@@ -320,6 +373,7 @@ export class HeroScene extends Phaser.Scene {
     const rn = GAME.cards.rarities.find((r) => r.id === (c.branchAt ?? 'purple'))?.name ?? 'Фиолетовый';
     const ownPath = ascendedBranch(hero, 'purple', GAME);
     openBranchPicker(this, {
+      lock: this.tabArea,
       templateId: hero.templateId,
       title: `${c.name}: ветки второй профессии`,
       heroId: hero.id,
@@ -339,6 +393,7 @@ export class HeroScene extends Phaser.Scene {
     const change = st.canChange;
     const other = change ? c.branches.find((b) => b.job !== st.branch)?.job : undefined;
     openBranchPicker(this, {
+      lock: this.tabArea,
       templateId: hero.templateId,
       title: change ? 'Сменить ветку' : 'Выберите ветку',
       subtitle: change
@@ -466,23 +521,23 @@ export class HeroScene extends Phaser.Scene {
     const ax = left + w / 2;
     const ay = BOTTOM_ROW_Y;
     if (canAscend) this.add.image(ax, ay, glowTexture(this)).setDisplaySize(w + 160, 170).setTint(COLOR_N.accent).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.5).setDepth(4);
-    const asc = button(this, ax, ay, w, 84, '', 'Вознести', () => this.openAscend(), T.body, { variant: 'secondary' });
+    const asc = button(this, ax, ay, w, TOUCH_COMFORT, '', 'Вознести', () => this.openAscend(), T.caption, { variant: 'secondary' });
     asc.container.setName('ascendBtn').setDepth(5);
     const right = left + w;
     const cc = copyCounter(session.save, hero.id, GAME);
     if (cc.need !== undefined) {
       const ready = (cc.have ?? 0) >= cc.need;
       const t = tag(this, 0, 0, `${cc.have ?? 0}/${cc.need}`, ready ? 'positive' : 'neutral', { solid: ready });
-      t.setScale(0.86).setPosition(w / 2 - S.xs - (t.width * 0.86) / 2, 0);
+      t.setPosition(w / 2 - S.xs - t.width / 2, 0);
       asc.container.add(t);
       // Подпись — по центру места слева от метки.
-      asc.label.setX((-w / 2 + S.xs + t.x - (t.width * 0.86) / 2 - S.xxs) / 2);
+      asc.label.setX((-w / 2 + S.xs + t.x - t.width / 2 - S.xxs) / 2);
     }
     if (canAscend) {
       asc.label.setColor(COLOR.title);
       pulse(this, asc.container, 1.05);
       // Обучение (шаг ascend): «Улучшить» уже показано — теперь «Вознести».
-      if (!hintDone('ascend') && hintDone('level_up')) tutorialHint(this, 'ascend', ax, ay, 'above', { w, h: 84 });
+      if (!hintDone('ascend') && hintDone('level_up')) tutorialHint(this, 'ascend', ax, ay, 'above', { w, h: TOUCH_COMFORT });
     }
     return right;
   }
@@ -729,10 +784,7 @@ export class HeroScene extends Phaser.Scene {
       void a;
     }
     this.storyTabDot();
-    // Содержимое вкладки — на поверхности до навигации (на вытянутых экранах ниже CONTENT_BOTTOM).
-    const tabBottom = this.footer.tabBottom;
-    plate(this, GAME_W / 2, (TAB_TOP + tabBottom) / 2, CONTENT_W, tabBottom - TAB_TOP, { ...SURFACE.surface, r: R.l });
-    this.tabArea = new ScrollArea(this, TAB_TOP + S.xxs, tabBottom - S.xxs);
+    this.tabArea = new HeroBodyScroll(this, this.footer.tabBottom - S.xxs);
   }
 
   /** x правого верхнего угла сегмента i (для отметок на вкладках). */
@@ -1196,4 +1248,3 @@ function shortageToast(info: LevelUpInfo): string {
   if (info.blocker === 'not_enough_gold') return `Не хватает ${formatNumber(info.cost.gold - info.gold)} золота`;
   return 'Нельзя улучшить';
 }
-

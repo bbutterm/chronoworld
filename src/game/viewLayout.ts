@@ -7,7 +7,7 @@ export const MAX_DPR = 2;
 
 /** Проверенные экраны с переменной высотой. Остальные сохраняют полное поле, пока их раскладка не адаптирована. */
 export function supportsAdaptiveLayout(scene: string): boolean {
-  return scene === 'Campaign' || scene === 'Adventure';
+  return scene === 'Campaign' || scene === 'Adventure' || scene === 'Hero' || scene === 'Ascend' || scene === 'Heroes' || scene === 'HeroPick' || scene === 'Stage' || scene === 'Squad';
 }
 
 export interface Insets {

@@ -15,8 +15,16 @@ vi.mock('../src/game/audio', () => ({ sfx: vi.fn() }));
 vi.mock('../src/game/flow', () => ({ ROLE_NAMES: {} }));
 vi.mock('../src/game/heroCard', () => ({ rarityName: () => 'Фиолетовый', heroCardSize: () => ({ h: 240 }), glowTexture: () => 'glow', drawHeroCard: (_s: unknown, _x: number, _y: number, _id: string, opts: any) => { h.cards.push(opts.onTap); return h.node(); } }));
 vi.mock('../src/game/juice', () => ({ juiceOn: () => false, staggerIn: vi.fn() }));
-vi.mock('../src/game/screen', () => ({ CONTENT_TOP: 160, CONTENT_BOTTOM: 1736 }));
-vi.mock('../src/game/ui', () => ({ plate: () => h.node(), text: () => h.node(), toast: vi.fn() }));
+vi.mock('../src/game/screen', () => ({ CONTENT_TOP: 160, contentBottom: () => 1736 }));
+vi.mock('../src/game/ui', () => ({
+  plate: () => h.node(), text: () => h.node(), toast: vi.fn(),
+  ScrollArea: class {
+    content = h.node();
+    add<T>(o: T) { return o; }
+    setContentHeight() {}
+    tap(onTap: () => void) { return onTap; }
+  },
+}));
 import { HeroPickScene } from '../src/game/scenes/HeroPickScene';
 
 beforeEach(() => {

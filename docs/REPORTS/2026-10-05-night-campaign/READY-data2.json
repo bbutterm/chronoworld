@@ -1,0 +1,86 @@
+{
+  "status": "READY - all three fresh campaigns complete",
+  "sourceSha256": "cf7be27c0f75ec6ce6f3e894d795fee71ebf4bf3585ec10bb5cd06de9561421c",
+  "scriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+  "files": [
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed1-first-win-evidence.json",
+      "sha256": "0b2979dd7e43ac07631c169eadf80d0fba98445cbc7c9e6fb33c5ca26702be9a"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed1-stages.csv",
+      "sha256": "adc76c7ac5b03f8d72da6a120e3fd0ab8151cbb8f4447fb24da05c203834ee58"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed1-summary.json",
+      "sha256": "9a81b3f274d1d1784bd809e8869558ca595a54958cd15d63feefad2b12094cf1"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed2-first-win-evidence.json",
+      "sha256": "191e6e9336845187a00b80365ad8af89e09034c4b485017b1f7efdff05135d37"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed2-stages.csv",
+      "sha256": "b404cafdda73b36bd2c82a0c8b2cf2f07edbc35b9dae2e62bfea800578cf83db"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed2-summary.json",
+      "sha256": "533a304105eb3ee6e7e9f18fc2112c706c700d47805dabdb059e0163012c5d09"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed3-first-win-evidence.json",
+      "sha256": "c7290f5bf6fa1b912de537b4da7c45302aba29bc83f00164e6acb4cbe432172b"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed3-stages.csv",
+      "sha256": "77c115abdc96e0be3d2bf341ac2c0b4f145f42d0003c8488e244edf4fe709b9c"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/data2-rational-seed3-summary.json",
+      "sha256": "e7e8c74f5ec57f4f6940e13a5d55bdf64c2be4229e5c5a3870760d652f76f64d"
+    },
+    {
+      "path": "docs/REPORTS/2026-10-05-night-campaign/index.json",
+      "sha256": "59a30931f2257a8d83bd42614e0d08ddbb3c006cebf37505b540af7e334ac411"
+    },
+    {
+      "path": "docs/qa/night-campaign-2026-10-05.md",
+      "sha256": "81031a7e677653717d1dc7d5a7bd51401edabf8f676880f76aaf24d78d742673"
+    }
+  ],
+  "results": [
+    {
+      "seed": 1,
+      "cleared": 180,
+      "campaignStages": 180,
+      "attempts": 774,
+      "losses": 594,
+      "waits": 32,
+      "elapsedHours": 403.713,
+      "artificialResources": false
+    },
+    {
+      "seed": 2,
+      "cleared": 180,
+      "campaignStages": 180,
+      "attempts": 526,
+      "losses": 346,
+      "waits": 18,
+      "elapsedHours": 226.233,
+      "artificialResources": false
+    },
+    {
+      "seed": 3,
+      "cleared": 180,
+      "campaignStages": 180,
+      "attempts": 648,
+      "losses": 468,
+      "waits": 30,
+      "elapsedHours": 373.677,
+      "artificialResources": false
+    }
+  ],
+  "codeChanges": "none - frozen driver/model/core; only root-authorized data2 overlay for simulation",
+  "provenance": "separate fresh newGame accounts, no imported prior save or stage-clear assignment",
+  "caveat": "limited model side-mode paths documented; not an optimality or physical UI/FPS proof"
+}

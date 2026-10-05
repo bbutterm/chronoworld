@@ -1,0 +1,1162 @@
+{
+  "root": "/workspace/chronoworld-worktrees/night-cold-load",
+  "cpu": 1,
+  "network": "fast3g",
+  "browser": "151.0.7922.173",
+  "launchGraphics": "SwiftShader software WebGL",
+  "profileOverhead": false,
+  "scope": "Local production build via Vite preview; no physical phone FPS measurement",
+  "diagnosticOnly": true,
+  "measurements": [
+    {
+      "warm": false,
+      "index": 1,
+      "marks": [
+        {
+          "name": "cw:script",
+          "start": 10066.79999999702
+        },
+        {
+          "name": "cw:fonts",
+          "start": 10071.59999999404
+        },
+        {
+          "name": "cw:boot-frame",
+          "start": 10998.19999999553
+        },
+        {
+          "name": "scene:Campaign:start",
+          "start": 13444.19999999553
+        },
+        {
+          "name": "cw:home",
+          "start": 13590.19999999553
+        }
+      ],
+      "paint": [
+        {
+          "name": "first-paint",
+          "start": 1188
+        },
+        {
+          "name": "first-contentful-paint",
+          "start": 1188
+        }
+      ],
+      "http": [
+        {
+          "url": "/",
+          "type": "Document",
+          "start": 0,
+          "end": 585.069000000658,
+          "encodedDataLength": 3203,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-400.woff2",
+          "type": "Font",
+          "start": 584.696999998414,
+          "end": 1785.595999994257,
+          "encodedDataLength": 23268,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-700.woff2",
+          "type": "Font",
+          "start": 584.9949999974342,
+          "end": 1793.413999999757,
+          "encodedDataLength": 23196,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/philosopher-700.woff2",
+          "type": "Font",
+          "start": 585.0969999955851,
+          "end": 1726.8130000011297,
+          "encodedDataLength": 19960,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/assets/index-D1B46ywc.js",
+          "type": "Script",
+          "start": 587.109000000055,
+          "end": 9876.714999998512,
+          "encodedDataLength": 773693,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/rolldown-runtime-CbXtAM7H.js",
+          "type": "Script",
+          "start": 587.2539999982109,
+          "end": 1185.9269999986282,
+          "encodedDataLength": 937,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/phaser-B6Ef8M8A.js",
+          "type": "Script",
+          "start": 587.3379999975441,
+          "end": 5253.826000000117,
+          "encodedDataLength": 247568,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/boot-webp-2462047fb2.bin",
+          "type": "Other",
+          "start": 587.4130000011064,
+          "end": 8653.403999996954,
+          "encodedDataLength": 477862,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/backgrounds/bg_map_ch1.jpg",
+          "type": "Image",
+          "start": 13589.619999998831,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 13589.818000000378,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 13589.889999995648,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 13590.003999997862,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/music_map_meadow.ogg",
+          "type": "Media",
+          "start": 13592.087999997602,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        }
+      ],
+      "errors": [],
+      "warnings": [],
+      "memory": {
+        "jsHeapAfterGC": 14104652,
+        "games": [
+          {
+            "textureBytes": 28668748,
+            "viewport": [
+              720,
+              1280
+            ],
+            "scenes": [
+              "Campaign"
+            ],
+            "topTextures": [
+              {
+                "key": "skin_atlas",
+                "dims": "1024x1004",
+                "bytes": 4112384,
+                "sources": [
+                  "skin_atlas"
+                ]
+              },
+              {
+                "key": "skin_bg_forest",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_forest"
+                ]
+              },
+              {
+                "key": "skin_bg_battle",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_battle"
+                ]
+              },
+              {
+                "key": "skin_banner_victory",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_victory"
+                ]
+              },
+              {
+                "key": "skin_banner_defeat",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_defeat"
+                ]
+              },
+              {
+                "key": "ui_kenney",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "ui_kenney"
+                ]
+              },
+              {
+                "key": "skin_rays",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "skin_rays"
+                ]
+              },
+              {
+                "key": "boot_bg",
+                "dims": "390x660",
+                "bytes": 1029600,
+                "sources": [
+                  "boot_bg"
+                ]
+              },
+              {
+                "key": "spr_hero_alan_first_profession_detail_v1",
+                "dims": "370x569",
+                "bytes": 842120,
+                "sources": [
+                  "spr_hero_alan_first_profession_detail_v1"
+                ]
+              },
+              {
+                "key": "spr_hero_bran_first_profession_detail_v1",
+                "dims": "335x433",
+                "bytes": 580220,
+                "sources": [
+                  "spr_hero_bran_first_profession_detail_v1"
+                ]
+              },
+              {
+                "key": "spr_hero_vika_acolyte_details_v2",
+                "dims": "336x417",
+                "bytes": 560448,
+                "sources": [
+                  "spr_hero_vika_acolyte_details_v2"
+                ]
+              },
+              {
+                "key": "boot_ribbon",
+                "dims": "820x150",
+                "bytes": 492000,
+                "sources": [
+                  "boot_ribbon"
+                ]
+              },
+              {
+                "key": "ui_chest_empty",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_empty"
+                ]
+              },
+              {
+                "key": "ui_chest_filling",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_filling"
+                ]
+              },
+              {
+                "key": "ui_chest_full",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_full"
+                ]
+              }
+            ],
+            "portraitFilters": [
+              {
+                "key": "portrait_acolyte",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_alchemist",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_archer_first",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin_cross_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_bard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_blacksmith",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_champion_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_clown_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_creator_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_guard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_gypsy_f",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_priest_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_wizard_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_archer",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_warrior",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_lord_knight_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_magician",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_merchant",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_monk",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_novice",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_paladin_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_priest",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_professor_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_rogue",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sniper_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_stalker_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_swordman",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_thief",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_whitesmith_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_mage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_alan_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_bran_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_vika_acolyte_details_v2",
+                "filters": [
+                  1
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "warm": true,
+      "index": 1,
+      "marks": [
+        {
+          "name": "cw:script",
+          "start": 1103.8999999985099
+        },
+        {
+          "name": "cw:fonts",
+          "start": 1557.0999999940395
+        },
+        {
+          "name": "cw:boot-frame",
+          "start": 1832.1999999955297
+        },
+        {
+          "name": "scene:Campaign:start",
+          "start": 3593.5999999940395
+        },
+        {
+          "name": "cw:home",
+          "start": 3671.2999999970198
+        }
+      ],
+      "paint": [
+        {
+          "name": "first-paint",
+          "start": 1204
+        },
+        {
+          "name": "first-contentful-paint",
+          "start": 1204
+        }
+      ],
+      "http": [
+        {
+          "url": "/audio/swing_dagger.ogg",
+          "type": "Fetch",
+          "start": -14.518000003590714,
+          "end": -12.178000004496425,
+          "encodedDataLength": 1863,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_dagger_v2.ogg",
+          "type": "Fetch",
+          "start": -11.593000002903864,
+          "end": -5.184000001463573,
+          "encodedDataLength": 2232,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_blunt.ogg",
+          "type": "Fetch",
+          "start": -7.563999999547377,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/swing_blunt_v2.ogg",
+          "type": "Fetch",
+          "start": -6.027000003086869,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/",
+          "type": "Document",
+          "start": 0,
+          "end": 593.4100000013132,
+          "encodedDataLength": 127,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/hit_sword.ogg",
+          "type": "Fetch",
+          "start": 0.4369999951450154,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-400.woff2",
+          "type": "Font",
+          "start": 961.9610000008834,
+          "end": 1534.6329999956652,
+          "encodedDataLength": 179,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/fonts/rubik-700.woff2",
+          "type": "Font",
+          "start": 962.3839999985648,
+          "end": 1554.0770000006887,
+          "encodedDataLength": 179,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/fonts/philosopher-700.woff2",
+          "type": "Font",
+          "start": 962.5689999957103,
+          "end": 1554.6889999968698,
+          "encodedDataLength": 179,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/assets/index-D1B46ywc.js",
+          "type": "Script",
+          "start": 962.7419999960694,
+          "end": 962.8889999949024,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/rolldown-runtime-CbXtAM7H.js",
+          "type": "Script",
+          "start": 962.9319999949075,
+          "end": 963.0160000015167,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/phaser-B6Ef8M8A.js",
+          "type": "Script",
+          "start": 963.0459999971208,
+          "end": 963.157999998657,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/boot-webp-2462047fb2.bin",
+          "type": "Other",
+          "start": 963.2169999968028,
+          "end": 1535.4129999977886,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": true,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/backgrounds/bg_map_ch1.jpg",
+          "type": "Image",
+          "start": 3604.615999996895,
+          "end": 4176.347000000533,
+          "encodedDataLength": 127,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 3619.2969999974594,
+          "end": 4192.17199999548,
+          "encodedDataLength": 127,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 3622.6929999975255,
+          "end": 4201.766999998654,
+          "encodedDataLength": 127,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 3623.7199999959557,
+          "end": 4209.56699999806,
+          "encodedDataLength": 127,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/music_map_meadow.ogg",
+          "type": "Media",
+          "start": 3673.953999998048,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        }
+      ],
+      "errors": [],
+      "warnings": [],
+      "memory": {
+        "jsHeapAfterGC": 14820104,
+        "games": [
+          {
+            "textureBytes": 32371532,
+            "viewport": [
+              720,
+              1280
+            ],
+            "scenes": [
+              "Campaign"
+            ],
+            "topTextures": [
+              {
+                "key": "skin_atlas",
+                "dims": "1024x1004",
+                "bytes": 4112384,
+                "sources": [
+                  "skin_atlas"
+                ]
+              },
+              {
+                "key": "skin_bg_forest",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_forest"
+                ]
+              },
+              {
+                "key": "skin_bg_battle",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_battle"
+                ]
+              },
+              {
+                "key": "bg_map_ch1",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "bg_map_ch1"
+                ]
+              },
+              {
+                "key": "skin_banner_victory",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_victory"
+                ]
+              },
+              {
+                "key": "skin_banner_defeat",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_defeat"
+                ]
+              },
+              {
+                "key": "ui_kenney",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "ui_kenney"
+                ]
+              },
+              {
+                "key": "skin_rays",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "skin_rays"
+                ]
+              },
+              {
+                "key": "boot_bg",
+                "dims": "390x660",
+                "bytes": 1029600,
+                "sources": [
+                  "boot_bg"
+                ]
+              },
+              {
+                "key": "spr_hero_alan_first_profession_detail_v1",
+                "dims": "370x569",
+                "bytes": 842120,
+                "sources": [
+                  "spr_hero_alan_first_profession_detail_v1"
+                ]
+              },
+              {
+                "key": "spr_hero_bran_first_profession_detail_v1",
+                "dims": "335x433",
+                "bytes": 580220,
+                "sources": [
+                  "spr_hero_bran_first_profession_detail_v1"
+                ]
+              },
+              {
+                "key": "spr_hero_vika_acolyte_details_v2",
+                "dims": "336x417",
+                "bytes": 560448,
+                "sources": [
+                  "spr_hero_vika_acolyte_details_v2"
+                ]
+              },
+              {
+                "key": "boot_ribbon",
+                "dims": "820x150",
+                "bytes": 492000,
+                "sources": [
+                  "boot_ribbon"
+                ]
+              },
+              {
+                "key": "ui_chest_empty",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_empty"
+                ]
+              },
+              {
+                "key": "ui_chest_filling",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_filling"
+                ]
+              }
+            ],
+            "portraitFilters": [
+              {
+                "key": "portrait_acolyte",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_alchemist",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_archer_first",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_assassin_cross_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_bard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_blacksmith",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_champion_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_clown_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_creator_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_guard",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_gypsy_f",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_priest_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_high_wizard_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_archer",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_warrior",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_lord_knight_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_magician",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_merchant",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_monk",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_novice",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_paladin_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_priest",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_professor_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_rogue",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_sniper_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_stalker_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_swordman",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_thief",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_bran_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_vika_acolyte_details_v2",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_whitesmith_m",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_mage",
+                "filters": [
+                  1
+                ]
+              },
+              {
+                "key": "portrait_hero_alan_first_profession_detail_v1",
+                "filters": [
+                  1
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

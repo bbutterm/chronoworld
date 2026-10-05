@@ -1,0 +1,598 @@
+{
+  "privateFixtures": true,
+  "compiled": true,
+  "url": "http://127.0.0.1:5595/",
+  "started": "2026-10-05T00:14:45.900Z",
+  "runs": [
+    {
+      "mode": "canvas",
+      "width": 360,
+      "height": 640,
+      "kind": "copy",
+      "steps": [
+        {
+          "name": "heroDevelopCompanion",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 797,
+          "clip": [
+            170,
+            988
+          ],
+          "x": 180,
+          "y": 401.66666666666663,
+          "height": 44
+        },
+        {
+          "name": "heroCopySelect_h4",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 1256,
+          "clip": [
+            570,
+            1378
+          ],
+          "x": 180,
+          "y": 554.6666666666666,
+          "height": 44
+        },
+        {
+          "name": "heroDevelopCompanion",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 797,
+          "clip": [
+            170,
+            988
+          ],
+          "x": 180,
+          "y": 401.66666666666663,
+          "height": 44
+        },
+        {
+          "name": "heroCopySelect_h4",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 1256,
+          "clip": [
+            570,
+            1378
+          ],
+          "x": 180,
+          "y": 554.6666666666666,
+          "height": 44
+        },
+        {
+          "name": "heroCopyUpgradeConfirm",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 1279,
+          "clip": [
+            418,
+            1378
+          ],
+          "x": 180,
+          "y": 562.3333333333333,
+          "height": 44
+        },
+        {
+          "name": "levelUpBtn",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 1112,
+          "clip": [
+            0,
+            1410
+          ],
+          "x": 269.3333333333333,
+          "y": 506.66666666666663,
+          "height": 44
+        }
+      ],
+      "errors": [],
+      "bundle": "/assets/index-Nt6-FEvU.js",
+      "resize": {
+        "before": {
+          "heroId": "h1",
+          "tab": "story",
+          "offset": 540
+        },
+        "after": {
+          "heroId": "h1",
+          "tab": "story",
+          "offset": 540
+        }
+      },
+      "passed": true
+    },
+    {
+      "mode": "canvas",
+      "width": 360,
+      "height": 640,
+      "kind": "ascend",
+      "steps": [
+        {
+          "name": "ascendBtn",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 772,
+          "clip": [
+            170,
+            988
+          ],
+          "x": 77.33333333333333,
+          "y": 393.3333333333333,
+          "height": 44
+        },
+        {
+          "name": "fodderSlot_0",
+          "scene": "Ascend",
+          "view": {
+            "uiHeight": 1410,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 16,
+            "cssW": 360,
+            "cssH": 624,
+            "backW": 360,
+            "backH": 624,
+            "density": 1,
+            "zoom": 0.3333333333333333,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 1872,
+            "safeTop": 0,
+            "safeBottom": 1410
+          },
+          "worldY": 781.5,
+          "clip": [
+            170,
+            988
+          ],
+          "x": 142,
+          "y": 396.5,
+          "height": 81.66666666666666
+        }
+      ],
+      "errors": [],
+      "bundle": "/assets/index-Nt6-FEvU.js",
+      "resize": {
+        "before": {
+          "heroId": "h1",
+          "chosen": [],
+          "offset": 0
+        },
+        "after": {
+          "heroId": "h1",
+          "chosen": [],
+          "offset": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "mode": "webgl1",
+      "width": 390,
+      "height": 844,
+      "kind": "copy",
+      "steps": [
+        {
+          "name": "heroDevelopCompanion",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 1337,
+          "clip": [
+            170,
+            1444.4615384615386
+          ],
+          "x": 195,
+          "y": 618.8055555555555,
+          "height": 47.666666666666664
+        },
+        {
+          "name": "heroCopySelect_h4",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 1712.4615478515625,
+          "clip": [
+            1034.4615384615386,
+            1834.4615384615386
+          ],
+          "x": 195,
+          "y": 754.3888922797308,
+          "height": 47.666666666666664
+        },
+        {
+          "name": "heroDevelopCompanion",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 1337,
+          "clip": [
+            170,
+            1444.4615384615386
+          ],
+          "x": 195,
+          "y": 618.8055555555555,
+          "height": 47.666666666666664
+        },
+        {
+          "name": "heroCopySelect_h4",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 1712.4615478515625,
+          "clip": [
+            1034.4615384615386,
+            1834.4615384615386
+          ],
+          "x": 195,
+          "y": 754.3888922797308,
+          "height": 47.666666666666664
+        },
+        {
+          "name": "heroCopyUpgradeConfirm",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 1580.4615478515625,
+          "clip": [
+            727.4615384615386,
+            1834.4615384615386
+          ],
+          "x": 195,
+          "y": 706.7222256130642,
+          "height": 47.666666666666664
+        },
+        {
+          "name": "levelUpBtn",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 1568.4615478515625,
+          "clip": [
+            0,
+            1866.4615384615386
+          ],
+          "x": 291.77777777777777,
+          "y": 702.3888922797308,
+          "height": 47.666666666666664
+        }
+      ],
+      "errors": [],
+      "bundle": "/assets/index-Nt6-FEvU.js",
+      "resize": {
+        "before": {
+          "heroId": "h1",
+          "tab": "story",
+          "offset": 0
+        },
+        "after": {
+          "heroId": "h1",
+          "tab": "story",
+          "offset": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "mode": "webgl1",
+      "width": 390,
+      "height": 844,
+      "kind": "ascend",
+      "steps": [
+        {
+          "name": "ascendBtn",
+          "scene": "Hero",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 772,
+          "clip": [
+            170,
+            1444.4615384615386
+          ],
+          "x": 83.77777777777777,
+          "y": 414.77777777777777,
+          "height": 47.666666666666664
+        },
+        {
+          "name": "fodderSlot_0",
+          "scene": "Ascend",
+          "view": {
+            "uiHeight": 1866.4615384615386,
+            "adaptive": true,
+            "compact": true,
+            "cssLeft": 0,
+            "cssTop": 6,
+            "cssW": 390,
+            "cssH": 838,
+            "backW": 390,
+            "backH": 838,
+            "density": 1,
+            "zoom": 0.3611111111111111,
+            "worldX": 0,
+            "worldY": -360,
+            "worldW": 1080,
+            "worldH": 2320.6153846153848,
+            "safeTop": 0,
+            "safeBottom": 1866.4615384615386
+          },
+          "worldY": 1292.5,
+          "clip": [
+            170,
+            1444.4615384615386
+          ],
+          "x": 153.83333333333334,
+          "y": 602.7361111111111,
+          "height": 88.47222222222221
+        }
+      ],
+      "errors": [],
+      "bundle": "/assets/index-Nt6-FEvU.js",
+      "resize": {
+        "before": {
+          "heroId": "h1",
+          "chosen": [],
+          "offset": 0
+        },
+        "after": {
+          "heroId": "h1",
+          "chosen": [],
+          "offset": 0
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "finished": "2026-10-05T00:15:24.512Z"
+}

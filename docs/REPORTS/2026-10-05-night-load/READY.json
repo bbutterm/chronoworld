@@ -1,0 +1,36 @@
+{
+  "status": "READY - isolated Boot packet; root full check required before commit",
+  "worktree": "/workspace/chronoworld-worktrees/night-cold-load",
+  "ownedSourceFiles": [
+    {
+      "path": "src/game/scenes/BootScene.ts",
+      "sha256": "3b0ab7b8810468580534b337cb3684db447b7da460c4dd8bf3e49448aaed111c"
+    },
+    {
+      "path": "tests/boot-owned-portraits.test.ts",
+      "sha256": "915c22311f8e6abfbc23c05ae052d022f4b84acbd88797d75ef36c4f91a941ce"
+    },
+    {
+      "path": "tests/fixtures/boot-late-save.json",
+      "sha256": "300b70cae13432daf4385d864ff33df8f7fbb620fc93ca3002735f0e25807701"
+    }
+  ],
+  "qaDocument": "docs/qa/night-cold-load-2026-10-05.md",
+  "qaArtifacts": "docs/REPORTS/2026-10-05-night-load",
+  "summary": "docs/REPORTS/2026-10-05-night-load/summary.json",
+  "checks": {
+    "targetedVitest": "3 files / 11 tests PASS",
+    "typecheck": "PASS",
+    "productionBuild": "PASS",
+    "coldWarmNetwork": "PASS - all 3 external own portraits removed in all 6 after samples",
+    "lateSave": "PASS - 25 portraits incl advanced/off-squad; nearest=1",
+    "fallback": "PASS - injected pack and portrait 404; real sheet fallback; Campaign ready"
+  },
+  "sourceEdits": "BootScene only; no art/core/data/RNG edits in this packet",
+  "notes": [
+    "Timing uses frozen combined root before later data2/shared-header package",
+    "diagnostic CPU1 Fast3G samples are n=1; CPU4/net-none median n=3 is isolated",
+    "texture bytes are RGBA source estimate, not physical GPU RAM/FPS",
+    "3MB delivered-sprite budget remains exceeded, threshold unchanged"
+  ]
+}

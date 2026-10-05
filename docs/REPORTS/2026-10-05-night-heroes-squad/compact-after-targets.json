@@ -1,0 +1,115 @@
+{
+  "errors": [],
+  "cases": [
+    {
+      "kind": "Heroes",
+      "issue": "Telegram Back closes root sheet",
+      "beforeModals": [
+        "bottomSheet"
+      ],
+      "afterModals": []
+    },
+    {
+      "kind": "Stage",
+      "issue": "Separated practical touch targets and actual rearrange",
+      "pos": {
+        "point": null,
+        "overlap": null,
+        "fix": {
+          "visible": true,
+          "center": {
+            "x": 882,
+            "y": 1072
+          },
+          "hitW": 300,
+          "hitH": 132
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      },
+      "beforeSquad": [
+        "h1",
+        "h2",
+        null,
+        null,
+        "h3"
+      ],
+      "afterSquad": [
+        "h1",
+        null,
+        null,
+        "h2",
+        "h3"
+      ],
+      "modals": []
+    },
+    {
+      "kind": "Squad",
+      "issue": "Separated practical touch targets and actual rearrange",
+      "pos": {
+        "point": null,
+        "overlap": null,
+        "fix": {
+          "visible": true,
+          "center": {
+            "x": 882,
+            "y": 954
+          },
+          "hitW": 300,
+          "hitH": 132
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      },
+      "beforeSquad": [
+        "h1",
+        "h2",
+        null,
+        null,
+        "h3"
+      ],
+      "afterSquad": [
+        "h1",
+        null,
+        null,
+        "h2",
+        "h3"
+      ],
+      "modals": []
+    }
+  ]
+}

@@ -2571,6 +2571,489 @@
       }
     ],
     "totalDropsGreaterThan10Percent": 30,
-    "recommendation": "После additional fresh profiles проверить только ch9_s10 recommendedStages .3593→примерно.53–.54 (25.4–25.8k). Для ch10_s13 единый победный порог не установлен:31956 даёт9/64,31872 даёт64/64; coefficients пока не менять. Не применять monotonic clamp."
+    "recommendation": "Применён отдельный data-only коэффициент ch9_s10 .3593→.5436 (26k) как ориентир обычного состава. Это не универсальный порог: точный состав fresh seed 3 с 22710 побеждает 64/64. Для ch10_s13 новый скаляр не установлен: 31956 даёт 9/64, 31872 даёт 64/64. Monotonic clamp не вводился; прочие коэффициенты прежние.",
+    "beforeFirstWinSeed2": {
+      "sourceDigest": "79fa056ae3b80008ba5372ed2f9cf20d71946683245bb7d7161410d9abd33523",
+      "snapshotTiming": "До playStage, выдачи награды и prepare; исходный боевой clock.seed сохранён и воспроизведён.",
+      "replayBattleCalls": 128,
+      "profiles": [
+        {
+          "name": "after100-seed2-before-first-win-ch9_s10",
+          "saveSha256": "775e8202a033bc75985284c56221c07c551c1d0d67fe506941a9fde1610fc02f",
+          "stage": "ch9_s10",
+          "seedBase": 1478,
+          "seeds": 64,
+          "power": 25636,
+          "recommended": 17200,
+          "ratio": 1.4904651162790699,
+          "verdict": "easy",
+          "factor": 0.3593,
+          "stagePower": 47833,
+          "wins": 36,
+          "winRate": 0.5625,
+          "timeouts": 0,
+          "lossWipes": 28,
+          "medianDuration": 87.7,
+          "winningDurationMin": 86.2,
+          "winningDurationMax": 90.7,
+          "meanPlayerHpRemaining": 0.06590595716657291,
+          "meanEnemyHpRemaining": 0.03427635948698069,
+          "firstSeedWinner": "A",
+          "firstSeedDuration": 88.3,
+          "squad": [
+            {
+              "template": "alan",
+              "branch": "knight",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "resolve"
+            },
+            {
+              "template": "iris",
+              "branch": "knight",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "greta",
+              "branch": "blacksmith",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "lira",
+              "branch": "sage",
+              "level": 63,
+              "rarity": "gold",
+              "focus": "precision"
+            },
+            {
+              "template": "meilin",
+              "branch": "hunter",
+              "level": 100,
+              "rarity": "red",
+              "focus": "precision"
+            }
+          ]
+        },
+        {
+          "name": "after100-seed2-before-first-win-ch10_s13",
+          "saveSha256": "6705f894b1ac5500c3961fb625afa28b2964be19e4338442ac64b17c6992db22",
+          "stage": "ch10_s13",
+          "seedBase": 1673,
+          "seeds": 64,
+          "power": 27887,
+          "recommended": 22200,
+          "ratio": 1.2561711711711712,
+          "verdict": "easy",
+          "factor": 0.3066,
+          "stagePower": 72318,
+          "wins": 19,
+          "winRate": 0.296875,
+          "timeouts": 26,
+          "lossWipes": 19,
+          "medianDuration": 99.15,
+          "winningDurationMin": 95.4,
+          "winningDurationMax": 99.7,
+          "meanPlayerHpRemaining": 0.14742513925228604,
+          "meanEnemyHpRemaining": 0.08251843810580949,
+          "firstSeedWinner": "A",
+          "firstSeedDuration": 95.9,
+          "squad": [
+            {
+              "template": "alan",
+              "branch": "knight",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "resolve"
+            },
+            {
+              "template": "zara",
+              "branch": "assassin",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "vika",
+              "branch": "priest",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "meilin",
+              "branch": "hunter",
+              "level": 100,
+              "rarity": "red",
+              "focus": "precision"
+            },
+            {
+              "template": "lira",
+              "branch": "sage",
+              "level": 80,
+              "rarity": "gold",
+              "focus": "precision"
+            }
+          ]
+        }
+      ]
+    },
+    "totalReplayBattleCalls": 960,
+    "freshRationalCohorts": [
+      {
+        "seedBase": 1,
+        "cleared": 180,
+        "elapsedHours": 389.88,
+        "totalWaits": 31,
+        "campaignAttempts": 689,
+        "artificialResources": false,
+        "waitHours": 12,
+        "sourceSha256": "1e049bb4d856540a19fff062535b56cdcd98e3d8365abc6d0be015cc8323a94c",
+        "scriptSha256": "a41d45addea1e8084da123bb9431495fd2f502fa98dc9b718ac2b998b52b504d",
+        "attemptsSha256": "c7b8b2d65c5f4c0e2030c7a342b04224612af14ca064190de22c1c1860f52494",
+        "timeoutLosses": 14,
+        "firstWins": {
+          "ch9_s10": {
+            "power": 26547,
+            "duration": 94.8,
+            "seed": 1296
+          },
+          "ch10_s13": {
+            "power": 32609,
+            "duration": 97.8,
+            "seed": 1475
+          }
+        }
+      },
+      {
+        "seedBase": 2,
+        "cleared": 180,
+        "elapsedHours": 412.828,
+        "totalWaits": 33,
+        "campaignAttempts": 774,
+        "artificialResources": false,
+        "waitHours": 12,
+        "sourceSha256": "21a7a36f0c84b7964c678f718e7b731962032cb1f8cbb980d9402bcecc482dd6",
+        "scriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+        "attemptsSha256": "e2da01f4dea4832db7c1c52d33ec101f6fd4d8a501d417bd267dddf84560d83a",
+        "timeoutLosses": 5,
+        "firstWins": {
+          "ch9_s10": {
+            "power": 25636,
+            "duration": 88.3,
+            "seed": 1478
+          },
+          "ch10_s13": {
+            "power": 27887,
+            "duration": 95.9,
+            "seed": 1673
+          }
+        }
+      },
+      {
+        "seedBase": 3,
+        "cleared": 180,
+        "elapsedHours": 361.667,
+        "totalWaits": 29,
+        "campaignAttempts": 637,
+        "artificialResources": false,
+        "waitHours": 12,
+        "sourceSha256": "21a7a36f0c84b7964c678f718e7b731962032cb1f8cbb980d9402bcecc482dd6",
+        "scriptSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+        "attemptsSha256": "b2e875a6142e6d1ba26d29e4f31d1f10670f8b65097c152d18bbe319256263c0",
+        "timeoutLosses": 0,
+        "firstWins": {
+          "ch9_s10": {
+            "power": 22710,
+            "duration": 81.5,
+            "seed": 1164
+          },
+          "ch10_s13": {
+            "power": 24579,
+            "duration": 95.7,
+            "seed": 1322
+          }
+        }
+      }
+    ],
+    "withinChapterDropsGreaterThan10Percent": 23,
+    "followupReport": "docs/qa/night-campaign-hints-2026-10-05.md",
+    "beforeFirstWinSeed3": {
+      "sourceDigest": "79fa056ae3b80008ba5372ed2f9cf20d71946683245bb7d7161410d9abd33523",
+      "snapshotTiming": "До playStage, награды и prepare; исходные clock.seed воспроизведены. Replay выполнен до калибровки рекомендованной мощи .5436, которая не изменяет состав и статы врагов.",
+      "replayBattleCalls": 128,
+      "profiles": [
+        {
+          "name": "after100-seed3-before-first-win-ch9_s10",
+          "saveSha256": "34012c831311432e723ea6a5cf46c31e338120eb3fe0bfbdf7238f0b2467a0f5",
+          "stage": "ch9_s10",
+          "seedBase": 1164,
+          "seeds": 64,
+          "power": 22710,
+          "recommended": 17200,
+          "ratio": 1.3203488372093024,
+          "verdict": "easy",
+          "factor": 0.3593,
+          "stagePower": 47833,
+          "wins": 64,
+          "winRate": 1,
+          "timeouts": 0,
+          "lossWipes": 0,
+          "medianDuration": 81.9,
+          "winningDurationMin": 80.7,
+          "winningDurationMax": 82.9,
+          "meanPlayerHpRemaining": 0.47540724206349205,
+          "meanEnemyHpRemaining": 0,
+          "firstSeedWinner": "A",
+          "firstSeedDuration": 81.5,
+          "squad": [
+            {
+              "template": "alan",
+              "branch": "knight",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "resolve"
+            },
+            {
+              "template": "dorn",
+              "branch": "assassin",
+              "level": 96,
+              "rarity": "red",
+              "focus": "precision"
+            },
+            {
+              "template": "greta",
+              "branch": "blacksmith",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "kai",
+              "branch": "wizard",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "vika",
+              "branch": "priest",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            }
+          ]
+        },
+        {
+          "name": "after100-seed3-before-first-win-ch10_s13",
+          "saveSha256": "f5146ebee46b3233fac507fbefb0f241dc72e60291a6ec13aca9582c48ce50af",
+          "stage": "ch10_s13",
+          "seedBase": 1322,
+          "seeds": 64,
+          "power": 24579,
+          "recommended": 22200,
+          "ratio": 1.1071621621621621,
+          "verdict": "easy",
+          "factor": 0.3066,
+          "stagePower": 72318,
+          "wins": 19,
+          "winRate": 0.296875,
+          "timeouts": 0,
+          "lossWipes": 45,
+          "medianDuration": 94.9,
+          "winningDurationMin": 91.9,
+          "winningDurationMax": 97.8,
+          "meanPlayerHpRemaining": 0.06373866363121498,
+          "meanEnemyHpRemaining": 0.08145367902257519,
+          "firstSeedWinner": "A",
+          "firstSeedDuration": 95.7,
+          "squad": [
+            {
+              "template": "alan",
+              "branch": "knight",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "resolve"
+            },
+            {
+              "template": "dorn",
+              "branch": "assassin",
+              "level": 100,
+              "rarity": "red",
+              "focus": "precision"
+            },
+            {
+              "template": "zara",
+              "branch": "assassin",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "kai",
+              "branch": "wizard",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            },
+            {
+              "template": "vika",
+              "branch": "priest",
+              "level": 60,
+              "rarity": "purple",
+              "focus": "precision"
+            }
+          ]
+        }
+      ]
+    },
+    "totalDropsGreaterThan10PercentScope": "Historical numeric-id sort; not actual campaign route. Current content-array audit: 23 within-chapter drops greater than 10%, see campaignDataFollowup."
+  },
+  "campaignDataFollowup": {
+    "changes": [
+      "ch1_s4/enemies/2.unit mob_poporing→mob_tank, mult .9818 прежний",
+      "power/recommendedStages/ch9_s10 .3593→.5436, ориентир 17200→26000"
+    ],
+    "introValidation": {
+      "sourceDigest": "434a17a23e327bf5bdd058b0eda62451adba16283c89919736c22fe516d43ab4",
+      "source": "/workspace/chronoworld-worktrees/night-class-balance",
+      "driver": "/workspace/chronoworld-worktrees/night-full-campaign/scripts/night-playthrough.ts",
+      "simulatedContextsOnly": true,
+      "comparison": "Только ch1_s4/enemies/2 unit; mult=.9818 и остальные данные одинаковы",
+      "intro": {
+        "before": {
+          "willow": {
+            "stage": "ch1_s5",
+            "order": 6,
+            "slot": 0
+          },
+          "poporing": {
+            "stage": "ch1_s4",
+            "order": 5,
+            "slot": 2
+          }
+        },
+        "after": {
+          "willow": {
+            "stage": "ch1_s4",
+            "order": 5,
+            "slot": 2
+          },
+          "poporing": {
+            "stage": "ch1_s6",
+            "order": 8,
+            "slot": 1
+          }
+        }
+      },
+      "regressionSeeds": [],
+      "cohorts": [
+        {
+          "revision": "before",
+          "seeds": 32,
+          "completed": 32,
+          "cleared": 576,
+          "attempts": 576,
+          "losses": 0,
+          "waits": 0,
+          "ch1_s4Duration": {
+            "min": 13.5,
+            "median": 15.1,
+            "max": 15.1
+          },
+          "ch1_s4Ults": {
+            "teamUltMedian": 0.0,
+            "teamUltTotal": 0,
+            "battlesWithoutUlt": 32,
+            "firstUltMedian": null
+          }
+        },
+        {
+          "revision": "after",
+          "seeds": 32,
+          "completed": 32,
+          "cleared": 576,
+          "attempts": 576,
+          "losses": 0,
+          "waits": 0,
+          "ch1_s4Duration": {
+            "min": 18.3,
+            "median": 18.6,
+            "max": 19.6
+          },
+          "ch1_s4Ults": {
+            "teamUltMedian": 1.0,
+            "teamUltTotal": 24,
+            "battlesWithoutUlt": 11,
+            "firstUltMedian": 18.6
+          }
+        }
+      ],
+      "scope": "32 одинаковых seed 1…32, реальные игровые действия из newGame, maxStages18/maxWaits0; after отличается только ch1_s4/enemies/2.unit. Это не 32 независимых распределения удачи таверны."
+    },
+    "campaignHints": "docs/REPORTS/2026-10-05-night-combat/campaign-hints-current.csv",
+    "report": "docs/qa/night-campaign-hints-2026-10-05.md",
+    "fullCampaignAfterBothDataChanges": {
+      "status": "PASS",
+      "sourceSha256": "cf7be27c0f75ec6ce6f3e894d795fee71ebf4bf3585ec10bb5cd06de9561421c",
+      "driverSha256": "f00dac94657716e10bbcf94be81f19a45c0dcd906ed2cfa5d57a0ca2de4885d8",
+      "profiles": [
+        {
+          "seed": 1,
+          "cleared": 180,
+          "campaignStages": 180,
+          "attempts": 774,
+          "losses": 594,
+          "waits": 32,
+          "elapsedHours": 403.713,
+          "artificialResources": false
+        },
+        {
+          "seed": 2,
+          "cleared": 180,
+          "campaignStages": 180,
+          "attempts": 526,
+          "losses": 346,
+          "waits": 18,
+          "elapsedHours": 226.233,
+          "artificialResources": false
+        },
+        {
+          "seed": 3,
+          "cleared": 180,
+          "campaignStages": 180,
+          "attempts": 648,
+          "losses": 468,
+          "waits": 30,
+          "elapsedHours": 373.677,
+          "artificialResources": false
+        }
+      ],
+      "evidence": "../2026-10-05-night-campaign/READY-data2.json",
+      "causality": "Fresh full accounts establish passability and variation. Timing changes are not attributed to the hint coefficient; early battle timing can change later daily economy decisions."
+    },
+    "goldenDelta": "0 из 292: campaign JSON не меняет замороженные BEHAVIOR_COMPS; контроль on/off и все три trace сохранены. Revision/ref/hash files дополнительно не обновлялись.",
+    "checks": {
+      "typecheck": "PASS",
+      "focused": {
+        "files": 2,
+        "tests": 9,
+        "status": "PASS",
+        "filesChecked": [
+          "tests/campaign-introduction-order.test.ts",
+          "tests/behavior.test.ts"
+        ]
+      },
+      "golden": {
+        "scenarios": 292,
+        "changedHashes": 0,
+        "traces": "identical",
+        "write": false,
+        "thresholdsProtocolSeedsSquadsUnchanged": true
+      }
+    }
   }
 }

@@ -9,13 +9,13 @@ import { bump, countUp, juiceOn } from './juice';
 import { GAME_W } from './layout';
 import { numberFont, type NumberFont } from './numberFont';
 import type { CachedTextStyle } from './perf';
-import { classifyGesture, dropHero, fieldSlots, hitSlot, PREP, removeAt, rosterCardW, rosterOrder, slotBand, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
+import { classifyGesture, dropHero, fieldSlots, formationBodyRows, hitSlot, PREP, removeAt, rosterCardW, rosterOrder, slotBand, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
 import { portrait, powerCompare, unitFigure, unitTint, updatePowerCompare } from './screen';
 import { commit, session } from './session';
 import { skinIcon } from './skin';
 import { portraitKey } from './sprites';
-import { button, ellipsize, plate, SURFACE, text, toast } from './ui';
-import { worldPoint } from './viewport';
+import { button, ellipsize, plate, type ScrollArea, SURFACE, text, toast } from './ui';
+import { minimumFontSize, worldPoint } from './viewport';
 import { C, COLOR, COLOR_N, E, FAMILY, M, R, S, T } from './theme';
 
 /**
@@ -73,6 +73,8 @@ export interface FormationOpts {
    * Не задан — заголовок рисует сцена.
    */
   rosterHead?: { y: number; title?: string; onAuto?: () => void; onPresets?: () => void };
+  /** Поле и весь ростер прокручиваются одним телом; координаты правил расстановки остаются прежними. */
+  scrollBody?: { area: ScrollArea; origin: number };
 }
 
 /** Сколько держится заметка в строке подсказки (RR-17), мс. */
@@ -140,17 +142,21 @@ export class FormationEditor {
   private dropHint: Phaser.GameObjects.Text | null = null;
   private highlight: Phaser.GameObjects.Graphics;
   private hover = -1;
+  private highlightShift = 0;
   private pop: number | null = null;
   private popAll = false;
   private hinted = false;
   private shownPower: number | null = null;
   /** Открыто окно поверх (подтверждение, диалог, лист) — жесты выключены. */
   locked = false;
+  private bodyContainer: Phaser.GameObjects.Container | null = null;
+  private bodyDragLocked = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly opts: FormationOpts,
   ) {
+    const before = new Set(scene.children.list);
     ensurePrepTextures(scene);
     this.font = levelFont(scene);
     const { field } = opts;
@@ -198,7 +204,7 @@ export class FormationEditor {
 
     // Строка под полем — только когда есть что сказать: предупреждение «стрелки во фронте» + «Переставить», пустой
     // отряд или короткая заметка (Авто). Постоянной инструкции нет.
-    const tipY = field.bottom + 40;
+    const tipY = opts.scrollBody ? formationBodyRows(field.bottom).warningY : field.bottom + 40;
     this.tip = text(scene, GAME_W / 2, tipY, '', T.caption, COLOR.textSecondary);
     this.fixBtn = button(scene, GAME_W - S.l - 150, tipY, 300, 84, '', 'Переставить', () => this.rearrange(), T.caption, { variant: 'secondary' });
     this.fixBtn.container.setName('rearrangeBtn');
@@ -210,11 +216,13 @@ export class FormationEditor {
     const { roster } = opts;
     this.selFrame = scene.add.graphics();
     this.rosterContent = scene.add.container(0, roster.top);
-    const mg = scene.make.graphics({}, false);
-    mg.fillStyle(0xffffff).fillRect(0, roster.top, GAME_W, roster.bottom - roster.top);
-    this.rosterContent.setMask(mg.createGeometryMask());
-    // Видимая полоса списка (e2e: вне полосы содержимое скрыто маской и ничего не перекрывает).
-    this.rosterContent.setData('clip', [roster.top, roster.bottom]);
+    if (!opts.scrollBody) {
+      const mg = scene.make.graphics({}, false);
+      mg.fillStyle(0xffffff).fillRect(0, roster.top, GAME_W, roster.bottom - roster.top);
+      this.rosterContent.setMask(mg.createGeometryMask());
+      // Видимая полоса классического списка.
+      this.rosterContent.setData('clip', [roster.top, roster.bottom]);
+    }
     this.thumb = scene.add.rectangle(GAME_W - S.xs, roster.top, 6, 40, COLOR_N.border, 0.9).setOrigin(0.5, 0).setVisible(false);
 
     this.highlight = scene.add.graphics().setDepth(4000);
@@ -225,6 +233,7 @@ export class FormationEditor {
     const move = (p: Phaser.Input.Pointer) => this.onMove(p);
     const up = (p: Phaser.Input.Pointer) => this.onUp(p);
     const wheel = (p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
+      if (opts.scrollBody) return;
       const w = worldPoint(scene, p);
       if (!this.locked && !this.gesture && this.inRoster(w.y)) this.scrollTo(this.scrollY + dy);
     };
@@ -233,13 +242,75 @@ export class FormationEditor {
     input.on('pointerup', up);
     input.on('pointerupoutside', up);
     input.on('wheel', wheel);
+    const autoScroll = (_time: number, delta: number) => {
+      const body = opts.scrollBody?.area;
+      if (!body || this.gesture?.mode !== 'drag' || !scene.input.activePointer.isDown) return;
+      const w = worldPoint(scene, scene.input.activePointer);
+      const [top, bottom] = body.content.getData('clip') as [number, number];
+      const edge = 72;
+      const dy = w.y < top + edge ? -1 : w.y > bottom - edge ? 1 : 0;
+      if (!dy) return;
+      const previous = body.offset;
+      body.offset += dy * Math.min(30, delta * 0.75);
+      if (body.offset !== previous) this.moveGhost(w);
+    };
+    if (opts.scrollBody) scene.events.on(Phaser.Scenes.Events.UPDATE, autoScroll);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       input.off('pointerdown', down);
       input.off('pointermove', move);
       input.off('pointerup', up);
       input.off('pointerupoutside', up);
       input.off('wheel', wheel);
+      scene.events.off(Phaser.Scenes.Events.UPDATE, autoScroll);
+      this.cancelGesture();
     });
+    if (opts.scrollBody) {
+      this.bodyContainer = scene.add.container(0, -opts.scrollBody.origin).setName('formationBody');
+      opts.scrollBody.area.add(this.bodyContainer);
+      this.addToBody(scene.children.list.filter(o => !before.has(o)));
+      const mask = opts.scrollBody.area.content.mask;
+      if (mask) {
+        this.highlight.setMask(mask);
+        this.dragLayer.setMask(mask);
+      }
+    }
+  }
+
+  /** Дополнения сцены (разведка, награды, кнопки ростера) используют ту же прокрутку и маску. */
+  addToBody(objects: Phaser.GameObjects.GameObject[]): void {
+    if (!this.bodyContainer || !this.opts.scrollBody) return;
+    const outside = new Set([...this.opts.scrollBody.area.parts, this.bodyContainer, this.highlight, this.dragLayer]);
+    this.bodyContainer.add(objects.filter(o => !outside.has(o)));
+  }
+
+  /** Resize отменяет незавершённый перенос, сохраняя выбранный пустой слот и состав. */
+  setBodyBounds(top: number, bottom: number): void {
+    this.cancelGesture();
+    this.opts.scrollBody?.area.setBounds(top, bottom);
+  }
+
+  private bodyShift(): number {
+    const body = this.opts.scrollBody;
+    return body ? body.area.content.y - body.origin : 0;
+  }
+
+  private logicalPoint(p: Point): Point {
+    return { x: p.x, y: p.y - this.bodyShift() };
+  }
+
+  private bodyContains(p: Point): boolean {
+    const body = this.opts.scrollBody?.area;
+    if (!body) return true;
+    const [top, bottom] = body.content.getData('clip') as [number, number];
+    return p.y >= top && p.y <= bottom;
+  }
+
+  private cancelGesture(): void {
+    const gesture = this.gesture;
+    this.gesture = null;
+    gesture?.holdTimer?.remove();
+    if (gesture) this.release(gesture);
+    this.endDrag();
   }
 
   /** Центр слота i на поле (для подсказок и e2e). */
@@ -288,6 +359,7 @@ export class FormationEditor {
       // Фигура в стойке, лицом к отряду (зеркально, как в бою). Имя и подробности — по касанию (экран этапа).
       unitFigure(scene, u.visual.sprite, p.x, p.y + 36, boss ? 130 : 110, {
         onReady: (o) => {
+          this.bodyContainer?.add(o);
           o.setTint(unitTint(u.visual));
           if (o instanceof Phaser.GameObjects.Sprite) {
             o.setFlipX(true).setOrigin(1 - o.originX, o.originY);
@@ -306,7 +378,7 @@ export class FormationEditor {
 
   /** Число уровня растровым шрифтом (белые глифы с тёмной обводкой; цвет — tint). */
   private levelLabel(x: number, y: number, level: number): Phaser.GameObjects.BitmapText {
-    return this.scene.add.bitmapText(x, y, this.font.key, String(level), this.font.size).setOrigin(0.5);
+    return this.scene.add.bitmapText(x, y, this.font.key, String(level), Math.max(this.font.size, minimumFontSize())).setOrigin(0.5);
   }
 
   private drawSlots(): void {
@@ -395,10 +467,11 @@ export class FormationEditor {
     const rows = Math.ceil(heroes.length / COLS);
     this.rosterH = rows ? 2 * S.xs + rows * CARD_H + (rows - 1) * CARD_GAP : 0;
     this.scrollTo(this.scrollY);
+    if (this.opts.scrollBody) this.opts.scrollBody.area.setContentHeight(Math.max(this.opts.roster.top + this.rosterH, this.opts.field.bottom + 140) - this.opts.scrollBody.origin + S.m);
     // Выбран пустой слот — сетка подсвечена рамкой акцента: следующий герой встанет туда.
     const r = this.opts.roster;
     this.selFrame.clear();
-    if (this.selected !== null) this.selFrame.lineStyle(4, COLOR_N.accent, 0.7).strokeRoundedRect(S.xs, r.top - S.xxs, GAME_W - 2 * S.xs, r.bottom - r.top + 2 * S.xxs, R.l);
+    if (this.selected !== null) this.selFrame.lineStyle(4, COLOR_N.accent, 0.7).strokeRoundedRect(S.xs, r.top - S.xxs, GAME_W - 2 * S.xs, (this.opts.scrollBody ? this.rosterH : r.bottom - r.top) + 2 * S.xxs, R.l);
   }
 
   /** Мощь (отсчёт от прежней), «нужен уровень» при нехватке, предупреждение «дальний бой во фронте». */
@@ -448,6 +521,12 @@ export class FormationEditor {
   }
 
   private scrollTo(v: number): void {
+    if (this.opts.scrollBody) {
+      this.scrollY = 0;
+      this.rosterContent.y = this.opts.roster.top;
+      this.thumb.setVisible(false);
+      return;
+    }
     const max = Math.max(0, this.rosterH - this.rosterView);
     this.scrollY = Phaser.Math.Clamp(v, 0, max);
     this.rosterContent.y = this.opts.roster.top - this.scrollY;
@@ -459,7 +538,7 @@ export class FormationEditor {
   }
 
   private inRoster(y: number): boolean {
-    return y >= this.opts.roster.top && y <= this.opts.roster.bottom;
+    return y >= this.opts.roster.top && y <= (this.opts.scrollBody ? this.opts.roster.top + this.rosterH : this.opts.roster.bottom);
   }
 
   // ---------- жесты: нажатие, перетаскивание, прокрутка ----------
@@ -470,15 +549,17 @@ export class FormationEditor {
   }
 
   private onDown(p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]): void {
-    if (this.locked || this.gesture) return;
+    if (this.locked || this.gesture || this.opts.scrollBody?.area.locked) return;
     const w = worldPoint(this.scene, p);
+    if (!this.bodyContains(w)) return;
+    const at = this.logicalPoint(w);
     // Верхний объект под пальцем: наш слот/карточка — жест наш; кнопка или окно поверх — не наш.
     const tag = over[0]?.getData?.('prep') as Tag | undefined;
     let g: Gesture | null = null;
-    const base = { x0: w.x, y0: w.y, t0: p.downTime || this.scene.time.now, scroll0: this.scrollY, mode: 'pending' as const, press: null, holdTimer: null };
+    const base = { x0: w.x, y0: w.y, t0: p.downTime || this.scene.time.now, scroll0: this.opts.scrollBody?.area.offset ?? this.scrollY, mode: 'pending' as const, press: null, holdTimer: null };
     if (tag && 'slot' in tag) g = { ...base, kind: 'slot', slot: tag.slot, heroId: session.save.squad[tag.slot] ?? null, press: this.slotViews[tag.slot] ?? null };
-    else if (tag && 'hero' in tag && this.inRoster(w.y)) g = { ...base, kind: 'card', slot: -1, heroId: tag.hero, press: this.cardViews.get(tag.hero) ?? null };
-    else if (!over.length && this.inRoster(w.y)) g = { ...base, kind: 'list', slot: -1, heroId: null };
+    else if (tag && 'hero' in tag && this.inRoster(at.y)) g = { ...base, kind: 'card', slot: -1, heroId: tag.hero, press: this.cardViews.get(tag.hero) ?? null };
+    else if (!over.length && this.inRoster(at.y)) g = { ...base, kind: 'list', slot: -1, heroId: null };
     if (!g) return;
     this.gesture = g;
     g.press?.setScale(0.96);
@@ -497,12 +578,16 @@ export class FormationEditor {
     const dx = w.x - g.x0;
     const dy = w.y - g.y0;
     if (g.mode === 'pending') {
-      if (g.kind === 'list') {
-        if (Math.hypot(dx, dy) > 14) g.mode = 'scroll';
+      if (g.kind === 'list' || (!g.heroId && this.opts.scrollBody)) {
+        if (Math.hypot(dx, dy) > 14) {
+          g.mode = 'scroll';
+          this.release(g);
+        }
       } else if (g.heroId) {
-        const m = g.kind === 'slot'
+        // Мышью герой переносится сразу; вертикальный жест пальцем сначала листает тело.
+        const m = (g.kind === 'slot' && !this.opts.scrollBody) || (this.opts.scrollBody && !p.wasTouch)
           ? (Math.hypot(dx, dy) >= 16 ? 'drag' : 'pending')
-          : classifyGesture({ dx, dy, heldMs: 0 }, { scrollable: this.scrollable, leftList: w.y < this.opts.roster.top });
+          : classifyGesture({ dx, dy, heldMs: 0 }, { scrollable: this.opts.scrollBody?.area.scrollable ?? this.scrollable, leftList: !this.opts.scrollBody && w.y < this.opts.roster.top });
         if (m === 'drag') this.startDrag(g, p);
         else if (m === 'scroll') {
           g.mode = 'scroll';
@@ -511,6 +596,7 @@ export class FormationEditor {
       }
     }
     if (g.mode === 'scroll') {
+      if (this.opts.scrollBody) return;
       // Листали и увели палец с карточки вверх, за список, — значит, тянут героя на поле.
       if (g.kind === 'card' && w.y < this.opts.roster.top - 24) {
         this.scrollTo(g.scroll0);
@@ -527,6 +613,10 @@ export class FormationEditor {
     g.holdTimer?.remove();
     this.release(g);
     const w = worldPoint(this.scene, p);
+    if (!this.bodyContains(w)) {
+      this.endDrag();
+      return;
+    }
     const moved = Math.hypot(w.x - g.x0, w.y - g.y0);
     if (g.mode === 'pending' || (g.mode === 'drag' && moved < 16)) {
       this.endDrag();
@@ -536,7 +626,7 @@ export class FormationEditor {
     }
     if (g.mode !== 'drag') return;
     // Цель — там, где призрак героя (он над пальцем), а не под самим пальцем.
-    const at = { x: w.x, y: w.y - GHOST_LIFT };
+    const at = this.logicalPoint({ x: w.x, y: w.y - GHOST_LIFT });
     const target = hitSlot(this.slots, this.slotW, SLOT_H, at, SNAP);
     this.endDrag();
     if (target >= 0) {
@@ -559,6 +649,15 @@ export class FormationEditor {
     g.mode = 'drag';
     g.holdTimer?.remove();
     this.release(g);
+    if (this.opts.scrollBody) {
+      const area = this.opts.scrollBody.area;
+      area.offset = g.scroll0;
+      area.locked = true;
+      this.bodyDragLocked = true;
+      const [top, bottom] = area.content.getData('clip') as [number, number];
+      // Сбрасываем начавшуюся прокрутку: теперь удерживаем героя, а не двигаем тело.
+      area.setBounds(top, bottom);
+    }
     this.selected = null;
     this.selFrame.clear();
     const scene = this.scene;
@@ -581,9 +680,11 @@ export class FormationEditor {
     const g = this.gesture;
     if (!this.ghost || !g) return;
     this.ghost.setPosition(w.x, w.y - GHOST_LIFT);
-    const hover = hitSlot(this.slots, this.slotW, SLOT_H, { x: w.x, y: w.y - GHOST_LIFT }, SNAP);
-    if (hover === this.hover && this.highlight.visible) return;
+    const shift = this.bodyShift();
+    const hover = hitSlot(this.slots, this.slotW, SLOT_H, this.logicalPoint({ x: w.x, y: w.y - GHOST_LIFT }), SNAP);
+    if (hover === this.hover && shift === this.highlightShift && this.highlight.visible) return;
     this.hover = hover;
+    this.highlightShift = shift;
     // Подсветка: все слоты — куда можно бросить; под пальцем — ярко; дальний бой над фронтом — оранжевым.
     const hero = session.save.heroes.find((h) => h.id === g.heroId);
     const rank = hero ? formationRank(hero, GAME) : 0;
@@ -594,30 +695,34 @@ export class FormationEditor {
       const on = i === hover;
       const bad = on && i < 2 && rank >= 2;
       const col = bad ? COLOR_N.warning : COLOR_N.accent;
-      if (on) hl.fillStyle(col, 0.18).fillRoundedRect(s.x - sw / 2, s.y - SLOT_H / 2, sw, SLOT_H, R.m);
-      hl.lineStyle(on ? 6 : 3, col, on ? 1 : 0.45).strokeRoundedRect(s.x - sw / 2, s.y - SLOT_H / 2, sw, SLOT_H, R.m);
+      if (on) hl.fillStyle(col, 0.18).fillRoundedRect(s.x - sw / 2, s.y + shift - SLOT_H / 2, sw, SLOT_H, R.m);
+      hl.lineStyle(on ? 6 : 3, col, on ? 1 : 0.45).strokeRoundedRect(s.x - sw / 2, s.y + shift - SLOT_H / 2, sw, SLOT_H, R.m);
     });
     // Из слота — в список: «убрать».
     if (g.kind === 'slot') {
       const r = this.opts.roster;
-      hl.fillStyle(0x000000, 0.35).fillRoundedRect(S.xs, r.top, GAME_W - 2 * S.xs, r.bottom - r.top, R.l);
-      hl.lineStyle(4, COLOR_N.negative, 0.8).strokeRoundedRect(S.xs, r.top, GAME_W - 2 * S.xs, r.bottom - r.top, R.l);
+      const height = this.opts.scrollBody ? this.rosterH : r.bottom - r.top;
+      hl.fillStyle(0x000000, 0.35).fillRoundedRect(S.xs, r.top + shift, GAME_W - 2 * S.xs, height, R.l);
+      hl.lineStyle(4, COLOR_N.negative, 0.8).strokeRoundedRect(S.xs, r.top + shift, GAME_W - 2 * S.xs, height, R.l);
       if (!this.dropHint) {
-        this.dropHint = text(this.scene, GAME_W / 2, (r.top + r.bottom) / 2, 'Убрать из отряда', T.heading, COLOR.negative, { fontStyle: 'bold' });
+        this.dropHint = text(this.scene, GAME_W / 2, r.top + shift + Math.min(height / 2, 100), 'Убрать из отряда', T.heading, COLOR.negative, { fontStyle: 'bold' });
         this.dropHint.setShadow(0, 2, 'rgba(0,0,0,0.8)', 4, false, true);
         this.dragLayer.addAt(this.dropHint, 0);
       }
+      this.dropHint.setY(r.top + shift + Math.min(height / 2, 100));
     }
     if (hover >= 0 && hover !== g.slot) this.slotViews[hover]?.setScale(1.04);
     this.slotViews.forEach((v, i) => i !== hover && v.scene && v.setScale(1));
   }
 
   private endDrag(): void {
+    if (this.bodyDragLocked && this.opts.scrollBody) this.opts.scrollBody.area.locked = false;
+    this.bodyDragLocked = false;
     this.ghost?.destroy();
     this.ghost = null;
     this.dropHint?.destroy();
     this.dropHint = null;
-    this.highlight.clear().setVisible(false);
+    if (this.highlight.scene) this.highlight.clear().setVisible(false);
     this.hover = -1;
     for (const v of this.slotViews) if (v.scene) v.setScale(1).setAlpha(1);
     for (const v of this.cardViews.values()) if (v.scene) v.setAlpha(1);

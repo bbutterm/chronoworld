@@ -1,0 +1,108 @@
+{
+  "sourceDigest": "a5dbf72b9781b5e48de61925519ae37ccee90e8977909327acb12b4f35a67ec8",
+  "timeLimitSeconds": 100,
+  "dataChanged": false,
+  "defaultCampaignChoices": true,
+  "baselineReconstructedInMemory": [
+    "ch1_s4/enemies/2/unit=mob_poporing",
+    "power/recommendedStages/ch9_s10=.3593"
+  ],
+  "withinChapterDropsGreaterThan10Percent": 23,
+  "ch1Candidate": {
+    "applied": true,
+    "id": "ch1_s4",
+    "slot": 2,
+    "oldUnit": "mob_poporing",
+    "newUnit": "mob_tank",
+    "mult": 0.9818,
+    "oldEnemy": {
+      "hp": 581,
+      "atk": 49,
+      "def": 7,
+      "spd": 120
+    },
+    "newEnemy": {
+      "hp": 989,
+      "atk": 37,
+      "def": 19,
+      "spd": 85
+    },
+    "oldPower": 1086,
+    "newPower": 1103,
+    "oldRecommended": 1100,
+    "newRecommended": 1100,
+    "oldLevels": {
+      "recommended": {
+        "level": 1,
+        "rarity": "green",
+        "squad": 3
+      },
+      "rarity": "green",
+      "enemies": [
+        1,
+        1,
+        1,
+        null,
+        1
+      ],
+      "typical": 1
+    },
+    "newLevels": {
+      "recommended": {
+        "level": 1,
+        "rarity": "green",
+        "squad": 3
+      },
+      "rarity": "green",
+      "enemies": [
+        1,
+        1,
+        1,
+        null,
+        1
+      ],
+      "typical": 1
+    },
+    "newFirstWillowOrder": 5,
+    "newFirstPoporingOrder": 8
+  },
+  "ch9Fit": {
+    "applied": true,
+    "factor": 0.5435577948278385,
+    "roundedFactor": 0.5436,
+    "oldRecommended": 17200,
+    "newRecommended": 26000,
+    "oldLevels": {
+      "recommended": {
+        "level": 41,
+        "rarity": "red",
+        "squad": 5
+      },
+      "rarity": "red",
+      "enemies": [
+        150,
+        133,
+        119,
+        120,
+        null
+      ],
+      "typical": 127
+    },
+    "newLevels": {
+      "recommended": {
+        "level": 70,
+        "rarity": "red",
+        "squad": 5
+      },
+      "rarity": "red",
+      "enemies": [
+        150,
+        133,
+        119,
+        120,
+        null
+      ],
+      "typical": 127
+    }
+  }
+}

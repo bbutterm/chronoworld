@@ -1,0 +1,352 @@
+{
+  "errors": [],
+  "control": {
+    "x": 263.3333333333333,
+    "y": 458.6666666666667,
+    "center": {
+      "x": 790,
+      "y": 968
+    },
+    "clip": [
+      754,
+      1378
+    ],
+    "bounds": {
+      "x": 548,
+      "y": 902,
+      "width": 484,
+      "height": 132
+    },
+    "view": {
+      "uiHeight": 1410,
+      "adaptive": true,
+      "compact": true,
+      "cssLeft": 0,
+      "cssTop": 16,
+      "cssW": 360,
+      "cssH": 624,
+      "backW": 360,
+      "backH": 624,
+      "density": 1,
+      "zoom": 0.3333333333333333,
+      "worldX": 0,
+      "worldY": -360,
+      "worldW": 1080,
+      "worldH": 1872,
+      "safeTop": 0,
+      "safeBottom": 1410
+    },
+    "heightCss": 44,
+    "hitHeightCss": 44
+  },
+  "before": {
+    "active": [
+      "Heroes"
+    ],
+    "view": {
+      "uiHeight": 1410,
+      "adaptive": true,
+      "compact": true,
+      "cssLeft": 0,
+      "cssTop": 16,
+      "cssW": 360,
+      "cssH": 624,
+      "backW": 360,
+      "backH": 624,
+      "density": 1,
+      "zoom": 0.3333333333333333,
+      "worldX": 0,
+      "worldY": -360,
+      "worldW": 1080,
+      "worldH": 1872,
+      "safeTop": 0,
+      "safeBottom": 1410
+    },
+    "scene": "Heroes",
+    "squad": [
+      "h1",
+      null,
+      "h4",
+      "h2",
+      "h3"
+    ],
+    "heroes": [
+      {
+        "id": "h1",
+        "templateId": "alan",
+        "rarity": "blue",
+        "level": 20,
+        "companion": true,
+        "training": {
+          "exp": 67128,
+          "gold": 37050
+        },
+        "journey": {
+          "peakLevel": 20
+        }
+      },
+      {
+        "id": "h2",
+        "templateId": "bran",
+        "rarity": "green",
+        "level": 8,
+        "companion": true
+      },
+      {
+        "id": "h3",
+        "templateId": "vika",
+        "rarity": "green",
+        "level": 8,
+        "companion": true
+      },
+      {
+        "id": "h4",
+        "templateId": "lira",
+        "rarity": "green",
+        "level": 8,
+        "companion": true
+      },
+      {
+        "id": "h5",
+        "templateId": "dorn",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h6",
+        "templateId": "greta",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h7",
+        "templateId": "iris",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h8",
+        "templateId": "kai",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h9",
+        "templateId": "meilin",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h10",
+        "templateId": "otto",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h11",
+        "templateId": "teo",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h12",
+        "templateId": "zara",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h15",
+        "templateId": "alan",
+        "rarity": "blue",
+        "level": 1
+      },
+      {
+        "id": "h16",
+        "templateId": "alan",
+        "rarity": "blue",
+        "level": 1
+      }
+    ],
+    "presets": [],
+    "picks": [],
+    "resources": {
+      "gold": 99964550,
+      "heroExp": 99939012
+    },
+    "offset": 0,
+    "maxOffset": 1198,
+    "locked": false,
+    "filter": {
+      "line": null,
+      "role": null,
+      "rarity": null
+    },
+    "sort": "power",
+    "modals": [
+      "bottomSheet"
+    ]
+  },
+  "after": {
+    "active": [
+      "Heroes"
+    ],
+    "view": {
+      "uiHeight": 1410,
+      "adaptive": true,
+      "compact": true,
+      "cssLeft": 0,
+      "cssTop": 16,
+      "cssW": 360,
+      "cssH": 624,
+      "backW": 360,
+      "backH": 624,
+      "density": 1,
+      "zoom": 0.3333333333333333,
+      "worldX": 0,
+      "worldY": -360,
+      "worldW": 1080,
+      "worldH": 1872,
+      "safeTop": 0,
+      "safeBottom": 1410
+    },
+    "scene": "Heroes",
+    "squad": [
+      "h1",
+      null,
+      "h4",
+      "h2",
+      "h3"
+    ],
+    "heroes": [
+      {
+        "id": "h1",
+        "templateId": "alan",
+        "rarity": "blue",
+        "level": 20,
+        "companion": true,
+        "training": {
+          "exp": 67128,
+          "gold": 37050
+        },
+        "journey": {
+          "peakLevel": 20
+        }
+      },
+      {
+        "id": "h2",
+        "templateId": "bran",
+        "rarity": "green",
+        "level": 8,
+        "companion": true
+      },
+      {
+        "id": "h3",
+        "templateId": "vika",
+        "rarity": "green",
+        "level": 8,
+        "companion": true
+      },
+      {
+        "id": "h4",
+        "templateId": "lira",
+        "rarity": "green",
+        "level": 8,
+        "companion": true
+      },
+      {
+        "id": "h5",
+        "templateId": "dorn",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h6",
+        "templateId": "greta",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h7",
+        "templateId": "iris",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h8",
+        "templateId": "kai",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h9",
+        "templateId": "meilin",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h10",
+        "templateId": "otto",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h11",
+        "templateId": "teo",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h12",
+        "templateId": "zara",
+        "rarity": "green",
+        "level": 1,
+        "companion": true
+      },
+      {
+        "id": "h15",
+        "templateId": "alan",
+        "rarity": "blue",
+        "level": 1
+      },
+      {
+        "id": "h16",
+        "templateId": "alan",
+        "rarity": "blue",
+        "level": 1
+      }
+    ],
+    "presets": [],
+    "picks": [],
+    "resources": {
+      "gold": 99964550,
+      "heroExp": 99939012
+    },
+    "offset": 149.99999552965164,
+    "maxOffset": 1198,
+    "locked": false,
+    "filter": {
+      "line": null,
+      "role": null,
+      "rarity": null
+    },
+    "sort": "power",
+    "modals": [
+      "bottomSheet"
+    ]
+  }
+}

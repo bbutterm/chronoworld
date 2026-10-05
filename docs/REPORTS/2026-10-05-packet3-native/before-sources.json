@@ -1,0 +1,1193 @@
+{
+  "started": "2026-10-05T02:00:59.398Z",
+  "url": "http://127.0.0.1:5595/",
+  "width": 360,
+  "height": 640,
+  "renderer": "canvas",
+  "scope": "sources",
+  "method": "Private standalone stock UI fixture based on lawful campaign snapshot; normal Boot and actual navigation; compiled response only appends read-only observers; no scene forcing, browser core execution, source imports or query flags.",
+  "failures": [
+    "Error: Sources modal wheel and cancel preserve underlying Ascend body offset\n    at assert (file:///tmp/night-packet3-native-qa.mjs:22:64)\n    at sourcesProbe (file:///tmp/night-packet3-native-qa.mjs:213:3)\n    at async file:///tmp/night-packet3-native-qa.mjs:331:5"
+  ],
+  "errors": [],
+  "blocked": [],
+  "sourceRequests": [],
+  "bundles": {
+    "/assets/index-B2f1cJ4p.js": "607ea26d767f29dd0972686084da52eb1f80e810d50c46147609bdc7ade537cb"
+  },
+  "interactions": [
+    {
+      "kind": "native-click",
+      "key": "Campaign",
+      "name": "Пропустить",
+      "target": {
+        "name": "",
+        "text": "Пропустить",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 902,
+          "y": 90
+        },
+        "bounds": {
+          "x": 780.5,
+          "y": 67.5,
+          "width": 243,
+          "height": 45
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 300.6666666666667,
+          "y": 166
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Campaign",
+      "name": "Пропустить",
+      "target": {
+        "name": "",
+        "text": "Пропустить",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 920,
+          "y": 847
+        },
+        "bounds": {
+          "x": 798.5,
+          "y": 824.5,
+          "width": 243,
+          "height": 45
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 306.6666666666667,
+          "y": 418.3333333333333
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Campaign",
+      "name": "Герои",
+      "target": {
+        "name": "",
+        "text": "Герои",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 405,
+          "y": 1368
+        },
+        "bounds": {
+          "x": 355.5,
+          "y": 1347.5,
+          "width": 99,
+          "height": 41
+        },
+        "hitCss": 56.666666666666664,
+        "css": {
+          "x": 135,
+          "y": 592
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Heroes",
+      "name": "heroCard_h1",
+      "target": {
+        "name": "heroCard_h1",
+        "clip": [
+          460,
+          1230
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 540,
+          "y": 682.5
+        },
+        "bounds": {
+          "x": 319.6,
+          "y": 403.72499999999997,
+          "width": 440.79999999999995,
+          "height": 557.5500000000002
+        },
+        "hitCss": 185.85000000000008,
+        "css": {
+          "x": 180,
+          "y": 363.5
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Hero",
+      "name": "ascendBtn",
+      "target": {
+        "name": "ascendBtn",
+        "clip": [
+          170,
+          988
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 232,
+          "y": 772
+        },
+        "bounds": {
+          "x": 72,
+          "y": 706,
+          "width": 320,
+          "height": 132
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 77.33333333333333,
+          "y": 393.3333333333333
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Ascend",
+      "name": "copySources",
+      "target": {
+        "name": "copySources",
+        "clip": [
+          170,
+          988
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 618,
+          "y": 856
+        },
+        "bounds": {
+          "x": 448,
+          "y": 808,
+          "width": 340,
+          "height": 96
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 206,
+          "y": 421.3333333333333
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "sdk-back",
+      "key": "Ascend",
+      "expected": "Ascend"
+    }
+  ],
+  "snapshots": [
+    {
+      "name": "boot-campaign",
+      "key": "Campaign",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Campaign"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 1,
+      "cameraIdentity": 2,
+      "frames": 34,
+      "cameraFrames": 18,
+      "modals": [],
+      "tg": {
+        "visible": false,
+        "handlers": 0
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "3-1"
+        },
+        {
+          "name": "",
+          "text": "3-2"
+        },
+        {
+          "name": "",
+          "text": "3-3"
+        },
+        {
+          "name": "",
+          "text": "3-4"
+        },
+        {
+          "name": "",
+          "text": "3-5"
+        },
+        {
+          "name": "",
+          "text": "Брод у Гефена"
+        },
+        {
+          "name": "",
+          "text": "Отряд"
+        },
+        {
+          "name": "",
+          "text": "Изменить"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Пусто"
+        },
+        {
+          "name": "",
+          "text": "Пусто"
+        },
+        {
+          "name": "",
+          "text": "Пусто"
+        },
+        {
+          "name": "",
+          "text": "Вика"
+        },
+        {
+          "name": "",
+          "text": "Глава 3. Предки не спят"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "chapterProgress",
+          "text": "Глава 3 · 0 / 18"
+        },
+        {
+          "name": "",
+          "text": "6–10"
+        },
+        {
+          "name": "",
+          "text": "Быстрая награда"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "В бой · этап 3-1"
+        },
+        {
+          "name": "ctaShort",
+          "text": "Не хватает 939"
+        },
+        {
+          "name": "",
+          "text": "Добыча за время отдыха"
+        },
+        {
+          "name": "chestFill",
+          "text": "0ч 00м / 12ч"
+        },
+        {
+          "name": "",
+          "text": "Собрать"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        }
+      ]
+    },
+    {
+      "name": "ascend-sources-before-wheel",
+      "key": "Ascend",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Ascend"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 4,
+      "frames": 75,
+      "cameraFrames": 16,
+      "heroId": "h1",
+      "chosen": [],
+      "bodyOffset": 150,
+      "bodyClip": [
+        170,
+        988
+      ],
+      "bodyMax": 415,
+      "bodyLocked": false,
+      "modals": [
+        "noticeModal"
+      ],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Вознесение"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "ascendPowerFrom",
+          "text": "1 390"
+        },
+        {
+          "name": "ascendPowerTo",
+          "text": "1 808"
+        },
+        {
+          "name": "",
+          "text": "+418 · 30%"
+        },
+        {
+          "name": "",
+          "text": "ОЗ"
+        },
+        {
+          "name": "",
+          "text": "+1 474"
+        },
+        {
+          "name": "",
+          "text": "5 569"
+        },
+        {
+          "name": "",
+          "text": "АТК"
+        },
+        {
+          "name": "",
+          "text": "+86"
+        },
+        {
+          "name": "",
+          "text": "327"
+        },
+        {
+          "name": "",
+          "text": "ЗАЩ"
+        },
+        {
+          "name": "",
+          "text": "+48"
+        },
+        {
+          "name": "",
+          "text": "180"
+        },
+        {
+          "name": "",
+          "text": "СКР"
+        },
+        {
+          "name": "",
+          "text": "+43"
+        },
+        {
+          "name": "",
+          "text": "162"
+        },
+        {
+          "name": "",
+          "text": "Предел уровня"
+        },
+        {
+          "name": "",
+          "text": "+20"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "Сила навыков"
+        },
+        {
+          "name": "",
+          "text": "×1.3"
+        },
+        {
+          "name": "",
+          "text": "Копии 0/2"
+        },
+        {
+          "name": "",
+          "text": "Авто"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "20 000"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "листайте ↕"
+        },
+        {
+          "name": "",
+          "text": "Понятно"
+        },
+        {
+          "name": "",
+          "text": "Карты этого героя (Алан) и любых других героев:\n\n• Таверна — там выпадает и Алан (любой герой: зелёный 83%, синий 15%, фиолетовый 2%)\n\n• Карты героя (случайный герой): первое прохождение этапа — 6% синяя, босс главы — 30%\n\n• Сундук, охота, экспедиции, достижения, Лавка, события\n\nОпыт и золото, вложенные в выбранные копии, вернутся в запас."
+        }
+      ]
+    },
+    {
+      "name": "ascend-sources-after-wheel",
+      "key": "Ascend",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Ascend"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 4,
+      "frames": 90,
+      "cameraFrames": 31,
+      "heroId": "h1",
+      "chosen": [],
+      "bodyOffset": 0,
+      "bodyClip": [
+        170,
+        988
+      ],
+      "bodyMax": 415,
+      "bodyLocked": false,
+      "modals": [
+        "noticeModal"
+      ],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Вознесение"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "ascendPowerFrom",
+          "text": "1 390"
+        },
+        {
+          "name": "ascendPowerTo",
+          "text": "1 808"
+        },
+        {
+          "name": "",
+          "text": "+418 · 30%"
+        },
+        {
+          "name": "",
+          "text": "ОЗ"
+        },
+        {
+          "name": "",
+          "text": "+1 474"
+        },
+        {
+          "name": "",
+          "text": "5 569"
+        },
+        {
+          "name": "",
+          "text": "АТК"
+        },
+        {
+          "name": "",
+          "text": "+86"
+        },
+        {
+          "name": "",
+          "text": "327"
+        },
+        {
+          "name": "",
+          "text": "ЗАЩ"
+        },
+        {
+          "name": "",
+          "text": "+48"
+        },
+        {
+          "name": "",
+          "text": "180"
+        },
+        {
+          "name": "",
+          "text": "СКР"
+        },
+        {
+          "name": "",
+          "text": "+43"
+        },
+        {
+          "name": "",
+          "text": "162"
+        },
+        {
+          "name": "",
+          "text": "Предел уровня"
+        },
+        {
+          "name": "",
+          "text": "+20"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "Сила навыков"
+        },
+        {
+          "name": "",
+          "text": "×1.3"
+        },
+        {
+          "name": "",
+          "text": "Копии 0/2"
+        },
+        {
+          "name": "",
+          "text": "Авто"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "20 000"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "листайте ↕"
+        },
+        {
+          "name": "",
+          "text": "Понятно"
+        },
+        {
+          "name": "",
+          "text": "Карты этого героя (Алан) и любых других героев:\n\n• Таверна — там выпадает и Алан (любой герой: зелёный 83%, синий 15%, фиолетовый 2%)\n\n• Карты героя (случайный герой): первое прохождение этапа — 6% синяя, босс главы — 30%\n\n• Сундук, охота, экспедиции, достижения, Лавка, события\n\nОпыт и золото, вложенные в выбранные копии, вернутся в запас."
+        }
+      ]
+    },
+    {
+      "name": "ascend-sources-after-back",
+      "key": "Ascend",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Ascend"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 4,
+      "frames": 110,
+      "cameraFrames": 51,
+      "heroId": "h1",
+      "chosen": [],
+      "bodyOffset": 0,
+      "bodyClip": [
+        170,
+        988
+      ],
+      "bodyMax": 415,
+      "bodyLocked": false,
+      "modals": [],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Вознесение"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "ascendPowerFrom",
+          "text": "1 390"
+        },
+        {
+          "name": "ascendPowerTo",
+          "text": "1 808"
+        },
+        {
+          "name": "",
+          "text": "+418 · 30%"
+        },
+        {
+          "name": "",
+          "text": "ОЗ"
+        },
+        {
+          "name": "",
+          "text": "+1 474"
+        },
+        {
+          "name": "",
+          "text": "5 569"
+        },
+        {
+          "name": "",
+          "text": "АТК"
+        },
+        {
+          "name": "",
+          "text": "+86"
+        },
+        {
+          "name": "",
+          "text": "327"
+        },
+        {
+          "name": "",
+          "text": "ЗАЩ"
+        },
+        {
+          "name": "",
+          "text": "+48"
+        },
+        {
+          "name": "",
+          "text": "180"
+        },
+        {
+          "name": "",
+          "text": "СКР"
+        },
+        {
+          "name": "",
+          "text": "+43"
+        },
+        {
+          "name": "",
+          "text": "162"
+        },
+        {
+          "name": "",
+          "text": "Предел уровня"
+        },
+        {
+          "name": "",
+          "text": "+20"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "Сила навыков"
+        },
+        {
+          "name": "",
+          "text": "×1.3"
+        },
+        {
+          "name": "",
+          "text": "Копии 0/2"
+        },
+        {
+          "name": "",
+          "text": "Авто"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "20 000"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Ready native target Campaign/Пропустить",
+    "Ready native target Campaign/Пропустить",
+    "Ready native target Campaign/Герои",
+    "Ready native target Heroes/heroCard_h1",
+    "Ready native target Hero/ascendBtn",
+    "Ready native target Ascend/copySources",
+    "Actual Ascend sources notice and meaningful scrollable body",
+    "Actual sources body text is inside underlying body clip",
+    "Exactly one visible TGBack handler on Ascend",
+    "TGBack closes sources notice and restores Ascend input",
+    "Sources modal wheel and cancel preserve exact save"
+  ],
+  "fixture": {
+    "base": "/workspace/chronoworld-worktrees/night-ui-qa/docs/REPORTS/2026-10-05-night-adventure-modes/fixtures/lawful-36.save.json",
+    "baseSha256": "a917ac183b2a14c1a0d7d3b14a84e6ee16ae75b369ba2b5422b18bf4c67d8ed3",
+    "clock": {
+      "now": 1791292272200,
+      "day": "2026-10-06"
+    },
+    "campaignClears": 36,
+    "stock": true,
+    "operations": "Stock gold/heroExp only; public addHeroCard/levelUpHero/ascendHero/setSquad/grantRewards/markUnlocksSeen, no campaign alteration",
+    "sha256": "07dc747363ab806c1085df21612c3903e0d981adb1a32c215b3e69a6547f2d53",
+    "targetId": "h1",
+    "fodderIds": [
+      "h41",
+      "h42"
+    ],
+    "pickTid": "zara",
+    "pickBranch": "assassin",
+    "stageId": "ch3_s1"
+  },
+  "adapterSha256": "524d5f664a2747c86d1cc1e4a4671b3e86be3b6d452ddd7cdabe9ccd3aa3c32a",
+  "rootCommit": "2689d9e0bd9bffd0909448f35aa7baa5047a6e9e",
+  "sourceHashes": {
+    "src/game/viewLayout.ts": "250786f0cba0edcd9653751934e6c5e7938e59f538047d1a8cbe631c1e3917c4",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/screen.ts": "ce8df5071c956e83d8059558efd90b5e500d1589c55b740b054d1002b5159094",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0",
+    "src/game/scenes/HeroesScene.ts": "b9e26fb8342357a4be649135b84983f9a4bc3a791e1fb1878753cad5599b2b8e",
+    "src/game/scenes/HeroScene.ts": "aeeaad46e6e71cb5509242b75e7ec4947896948a6f5208ead87fccc9d633791f",
+    "src/game/scenes/AscendScene.ts": "74033c7a6f05113522267c4d6eb8da2c1d116715c9e19fcfb641256555c267c0",
+    "src/game/scenes/HeroPickScene.ts": "fffd6072b5609332c44a9b104204d56897cf81e548f53fcccd217d638cd325b1",
+    "src/game/scenes/StageScene.ts": "fb7f64372665e9920a4aeaddc61d40c3f5b60dc8e7a03afaa11cd10720466580",
+    "src/game/scenes/SquadScene.ts": "3a300bd3918c06188b0fdaca03e44794c5aa1a9b296507d2e499a2d2d4a16223",
+    "src/game/squadEditor.ts": "ce615cd949bbc7f05674c7b3e8ec2b732c7fa9d368f4179a0f92867df226840e",
+    "src/game/squadPresets.ts": "51263473f6bce0d75b26618c2ef17ad604a19455edbe4580c68ef4970007f672",
+    "src/game/prepLayout.ts": "55fedc46e63e89ec4ba72fc7c77519864446be475e649831bb5e117262c7b1d3"
+  },
+  "sourcesWheel": {
+    "beforeOffset": 150,
+    "afterOffset": 0,
+    "bodyMax": 415,
+    "wheelDelta": -180,
+    "delta": -150,
+    "exactSave": true,
+    "beforeLocked": false,
+    "afterLocked": false,
+    "pointerWorldY": 740,
+    "modals": [
+      "noticeModal"
+    ]
+  },
+  "pass": false,
+  "final": {
+    "active": [
+      "Ascend"
+    ],
+    "frames": 114
+  },
+  "finished": "2026-10-05T02:01:21.775Z"
+}

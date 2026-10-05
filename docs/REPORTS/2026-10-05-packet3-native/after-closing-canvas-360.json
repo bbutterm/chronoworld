@@ -1,0 +1,1975 @@
+{
+  "started": "2026-10-05T03:58:49.878Z",
+  "url": "http://127.0.0.1:5595/",
+  "width": 360,
+  "height": 640,
+  "renderer": "canvas",
+  "scope": "closing",
+  "method": "Private standalone stock UI fixture based on lawful campaign snapshot; normal Boot and actual navigation; compiled response only appends read-only observers; no scene forcing, browser core execution, source imports or query flags.; separate native cancel/CTA during normal animation fade; reducedMotion=false preboot, old triple helper unchanged.",
+  "failures": [],
+  "errors": [],
+  "blocked": [],
+  "sourceRequests": [],
+  "bundles": {
+    "/assets/index-B5Ril8ga.js": "6a5b9ee700e42fbd4eb778b4dece19f401c4560a4013acfb3537ea8ce4264bcb"
+  },
+  "interactions": [
+    {
+      "kind": "native-click",
+      "key": "Campaign",
+      "name": "Пропустить",
+      "target": {
+        "name": "",
+        "text": "Пропустить",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 902,
+          "y": 90
+        },
+        "bounds": {
+          "x": 780.5,
+          "y": 67.5,
+          "width": 243,
+          "height": 45
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 300.6666666666667,
+          "y": 166
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Campaign",
+      "name": "Пропустить",
+      "target": {
+        "name": "",
+        "text": "Пропустить",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 920,
+          "y": 847
+        },
+        "bounds": {
+          "x": 798.5,
+          "y": 824.5,
+          "width": 243,
+          "height": 45
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 306.6666666666667,
+          "y": 418.3333333333333
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Campaign",
+      "name": "Герои",
+      "target": {
+        "name": "",
+        "text": "Герои",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 405,
+          "y": 1368
+        },
+        "bounds": {
+          "x": 355.5,
+          "y": 1347.5,
+          "width": 99,
+          "height": 41
+        },
+        "hitCss": 56.666666666666664,
+        "css": {
+          "x": 135,
+          "y": 592
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Heroes",
+      "name": "heroCard_h1",
+      "target": {
+        "name": "heroCard_h1",
+        "clip": [
+          460,
+          1230
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 540,
+          "y": 682.5
+        },
+        "bounds": {
+          "x": 319.6,
+          "y": 403.72499999999997,
+          "width": 440.79999999999995,
+          "height": 557.5500000000002
+        },
+        "hitCss": 185.85000000000008,
+        "css": {
+          "x": 180,
+          "y": 363.5
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Hero",
+      "name": "ascendBtn",
+      "target": {
+        "name": "ascendBtn",
+        "clip": [
+          170,
+          988
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 232,
+          "y": 772
+        },
+        "bounds": {
+          "x": 69.19615936279297,
+          "y": 704.8434157371521,
+          "width": 325.60768127441406,
+          "height": 134.3131685256958
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 77.33333333333333,
+          "y": 393.3333333333333
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Ascend",
+      "name": "autoFodder",
+      "target": {
+        "name": "autoFodder",
+        "clip": [
+          170,
+          988
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 922,
+          "y": 856
+        },
+        "bounds": {
+          "x": 807.1038205623627,
+          "y": 805.8634853363037,
+          "width": 229.79235887527466,
+          "height": 100.27302932739258
+        },
+        "hitCss": 44,
+        "css": {
+          "x": 307.3333333333333,
+          "y": 421.3333333333333
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Ascend",
+      "name": "ascendConfirm",
+      "target": {
+        "name": "ascendConfirm",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 540,
+          "y": 1140
+        },
+        "bounds": {
+          "x": 176.02492332458496,
+          "y": 1069.2270684242249,
+          "width": 727.9501533508301,
+          "height": 141.5458631515503
+        },
+        "hitCss": 46.666666666666664,
+        "css": {
+          "x": 180,
+          "y": 516
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "native-click",
+      "key": "Ascend",
+      "name": "ascendConfirm",
+      "target": {
+        "name": "ascendConfirm",
+        "clip": [
+          0,
+          1410
+        ],
+        "stable": true,
+        "visible": true,
+        "center": {
+          "x": 540,
+          "y": 1140
+        },
+        "bounds": {
+          "x": 179.5996856689453,
+          "y": 1069.922161102295,
+          "width": 720.8006286621094,
+          "height": 140.15567779541016
+        },
+        "hitCss": 46.666666666666664,
+        "css": {
+          "x": 180,
+          "y": 516
+        },
+        "view": {
+          "uiHeight": 1410,
+          "adaptive": true,
+          "compact": true,
+          "cssLeft": 0,
+          "cssTop": 16,
+          "cssW": 360,
+          "cssH": 624,
+          "backW": 360,
+          "backH": 624,
+          "density": 1,
+          "zoom": 0.3333333333333333,
+          "worldX": 0,
+          "worldY": -360,
+          "worldW": 1080,
+          "worldH": 1872,
+          "safeTop": 0,
+          "safeBottom": 1410
+        }
+      }
+    },
+    {
+      "kind": "sdk-back",
+      "key": "Ascend",
+      "expected": "Ascend"
+    }
+  ],
+  "snapshots": [
+    {
+      "name": "boot-campaign",
+      "key": "Campaign",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Campaign"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 1,
+      "cameraIdentity": 2,
+      "frames": 98,
+      "cameraFrames": 82,
+      "modals": [],
+      "modalHits": [],
+      "tg": {
+        "visible": false,
+        "handlers": 0
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "3-1"
+        },
+        {
+          "name": "",
+          "text": "3-2"
+        },
+        {
+          "name": "",
+          "text": "3-3"
+        },
+        {
+          "name": "",
+          "text": "3-4"
+        },
+        {
+          "name": "",
+          "text": "3-5"
+        },
+        {
+          "name": "",
+          "text": "Брод у Гефена"
+        },
+        {
+          "name": "",
+          "text": "Отряд"
+        },
+        {
+          "name": "",
+          "text": "Изменить"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Пусто"
+        },
+        {
+          "name": "",
+          "text": "Пусто"
+        },
+        {
+          "name": "",
+          "text": "Пусто"
+        },
+        {
+          "name": "",
+          "text": "Вика"
+        },
+        {
+          "name": "",
+          "text": "Глава 3. Предки не спят"
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "",
+          "text": ""
+        },
+        {
+          "name": "chapterProgress",
+          "text": "Глава 3 · 0 / 18"
+        },
+        {
+          "name": "",
+          "text": "6–10"
+        },
+        {
+          "name": "",
+          "text": "Быстрая награда"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "В бой · этап 3-1"
+        },
+        {
+          "name": "ctaShort",
+          "text": "Не хватает 939"
+        },
+        {
+          "name": "",
+          "text": "Добыча за время отдыха"
+        },
+        {
+          "name": "chestFill",
+          "text": "0ч 00м / 12ч"
+        },
+        {
+          "name": "",
+          "text": "Собрать"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        }
+      ]
+    },
+    {
+      "name": "closing-confirm-before-cancel",
+      "key": "Ascend",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Ascend"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 4,
+      "frames": 176,
+      "cameraFrames": 25,
+      "heroId": "h1",
+      "chosen": [
+        "h42",
+        "h41"
+      ],
+      "bodyOffset": 0,
+      "bodyClip": [
+        170,
+        988
+      ],
+      "bodyMax": 415,
+      "bodyLocked": true,
+      "modals": [
+        "confirmModal"
+      ],
+      "modalHits": [],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Вознесение"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "ascendPowerFrom",
+          "text": "1 390"
+        },
+        {
+          "name": "ascendPowerTo",
+          "text": "1 808"
+        },
+        {
+          "name": "",
+          "text": "+418 · 30%"
+        },
+        {
+          "name": "",
+          "text": "ОЗ"
+        },
+        {
+          "name": "",
+          "text": "+1 474"
+        },
+        {
+          "name": "",
+          "text": "5 569"
+        },
+        {
+          "name": "",
+          "text": "АТК"
+        },
+        {
+          "name": "",
+          "text": "+86"
+        },
+        {
+          "name": "",
+          "text": "327"
+        },
+        {
+          "name": "",
+          "text": "ЗАЩ"
+        },
+        {
+          "name": "",
+          "text": "+48"
+        },
+        {
+          "name": "",
+          "text": "180"
+        },
+        {
+          "name": "",
+          "text": "СКР"
+        },
+        {
+          "name": "",
+          "text": "+43"
+        },
+        {
+          "name": "",
+          "text": "162"
+        },
+        {
+          "name": "",
+          "text": "Предел уровня"
+        },
+        {
+          "name": "",
+          "text": "+20"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "Сила навыков"
+        },
+        {
+          "name": "",
+          "text": "×1.3"
+        },
+        {
+          "name": "",
+          "text": "Копии 2/2"
+        },
+        {
+          "name": "",
+          "text": "Авто"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "20 000"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        },
+        {
+          "name": "",
+          "text": "Алан: Фиолетовый → Золотой\nБудет использовано: 2 карты · 20 000 золота\nВыбраны синие карточки и выше"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "Отмена"
+        }
+      ]
+    },
+    {
+      "name": "closing-new-legal-confirm",
+      "key": "Ascend",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Ascend"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 4,
+      "frames": 215,
+      "cameraFrames": 64,
+      "heroId": "h1",
+      "chosen": [
+        "h42",
+        "h41"
+      ],
+      "bodyOffset": 0,
+      "bodyClip": [
+        170,
+        988
+      ],
+      "bodyMax": 415,
+      "bodyLocked": true,
+      "modals": [
+        "confirmModal"
+      ],
+      "modalHits": [],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Вознесение"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "ascendPowerFrom",
+          "text": "1 390"
+        },
+        {
+          "name": "ascendPowerTo",
+          "text": "1 808"
+        },
+        {
+          "name": "",
+          "text": "+418 · 30%"
+        },
+        {
+          "name": "",
+          "text": "ОЗ"
+        },
+        {
+          "name": "",
+          "text": "+1 474"
+        },
+        {
+          "name": "",
+          "text": "5 569"
+        },
+        {
+          "name": "",
+          "text": "АТК"
+        },
+        {
+          "name": "",
+          "text": "+86"
+        },
+        {
+          "name": "",
+          "text": "327"
+        },
+        {
+          "name": "",
+          "text": "ЗАЩ"
+        },
+        {
+          "name": "",
+          "text": "+48"
+        },
+        {
+          "name": "",
+          "text": "180"
+        },
+        {
+          "name": "",
+          "text": "СКР"
+        },
+        {
+          "name": "",
+          "text": "+43"
+        },
+        {
+          "name": "",
+          "text": "162"
+        },
+        {
+          "name": "",
+          "text": "Предел уровня"
+        },
+        {
+          "name": "",
+          "text": "+20"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "Сила навыков"
+        },
+        {
+          "name": "",
+          "text": "×1.3"
+        },
+        {
+          "name": "",
+          "text": "Копии 2/2"
+        },
+        {
+          "name": "",
+          "text": "Авто"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "20 000"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        },
+        {
+          "name": "",
+          "text": "Алан: Фиолетовый → Золотой\nБудет использовано: 2 карты · 20 000 золота\nВыбраны синие карточки и выше"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "Отмена"
+        }
+      ]
+    },
+    {
+      "name": "closing-final-back",
+      "key": "Ascend",
+      "savedSha256": "fbe39f50a0735a80abc13a9cf5953a13895e08374ee6879141bec2b61e9dd157",
+      "active": [
+        "Ascend"
+      ],
+      "renderer": 1,
+      "view": {
+        "uiHeight": 1410,
+        "adaptive": true,
+        "compact": true,
+        "cssLeft": 0,
+        "cssTop": 16,
+        "cssW": 360,
+        "cssH": 624,
+        "backW": 360,
+        "backH": 624,
+        "density": 1,
+        "zoom": 0.3333333333333333,
+        "worldX": 0,
+        "worldY": -360,
+        "worldW": 1080,
+        "worldH": 1872,
+        "safeTop": 0,
+        "safeBottom": 1410
+      },
+      "identity": 3,
+      "cameraIdentity": 4,
+      "frames": 241,
+      "cameraFrames": 90,
+      "heroId": "h1",
+      "chosen": [
+        "h42",
+        "h41"
+      ],
+      "bodyOffset": 0,
+      "bodyClip": [
+        170,
+        988
+      ],
+      "bodyMax": 415,
+      "bodyLocked": false,
+      "modals": [],
+      "modalHits": [],
+      "tg": {
+        "visible": true,
+        "handlers": 1
+      },
+      "texts": [
+        {
+          "name": "",
+          "text": "99M"
+        },
+        {
+          "name": "",
+          "text": "197"
+        },
+        {
+          "name": "screenTitle",
+          "text": "Вознесение"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 20"
+        },
+        {
+          "name": "ascendPowerFrom",
+          "text": "1 390"
+        },
+        {
+          "name": "ascendPowerTo",
+          "text": "1 808"
+        },
+        {
+          "name": "",
+          "text": "+418 · 30%"
+        },
+        {
+          "name": "",
+          "text": "ОЗ"
+        },
+        {
+          "name": "",
+          "text": "+1 474"
+        },
+        {
+          "name": "",
+          "text": "5 569"
+        },
+        {
+          "name": "",
+          "text": "АТК"
+        },
+        {
+          "name": "",
+          "text": "+86"
+        },
+        {
+          "name": "",
+          "text": "327"
+        },
+        {
+          "name": "",
+          "text": "ЗАЩ"
+        },
+        {
+          "name": "",
+          "text": "+48"
+        },
+        {
+          "name": "",
+          "text": "180"
+        },
+        {
+          "name": "",
+          "text": "СКР"
+        },
+        {
+          "name": "",
+          "text": "+43"
+        },
+        {
+          "name": "",
+          "text": "162"
+        },
+        {
+          "name": "",
+          "text": "Предел уровня"
+        },
+        {
+          "name": "",
+          "text": "+20"
+        },
+        {
+          "name": "",
+          "text": "80"
+        },
+        {
+          "name": "",
+          "text": "Сила навыков"
+        },
+        {
+          "name": "",
+          "text": "×1.3"
+        },
+        {
+          "name": "",
+          "text": "Копии 2/2"
+        },
+        {
+          "name": "",
+          "text": "Авто"
+        },
+        {
+          "name": "",
+          "text": "Где взять копии"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Алан"
+        },
+        {
+          "name": "",
+          "text": "Ур. 1"
+        },
+        {
+          "name": "",
+          "text": "Вознести"
+        },
+        {
+          "name": "",
+          "text": "20 000"
+        },
+        {
+          "name": "",
+          "text": "Кампания"
+        },
+        {
+          "name": "",
+          "text": "Герои"
+        },
+        {
+          "name": "",
+          "text": "Город"
+        },
+        {
+          "name": "",
+          "text": "Приключения"
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Ready native target Campaign/Пропустить",
+    "Ready native target Campaign/Пропустить",
+    "Normal Boot startup overlays actually settled before native navigation",
+    "Actual requested renderer reached normal Boot canvas",
+    "Ready native target Campaign/Герои",
+    "Ready native target Heroes/heroCard_h1",
+    "Ready native target Hero/ascendBtn",
+    "Ready native target Ascend/autoFodder",
+    "Closing probe starts with real eligible choices and visible CTA",
+    "Ready native target Ascend/ascendConfirm",
+    "Actual normal-motion confirmation fully opened and locked body",
+    "SDK cancel enters actual named-cleared animation while registered modal still owns input",
+    "A physical native CTA pointerup actually arrives while old modal is closing",
+    "During fade native CTA creates no second confirmation and keeps old owner lock",
+    "During fade native CTA keeps exact save and selected copies",
+    "Final DESTROY unlocks body without save change",
+    "Ready native target Ascend/ascendConfirm",
+    "Next legal CTA after DESTROY creates exactly one new confirmation",
+    "Exactly one visible TGBack handler on Ascend",
+    "Read-only native fade tracker records two sequential legal layers and no simultaneous owners",
+    "Final SDKBack restores input/selection and preserves exact save",
+    "No page errors, browser source imports or deadline expiry"
+  ],
+  "fixture": {
+    "base": "/workspace/chronoworld-worktrees/night-ui-qa/docs/REPORTS/2026-10-05-night-adventure-modes/fixtures/lawful-36.save.json",
+    "baseSha256": "a917ac183b2a14c1a0d7d3b14a84e6ee16ae75b369ba2b5422b18bf4c67d8ed3",
+    "clock": {
+      "now": 1791292272200,
+      "day": "2026-10-06"
+    },
+    "campaignClears": 36,
+    "stock": true,
+    "operations": "Stock gold/heroExp only; public addHeroCard/levelUpHero/ascendHero/setSquad/grantRewards/markUnlocksSeen, no campaign alteration",
+    "sha256": "07dc747363ab806c1085df21612c3903e0d981adb1a32c215b3e69a6547f2d53",
+    "targetId": "h1",
+    "fodderIds": [
+      "h41",
+      "h42"
+    ],
+    "pickTid": "zara",
+    "pickBranch": "assassin",
+    "stageId": "ch3_s1"
+  },
+  "adapterSha256": "b22c8b55e48b77c10234c9843160ce506591112ffe5ad53eec00ed055775b1da",
+  "rootCommit": "2689d9e0bd9bffd0909448f35aa7baa5047a6e9e",
+  "sourceHashes": {
+    "src/game/viewLayout.ts": "250786f0cba0edcd9653751934e6c5e7938e59f538047d1a8cbe631c1e3917c4",
+    "src/game/viewport.ts": "d41e6ed1bf65be3b4d361ddc8bd161377ed09d82b71aeff755e3c543a539d293",
+    "src/game/screen.ts": "a1773c9a391ad6ec89699122cd51d75f20d22213143166e625b66380eaf64881",
+    "src/game/modalBack.ts": "27d7595b8469e3f4bab8ac4bf0897cc012480f928a09a4b33ba177e1dd81a8d0",
+    "src/game/scenes/HeroesScene.ts": "b9e26fb8342357a4be649135b84983f9a4bc3a791e1fb1878753cad5599b2b8e",
+    "src/game/scenes/HeroScene.ts": "aeeaad46e6e71cb5509242b75e7ec4947896948a6f5208ead87fccc9d633791f",
+    "src/game/scenes/AscendScene.ts": "2719a740c319c9b29c03415f1d812284d6e69d3bd9096f599ca56da18634f57b",
+    "src/game/scenes/HeroPickScene.ts": "fffd6072b5609332c44a9b104204d56897cf81e548f53fcccd217d638cd325b1",
+    "src/game/scenes/StageScene.ts": "fb7f64372665e9920a4aeaddc61d40c3f5b60dc8e7a03afaa11cd10720466580",
+    "src/game/scenes/SquadScene.ts": "3a300bd3918c06188b0fdaca03e44794c5aa1a9b296507d2e499a2d2d4a16223",
+    "src/game/squadEditor.ts": "ce615cd949bbc7f05674c7b3e8ec2b732c7fa9d368f4179a0f92867df226840e",
+    "src/game/squadPresets.ts": "51263473f6bce0d75b26618c2ef17ad604a19455edbe4580c68ef4970007f672",
+    "src/game/prepLayout.ts": "55fedc46e63e89ec4ba72fc7c77519864446be475e649831bb5e117262c7b1d3"
+  },
+  "closing": {
+    "cancelled": {
+      "alive": 1,
+      "named": [
+        ""
+      ],
+      "closing": [
+        true
+      ],
+      "locked": true,
+      "input": true
+    },
+    "pressed": {
+      "alive": 1,
+      "named": 0,
+      "locked": true,
+      "ups": [
+        {
+          "ms": 7443.60000000149,
+          "name": "ascendConfirm",
+          "closing": false
+        },
+        {
+          "ms": 8075.20000000298,
+          "name": "ascendConfirm",
+          "closing": true
+        }
+      ],
+      "chosen": [
+        "h42",
+        "h41"
+      ]
+    },
+    "observed": {
+      "created": 2,
+      "destroyed": 2,
+      "maxAlive": 1,
+      "frameSamples": 85,
+      "frames": [
+        {
+          "ms": 7378,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 7407.60000000149,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 7449.70000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7477.89999999851,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7486.29999999702,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7563.39999999851,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7592.20000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7621.10000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7664.70000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7696.20000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7724.20000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7774,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7801.10000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7804.60000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7820.5,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7849.20000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7852.89999999851,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7910.20000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 7921.10000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 8010.29999999702,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 8049.60000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 8084.79999999702,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 8124.39999999851,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 8175.29999999702,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 8214.5,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 8250,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8280.10000000149,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8308.5,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8353.39999999851,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8374.20000000298,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8397.39999999851,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8445.79999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8473.60000000149,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8500.29999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8526.39999999851,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8575.39999999851,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8600.20000000298,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8624.10000000149,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8667,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8694.5,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8719,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8761.79999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8784.70000000298,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 8813,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 8852.60000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 8875.39999999851,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 8912.89999999851,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 8989.5,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9018.29999999702,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9063.79999999702,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9091.60000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9152.70000000298,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9199.60000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9205.89999999851,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9287.79999999702,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9302.79999999702,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9357.60000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9369.29999999702,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9414,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9463.60000000149,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9489.89999999851,
+          "alive": 1,
+          "named": 1,
+          "closing": 0,
+          "locked": true
+        },
+        {
+          "ms": 9521.79999999702,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 9574.60000000149,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 9613.89999999851,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 9657,
+          "alive": 1,
+          "named": 0,
+          "closing": 1,
+          "locked": true
+        },
+        {
+          "ms": 9687.29999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 9717.20000000298,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 9782.29999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 9810.79999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 9849.5,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 9879.39999999851,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 9906.29999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 9963.70000000298,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10004.79999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10043.29999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10082.60000000149,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10122,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10181.5,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10246.29999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10264,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10281.20000000298,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10285.79999999702,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10333.89999999851,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10397,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        },
+        {
+          "ms": 10430.20000000298,
+          "alive": 0,
+          "named": 0,
+          "closing": 0,
+          "locked": false
+        }
+      ],
+      "ups": [
+        {
+          "ms": 7443.60000000149,
+          "name": "ascendConfirm",
+          "closing": false
+        },
+        {
+          "ms": 8075.20000000298,
+          "name": "ascendConfirm",
+          "closing": true
+        },
+        {
+          "ms": 8794.79999999702,
+          "name": "ascendConfirm",
+          "closing": false
+        }
+      ],
+      "clock": [
+        {
+          "event": "sdk-cancel",
+          "ms": 8066.89999999851
+        },
+        {
+          "event": "destroy",
+          "ms": 8248.60000000149
+        },
+        {
+          "event": "destroy",
+          "ms": 9685.5
+        }
+      ]
+    }
+  },
+  "pass": true,
+  "finished": "2026-10-05T03:59:01.924Z"
+}

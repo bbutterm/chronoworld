@@ -1,0 +1,147 @@
+[
+  {
+    "name": "assets/index-CYA5UBfB.js",
+    "minifiedChunkBytes": 2926464,
+    "note": "module renderedLength before final minification",
+    "topModules": [
+      {
+        "id": "src/game/content.ts",
+        "renderedLength": 1163358
+      },
+      {
+        "id": "assets/sprites/sprites.json",
+        "renderedLength": 112953
+      },
+      {
+        "id": "src/game/scenes/BattleScene.ts",
+        "renderedLength": 89384
+      },
+      {
+        "id": "\u0000virtual:asset-pack",
+        "renderedLength": 80193
+      },
+      {
+        "id": "src/core/battle.ts",
+        "renderedLength": 61520
+      },
+      {
+        "id": "src/game/skillFx.ts",
+        "renderedLength": 56771
+      },
+      {
+        "id": "node_modules/zod/v4/core/schemas.js",
+        "renderedLength": 51014
+      },
+      {
+        "id": "src/game/scenes/TowerScene.ts",
+        "renderedLength": 48614
+      },
+      {
+        "id": "src/game/scenes/HeroScene.ts",
+        "renderedLength": 45512
+      },
+      {
+        "id": "src/game/skillSigs.ts",
+        "renderedLength": 44253
+      },
+      {
+        "id": "src/game/ui.ts",
+        "renderedLength": 44059
+      },
+      {
+        "id": "assets/effects/effects.json",
+        "renderedLength": 43911
+      },
+      {
+        "id": "src/game/audioSynth.ts",
+        "renderedLength": 41509
+      },
+      {
+        "id": "src/game/backdropsExtra.ts",
+        "renderedLength": 41066
+      },
+      {
+        "id": "src/game/scenes/InventoryScene.ts",
+        "renderedLength": 38657
+      }
+    ]
+  },
+  {
+    "name": "assets/phaser-B6Ef8M8A.js",
+    "minifiedChunkBytes": 945106,
+    "note": "module renderedLength before final minification",
+    "topModules": [
+      {
+        "id": "node_modules/phaser/src/input/InputPlugin.js",
+        "renderedLength": 38470
+      },
+      {
+        "id": "node_modules/phaser/src/renderer/webgl/WebGLRenderer.js",
+        "renderedLength": 38436
+      },
+      {
+        "id": "node_modules/phaser/src/gameobjects/particles/ParticleEmitter.js",
+        "renderedLength": 30781
+      },
+      {
+        "id": "node_modules/phaser/src/renderer/webgl/WebGLPipeline.js",
+        "renderedLength": 24888
+      },
+      {
+        "id": "node_modules/phaser/src/math/Matrix4.js",
+        "renderedLength": 22917
+      },
+      {
+        "id": "node_modules/phaser/src/scale/ScaleManager.js",
+        "renderedLength": 21720
+      },
+      {
+        "id": "node_modules/phaser/src/gameobjects/video/Video.js",
+        "renderedLength": 18739
+      },
+      {
+        "id": "node_modules/phaser/src/gameobjects/group/Group.js",
+        "renderedLength": 16602
+      },
+      {
+        "id": "node_modules/phaser/src/scene/SceneManager.js",
+        "renderedLength": 16452
+      },
+      {
+        "id": "node_modules/phaser/src/textures/TextureManager.js",
+        "renderedLength": 15661
+      },
+      {
+        "id": "node_modules/phaser/src/gameobjects/text/Text.js",
+        "renderedLength": 15402
+      },
+      {
+        "id": "node_modules/phaser/src/gameobjects/shader/Shader.js",
+        "renderedLength": 15369
+      },
+      {
+        "id": "node_modules/phaser/src/textures/DynamicTexture.js",
+        "renderedLength": 15108
+      },
+      {
+        "id": "node_modules/phaser/src/renderer/webgl/pipelines/MultiPipeline.js",
+        "renderedLength": 14863
+      },
+      {
+        "id": "node_modules/phaser/src/gameobjects/graphics/Graphics.js",
+        "renderedLength": 14469
+      }
+    ]
+  },
+  {
+    "name": "assets/rolldown-runtime-CbXtAM7H.js",
+    "minifiedChunkBytes": 589,
+    "note": "module renderedLength before final minification",
+    "topModules": [
+      {
+        "id": "\u0000rolldown/runtime.js",
+        "renderedLength": 1162
+      }
+    ]
+  }
+]

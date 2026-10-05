@@ -1,0 +1,968 @@
+{
+  "root": "/workspace/chronoworld-worktrees/night-cold-load",
+  "cpu": 1,
+  "network": "fast3g",
+  "browser": "151.0.7922.173",
+  "launchGraphics": "SwiftShader software WebGL",
+  "profileOverhead": false,
+  "scope": "Local production build via Vite preview; no physical phone FPS measurement",
+  "diagnosticOnly": true,
+  "measurements": [
+    {
+      "warm": false,
+      "index": 1,
+      "marks": [
+        {
+          "name": "cw:script",
+          "start": 10013.10000000149
+        },
+        {
+          "name": "cw:fonts",
+          "start": 10017.80000000447
+        },
+        {
+          "name": "cw:boot-frame",
+          "start": 10597.70000000298
+        },
+        {
+          "name": "scene:Campaign:start",
+          "start": 15116.70000000298
+        },
+        {
+          "name": "cw:home",
+          "start": 15304.30000000447
+        }
+      ],
+      "paint": [
+        {
+          "name": "first-paint",
+          "start": 940
+        },
+        {
+          "name": "first-contentful-paint",
+          "start": 940
+        }
+      ],
+      "http": [
+        {
+          "url": "/",
+          "type": "Document",
+          "start": 0,
+          "end": 588.7899999943329,
+          "encodedDataLength": 3204,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-400.woff2",
+          "type": "Font",
+          "start": 582.2829999960959,
+          "end": 1795.2249999943888,
+          "encodedDataLength": 23268,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-700.woff2",
+          "type": "Font",
+          "start": 582.7649999991991,
+          "end": 1803.6139999967418,
+          "encodedDataLength": 23196,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/philosopher-700.woff2",
+          "type": "Font",
+          "start": 582.8379999948083,
+          "end": 1728.4539999964181,
+          "encodedDataLength": 19960,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/assets/index-CYA5UBfB.js",
+          "type": "Script",
+          "start": 589.1929999997956,
+          "end": 9878.148999996483,
+          "encodedDataLength": 773634,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/rolldown-runtime-CbXtAM7H.js",
+          "type": "Script",
+          "start": 589.3509999950766,
+          "end": 1186.865999996371,
+          "encodedDataLength": 937,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/phaser-B6Ef8M8A.js",
+          "type": "Script",
+          "start": 589.4479999988107,
+          "end": 5544.069999996282,
+          "encodedDataLength": 247568,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/boot-webp-2462047fb2.bin",
+          "type": "Other",
+          "start": 590.7339999976102,
+          "end": 8352.445999997144,
+          "encodedDataLength": 477862,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 12621.178000001237,
+          "end": 13203.421999998682,
+          "encodedDataLength": 2646,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 13943.633999995654,
+          "end": 14528.294999996433,
+          "encodedDataLength": 2536,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/ui_tap.ogg",
+          "type": "Fetch",
+          "start": 14121.313999996346,
+          "end": 14744.678999995813,
+          "encodedDataLength": 3439,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/coin.ogg",
+          "type": "Fetch",
+          "start": 14121.557999998913,
+          "end": 14728.008999998565,
+          "encodedDataLength": 1623,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/chest_open.ogg",
+          "type": "Fetch",
+          "start": 14121.746999997413,
+          "end": 14785.672999998496,
+          "encodedDataLength": 9082,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 14530.049000000872,
+          "end": 15111.68099999486,
+          "encodedDataLength": 2098,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/unlock.ogg",
+          "type": "Fetch",
+          "start": 14732.6350000003,
+          "end": 15435.280999998213,
+          "encodedDataLength": 12102,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/refine_success.ogg",
+          "type": "Fetch",
+          "start": 14750.659999997879,
+          "end": 15527.01099999831,
+          "encodedDataLength": 17457,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/refine_fail.ogg",
+          "type": "Fetch",
+          "start": 14814.806999995199,
+          "end": 15519.157999995514,
+          "encodedDataLength": 9728,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/backgrounds/bg_map_ch1.jpg",
+          "type": "Image",
+          "start": 15303.266999995685,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 15303.415999995195,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 15303.536999999778,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 15303.60500000097,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/music_map_meadow.ogg",
+          "type": "Media",
+          "start": 15308.541999998852,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/bless_pick.ogg",
+          "type": "Fetch",
+          "start": 15450.937999994494,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/level_up.ogg",
+          "type": "Fetch",
+          "start": 15541.315999995277,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/job_change.ogg",
+          "type": "Fetch",
+          "start": 15551.613999996334,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        }
+      ],
+      "errors": [],
+      "warnings": [],
+      "memory": {
+        "jsHeapAfterGC": 14231780,
+        "games": [
+          {
+            "textureBytes": 26685972,
+            "viewport": [
+              720,
+              1280
+            ],
+            "scenes": [
+              "Campaign"
+            ],
+            "topTextures": [
+              {
+                "key": "skin_atlas",
+                "dims": "1024x1004",
+                "bytes": 4112384,
+                "sources": [
+                  "skin_atlas"
+                ]
+              },
+              {
+                "key": "skin_bg_forest",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_forest"
+                ]
+              },
+              {
+                "key": "skin_bg_battle",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_battle"
+                ]
+              },
+              {
+                "key": "skin_banner_victory",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_victory"
+                ]
+              },
+              {
+                "key": "skin_banner_defeat",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_defeat"
+                ]
+              },
+              {
+                "key": "ui_kenney",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "ui_kenney"
+                ]
+              },
+              {
+                "key": "skin_rays",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "skin_rays"
+                ]
+              },
+              {
+                "key": "boot_bg",
+                "dims": "390x660",
+                "bytes": 1029600,
+                "sources": [
+                  "boot_bg"
+                ]
+              },
+              {
+                "key": "boot_ribbon",
+                "dims": "820x150",
+                "bytes": 492000,
+                "sources": [
+                  "boot_ribbon"
+                ]
+              },
+              {
+                "key": "ui_chest_empty",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_empty"
+                ]
+              },
+              {
+                "key": "ui_chest_filling",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_filling"
+                ]
+              },
+              {
+                "key": "ui_chest_full",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_full"
+                ]
+              },
+              {
+                "key": "boot_bar_frame",
+                "dims": "800x84",
+                "bytes": 268800,
+                "sources": [
+                  "boot_bar_frame"
+                ]
+              },
+              {
+                "key": "fx_hit",
+                "dims": "256x256",
+                "bytes": 262144,
+                "sources": [
+                  "fx_hit"
+                ]
+              },
+              {
+                "key": "fx_magic",
+                "dims": "256x256",
+                "bytes": 262144,
+                "sources": [
+                  "fx_magic"
+                ]
+              }
+            ],
+            "portraitFilters": []
+          }
+        ]
+      }
+    },
+    {
+      "warm": true,
+      "index": 1,
+      "marks": [
+        {
+          "name": "cw:script",
+          "start": 961.0999999940395
+        },
+        {
+          "name": "cw:fonts",
+          "start": 1473.1999999955297
+        },
+        {
+          "name": "cw:boot-frame",
+          "start": 1623.7999999970198
+        },
+        {
+          "name": "scene:Campaign:start",
+          "start": 4406.29999999702
+        },
+        {
+          "name": "cw:home",
+          "start": 4510.5999999940395
+        }
+      ],
+      "paint": [
+        {
+          "name": "first-paint",
+          "start": 1040
+        },
+        {
+          "name": "first-contentful-paint",
+          "start": 1040
+        }
+      ],
+      "http": [
+        {
+          "url": "/audio/cast_poison_v2.ogg",
+          "type": "Fetch",
+          "start": -8.798999995633494,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/cast_neutral.ogg",
+          "type": "Fetch",
+          "start": -6.585999995877501,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/",
+          "type": "Document",
+          "start": 0,
+          "end": 595.885000002454,
+          "encodedDataLength": 127,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/cast_neutral_v2.ogg",
+          "type": "Fetch",
+          "start": -1.0499999989406206,
+          "end": null,
+          "encodedDataLength": null,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/fonts/rubik-400.woff2",
+          "type": "Font",
+          "start": 878.7779999984195,
+          "end": 1454.4080000050599,
+          "encodedDataLength": 179,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/fonts/rubik-700.woff2",
+          "type": "Font",
+          "start": 879.0710000030231,
+          "end": 1462.9620000050636,
+          "encodedDataLength": 179,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/fonts/philosopher-700.woff2",
+          "type": "Font",
+          "start": 879.1520000013406,
+          "end": 1470.8860000027926,
+          "encodedDataLength": 179,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/assets/index-CYA5UBfB.js",
+          "type": "Script",
+          "start": 879.2770000000019,
+          "end": 879.4090000010328,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/rolldown-runtime-CbXtAM7H.js",
+          "type": "Script",
+          "start": 879.4530000013765,
+          "end": 879.5020000034128,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/phaser-B6Ef8M8A.js",
+          "type": "Script",
+          "start": 879.5250000039232,
+          "end": 879.5800000007148,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": "gzip",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/assets/boot-webp-2462047fb2.bin",
+          "type": "Other",
+          "start": 879.612000004272,
+          "end": 1456.970999999612,
+          "encodedDataLength": 0,
+          "status": 200,
+          "fromDiskCache": true,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 2668.3170000032987,
+          "end": 3245.6270000038785,
+          "encodedDataLength": 127,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 3254.682999999204,
+          "end": 3828.469000000041,
+          "encodedDataLength": 127,
+          "status": 304,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 3831.9899999987683,
+          "end": 4403.873000002932,
+          "encodedDataLength": 127,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/ui_tap.ogg",
+          "type": "Fetch",
+          "start": 4168.322000004991,
+          "end": 4737.894999998389,
+          "encodedDataLength": 127,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/coin.ogg",
+          "type": "Fetch",
+          "start": 4168.581999998423,
+          "end": 4745.059000000765,
+          "encodedDataLength": 127,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/audio/chest_open.ogg",
+          "type": "Fetch",
+          "start": 4168.754999998782,
+          "end": 4753.127000003587,
+          "encodedDataLength": 127,
+          "status": 200,
+          "fromDiskCache": false,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": "no-cache"
+        },
+        {
+          "url": "/backgrounds/bg_map_ch1.jpg",
+          "type": "Image",
+          "start": 4509.844000000157,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_alan_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 4510.012999999162,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_bran_first_profession_detail_v1.webp",
+          "type": "Image",
+          "start": 4510.097999998834,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/webp/sprites/heroes/hero_vika_acolyte_details_v2.webp",
+          "type": "Image",
+          "start": 4510.167000000365,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/music_map_meadow.ogg",
+          "type": "Media",
+          "start": 4518.392999998468,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/unlock.ogg",
+          "type": "Fetch",
+          "start": 4747.512000001734,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/refine_success.ogg",
+          "type": "Fetch",
+          "start": 4749.873000000662,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        },
+        {
+          "url": "/audio/refine_fail.ogg",
+          "type": "Fetch",
+          "start": 4774.592000001576,
+          "end": null,
+          "encodedDataLength": null,
+          "status": null,
+          "fromDiskCache": null,
+          "failed": null,
+          "contentEncoding": null,
+          "cacheControl": null
+        }
+      ],
+      "errors": [],
+      "warnings": [],
+      "memory": {
+        "jsHeapAfterGC": 15127400,
+        "games": [
+          {
+            "textureBytes": 30388756,
+            "viewport": [
+              720,
+              1280
+            ],
+            "scenes": [
+              "Campaign"
+            ],
+            "topTextures": [
+              {
+                "key": "skin_atlas",
+                "dims": "1024x1004",
+                "bytes": 4112384,
+                "sources": [
+                  "skin_atlas"
+                ]
+              },
+              {
+                "key": "skin_bg_forest",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_forest"
+                ]
+              },
+              {
+                "key": "skin_bg_battle",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "skin_bg_battle"
+                ]
+              },
+              {
+                "key": "bg_map_ch1",
+                "dims": "720x1280",
+                "bytes": 3686400,
+                "sources": [
+                  "bg_map_ch1"
+                ]
+              },
+              {
+                "key": "skin_banner_victory",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_victory"
+                ]
+              },
+              {
+                "key": "skin_banner_defeat",
+                "dims": "900x300",
+                "bytes": 1080000,
+                "sources": [
+                  "skin_banner_defeat"
+                ]
+              },
+              {
+                "key": "ui_kenney",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "ui_kenney"
+                ]
+              },
+              {
+                "key": "skin_rays",
+                "dims": "512x512",
+                "bytes": 1048576,
+                "sources": [
+                  "skin_rays"
+                ]
+              },
+              {
+                "key": "boot_bg",
+                "dims": "390x660",
+                "bytes": 1029600,
+                "sources": [
+                  "boot_bg"
+                ]
+              },
+              {
+                "key": "boot_ribbon",
+                "dims": "820x150",
+                "bytes": 492000,
+                "sources": [
+                  "boot_ribbon"
+                ]
+              },
+              {
+                "key": "ui_chest_empty",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_empty"
+                ]
+              },
+              {
+                "key": "ui_chest_filling",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_filling"
+                ]
+              },
+              {
+                "key": "ui_chest_full",
+                "dims": "300x300",
+                "bytes": 360000,
+                "sources": [
+                  "ui_chest_full"
+                ]
+              },
+              {
+                "key": "boot_bar_frame",
+                "dims": "800x84",
+                "bytes": 268800,
+                "sources": [
+                  "boot_bar_frame"
+                ]
+              },
+              {
+                "key": "fx_hit",
+                "dims": "256x256",
+                "bytes": 262144,
+                "sources": [
+                  "fx_hit"
+                ]
+              }
+            ],
+            "portraitFilters": []
+          }
+        ]
+      }
+    }
+  ]
+}

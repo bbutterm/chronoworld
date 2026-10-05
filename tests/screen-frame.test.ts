@@ -69,7 +69,8 @@ describe('каркас экрана: числа (frame.ts)', () => {
 
 describe('каркас экрана: screen.ts', () => {
   it('Telegram BackButton = «‹» экрана и снимается, когда экран уходит', () => {
-    expect(SRC).toMatch(/const off = setTgBack\(goBack\);\s*\n\s*scene\.events\.once\(Phaser\.Scenes\.Events\.SHUTDOWN, off\)/);
+    expect(SRC).toMatch(/new ModalBack\(goBack,/);
+    expect(SRC).toMatch(/scene\.events\.once\(Phaser\.Scenes\.Events\.SHUTDOWN, \(\) => \{\s*modalBack\.destroy\(\)/);
     // «Назад» не срабатывает дважды: экран уже уходит (затемнение transitions.ts) — ничего не делаем.
     expect(SRC).toMatch(/isLeaving\(scene\)/);
   });

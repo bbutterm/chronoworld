@@ -1,0 +1,53 @@
+{
+  "budget": 3000000,
+  "spriteDeliveredActual": 6337211,
+  "compactRegistryBytes": 66128,
+  "spritePngCount": 324,
+  "bootFileCount": 322,
+  "bootPngBytes": 911986,
+  "bootDeliveredBytes": 477499,
+  "chunks": [
+    {
+      "path": "index-CYA5UBfB.js",
+      "bytes": 2926464,
+      "gzip": 766012
+    },
+    {
+      "path": "phaser-B6Ef8M8A.js",
+      "bytes": 945106,
+      "gzip": 244614
+    },
+    {
+      "path": "boot-png-072f2b1f8b.bin",
+      "bytes": 911986,
+      "gzip": 784485
+    },
+    {
+      "path": "boot-webp-2462047fb2.bin",
+      "bytes": 477499,
+      "gzip": 445811
+    },
+    {
+      "path": "rolldown-runtime-CbXtAM7H.js",
+      "bytes": 589,
+      "gzip": 368
+    }
+  ],
+  "ownedPortraits": [
+    {
+      "path": "sprites/portraits/hero_alan_first_profession_detail_v1.png",
+      "png": 6561,
+      "delivered": 2380
+    },
+    {
+      "path": "sprites/portraits/hero_bran_first_profession_detail_v1.png",
+      "png": 6324,
+      "delivered": 2270
+    },
+    {
+      "path": "sprites/portraits/hero_vika_acolyte_details_v2.png",
+      "png": 5411,
+      "delivered": 1832
+    }
+  ]
+}

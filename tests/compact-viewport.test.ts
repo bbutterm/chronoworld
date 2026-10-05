@@ -43,7 +43,10 @@ describe('компактный Telegram сохраняет ширину и да�
   it('переключает только адаптированные сцены и восстанавливает поле боя целиком', () => {
     expect(supportsAdaptiveLayout('Campaign')).toBe(true);
     expect(supportsAdaptiveLayout('Adventure')).toBe(true);
-    for (const scene of ['Battle', 'Stage', 'Home', 'Hero', 'Result']) expect(supportsAdaptiveLayout(scene)).toBe(false);
+    expect(supportsAdaptiveLayout('Hero')).toBe(true);
+    expect(supportsAdaptiveLayout('Ascend')).toBe(true);
+    for (const scene of ['Heroes', 'HeroPick', 'Stage', 'Squad']) expect(supportsAdaptiveLayout(scene)).toBe(true);
+    for (const scene of ['Battle', 'Home', 'Tavern', 'TavernEvening', 'Result']) expect(supportsAdaptiveLayout(scene)).toBe(false);
     const insets = { top: 136, bottom: 34, left: 0, right: 0 };
     const map = computeView(360, 640, 1, insets, 2, supportsAdaptiveLayout('Campaign'));
     const battle = computeView(360, 640, 1, insets, 2, supportsAdaptiveLayout('Battle'));
@@ -52,6 +55,13 @@ describe('компактный Telegram сохраняет ширину и да�
     expect(battle.worldY).toBeLessThanOrEqual(0);
     expect(battle.worldY + battle.worldH).toBeGreaterThanOrEqual(1920);
     expect(map).toEqual(computeView(360, 640, 1, insets, 2, true));
+    for (const scene of ['Hero', 'Ascend', 'Heroes', 'HeroPick', 'Stage', 'Squad']) {
+      const hero = computeView(360, 640, 1, insets, 2, supportsAdaptiveLayout(scene));
+      expect(hero.adaptive).toBe(true);
+      expect(hero.uiHeight).toBe(1410);
+      expect(hero.cssW / hero.worldW).toBeCloseTo(1 / 3);
+      expect(hero).toEqual(map);
+    }
   });
 
   it.each([1, 3, 5])('все %s этапов и отряд достигаются без уменьшения CTA и добычи', n => {

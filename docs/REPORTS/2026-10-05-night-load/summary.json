@@ -1,0 +1,195 @@
+{
+  "scope": "Frozen root combined source + isolated Boot fix, before subsequent data2/shared-header package",
+  "cpu": 4,
+  "network": "none",
+  "graphics": "SwiftShader, no physical iPhone FPS claim",
+  "isolatedWindowUTC": {
+    "start": "2026-10-04T23:36:31Z",
+    "end": "2026-10-04T23:37:53Z"
+  },
+  "timing": {
+    "before": {
+      "cold": {
+        "samples": 3,
+        "homeMs": [
+          6712.60000000149,
+          4287.70000000298,
+          4151.5
+        ],
+        "medianHomeMs": 4287.70000000298,
+        "medianBootMs": 1597.5,
+        "medianFcpMs": 260,
+        "portraitHttpRequests": [
+          3,
+          3,
+          3
+        ],
+        "errors": 0
+      },
+      "warm": {
+        "samples": 3,
+        "homeMs": [
+          4467,
+          3859,
+          3545.1999999955297
+        ],
+        "medianHomeMs": 3859,
+        "medianBootMs": 1326.5,
+        "medianFcpMs": 428,
+        "portraitHttpRequests": [
+          3,
+          3,
+          3
+        ],
+        "errors": 0
+      }
+    },
+    "after": {
+      "cold": {
+        "samples": 3,
+        "homeMs": [
+          5551,
+          4034,
+          3995
+        ],
+        "medianHomeMs": 4034,
+        "medianBootMs": 1609.5,
+        "medianFcpMs": 308,
+        "portraitHttpRequests": [
+          0,
+          0,
+          0
+        ],
+        "errors": 0
+      },
+      "warm": {
+        "samples": 3,
+        "homeMs": [
+          3269.2999999970198,
+          3451.7000000029802,
+          3316.6999999955297
+        ],
+        "medianHomeMs": 3316.6999999955297,
+        "medianBootMs": 1225.1000000014901,
+        "medianFcpMs": 404,
+        "portraitHttpRequests": [
+          0,
+          0,
+          0
+        ],
+        "errors": 0
+      }
+    }
+  },
+  "lateProof": {
+    "save": "tests/fixtures/boot-late-save.json",
+    "saveSha256": "300b70cae13432daf4385d864ff33df8f7fbb620fc93ca3002735f0e25807701",
+    "now": 1792645536853,
+    "heroes": 52,
+    "items": 238,
+    "expectedPortraits": 25,
+    "missing": [],
+    "notNearest": [],
+    "errors": []
+  },
+  "faultProof": {
+    "expectedInjectedFailures": [
+      "boot pack 404",
+      "Vika own portrait 404"
+    ],
+    "campaignOpened": true,
+    "unexpectedErrors": [],
+    "warnings": [
+      "Expected injected 404: http://localhost:5198/assets/boot-webp-2462047fb2.bin",
+      "Пакет загрузки не загрузился — грузим файлы по одному",
+      "Expected injected 404: http://localhost:5198/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+      "Ассет portrait_hero_vika_acolyte_details_v2 не загрузился, рисую плейсхолдер",
+      "Expected injected 404: http://localhost:5198/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp",
+      "Expected injected 404: http://localhost:5198/webp/sprites/portraits/hero_vika_acolyte_details_v2.webp"
+    ]
+  },
+  "source": {
+    "gitHead": "cb9346bd0972a75078447e87675f1336153dde35",
+    "sourceSha256": "18b79f114c9b31ca6ed7b0aa1d5035e84cd28efdac58a494876a0fa1f2ae04eb",
+    "paths": 1034,
+    "copiedChangedFiles": [
+      "scripts/night-boss-ui-qa.mjs",
+      "src/game/battlePresentation.ts",
+      "src/game/dialogue.ts",
+      "src/game/featureTiles.ts",
+      "src/game/runtimeUiLayout.ts",
+      "src/game/scenes/AdventureScene.ts",
+      "src/game/scenes/BattleScene.ts",
+      "src/game/scenes/CampaignScene.ts",
+      "src/game/screen.ts",
+      "src/game/scroll.ts",
+      "src/game/storyPage.ts",
+      "src/game/ui.ts",
+      "src/game/unlockBanner.ts",
+      "src/game/viewLayout.ts",
+      "src/game/viewport.ts"
+    ],
+    "assetsUntouched": true
+  },
+  "chunks": {
+    "before": [
+      {
+        "name": "boot-png-072f2b1f8b.bin",
+        "bytes": 911986,
+        "sha256": "d3036cc9d74d3079e5c8b2ba2a74c91a75e0683ac2f7bf7820de95a4172ca804"
+      },
+      {
+        "name": "boot-webp-2462047fb2.bin",
+        "bytes": 477499,
+        "sha256": "0b669e21b0f380c32b3de64b337600a48c384e2b59e22a455bc28fc1b62a6d04"
+      },
+      {
+        "name": "index-CYA5UBfB.js",
+        "bytes": 2926464,
+        "sha256": "2463d7a37ef65d3a220029a9e6f7c5e7aa915d845424e0f3d2393a547c7978aa"
+      },
+      {
+        "name": "phaser-B6Ef8M8A.js",
+        "bytes": 945106,
+        "sha256": "73d3b82e5762c94a3e34157aab70b0a3bdafbc40f87eba36639dd5c3044ed46f"
+      },
+      {
+        "name": "rolldown-runtime-CbXtAM7H.js",
+        "bytes": 589,
+        "sha256": "bbf7c5086ae414dc3f33777e3eebf16ea8631325b8bb4690d25091c03567f31a"
+      }
+    ],
+    "after": [
+      {
+        "name": "boot-png-072f2b1f8b.bin",
+        "bytes": 911986,
+        "sha256": "d3036cc9d74d3079e5c8b2ba2a74c91a75e0683ac2f7bf7820de95a4172ca804"
+      },
+      {
+        "name": "boot-webp-2462047fb2.bin",
+        "bytes": 477499,
+        "sha256": "0b669e21b0f380c32b3de64b337600a48c384e2b59e22a455bc28fc1b62a6d04"
+      },
+      {
+        "name": "index-D1B46ywc.js",
+        "bytes": 2926661,
+        "sha256": "7170b20934e84a771587e7a13f5dbdba5c295fc2ecd132b24dd97f5a16a983aa"
+      },
+      {
+        "name": "phaser-B6Ef8M8A.js",
+        "bytes": 945106,
+        "sha256": "73d3b82e5762c94a3e34157aab70b0a3bdafbc40f87eba36639dd5c3044ed46f"
+      },
+      {
+        "name": "rolldown-runtime-CbXtAM7H.js",
+        "bytes": 589,
+        "sha256": "bbf7c5086ae414dc3f33777e3eebf16ea8631325b8bb4690d25091c03567f31a"
+      }
+    ]
+  },
+  "spriteBudget": {
+    "budgetBytes": 3000000,
+    "deliveredBytes": 6337211,
+    "status": "pre-existing unresolved debt; unchanged assets and threshold"
+  }
+}
