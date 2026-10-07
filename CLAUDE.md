@@ -11,7 +11,8 @@
 Приёмка, исправления BUG-214…218, команды повторения и ограничения — `docs/qa/v1-final-audit-2026-10-07.md`.
 CI PR/main и Vercel зелёные; actual production WebGL390/Canvas360 PASS — `docs/qa/v1-publication-2026-10-07.md`.
 Save v7 / облачный протокол v2 сохранены; необязательные поля сундука совместимы со старой сборкой.
-Production `https://chronoworld-ecru.vercel.app/` отдаёт `index-DJY0EgJZ.js`; в настройках проверена версия 1.0.0.
+Production — `https://chronoworld-ecru.vercel.app/`; в настройках проверена версия 1.0.0.
+Снимок приёмки привязан к code main `91a4db8`; имена assets при последующих сборках могут меняться.
 Актуальное продолжение — верхний раздел `docs/PROGRESS.md`; разделы ниже сохраняют историю предыдущих пакетов.
 
 ## Актуальный проход 04.10.2026

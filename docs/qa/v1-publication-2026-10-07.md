@@ -9,7 +9,8 @@
   [CI main](https://github.com/bbutterm/chronoworld/actions/runs/37616771510): `check` и `backend` — success.
   Обе цепочки выполняют обычные проверки; клиентская включает production build.
 - [Vercel deployment](https://vercel.com/bbutterms-projects/chronoworld/8ZTExcUDPRLgPDNQ35YPLUSFSewa) — success.
-  Публичный адрес отвечает HTTP 200 и отдаёт `index-DJY0EgJZ.js` вместо прежнего `index-BE_nZCYN.js`.
+  При приёмке code main `91a4db8` публичный адрес ответил HTTP 200 и отдавал `index-DJY0EgJZ.js`
+  вместо прежнего `index-BE_nZCYN.js`. Это зафиксированный снимок: последующие сборки могут менять имена assets.
 - SHA256 опубликованного index:
   `1d6142584a95ee076ad86e9491e267b59ecac7a26473d550002e4239b5e73c9b`.
   Локальная приёмка использовала `index-CIEAz6zU.js`; Vercel собирает с production-окружением.

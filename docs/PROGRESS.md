@@ -17,7 +17,8 @@ Native Таверна — 22 проверки; конечная compiled-сбо�
 Backend SQL / Deno и 39 Python-проверок проходят. Полный спрайтовый валидатор сохраняет 66 прежних ошибок
 (65 листы/портреты + бюджет); реальные Telegram/live API и оптимизация стартовой загрузки остаются в приёмке.
 
-CI PR и main (check/backend) зелёные, Vercel success. Production отдаёт `index-DJY0EgJZ.js`.
+CI PR и main (check/backend) зелёные, Vercel success.
+Снимок production-приёмки — code main `91a4db8`, bundle `index-DJY0EgJZ.js`; последующие сборки могут менять имя asset.
 Actual public bundle на WebGL390/Canvas360: native переходы из финала, версия 1.0.0 в настройках,
 180 этапов после возврата, 0 ошибок и внешних запросов. Облачных записей проверка не делала.
 Save v7 / протокол v2 сохранены; новое развёртывание backend не требуется.
