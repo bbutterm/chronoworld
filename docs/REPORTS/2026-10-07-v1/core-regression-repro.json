@@ -1,0 +1,44 @@
+{
+  "chest": {
+    "before": {
+      "ticks": 24,
+      "items": [
+        "dagger"
+      ],
+      "cards": [
+        {
+          "templateId": "otto",
+          "rarity": "blue"
+        }
+      ],
+      "gems": 0,
+      "scrolls": 0
+    },
+    "after": {
+      "ticks": 24,
+      "items": [
+        "dagger"
+      ],
+      "cards": [
+        {
+          "templateId": "otto",
+          "rarity": "blue"
+        }
+      ],
+      "gems": 0,
+      "scrolls": 0
+    },
+    "preserved": true
+  },
+  "tower": {
+    "blocked": "fodder_busy",
+    "unchanged": true,
+    "activeUnits": [
+      "h102",
+      null,
+      null,
+      null,
+      null
+    ]
+  }
+}

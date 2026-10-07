@@ -1,0 +1,31 @@
+{
+  "baselineCommit": "c3e4fc2cc5266b8ff194a2ae93d2629a0b139306",
+  "branch": "codex/v1-final-audit-2026-10-07",
+  "packageVersion": "1.0.0",
+  "coreAndDataSha256": "5373d808b45ea52f9273378baad0ba807bbf110d16a002254c586eac7a87b2b7",
+  "compiledBundlesSha256": {
+    "index-CIEAz6zU.js": "cdec0144154610eb7d1e9710a7c4dddc59d14f32f8855ea959aba50e69e20c0c",
+    "phaser-B6Ef8M8A.js": "73d3b82e5762c94a3e34157aab70b0a3bdafbc40f87eba36639dd5c3044ed46f"
+  },
+  "productionPublished": false,
+  "externalWrites": false,
+  "qaScriptsSha256": {
+    "qa-v1-showcase.mjs": "5fb17b4f3e3bcbcbb3c5f19d3e1557b7739fb30714e7a1c78332ded3611dd2b1",
+    "qa-v1-replay.ts": "ef0a1608118403cbfdfe3a6676196f71d9e81ed75aba2540f696eae46ee686f9",
+    "qa-tavern-navigation.mjs": "e1c4206807093372c8c341a694c07c7db36f8d486843e7d6f123e852410fffd0",
+    "e2e-chapter1.mjs": "be83722429941a2cea29450522fa88777aba69669d0d48cd1c68c91bce426c10",
+    "ui-atlas.mjs": "f71fe0bbdf16fce7954d581e9e76e515129b8053e107f6fac011dc36c656c756"
+  },
+  "checks": {
+    "vitestFiles": 230,
+    "vitestTests": 2398,
+    "nodeTests": 3,
+    "pythonTests": 39,
+    "campaignClears": 180,
+    "firstWinReplays": 180,
+    "chapter1UiWins": 18,
+    "generalE2eScreenshots": 29,
+    "tavernNativeChecks": 22,
+    "knownSpriteValidationFailures": 66
+  }
+}

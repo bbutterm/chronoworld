@@ -654,6 +654,21 @@ try {
       const s = await save();
       log(`отряд после «Авто»: ${s.squad.map((id) => { const h = s.heroes.find((x) => x.id === id); return h ? `${h.templateId} ${h.rarity} ${h.level}` : '—'; }).join(', ')}`);
     }
+    // Доход начисляется полными минутами. Быстрый Canvas-прогон может пройти все короткие этапы
+    // до первой минуты между банковками; ждём реального дохода, не изменяя часы или ресурсы.
+    if (stage === 2 && !hintsSeen.has('chest_claim')) {
+      await recordHint('Campaign');
+      await page.waitForFunction(() => !!window.__game.scene.getScene('Campaign').children.getByName('chestChips'),
+        undefined, { timeout: 75000, polling: 1000 });
+      log('сундук: дождались первой полной минуты реального простоя');
+      // Продукт показывает одну подсказку за визит: после level_up новый шаг ждёт обычного возврата.
+      await clickText('Campaign', 'Город');
+      await waitScene('Home');
+      await skipDialogues('Home');
+      await clickText('Home', 'Кампания');
+      await waitScene('Campaign');
+      await skipDialogues('Campaign');
+    }
     // Сундук — шаг обучения: «Собрать» на карте, когда указатель на нём.
     if ((await recordHint('Campaign')) === 'chest_claim') {
       await clickText('Campaign', 'Собрать');

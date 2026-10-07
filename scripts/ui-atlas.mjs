@@ -7,10 +7,10 @@
 // (как scripts/behavior-shots.mjs): кадр на 3-й секунде, кадр ульты, затем «Пропустить» → итоги.
 // Выход: <save>_<WxH>_<Экран>.jpg, index.html (листы по экранам), errors.txt (ошибки консоли по экранам).
 // Playwright глобальный (npm root -g), Chromium — из PLAYWRIGHT_BROWSERS_PATH; скрипт ничего не устанавливает.
-import { execFileSync, execSync, spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { browserOptions, loadPlaywright } from './lib/perf-browser.mjs';
 
 const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -35,11 +35,6 @@ const EXT = PNG ? 'png' : 'jpg';
 const SAVE_KEY = 'chronoworld.save.v1';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (...a) => console.log('[atlas]', ...a);
-
-async function loadPlaywright() {
-  const root = execSync('npm root -g', { encoding: 'utf8' }).trim();
-  return import(pathToFileURL(join(root, 'playwright', 'index.mjs')).href);
-}
 
 async function startVite() {
   const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], detached: true });
@@ -94,6 +89,7 @@ const SCREENS = [
   { name: 'Mail', key: 'Mail' },
   { name: 'Friends', key: 'Friends' },
   { name: 'Tower', key: 'Tower' },
+  { name: 'Autobattler', key: 'Autobattler' },
   { name: 'Hunt', key: 'Hunt' },
   { name: 'Expeditions', key: 'Expeditions' },
   { name: 'Inventory', key: 'Inventory' },
@@ -442,7 +438,7 @@ async function main() {
   const all = [];
   const errors = [];
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch(browserOptions());
     const jobs = SAVES.filter((s) => saves[s]).flatMap((s) => SIZES.map((size) => [s, size]));
     let next = 0;
     const worker = async () => {
