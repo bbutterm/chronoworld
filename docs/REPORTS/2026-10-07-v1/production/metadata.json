@@ -1,0 +1,23 @@
+{
+  "verifiedAtUtc": "2026-10-07T12:00:20.840197+00:00",
+  "url": "https://chronoworld-ecru.vercel.app/",
+  "mainCodeCommit": "91a4db853bd395a8ec85a54e87d43680aecf70b9",
+  "pr": 148,
+  "sourceHead": "9d52550b10b3b9fe0f0cb5f39aec2ee9b6df2c91",
+  "prCiUrl": "https://github.com/bbutterm/chronoworld/actions/runs/37616173170",
+  "mainCiUrl": "https://github.com/bbutterm/chronoworld/actions/runs/37616771510",
+  "vercelDeploymentStatus": "success",
+  "vercelDeploymentUrl": "https://vercel.com/bbutterms-projects/chronoworld/8ZTExcUDPRLgPDNQ35YPLUSFSewa",
+  "bundle": "index-DJY0EgJZ.js",
+  "bundleSha256": "1d6142584a95ee076ad86e9491e267b59ecac7a26473d550002e4239b5e73c9b",
+  "driverSha256": "ea80d63944c3b6800f314c2ab4f671bd12e918e564078b37f1c4ba74d1640e4a",
+  "httpStatus": 200,
+  "packageVersionAsserted": "1.0.0",
+  "productionWrites": false,
+  "allowedRequests": "GET/HEAD to the explicit production origin only",
+  "method": "Native touch on actual production JS; Phaser located through CDP, no bundle or game source injection. Separate localStorage seeded with legal campaign completion, seen UI hints/story and pendingChapterDone=chapter10.",
+  "mainCiStatus": {
+    "check": "success",
+    "backend": "success"
+  }
+}
