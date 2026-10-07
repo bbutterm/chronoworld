@@ -845,7 +845,7 @@ export class HeroScene extends Phaser.Scene {
       a.add(cost.setName('branchCost'));
       head = true;
     } else if (c.branches.length) {
-      const b = button(this, S.l + S.s + 200, headY, 400, BTN.m, '', 'Ветки на фиолетовом', () => this.previewBranches(hero, c), T.body, { variant: 'secondary', sound: null });
+      const b = button(this, S.l + S.s + 200, headY, 400, BTN.m, '', 'Выбор ветки', () => this.previewBranches(hero, c), T.body, { variant: 'secondary', sound: null });
       b.container.setName('branchPreviewBtn');
       a.add(b.container);
       head = true;

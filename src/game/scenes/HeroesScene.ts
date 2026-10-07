@@ -58,6 +58,8 @@ export class HeroesScene extends Phaser.Scene {
   }
 
   create(data: HeroesData = {}): void {
+    // keep относится только к этой перерисовке; следующий обычный вход снова проверяет обучение.
+    this.sys.settings.data = {};
     screen(this, 'Герои', 'Heroes');
     const save = session.save;
     const gctx = withGear(GAME, save);

@@ -1,0 +1,1089 @@
+{
+  "status": "pass",
+  "count": 180,
+  "sourceSha256": "5373d808b45ea52f9273378baad0ba807bbf110d16a002254c586eac7a87b2b7",
+  "originalCompanionsPreserved": true,
+  "saveRoundtrip": true,
+  "rows": [
+    {
+      "stage": "ch10_s1",
+      "seed": 957,
+      "winner": "A",
+      "duration": 99.3
+    },
+    {
+      "stage": "ch10_s10",
+      "seed": 1095,
+      "winner": "A",
+      "duration": 83.7
+    },
+    {
+      "stage": "ch10_s11",
+      "seed": 1096,
+      "winner": "A",
+      "duration": 74.1
+    },
+    {
+      "stage": "ch10_s12",
+      "seed": 1097,
+      "winner": "A",
+      "duration": 93.7
+    },
+    {
+      "stage": "ch10_s13",
+      "seed": 1232,
+      "winner": "A",
+      "duration": 97.8
+    },
+    {
+      "stage": "ch10_s14",
+      "seed": 1233,
+      "winner": "A",
+      "duration": 85.7
+    },
+    {
+      "stage": "ch10_s15",
+      "seed": 1234,
+      "winner": "A",
+      "duration": 84.4
+    },
+    {
+      "stage": "ch10_s16",
+      "seed": 1235,
+      "winner": "A",
+      "duration": 85.7
+    },
+    {
+      "stage": "ch10_s17",
+      "seed": 1236,
+      "winner": "A",
+      "duration": 86.4
+    },
+    {
+      "stage": "ch10_s18",
+      "seed": 1237,
+      "winner": "A",
+      "duration": 80.9
+    },
+    {
+      "stage": "ch10_s2",
+      "seed": 980,
+      "winner": "A",
+      "duration": 98
+    },
+    {
+      "stage": "ch10_s3",
+      "seed": 981,
+      "winner": "A",
+      "duration": 92.6
+    },
+    {
+      "stage": "ch10_s4",
+      "seed": 982,
+      "winner": "A",
+      "duration": 87.2
+    },
+    {
+      "stage": "ch10_s5",
+      "seed": 984,
+      "winner": "A",
+      "duration": 98.3
+    },
+    {
+      "stage": "ch10_s6",
+      "seed": 1053,
+      "winner": "A",
+      "duration": 98.7
+    },
+    {
+      "stage": "ch10_s7",
+      "seed": 1054,
+      "winner": "A",
+      "duration": 92.8
+    },
+    {
+      "stage": "ch10_s8",
+      "seed": 1055,
+      "winner": "A",
+      "duration": 95.2
+    },
+    {
+      "stage": "ch10_s9",
+      "seed": 1056,
+      "winner": "A",
+      "duration": 99.6
+    },
+    {
+      "stage": "ch1_s1",
+      "seed": 1,
+      "winner": "A",
+      "duration": 8
+    },
+    {
+      "stage": "ch1_s10",
+      "seed": 18,
+      "winner": "A",
+      "duration": 37.4
+    },
+    {
+      "stage": "ch1_s11",
+      "seed": 3,
+      "winner": "A",
+      "duration": 9.8
+    },
+    {
+      "stage": "ch1_s12",
+      "seed": 7,
+      "winner": "A",
+      "duration": 18.7
+    },
+    {
+      "stage": "ch1_s13",
+      "seed": 9,
+      "winner": "A",
+      "duration": 24.4
+    },
+    {
+      "stage": "ch1_s14",
+      "seed": 11,
+      "winner": "A",
+      "duration": 26.9
+    },
+    {
+      "stage": "ch1_s15",
+      "seed": 13,
+      "winner": "A",
+      "duration": 25.5
+    },
+    {
+      "stage": "ch1_s16",
+      "seed": 15,
+      "winner": "A",
+      "duration": 19.6
+    },
+    {
+      "stage": "ch1_s17",
+      "seed": 16,
+      "winner": "A",
+      "duration": 24.1
+    },
+    {
+      "stage": "ch1_s18",
+      "seed": 17,
+      "winner": "A",
+      "duration": 26.3
+    },
+    {
+      "stage": "ch1_s2",
+      "seed": 2,
+      "winner": "A",
+      "duration": 7.8
+    },
+    {
+      "stage": "ch1_s3",
+      "seed": 4,
+      "winner": "A",
+      "duration": 9.8
+    },
+    {
+      "stage": "ch1_s4",
+      "seed": 5,
+      "winner": "A",
+      "duration": 18.6
+    },
+    {
+      "stage": "ch1_s5",
+      "seed": 6,
+      "winner": "A",
+      "duration": 19.2
+    },
+    {
+      "stage": "ch1_s6",
+      "seed": 8,
+      "winner": "A",
+      "duration": 20.7
+    },
+    {
+      "stage": "ch1_s7",
+      "seed": 10,
+      "winner": "A",
+      "duration": 21.5
+    },
+    {
+      "stage": "ch1_s8",
+      "seed": 12,
+      "winner": "A",
+      "duration": 20.7
+    },
+    {
+      "stage": "ch1_s9",
+      "seed": 14,
+      "winner": "A",
+      "duration": 25.8
+    },
+    {
+      "stage": "ch2_s1",
+      "seed": 19,
+      "winner": "A",
+      "duration": 18.1
+    },
+    {
+      "stage": "ch2_s10",
+      "seed": 167,
+      "winner": "A",
+      "duration": 35.5
+    },
+    {
+      "stage": "ch2_s11",
+      "seed": 20,
+      "winner": "A",
+      "duration": 17.3
+    },
+    {
+      "stage": "ch2_s12",
+      "seed": 22,
+      "winner": "A",
+      "duration": 21.1
+    },
+    {
+      "stage": "ch2_s13",
+      "seed": 48,
+      "winner": "A",
+      "duration": 49.7
+    },
+    {
+      "stage": "ch2_s14",
+      "seed": 69,
+      "winner": "A",
+      "duration": 36.9
+    },
+    {
+      "stage": "ch2_s15",
+      "seed": 71,
+      "winner": "A",
+      "duration": 37.7
+    },
+    {
+      "stage": "ch2_s16",
+      "seed": 102,
+      "winner": "A",
+      "duration": 47.5
+    },
+    {
+      "stage": "ch2_s17",
+      "seed": 104,
+      "winner": "A",
+      "duration": 51
+    },
+    {
+      "stage": "ch2_s18",
+      "seed": 138,
+      "winner": "A",
+      "duration": 37.3
+    },
+    {
+      "stage": "ch2_s2",
+      "seed": 21,
+      "winner": "A",
+      "duration": 17
+    },
+    {
+      "stage": "ch2_s3",
+      "seed": 23,
+      "winner": "A",
+      "duration": 27.6
+    },
+    {
+      "stage": "ch2_s4",
+      "seed": 49,
+      "winner": "A",
+      "duration": 40.5
+    },
+    {
+      "stage": "ch2_s5",
+      "seed": 70,
+      "winner": "A",
+      "duration": 32.6
+    },
+    {
+      "stage": "ch2_s6",
+      "seed": 101,
+      "winner": "A",
+      "duration": 48
+    },
+    {
+      "stage": "ch2_s7",
+      "seed": 103,
+      "winner": "A",
+      "duration": 45.3
+    },
+    {
+      "stage": "ch2_s8",
+      "seed": 137,
+      "winner": "A",
+      "duration": 48.1
+    },
+    {
+      "stage": "ch2_s9",
+      "seed": 139,
+      "winner": "A",
+      "duration": 36.5
+    },
+    {
+      "stage": "ch3_s1",
+      "seed": 168,
+      "winner": "A",
+      "duration": 16.8
+    },
+    {
+      "stage": "ch3_s10",
+      "seed": 186,
+      "winner": "A",
+      "duration": 70.5
+    },
+    {
+      "stage": "ch3_s11",
+      "seed": 169,
+      "winner": "A",
+      "duration": 16.8
+    },
+    {
+      "stage": "ch3_s12",
+      "seed": 171,
+      "winner": "A",
+      "duration": 19.2
+    },
+    {
+      "stage": "ch3_s13",
+      "seed": 173,
+      "winner": "A",
+      "duration": 17.1
+    },
+    {
+      "stage": "ch3_s14",
+      "seed": 175,
+      "winner": "A",
+      "duration": 19.7
+    },
+    {
+      "stage": "ch3_s15",
+      "seed": 177,
+      "winner": "A",
+      "duration": 29.1
+    },
+    {
+      "stage": "ch3_s16",
+      "seed": 179,
+      "winner": "A",
+      "duration": 29.7
+    },
+    {
+      "stage": "ch3_s17",
+      "seed": 181,
+      "winner": "A",
+      "duration": 37
+    },
+    {
+      "stage": "ch3_s18",
+      "seed": 183,
+      "winner": "A",
+      "duration": 29.7
+    },
+    {
+      "stage": "ch3_s2",
+      "seed": 170,
+      "winner": "A",
+      "duration": 19.2
+    },
+    {
+      "stage": "ch3_s3",
+      "seed": 172,
+      "winner": "A",
+      "duration": 18.7
+    },
+    {
+      "stage": "ch3_s4",
+      "seed": 174,
+      "winner": "A",
+      "duration": 19.4
+    },
+    {
+      "stage": "ch3_s5",
+      "seed": 176,
+      "winner": "A",
+      "duration": 23.5
+    },
+    {
+      "stage": "ch3_s6",
+      "seed": 178,
+      "winner": "A",
+      "duration": 31.3
+    },
+    {
+      "stage": "ch3_s7",
+      "seed": 180,
+      "winner": "A",
+      "duration": 32.5
+    },
+    {
+      "stage": "ch3_s8",
+      "seed": 182,
+      "winner": "A",
+      "duration": 34.9
+    },
+    {
+      "stage": "ch3_s9",
+      "seed": 184,
+      "winner": "A",
+      "duration": 30.7
+    },
+    {
+      "stage": "ch4_s1",
+      "seed": 187,
+      "winner": "A",
+      "duration": 46.9
+    },
+    {
+      "stage": "ch4_s10",
+      "seed": 270,
+      "winner": "A",
+      "duration": 73.6
+    },
+    {
+      "stage": "ch4_s11",
+      "seed": 189,
+      "winner": "A",
+      "duration": 43.2
+    },
+    {
+      "stage": "ch4_s12",
+      "seed": 213,
+      "winner": "A",
+      "duration": 53.2
+    },
+    {
+      "stage": "ch4_s13",
+      "seed": 225,
+      "winner": "A",
+      "duration": 62.5
+    },
+    {
+      "stage": "ch4_s14",
+      "seed": 227,
+      "winner": "A",
+      "duration": 74.4
+    },
+    {
+      "stage": "ch4_s15",
+      "seed": 230,
+      "winner": "A",
+      "duration": 75.6
+    },
+    {
+      "stage": "ch4_s16",
+      "seed": 266,
+      "winner": "A",
+      "duration": 52.1
+    },
+    {
+      "stage": "ch4_s17",
+      "seed": 267,
+      "winner": "A",
+      "duration": 35.8
+    },
+    {
+      "stage": "ch4_s18",
+      "seed": 268,
+      "winner": "A",
+      "duration": 46.1
+    },
+    {
+      "stage": "ch4_s2",
+      "seed": 188,
+      "winner": "A",
+      "duration": 37.1
+    },
+    {
+      "stage": "ch4_s3",
+      "seed": 190,
+      "winner": "A",
+      "duration": 46.6
+    },
+    {
+      "stage": "ch4_s4",
+      "seed": 191,
+      "winner": "A",
+      "duration": 46.4
+    },
+    {
+      "stage": "ch4_s5",
+      "seed": 192,
+      "winner": "A",
+      "duration": 49.8
+    },
+    {
+      "stage": "ch4_s6",
+      "seed": 224,
+      "winner": "A",
+      "duration": 57.2
+    },
+    {
+      "stage": "ch4_s7",
+      "seed": 226,
+      "winner": "A",
+      "duration": 52.8
+    },
+    {
+      "stage": "ch4_s8",
+      "seed": 228,
+      "winner": "A",
+      "duration": 61.7
+    },
+    {
+      "stage": "ch4_s9",
+      "seed": 265,
+      "winner": "A",
+      "duration": 38.5
+    },
+    {
+      "stage": "ch5_s1",
+      "seed": 271,
+      "winner": "A",
+      "duration": 62.8
+    },
+    {
+      "stage": "ch5_s10",
+      "seed": 492,
+      "winner": "A",
+      "duration": 74.6
+    },
+    {
+      "stage": "ch5_s11",
+      "seed": 273,
+      "winner": "A",
+      "duration": 18.3
+    },
+    {
+      "stage": "ch5_s12",
+      "seed": 299,
+      "winner": "A",
+      "duration": 51.9
+    },
+    {
+      "stage": "ch5_s13",
+      "seed": 301,
+      "winner": "A",
+      "duration": 74.2
+    },
+    {
+      "stage": "ch5_s14",
+      "seed": 303,
+      "winner": "A",
+      "duration": 80.3
+    },
+    {
+      "stage": "ch5_s15",
+      "seed": 317,
+      "winner": "A",
+      "duration": 54.9
+    },
+    {
+      "stage": "ch5_s16",
+      "seed": 465,
+      "winner": "A",
+      "duration": 79.5
+    },
+    {
+      "stage": "ch5_s17",
+      "seed": 490,
+      "winner": "A",
+      "duration": 69.8
+    },
+    {
+      "stage": "ch5_s18",
+      "seed": 491,
+      "winner": "A",
+      "duration": 73.1
+    },
+    {
+      "stage": "ch5_s2",
+      "seed": 272,
+      "winner": "A",
+      "duration": 34
+    },
+    {
+      "stage": "ch5_s3",
+      "seed": 274,
+      "winner": "A",
+      "duration": 37.4
+    },
+    {
+      "stage": "ch5_s4",
+      "seed": 275,
+      "winner": "A",
+      "duration": 38.1
+    },
+    {
+      "stage": "ch5_s5",
+      "seed": 276,
+      "winner": "A",
+      "duration": 43.9
+    },
+    {
+      "stage": "ch5_s6",
+      "seed": 300,
+      "winner": "A",
+      "duration": 60.4
+    },
+    {
+      "stage": "ch5_s7",
+      "seed": 302,
+      "winner": "A",
+      "duration": 69.8
+    },
+    {
+      "stage": "ch5_s8",
+      "seed": 304,
+      "winner": "A",
+      "duration": 70.1
+    },
+    {
+      "stage": "ch5_s9",
+      "seed": 341,
+      "winner": "A",
+      "duration": 82.6
+    },
+    {
+      "stage": "ch6_s1",
+      "seed": 540,
+      "winner": "A",
+      "duration": 71.5
+    },
+    {
+      "stage": "ch6_s10",
+      "seed": 613,
+      "winner": "A",
+      "duration": 77.5
+    },
+    {
+      "stage": "ch6_s11",
+      "seed": 542,
+      "winner": "A",
+      "duration": 63.7
+    },
+    {
+      "stage": "ch6_s12",
+      "seed": 571,
+      "winner": "A",
+      "duration": 89.5
+    },
+    {
+      "stage": "ch6_s13",
+      "seed": 581,
+      "winner": "A",
+      "duration": 83.3
+    },
+    {
+      "stage": "ch6_s14",
+      "seed": 583,
+      "winner": "A",
+      "duration": 91.7
+    },
+    {
+      "stage": "ch6_s15",
+      "seed": 598,
+      "winner": "A",
+      "duration": 82.7
+    },
+    {
+      "stage": "ch6_s16",
+      "seed": 610,
+      "winner": "A",
+      "duration": 72.8
+    },
+    {
+      "stage": "ch6_s17",
+      "seed": 611,
+      "winner": "A",
+      "duration": 77
+    },
+    {
+      "stage": "ch6_s18",
+      "seed": 612,
+      "winner": "A",
+      "duration": 75.2
+    },
+    {
+      "stage": "ch6_s2",
+      "seed": 541,
+      "winner": "A",
+      "duration": 71.6
+    },
+    {
+      "stage": "ch6_s3",
+      "seed": 568,
+      "winner": "A",
+      "duration": 86.8
+    },
+    {
+      "stage": "ch6_s4",
+      "seed": 569,
+      "winner": "A",
+      "duration": 84.6
+    },
+    {
+      "stage": "ch6_s5",
+      "seed": 570,
+      "winner": "A",
+      "duration": 96.7
+    },
+    {
+      "stage": "ch6_s6",
+      "seed": 572,
+      "winner": "A",
+      "duration": 78.2
+    },
+    {
+      "stage": "ch6_s7",
+      "seed": 582,
+      "winner": "A",
+      "duration": 82.4
+    },
+    {
+      "stage": "ch6_s8",
+      "seed": 584,
+      "winner": "A",
+      "duration": 68.3
+    },
+    {
+      "stage": "ch6_s9",
+      "seed": 599,
+      "winner": "A",
+      "duration": 77.4
+    },
+    {
+      "stage": "ch7_s1",
+      "seed": 614,
+      "winner": "A",
+      "duration": 79.2
+    },
+    {
+      "stage": "ch7_s10",
+      "seed": 772,
+      "winner": "A",
+      "duration": 82.4
+    },
+    {
+      "stage": "ch7_s11",
+      "seed": 670,
+      "winner": "A",
+      "duration": 81.6
+    },
+    {
+      "stage": "ch7_s12",
+      "seed": 687,
+      "winner": "A",
+      "duration": 74.8
+    },
+    {
+      "stage": "ch7_s13",
+      "seed": 689,
+      "winner": "A",
+      "duration": 86.5
+    },
+    {
+      "stage": "ch7_s14",
+      "seed": 706,
+      "winner": "A",
+      "duration": 78.3
+    },
+    {
+      "stage": "ch7_s15",
+      "seed": 767,
+      "winner": "A",
+      "duration": 76.5
+    },
+    {
+      "stage": "ch7_s16",
+      "seed": 769,
+      "winner": "A",
+      "duration": 60.6
+    },
+    {
+      "stage": "ch7_s17",
+      "seed": 770,
+      "winner": "A",
+      "duration": 73.4
+    },
+    {
+      "stage": "ch7_s18",
+      "seed": 771,
+      "winner": "A",
+      "duration": 67.2
+    },
+    {
+      "stage": "ch7_s2",
+      "seed": 615,
+      "winner": "A",
+      "duration": 84
+    },
+    {
+      "stage": "ch7_s3",
+      "seed": 671,
+      "winner": "A",
+      "duration": 69
+    },
+    {
+      "stage": "ch7_s4",
+      "seed": 672,
+      "winner": "A",
+      "duration": 75.7
+    },
+    {
+      "stage": "ch7_s5",
+      "seed": 686,
+      "winner": "A",
+      "duration": 79.9
+    },
+    {
+      "stage": "ch7_s6",
+      "seed": 688,
+      "winner": "A",
+      "duration": 78.6
+    },
+    {
+      "stage": "ch7_s7",
+      "seed": 704,
+      "winner": "A",
+      "duration": 76.8
+    },
+    {
+      "stage": "ch7_s8",
+      "seed": 719,
+      "winner": "A",
+      "duration": 90
+    },
+    {
+      "stage": "ch7_s9",
+      "seed": 768,
+      "winner": "A",
+      "duration": 70.5
+    },
+    {
+      "stage": "ch8_s1",
+      "seed": 773,
+      "winner": "A",
+      "duration": 79.4
+    },
+    {
+      "stage": "ch8_s10",
+      "seed": 782,
+      "winner": "A",
+      "duration": 67.7
+    },
+    {
+      "stage": "ch8_s11",
+      "seed": 783,
+      "winner": "A",
+      "duration": 64.2
+    },
+    {
+      "stage": "ch8_s12",
+      "seed": 784,
+      "winner": "A",
+      "duration": 73.7
+    },
+    {
+      "stage": "ch8_s13",
+      "seed": 785,
+      "winner": "A",
+      "duration": 69.6
+    },
+    {
+      "stage": "ch8_s14",
+      "seed": 786,
+      "winner": "A",
+      "duration": 80.6
+    },
+    {
+      "stage": "ch8_s15",
+      "seed": 787,
+      "winner": "A",
+      "duration": 85.7
+    },
+    {
+      "stage": "ch8_s16",
+      "seed": 788,
+      "winner": "A",
+      "duration": 79.1
+    },
+    {
+      "stage": "ch8_s17",
+      "seed": 789,
+      "winner": "A",
+      "duration": 79.4
+    },
+    {
+      "stage": "ch8_s18",
+      "seed": 814,
+      "winner": "A",
+      "duration": 88.1
+    },
+    {
+      "stage": "ch8_s2",
+      "seed": 774,
+      "winner": "A",
+      "duration": 69
+    },
+    {
+      "stage": "ch8_s3",
+      "seed": 775,
+      "winner": "A",
+      "duration": 73.2
+    },
+    {
+      "stage": "ch8_s4",
+      "seed": 776,
+      "winner": "A",
+      "duration": 72
+    },
+    {
+      "stage": "ch8_s5",
+      "seed": 777,
+      "winner": "A",
+      "duration": 42.9
+    },
+    {
+      "stage": "ch8_s6",
+      "seed": 778,
+      "winner": "A",
+      "duration": 36.2
+    },
+    {
+      "stage": "ch8_s7",
+      "seed": 779,
+      "winner": "A",
+      "duration": 63.1
+    },
+    {
+      "stage": "ch8_s8",
+      "seed": 780,
+      "winner": "A",
+      "duration": 56.4
+    },
+    {
+      "stage": "ch8_s9",
+      "seed": 781,
+      "winner": "A",
+      "duration": 65.5
+    },
+    {
+      "stage": "ch9_s1",
+      "seed": 815,
+      "winner": "A",
+      "duration": 90.8
+    },
+    {
+      "stage": "ch9_s10",
+      "seed": 929,
+      "winner": "A",
+      "duration": 99.4
+    },
+    {
+      "stage": "ch9_s11",
+      "seed": 930,
+      "winner": "A",
+      "duration": 77.2
+    },
+    {
+      "stage": "ch9_s12",
+      "seed": 931,
+      "winner": "A",
+      "duration": 76.6
+    },
+    {
+      "stage": "ch9_s13",
+      "seed": 932,
+      "winner": "A",
+      "duration": 84.8
+    },
+    {
+      "stage": "ch9_s14",
+      "seed": 933,
+      "winner": "A",
+      "duration": 81.6
+    },
+    {
+      "stage": "ch9_s15",
+      "seed": 934,
+      "winner": "A",
+      "duration": 78.1
+    },
+    {
+      "stage": "ch9_s16",
+      "seed": 935,
+      "winner": "A",
+      "duration": 91.7
+    },
+    {
+      "stage": "ch9_s17",
+      "seed": 936,
+      "winner": "A",
+      "duration": 94.6
+    },
+    {
+      "stage": "ch9_s18",
+      "seed": 937,
+      "winner": "A",
+      "duration": 96.2
+    },
+    {
+      "stage": "ch9_s2",
+      "seed": 816,
+      "winner": "A",
+      "duration": 91.4
+    },
+    {
+      "stage": "ch9_s3",
+      "seed": 817,
+      "winner": "A",
+      "duration": 77.5
+    },
+    {
+      "stage": "ch9_s4",
+      "seed": 818,
+      "winner": "A",
+      "duration": 89.8
+    },
+    {
+      "stage": "ch9_s5",
+      "seed": 819,
+      "winner": "A",
+      "duration": 83.9
+    },
+    {
+      "stage": "ch9_s6",
+      "seed": 820,
+      "winner": "A",
+      "duration": 92.3
+    },
+    {
+      "stage": "ch9_s7",
+      "seed": 821,
+      "winner": "A",
+      "duration": 78.6
+    },
+    {
+      "stage": "ch9_s8",
+      "seed": 822,
+      "winner": "A",
+      "duration": 87.3
+    },
+    {
+      "stage": "ch9_s9",
+      "seed": 823,
+      "winner": "A",
+      "duration": 84.2
+    }
+  ]
+}

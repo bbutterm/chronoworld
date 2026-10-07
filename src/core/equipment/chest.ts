@@ -97,9 +97,28 @@ export function lootSeed(...parts: (string | number)[]): number {
   return mix(h);
 }
 
-/** seed сундука простоя: сохранение (createdAt) + якорь сундука lastClaimAt. Сбор сдвигает якорь — новый seed. */
+/** seed сундука простоя: сохранение + якорь цикла добычи. Только сбор начинает новый поток. */
 export function chestSeed(save: Pick<SaveState, 'createdAt' | 'offline'>): number {
-  return lootSeed('chest', save.createdAt, save.offline.lastClaimAt);
+  return lootSeed('chest', save.createdAt, chestAnchorAt(save.offline));
+}
+
+/** Старый клиент сохраняет неизвестные поля, но не продлевает их квитанцию при сборе/банковке. */
+export function chestLootStateActive(offline: SaveState['offline']): boolean {
+  return offline.lootStateAt === offline.lastClaimAt
+    && (offline.banked !== undefined || ((offline.debtMs ?? 0) > 0 && !offline.bankedLoot));
+}
+
+export function chestAnchorAt(offline: SaveState['offline']): number {
+  return chestLootStateActive(offline) ? offline.lootAnchorAt ?? offline.lastClaimAt : offline.lastClaimAt;
+}
+
+/** Устаревший снимок не выдаётся снова, в том числе после банковки старым клиентом нового сундука. */
+export function bankedChestLoot(save: Pick<SaveState, 'offline'>, tickMinutes: number | undefined): ChestLoot {
+  const o = save.offline;
+  const loot = o.bankedLoot;
+  if (!loot || o.lootStateAt !== o.lastClaimAt || !o.banked
+    || loot.ticks > Math.floor(o.banked.minutes / (tickMinutes ?? 1))) return EMPTY_LOOT;
+  return loot;
 }
 
 /** seed быстрых наград: сохранение, день и номер использования за день. */
@@ -117,15 +136,16 @@ function roll(rng: Rng, r: ChestRoll | undefined): number {
  * Трофеи за ticks тиков главы chapter. Тик i — свой Rng(mix(seed + i)): предмет (шанс item, редкость по весам —
  * rarityWeights правила сундука, иначе правила выпадения главы, предмет — равновероятно среди этой редкости),
  * затем карта героя (один бросок: синяя или фиолетовая; герой — из своего потока тика), гемы, свитки. Предметы — только открытые в главе chapter (minChapter). Нет правила или предметов — пусто.
+ * fromTick — уже накопленные тики: новые продолжают прежний поток, не повторяют начало сундука.
  */
-export function rollChestLoot(chapter: string, ticks: number, seed: number, ctx: ChestCtx): ChestLoot {
+export function rollChestLoot(chapter: string, ticks: number, seed: number, ctx: ChestCtx, fromTick = 0): ChestLoot {
   const rule = chestRule(chapter, ctx);
   if (!rule || !ctx.equipment || !(ticks > 0)) return { ...EMPTY_LOOT, items: [], cards: [] };
   const drops = ctx.equipment.drops.rules;
   const weights = rule.rarityWeights ?? (drops.find((r) => r.chapter === chapter) ?? drops.find((r) => !r.chapter))?.rarityWeights ?? { common: 1 };
   const pools = itemPools(ctx.equipment.items, chapterNumber(chapter, ctx), rule.itemsFromChapter);
   const loot: ChestLoot = { ticks, items: [], cards: [], gems: 0, scrolls: 0 };
-  for (let i = 0; i < ticks; i++) {
+  for (let i = fromTick; i < fromTick + ticks; i++) {
     const rng = new Rng(mix((seed + Math.imul(i + 1, 0x9e3779b9)) >>> 0));
     const hit = rng.next() < rule.item;
     const rarity = pickRarity(rng, weights, pools);

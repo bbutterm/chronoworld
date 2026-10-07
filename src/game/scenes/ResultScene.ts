@@ -580,7 +580,7 @@ export class ResultScene extends Phaser.Scene {
         commit(res.save);
         sub.setText(res.equipped ? 'Надето' : 'Нечего надеть').setColor(COLOR.positive);
         toast(this, res.equipped ? `Отряд переодет: вещей надето ${res.equipped}` : 'Надевать нечего', COLOR.positive);
-      } else this.scene.start('Inventory');
+      } else this.scene.start('Inventory', {});
     });
     return c;
   }
