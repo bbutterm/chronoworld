@@ -1,0 +1,18 @@
+[
+  {
+    "case": "webgl390",
+    "renderer": 2,
+    "status": "PASS",
+    "errors": [],
+    "external": [],
+    "completed": 180
+  },
+  {
+    "case": "canvas360",
+    "renderer": 1,
+    "status": "PASS",
+    "errors": [],
+    "external": [],
+    "completed": 180
+  }
+]
