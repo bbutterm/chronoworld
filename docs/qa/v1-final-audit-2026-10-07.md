@@ -9,7 +9,8 @@
 Кандидат при локальной приёмке — ветка `codex/v1-final-audit-2026-10-07`; source `9d52550`.
 Публикация выполнена после разрешения владельца, code main `91a4db8`.
 Исходный production при read-only проверке отдавал `index-BE_nZCYN.js`;
-после публикации `https://chronoworld-ecru.vercel.app/` отвечает HTTP 200 и отдаёт `index-DJY0EgJZ.js`.
+при приёмке публикации code main `91a4db8` сайт `https://chronoworld-ecru.vercel.app/`
+ответил HTTP 200 и отдавал `index-DJY0EgJZ.js` (снимок зафиксирован в отчёте о публикации).
 CI исходного main: [check и backend — success](https://github.com/bbutterm/chronoworld/actions/runs/37284625870).
 
 ## Исправления и полиш
