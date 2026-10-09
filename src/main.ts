@@ -36,6 +36,7 @@ import { installTransitions } from './game/transitions';
 import { installUnlockGates } from './game/unlockBanner';
 import { initialView, installViewport, LANDSCAPE_PHONE, view } from './game/viewport';
 import { FONT_FACES } from './game/theme';
+import { installI18n } from './game/locale';
 
 performance.mark('cw:script');
 
@@ -50,6 +51,8 @@ await Promise.race([webpReady, new Promise((r) => window.setTimeout(r, 300))]);
 // Phaser.Text рисует текст один раз при создании: без шрифта он запечёт системный. Ждём не дольше FONT_WAIT_MS —
 // на совсем медленной сети экран загрузки будет системным шрифтом, следующие экраны — уже своим.
 const FONT_WAIT_MS = 2000;
+// Язык: словарь перевода (не для русского) — до первого Phaser.Text (locale.ts).
+await installI18n().catch((e) => console.warn('i18n', e));
 const fontsReady = Promise.all(FONT_FACES.map((f) => document.fonts?.load(f, 'Аа1'))).catch(() => undefined);
 await Promise.race([fontsReady, new Promise((r) => window.setTimeout(r, FONT_WAIT_MS))]);
 performance.mark('cw:fonts');
