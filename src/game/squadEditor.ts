@@ -334,7 +334,10 @@ export class FormationEditor {
     text(scene, S.l, head.y, head.title ?? 'Герои', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5).setName('rosterTitle');
     let right = GAME_W - S.l;
     const add = (label: string, icon: string, name: string, onTap: () => void) => {
-      const w = 210;
+      // Ширина — по иконке и подписи с полями: длинная подпись («Пресеты», «Presets») не выходит за край экрана.
+      const probe = text(scene, 0, 0, label, T.caption, COLOR.textPrimary, { fontStyle: 'bold' });
+      const w = Math.max(210, Math.ceil(44 + S.xxs + probe.width + 2 * S.s));
+      probe.destroy();
       const b = button(scene, right - w / 2, head.y, w, 88, '', label, onTap, T.caption, { variant: 'secondary' });
       const ico = scene.add.image(0, -2, icon).setDisplaySize(44, 44).setTint(COLOR_N.title);
       b.container.add(ico);

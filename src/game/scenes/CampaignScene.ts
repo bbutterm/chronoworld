@@ -376,8 +376,8 @@ export class CampaignScene extends Phaser.Scene {
   private squadStrip(): void {
     const edit = () => this.scene.start('Squad', { back: { to: 'Campaign', data: { chapter: this.chapterIndex } } });
     const headerY = this.layout.squadY - (this.compactLayout ? 164 : 116);
-    text(this, 48, headerY, 'Отряд', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
-    const editButton = button(this, 860, headerY, 344, this.compactLayout ? 132 : 96, '', 'Отряд', edit, T.caption, { variant: 'secondary' });
+    // Одна подпись: кнопка «Отряд» над полосой героев (без второй такой же надписи слева).
+    const editButton = button(this, GAME_W - S.l - 130, headerY, 260, this.compactLayout ? 132 : 96, '', 'Отряд', edit, T.caption, { variant: 'secondary' });
     editButton.container.setName('campaignSquadEdit');
     Array.from({ length: 5 }, (_, i) => {
       const hero = session.save.heroes.find((h) => h.id === session.save.squad[i]);

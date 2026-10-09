@@ -8,7 +8,7 @@ export function campaignLayout(contentBottom: number, stageCount = 5, compact = 
   const squadY = compact ? mapBottom + 480 : rowY - 230;
   return {
     compact, bodyTop, bodyBottom: rowY - 126, bodyHeight: squadY + 104 - bodyTop,
-    mapTop, mapBottom, objectiveY: compact ? mapBottom + 132 : squadY - 192,
+    mapTop, mapBottom, objectiveY: compact ? mapBottom + 132 : squadY - 200,
     squadY, rowY, fastX: 886, fastW: 300, ctaX: 380, ctaW: 664,
     cardY, cardW: 984, cardH: 264,
     chestX: 152, chestY: cardY + 10, chestSize: 180,

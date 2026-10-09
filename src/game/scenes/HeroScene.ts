@@ -100,6 +100,8 @@ const FEET_Y = TOP + 506;
 const BOTTOM_ROW_Y = TOP + SHOW_H - 58;
 const COL_X = 48;
 const COL_R = GAME_W - S.l - S.xs;
+/** Место под число мощи (до «999 999» шрифтом body): подпись «Мощь» стоит левее, не прыгает при росте. */
+const POWER_W = 170;
 const STATS_H = 152;
 const STATS_Y = TOP + SHOW_H + S.xs + STATS_H / 2;
 const ACT_H = 184;
@@ -301,8 +303,9 @@ export class HeroScene extends Phaser.Scene {
     });
     const level = text(this, FIG_X, TOP + 548, '', T.body, COLOR.title, { fontStyle: 'bold' }).setName('heroLevel');
     const levelBar = this.add.rectangle(FIG_X - 150, TOP + 579, 0, 4, pal.tint).setOrigin(0, 0.5);
-    const power = text(this, 870, BOTTOM_ROW_Y, '', T.body, COLOR.textPrimary, { fontStyle: 'bold' }).setName('heroPower');
-    text(this, 650, BOTTOM_ROW_Y, 'Мощь', T.caption, COLOR.textSecondary);
+    // Мощь — справа в нижнем ряду, по правому краю колонки (не под концом полосы уровня).
+    const power = text(this, COL_R, BOTTOM_ROW_Y, '', T.body, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(1, 0.5).setName('heroPower');
+    text(this, COL_R - POWER_W - S.xs, BOTTOM_ROW_Y, 'Мощь', T.caption, COLOR.textSecondary).setOrigin(1, 0.5);
     this.ui = { level, levelBar, levelBarW: 300, power, stats: [], deltas: [], info: this.add.container(0, 0) };
 
     // Низ витрины: «Вознести» (вторичная, пока главная — «Улучшить») с меткой «копии к вознесению» и чип копий —
@@ -619,7 +622,7 @@ export class HeroScene extends Phaser.Scene {
     else this.ui.levelBar.width = target;
     countUp(this, this.ui.power, prev?.power ?? now.power, now.power, formatNumber, { duration: M.emphasis });
     if (prev && now.power > prev.power) {
-      this.floatUp(COL_X + Math.max(this.ui.power.width, 160) + S.xs, TOP + 384, `+${formatNumber(now.power - prev.power)}`);
+      this.floatUp(COL_R - Math.max(this.ui.power.width, POWER_W), BOTTOM_ROW_Y - 64, `+${formatNumber(now.power - prev.power)}`);
       bump(this, this.ui.power, 1.08);
     }
     const gear = heroGearStats(session.save, hero.id, GAME);
@@ -1077,8 +1080,19 @@ export class HeroScene extends Phaser.Scene {
     if (ico) a.add(ico.setName('gearIcon'));
     if (lvl > 0) a.add(tag(this, ix + box / 2 + 4, y + box / 2 - 4, `+${lvl}`, 'gold', { solid: true, align: 'right' }));
     a.add(text(this, tx, y - 42, SLOT_NAMES[slot], T.caption, COLOR.textSecondary).setOrigin(0, 0.5));
-    a.add(ellipsize(text(this, tx, y, refinedName(item.def, 0), T.body, color ?? COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5), tw));
-    a.add(ellipsize(text(this, tx, y + 42, itemStatsText(refinedStats(item.def, lvl, GAME)), T.caption, COLOR.textPrimary).setOrigin(0, 0.5), tw));
+    // Длинное имя — сначала мельче, многоточие только если и так не влезло.
+    const nameText = text(this, tx, y, refinedName(item.def, 0), T.body, color ?? COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+    if (nameText.width > tw) nameText.setFontSize(T.caption);
+    a.add(ellipsize(nameText, tw));
+    // Статы — целыми: лишние справа отбрасываются («+75 АТК · +5 СКР», а не «+75 АТК · +5 С…»), все — в инвентаре.
+    const stats = refinedStats(item.def, lvl, GAME);
+    const statText = text(this, tx, y + 42, itemStatsText(stats), T.caption, COLOR.textPrimary).setOrigin(0, 0.5);
+    const keys = STAT_KEYS.filter((k) => (stats[k] ?? 0) > 0);
+    while (statText.width > tw && keys.length > 1) {
+      keys.pop();
+      statText.setText(itemStatsText(Object.fromEntries(keys.map((k) => [k, stats[k]]))));
+    }
+    a.add(ellipsize(statText, tw));
   }
 
   /** T1-08: надеть все улучшения из инвентаря (свободные вещи получше надетых). */

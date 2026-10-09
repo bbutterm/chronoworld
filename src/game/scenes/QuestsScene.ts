@@ -164,13 +164,14 @@ export class QuestsScene extends Phaser.Scene {
     // Сброс заданий: песочные часы и время — под медальоном.
     this.drawTrackTimer();
 
-    const ty = my;
+    // Полоса — по центру карточки; сундуки — над ней, пороги — под ней (не поверх полосы).
+    const ty = cy + S.xs;
     progressBar(this, TRACK.x0, ty, TRACK.x1 - TRACK.x0, 24, max ? activity / max : 0, COLOR_N.accent, { key: 'quests:activity' });
-    for (const m of milestones) this.chest(m, TRACK.x0 + (TRACK.x1 - TRACK.x0) * trackPos(m.points, max), ty);
+    for (const m of milestones) this.chest(m, TRACK.x0 + (TRACK.x1 - TRACK.x0) * trackPos(m.points, max), ty - TRACK.chest / 2 - 20, ty + 46);
   }
 
   /** Порог активности — сундук: готов — светится и подпрыгивает (нажатие забирает), получен — открыт и приглушён. */
-  private chest(m: MilestoneView, x: number, y: number): void {
+  private chest(m: MilestoneView, x: number, y: number, labelY: number): void {
     const ready = m.reached && !m.claimed;
     const size = TRACK.chest;
     if (ready) {
@@ -181,13 +182,14 @@ export class QuestsScene extends Phaser.Scene {
     const img = roIconImage(this, 0, 0, 'treasure_chest', size) ?? this.add.image(0, 0, skinIcon('chest')).setDisplaySize(size, size).setTint(COLOR_N.accent);
     const box = this.add.container(x, y, [img]);
     if (m.claimed) {
-      img.setAlpha(0.35);
+      img.setAlpha(0.5);
       box.add(this.add.image(size * 0.3, size * 0.2, skinIcon('check')).setDisplaySize(48, 48).setTint(COLOR_N.positive));
     }
     if (ready) pulse(this, box, 1.12, M.emphasis);
-    text(this, x, y + size / 2 + 30, groupNum(m.points), T.caption, ready ? COLOR.accent : m.claimed ? COLOR.textTertiary : COLOR.textSecondary, { fontStyle: 'bold' });
-    const hit = this.add.zone(x, y + 10, 120, size + 60).setName(`milestone_${m.points}`);
-    pressable(this, hit, 120, size + 60, () => (ready ? this.claimMilestone(m, { x, y }) : this.chestTip(m, x, y)));
+    text(this, x, labelY, groupNum(m.points), T.caption, ready ? COLOR.accent : m.claimed ? COLOR.textTertiary : COLOR.textSecondary, { fontStyle: 'bold' });
+    const hitH = labelY + 24 - (y - size / 2);
+    const hit = this.add.zone(x, (y - size / 2 + labelY + 24) / 2, 120, hitH).setName(`milestone_${m.points}`);
+    pressable(this, hit, 120, hitH, () => (ready ? this.claimMilestone(m, { x, y }) : this.chestTip(m, x, y)));
   }
 
   /** Что в сундуке — всплывающая плашка с чипами под дорожкой (до следующего касания). */
