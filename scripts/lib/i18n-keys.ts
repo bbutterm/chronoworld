@@ -142,7 +142,7 @@ export function loadTranslations(root: string): Map<string, string> {
   return out;
 }
 
-/** Вставки {0}…{n} в ключе и переводе должны совпадать (порядок в переводе может быть любым). */
+/** Вставки {0}…{n} и {hero}… в ключе и переводе должны совпадать (порядок в переводе может быть любым). */
 export function placeholdersOf(s: string): string {
-  return [...s.matchAll(/\{(\d+)\}/g)].map((m) => m[1]).sort().join(',');
+  return [...new Set([...s.matchAll(/\{([0-9]+|[a-z][a-z0-9_]*)\}/g)].map((m) => m[1]))].sort().join(',');
 }

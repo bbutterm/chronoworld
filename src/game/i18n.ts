@@ -44,32 +44,48 @@ export interface Dict {
   templates: Template[];
 }
 
-const HAS_PLACEHOLDER = /\{\d+\}/;
+/** Вставки: {0}…{n} из кода и именованные {hero}, {partner}… из data/ (их подставляет игра до вывода). */
+const SLOT = /\{([0-9]+|[a-z][a-z0-9_]*)\}/g;
+const HAS_SLOT = /\{(?:[0-9]+|[a-z][a-z0-9_]*)\}/;
+/** Формы по роду из data/ (expedition-events: «[пошёл|пошла]») — игра выбирает одну до вывода. */
+const GENDER = /\[([^|\]]*)\|([^\]]*)\]/g;
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** Ключи со вставками {0}…{n}: литералы без кириллицы шаблоном не считаются (их части переводятся по отдельности). */
+/** «[м|ж]» → два варианта ключа (и перевода, если в нём тоже есть «[…|…]»). */
+function genderVariants(ru: string, en: string): [string, string][] {
+  GENDER.lastIndex = 0;
+  if (!GENDER.test(ru)) return [[ru, en]];
+  const pick = (s: string, i: 1 | 2) => s.replace(GENDER, (_m, a: string, b: string) => (i === 1 ? a : b));
+  return [
+    [pick(ru, 1), pick(en, 1)],
+    [pick(ru, 2), pick(en, 2)],
+  ];
+}
+
+/** Ключи со вставками — шаблоны; литералы шаблона без кириллицы не в счёт (их части переводятся по отдельности). */
 export function compileDict(entries: Record<string, string>): Dict {
   const exact = new Map<string, string>();
   const templates: Template[] = [];
-  for (const [ru, en] of Object.entries(entries)) {
-    if (!en) continue;
-    if (!HAS_PLACEHOLDER.test(ru)) {
-      exact.set(ru, en);
-      continue;
+  for (const [ru0, en0] of Object.entries(entries)) {
+    if (!en0) continue;
+    for (const [ru, en] of genderVariants(ru0, en0)) {
+      if (!HAS_SLOT.test(ru)) {
+        exact.set(ru, en);
+        continue;
+      }
+      const parts = ru.split(/\{(?:[0-9]+|[a-z][a-z0-9_]*)\}/);
+      const names = [...ru.matchAll(SLOT)].map((m) => m[1]);
+      const literal = parts.join('');
+      if (!hasCyrillic(literal)) continue;
+      const src = parts.map(escapeRe).join('([\\s\\S]+?)');
+      const re = new RegExp(`^${src}$`);
+      // В выходе вставка — по номеру группы её первого появления в ключе (порядок в переводе любой).
+      let out = en;
+      [...new Set(names)].forEach((name) => {
+        out = out.replaceAll(`{${name}}`, `\u0000${names.indexOf(name)}\u0000`);
+      });
+      templates.push({ parts, re, out, anchor: parts.reduce((a, b) => (b.length > a.length ? b : a), ''), weight: literal.length });
     }
-    const parts = ru.split(/\{\d+\}/);
-    const order = [...ru.matchAll(/\{(\d+)\}/g)].map((m) => Number(m[1]));
-    const literal = parts.join('');
-    if (!hasCyrillic(literal)) continue;
-    // Вставки — по порядку {0},{1}…; в выходе переставляем по номерам.
-    const src = parts.map(escapeRe).join('([\\s\\S]+?)');
-    const re = new RegExp(`^${src}$`);
-    let out = en;
-    // Номер в ключе может не совпадать с порядком появления — в выходе используем номер группы по порядку.
-    order.forEach((n, i) => {
-      out = out.replaceAll(`{${n}}`, `\u0000${i}\u0000`);
-    });
-    templates.push({ parts, re, out, anchor: parts.reduce((a, b) => (b.length > a.length ? b : a), ''), weight: literal.length });
   }
   templates.sort((a, b) => b.weight - a.weight);
   return { exact, templates };

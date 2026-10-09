@@ -38,6 +38,18 @@ describe('перевод строк (src/game/i18n.ts)', () => {
     expect(missing).toEqual(['Ржавая сабля']);
   });
 
+  it('именованные вставки data/ ({hero}) и формы по роду «[м|ж]»', () => {
+    const d = compileDict({
+      Алан: 'Alan',
+      Вика: 'Vika',
+      '{hero} [нашёл|нашла] сундук': '{hero} found a chest',
+      '{hero} и {partner} [ушёл|ушла] вперёд': '{partner} and {hero} went ahead',
+    });
+    expect(translate('Алан нашёл сундук', d)).toBe('Alan found a chest');
+    expect(translate('Вика нашла сундук', d)).toBe('Vika found a chest');
+    expect(translate('Вика и Алан ушла вперёд', d)).toBe('Alan and Vika went ahead');
+  });
+
   it('Translator кэширует и собирает непереведённое', () => {
     const t = new Translator(dict, true);
     expect(t.t('Глава 9')).toBe('Chapter 9');
