@@ -164,6 +164,8 @@ export class HomeScene extends Phaser.Scene {
     if (w < 120) return;
     const nm = text(this, tx, cy, 'Лагерь героев', T.body, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
     nm.setShadow(0, 3, 'rgba(0,0,0,0.7)', 3, true, true);
+    // Не влезает (подарок и почта со значками) — короткое «Лагерь», а не «Лагерь г…».
+    if (nm.width > w) nm.setText('Лагерь');
     ellipsize(nm, w);
   }
 

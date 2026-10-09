@@ -7,7 +7,7 @@ import { GAME_W } from '../layout';
 import { COMBAT as COMBAT_CFG } from '../../core';
 import { CONTENT_TOP, cta, powerCompare, screen, updatePowerCompare } from '../screen';
 import { commit, session, today } from '../session';
-import { BTN, button, ellipsize, infoButton, pressable, rewardRow, ScrollArea, tag, text, toast, tutorialHint, type ButtonView, type ChipSpec } from '../ui';
+import { BTN, button, clampLines, ellipsize, infoButton, pressable, rewardRow, ScrollArea, tag, text, toast, tutorialHint, type ButtonView, type ChipSpec } from '../ui';
 import { monsterTeaser, roleName } from '../loreView';
 import { ctaShine } from '../decor';
 import { markHint, pickPrepHint } from '../hints';
@@ -134,7 +134,8 @@ export class StageScene extends Phaser.Scene {
 
     // Угроза видна без открытия разведки; спокойная строка не перекрывает сюжет и обучение.
     this.threatText = text(this, GAME_W / 2, L.threat.titleY, '', T.caption, COLOR.title, { fontStyle: 'bold' }).setName('stageThreat');
-    this.tacticText = text(this, GAME_W / 2, L.threat.adviceY, '', T.caption - 6, COLOR.textSecondary).setName('stageTactic');
+    // Совет — до двух строк (не обрезается на полуслове); верх строки — там, где была середина одной строки.
+    this.tacticText = text(this, GAME_W / 2, L.threat.adviceY - 18, '', T.caption - 6, COLOR.textSecondary, { wordWrap: { width: GAME_W - 2 * S.l }, align: 'center' }).setOrigin(0.5, 0).setName('stageTactic');
     const threatZone = this.add.zone(GAME_W / 2, L.threat.zoneY, GAME_W - 2 * S.l, L.threat.zoneH).setName('stageThreatZone');
     pressable(this, threatZone, GAME_W - 2 * S.l, L.threat.zoneH, () => this.openScout());
 
@@ -246,7 +247,7 @@ export class StageScene extends Phaser.Scene {
     this.threatText?.setText(threat?.text ?? '');
     this.tacticText?.setText(threat?.advice ?? '');
     if (this.threatText) ellipsize(this.threatText, GAME_W - 2 * S.l);
-    if (this.tacticText) ellipsize(this.tacticText, GAME_W - 2 * S.l);
+    if (this.tacticText) clampLines(this.tacticText, 2);
   }
 
   /** A real fifth-slot trade-off after summoning; smaller rosters keep the one-tap auto setup. */
