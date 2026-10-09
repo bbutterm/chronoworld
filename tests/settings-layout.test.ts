@@ -134,7 +134,7 @@ describe('Настройки: ограниченная прокрутка и ч�
     vi.stubEnv('DEV', dev);
     vi.stubGlobal('location', { search: '' });
     const h = setup(); const layer = h.open();
-    expect(h.buttons.map((b) => b.node.name)).toEqual(['battleSpeed', 'fpsCap', 'reduceMotion', 'ownMusic', 'musicVolume', 'sfxVolume', 'battleSfx', 'muteAll', 'haptics', ...(dev ? ['testBattle'] : []), 'codesBtn', 'resetHints', 'resetProgress', 'settingsClose']);
+    expect(h.buttons.map((b) => b.node.name)).toEqual(['language', 'battleSpeed', 'fpsCap', 'reduceMotion', 'ownMusic', 'musicVolume', 'sfxVolume', 'battleSfx', 'muteAll', 'haptics', ...(dev ? ['testBattle'] : []), 'codesBtn', 'resetHints', 'resetProgress', 'settingsClose']);
     const rows = h.buttons.filter((b) => b.node.name !== 'settingsClose');
     rows.forEach((b, i) => {
       expect(b.node.height).toBeGreaterThanOrEqual(132);
