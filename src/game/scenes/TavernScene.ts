@@ -8,7 +8,7 @@ import { GAME } from '../content';
 import { currentStage, formatNumber, heroSprite, stageNo } from '../flow';
 import { bump, collect, decorTween, MOMENT_DEPTH, moment, pulse, queueRewardFly } from '../juice';
 import { GAME_H, GAME_W, BLEED_X, BLEED_Y } from '../layout';
-import { bottomSheet, cta, CONTENT_TOP, screen, unitFigure } from '../screen';
+import { bottomSheet, cta, CONTENT_TOP, registerModal, screen, unitFigure } from '../screen';
 import { commit, now, session, today } from '../session';
 import { whenSprites } from '../sprites';
 import { motion } from '../state';
@@ -52,7 +52,7 @@ function summonFace(scene: Phaser.Scene, x: number, y: number, w: number, h: num
 
 export interface TavernData {
   /** Показать призыв: результаты уже в сохранении (actSummon), экран только проигрывает показ. */
-  reveal?: { results: SummonResult[]; count: number };
+  reveal?: { results: SummonResult[]; count: number; resume?: boolean; offset?: number };
   /** Только что забран подарок Гаррета: «таблетка» свитков подпрыгивает. */
   gift?: boolean;
 }
@@ -144,6 +144,9 @@ export class TavernScene extends Phaser.Scene {
   }
 
   create(data: TavernData = {}): void {
+    // Phaser сохраняет data при следующем входе без аргумента: призыв и подарок одноразовые.
+    // Возврат с выпавшей карты передаёт итог явно, обычный вход всегда открывает зал.
+    this.sys.settings.data = {};
     this.reveal = null;
     this.mainArea = undefined;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.reveal = null; this.mainArea = undefined; });
@@ -186,7 +189,7 @@ export class TavernScene extends Phaser.Scene {
     this.events.on(Phaser.Scenes.Events.PRE_UPDATE, lock);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.mainArea = undefined; this.events.off(Phaser.Scenes.Events.PRE_UPDATE, lock); });
     if (!data.reveal?.results.length) this.tutorial(st);
-    if (data.reveal?.results.length) this.startReveal(data.reveal.results, data.reveal.count);
+    if (data.reveal?.results.length) this.startReveal(data.reveal);
   }
 
   // ---------- зал ----------
@@ -435,14 +438,14 @@ export class TavernScene extends Phaser.Scene {
 
   // ---------- показ призыва ----------
 
-  private startReveal(results: SummonResult[], count: number): void {
+  private startReveal({ results, count, resume = false, offset = 0 }: NonNullable<TavernData['reveal']>): void {
     // Зал под показом почти не виден (затемнение) — прячем его: на слабых телефонах меньше перерисовки
     // (крупные светящиеся слои), показ идёт в полную частоту кадров. Остаётся только фон.
     for (const o of this.children.list) {
       const bgImage = o instanceof Phaser.GameObjects.Image && (o.texture.key === TAVERN_BG || o.texture.key === TAVERN_BG_FILE);
       if (!bgImage) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible?.(false);
     }
-    const layer = this.add.container(0, 0).setDepth(DEPTH);
+    const layer = this.add.container(0, 0).setDepth(DEPTH).setName('tavernReveal');
     const shade = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x07040a, 0.9).setInteractive();
     layer.add(shade);
     // Свет над столом.
@@ -470,6 +473,7 @@ export class TavernScene extends Phaser.Scene {
       waiters: [],
     };
     this.reveal = state;
+    registerModal(layer, () => this.closeReveal(state));
     // Касание стола (мимо карт) — пропуск: все карты сразу лицом вверх.
     let armed = false;
     shade.on('pointerdown', () => { armed = true; });
@@ -503,6 +507,13 @@ export class TavernScene extends Phaser.Scene {
     whenSprites(this, [...new Set(heroes.map((h) => heroSprite(h, GAME)))], () => {
       if (this.reveal !== state) return;
       state.cards = results.map((_, i) => this.makeCard(state, i, slots[i], heroes[i], count === 1));
+      if (resume) {
+        state.momentShown = true;
+        for (const cv of state.cards) this.showFace(state, cv);
+        this.finish(state);
+        body.offset = offset;
+        return;
+      }
       if (state.pendingSkip) { this.skip(state); return; }
       if (motion.reduced) {
         // Уменьшить анимацию: карты сразу лицом вверх, звук и вибрация лучшей карты, итог.
@@ -512,6 +523,23 @@ export class TavernScene extends Phaser.Scene {
         return;
       }
       this.deal(state);
+    });
+  }
+
+  /** Back завершает раскрытие карт, затем возвращает в зал; на другую сцену под показом не уходит. */
+  private closeReveal(state: RevealState): void {
+    if (this.reveal !== state) return;
+    if (state.phase === 'done') this.scene.restart({} satisfies TavernData);
+    else this.skip(state);
+  }
+
+  /** Просмотр карты возвращается к уже раскрытому итогу без нового призыва и повторной анимации. */
+  private inspectResult(state: RevealState, heroId: string): void {
+    this.scene.start('Hero', {
+      heroId,
+      back: { to: 'Tavern', data: {
+        reveal: { results: state.results, count: state.count, resume: true, offset: state.body.offset },
+      } satisfies TavernData },
     });
   }
 
@@ -529,7 +557,7 @@ export class TavernScene extends Phaser.Scene {
     state.body.add(root);
     pressable(this, root, slot.w, slot.h, state.body.tap(() => {
       if (state.phase === 'pick') void this.flip(state, cv, 'tap');
-      else if (state.phase === 'done') this.scene.start('Hero', { heroId: r.heroId, back: { to: 'Tavern' } });
+      else if (state.phase === 'done') this.inspectResult(state, r.heroId);
     }));
     return cv;
   }
@@ -784,6 +812,7 @@ export class TavernScene extends Phaser.Scene {
       const close = () => {
         if (closed) return;
         closed = true;
+        box.setData('closing', true);
         zone.destroy();
         m.close();
         this.tweens.add({
@@ -801,6 +830,7 @@ export class TavernScene extends Phaser.Scene {
           },
         });
       };
+      registerModal(box, close);
       this.time.delayedCall(400, () => (armed = true));
       zone.on('pointerup', () => {
         if (!armed) return;

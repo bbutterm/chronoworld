@@ -1,0 +1,40 @@
+[
+  {
+    "case": "webgl390",
+    "checks": [
+      "expected renderer",
+      "real ten-card summon",
+      "Hero returns to completed same-card result",
+      "Hero return preserves save and charged resources",
+      "resize keeps completed result",
+      "Telegram Back after resize returns to hall",
+      "ordinary reentry opens hall with unchanged save",
+      "Telegram Back during reveal stays in Tavern",
+      "Telegram Back closes upper rare showcase",
+      "Back closes result after resize without save mutation",
+      "no browser errors or external requests"
+    ],
+    "errors": [],
+    "external": [],
+    "status": "PASS"
+  },
+  {
+    "case": "canvas360",
+    "checks": [
+      "expected renderer",
+      "real ten-card summon",
+      "Hero returns to completed same-card result",
+      "Hero return preserves save and charged resources",
+      "resize keeps completed result",
+      "Telegram Back after resize returns to hall",
+      "ordinary reentry opens hall with unchanged save",
+      "Telegram Back during reveal stays in Tavern",
+      "Telegram Back closes upper rare showcase",
+      "Back closes result after resize without save mutation",
+      "no browser errors or external requests"
+    ],
+    "errors": [],
+    "external": [],
+    "status": "PASS"
+  }
+]

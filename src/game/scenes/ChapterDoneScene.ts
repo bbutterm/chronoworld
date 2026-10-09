@@ -216,11 +216,11 @@ export class ChapterDoneScene extends Phaser.Scene {
     c.add(take.container);
   }
 
-  /** Без нового героя: куда дальше (после последней главы — «скоро» и чем заняться). */
+  /** Без нового героя: следующая глава или доступные режимы после финала кампании. */
   private aheadCard(c: Phaser.GameObjects.Container, sum: Summary): void {
     const cx = GAME_W / 2;
-    c.add(text(this, cx, L.cardY - 50, sum.next ? 'Впереди' : 'Новые главы — скоро', T.caption, COLOR.accent, { fontStyle: 'bold' }));
-    const line = sum.next ? sum.next.name : 'А пока — Башня испытаний и Охота в «Приключениях»';
+    c.add(text(this, cx, L.cardY - 50, sum.next ? 'Впереди' : 'Кампания завершена', T.caption, COLOR.accent, { fontStyle: 'bold' }));
+    const line = sum.next ? sum.next.name : 'Впереди — Башня испытаний, охота на MVP и Арена товарищей';
     const t = text(this, cx, L.cardY + 20, line, sum.next ? T.title : T.body, sum.next ? COLOR.title : COLOR.textPrimary, { fontStyle: 'bold', wordWrap: { width: GAME_W - 2 * S.xl } });
     t.setShadow(0, 3, '#000000', 8, true, true);
     c.add(t);
@@ -259,10 +259,11 @@ export class ChapterDoneScene extends Phaser.Scene {
       out.push(b.container);
     });
     const next = sum.next;
-    const go = cta(this, cx, this.endpointLayout.ctaY, next ? `Глава ${next.number} ›` : 'К кампании', () => {
+    const go = cta(this, cx, this.endpointLayout.ctaY, next ? `Глава ${next.number} ›` : 'К приключениям', () => {
       // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).
       commit(clearChapterDone(session.save));
-      this.scene.start('Campaign', next ? { chapter: next.index } : {});
+      if (next) this.scene.start('Campaign', { chapter: next.index });
+      else this.scene.start('Adventure');
     }, { w: 700 });
     out.push(go.container);
     // Название следующей главы под кнопкой — когда его не показала карточка «Впереди».

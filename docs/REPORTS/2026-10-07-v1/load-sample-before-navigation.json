@@ -1,0 +1,203 @@
+{
+  "cpu": 4,
+  "net": "fast3g",
+  "cold": {
+    "fcp": 772,
+    "boot": 11314,
+    "home": 14035.300000000047,
+    "kinds": {
+      "js": [
+        3,
+        1038447
+      ],
+      "img": [
+        0,
+        0
+      ],
+      "other": [
+        5,
+        547644
+      ]
+    },
+    "cached": 0
+  },
+  "warm": {
+    "fcp": 1472,
+    "boot": 1808.1000000000931,
+    "home": 4279,
+    "kinds": {
+      "js": [
+        3,
+        0
+      ],
+      "img": [
+        1,
+        300
+      ],
+      "other": [
+        5,
+        1200
+      ]
+    },
+    "cached": 4
+  },
+  "raw": {
+    "cold": [
+      {
+        "files": [
+          {
+            "name": "/fonts/rubik-400.woff2",
+            "start": 610,
+            "end": 1824,
+            "size": 23248,
+            "body": 22948
+          },
+          {
+            "name": "/fonts/philosopher-700.woff2",
+            "start": 612,
+            "end": 1757,
+            "size": 19940,
+            "body": 19640
+          },
+          {
+            "name": "/fonts/rubik-700.woff2",
+            "start": 612,
+            "end": 1832,
+            "size": 23176,
+            "body": 22876
+          },
+          {
+            "name": "/assets/rolldown-runtime-CbXtAM7H.js",
+            "start": 612,
+            "end": 1216,
+            "size": 889,
+            "body": 589
+          },
+          {
+            "name": "/assets/index-BZZQUygt.js",
+            "start": 612,
+            "end": 9999,
+            "size": 790284,
+            "body": 2982403
+          },
+          {
+            "name": "/assets/phaser-B6Ef8M8A.js",
+            "start": 613,
+            "end": 5573,
+            "size": 247274,
+            "body": 945106
+          },
+          {
+            "name": "/assets/boot-webp-2462047fb2.bin",
+            "start": 613,
+            "end": 8382,
+            "size": 477799,
+            "body": 477499
+          }
+        ],
+        "fcp": 772,
+        "boot": 11314,
+        "bootScript": 10513.800000000047,
+        "home": 14035.300000000047,
+        "kinds": {
+          "js": [
+            3,
+            1038447
+          ],
+          "img": [
+            0,
+            0
+          ],
+          "other": [
+            5,
+            547644
+          ]
+        },
+        "cached": 0,
+        "wall": 14358
+      }
+    ],
+    "warm": [
+      {
+        "files": [
+          {
+            "name": "/fonts/rubik-400.woff2",
+            "start": 791,
+            "end": 1365,
+            "size": 300,
+            "body": 0
+          },
+          {
+            "name": "/fonts/rubik-700.woff2",
+            "start": 794,
+            "end": 1374,
+            "size": 300,
+            "body": 0
+          },
+          {
+            "name": "/fonts/philosopher-700.woff2",
+            "start": 796,
+            "end": 1382,
+            "size": 300,
+            "body": 0
+          },
+          {
+            "name": "/assets/index-BZZQUygt.js",
+            "start": 797,
+            "end": 797,
+            "size": 0,
+            "body": 2982403
+          },
+          {
+            "name": "/assets/rolldown-runtime-CbXtAM7H.js",
+            "start": 797,
+            "end": 797,
+            "size": 0,
+            "body": 589
+          },
+          {
+            "name": "/assets/phaser-B6Ef8M8A.js",
+            "start": 798,
+            "end": 798,
+            "size": 0,
+            "body": 945106
+          },
+          {
+            "name": "/assets/boot-webp-2462047fb2.bin",
+            "start": 798,
+            "end": 819,
+            "size": 0,
+            "body": 477499
+          },
+          {
+            "name": "/backgrounds/bg_map_ch1.jpg",
+            "start": 4056,
+            "end": 4642,
+            "size": 300,
+            "body": 0
+          }
+        ],
+        "fcp": 1472,
+        "boot": 1808.1000000000931,
+        "bootScript": 1236.9000000001397,
+        "home": 4279,
+        "kinds": {
+          "js": [
+            3,
+            0
+          ],
+          "img": [
+            1,
+            300
+          ],
+          "other": [
+            5,
+            1200
+          ]
+        },
+        "cached": 4,
+        "wall": 4690
+      }
+    ]
+  }
+}

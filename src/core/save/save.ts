@@ -4,6 +4,7 @@ import { recoverAutobattlerState } from '../autobattler/recovery';
 import { sanitizeChapterSquads } from '../tavern/tavern';
 import { heroName, heroRole } from '../heroes/card';
 import { BRANCH_RARITY } from '../heroes/schema';
+import { bankedChestLoot, chestLootStateActive } from '../equipment/chest';
 import { migrateV3toV4 } from '../heroes/migrate';
 import { migrateHeroesV2 } from '../heroes/migrate-v7';
 import { addHeroCard, duplicateCardsInSquad, placeInSquad } from '../heroes/roster';
@@ -200,7 +201,7 @@ export function saveRevision(text: string | null | undefined): number {
  */
 export function sanitizeSave(
   save: SaveState,
-  ctx: AutobattlerContext & { equipment?: { items: Record<string, unknown>; drops?: { refine?: { maxLevel: number } } }; unlocks?: UnlocksConfig },
+  ctx: AutobattlerContext & { equipment?: { items: Record<string, unknown>; drops?: { refine?: { maxLevel: number }; chest?: { tickMinutes: number } } }; unlocks?: UnlocksConfig },
 ): { save: SaveState; warnings: string[] } {
   const warnings: string[] = [...(save.notices ?? [])];
   let changed = save.notices !== undefined;
@@ -210,6 +211,30 @@ export function sanitizeSave(
     changed = true;
   }
   warnings.push(...arena.warnings);
+  const offline = save.offline;
+  if ((offline.lootAnchorAt !== undefined || offline.lootStateAt !== undefined || offline.bankedLoot !== undefined)
+    && !chestLootStateActive(offline)) {
+    const { lootAnchorAt: _anchor, lootStateAt: _state, bankedLoot: _loot, ...rest } = offline;
+    save = { ...save, offline: rest };
+    changed = true;
+    warnings.push('Устаревший снимок трофеев сундука удалён: сундук уже изменён другой версией игры.');
+  } else if (offline.bankedLoot && bankedChestLoot(save, ctx.equipment?.drops?.chest?.tickMinutes) !== offline.bankedLoot) {
+    const { bankedLoot: _loot, ...rest } = offline;
+    save = { ...save, offline: rest };
+    changed = true;
+    warnings.push('Повреждённый снимок трофеев сундука удалён.');
+  }
+  const bankedLoot = save.offline.bankedLoot;
+  if (bankedLoot) {
+    const knownItems = ctx.equipment?.items;
+    const items = knownItems ? bankedLoot.items.filter(id => knownItems[id]) : bankedLoot.items;
+    const cards = bankedLoot.cards.filter(card => ctx.content.heroes[card.templateId]);
+    if (items.length !== bankedLoot.items.length || cards.length !== bankedLoot.cards.length) {
+      save = { ...save, offline: { ...save.offline, bankedLoot: { ...bankedLoot, items, cards } } };
+      changed = true;
+      warnings.push('Из трофеев сундука убраны предметы и карточки, которых больше нет в игре.');
+    }
+  }
   if (save.campaignChoices !== undefined) {
     const bindings = new Map(ctx.content.stages.flatMap((s) => s.campaignChoice ? [[s.campaignChoice.id, s.campaignChoice] as const] : []));
     const entries = Object.entries(save.campaignChoices).filter(([id, option]) => {

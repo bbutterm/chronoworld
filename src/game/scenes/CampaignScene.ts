@@ -377,7 +377,7 @@ export class CampaignScene extends Phaser.Scene {
     const edit = () => this.scene.start('Squad', { back: { to: 'Campaign', data: { chapter: this.chapterIndex } } });
     const headerY = this.layout.squadY - (this.compactLayout ? 164 : 116);
     text(this, 48, headerY, 'Отряд', T.caption, COLOR.textSecondary).setOrigin(0, 0.5);
-    const editButton = button(this, 860, headerY, 344, this.compactLayout ? 132 : 96, '', this.compactLayout ? 'Изменить' : 'Изменить отряд', edit, T.caption, { variant: 'secondary' });
+    const editButton = button(this, 860, headerY, 344, this.compactLayout ? 132 : 96, '', 'Отряд', edit, T.caption, { variant: 'secondary' });
     editButton.container.setName('campaignSquadEdit');
     Array.from({ length: 5 }, (_, i) => {
       const hero = session.save.heroes.find((h) => h.id === session.save.squad[i]);
@@ -407,11 +407,11 @@ export class CampaignScene extends Phaser.Scene {
   private fightCta(): void {
     const cur = currentStage(session.save, GAME);
     const open = !!cur && stageStatus(session.save, cur.id, GAME) === 'open';
-    const label = open ? `В бой · этап ${stageNo(cur, GAME)}` : 'Все этапы пройдены';
+    const label = open ? `В бой · этап ${stageNo(cur, GAME)}` : 'К приключениям';
     const b = cta(this, this.layout.ctaX, this.layout.rowY, label, () => {
       if (open) this.toStage(cur.id);
-      else toast(this, 'Новые главы — скоро');
-    }, { w: this.layout.ctaW, h: BTN.cta, enabled: open });
+      else this.scene.start('Adventure');
+    }, { w: this.layout.ctaW, h: BTN.cta });
     b.container.setName('fightCta');
     if (!open) return;
 

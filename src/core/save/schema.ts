@@ -324,6 +324,18 @@ export const SaveStateSchema = z.object({
   resources: z.object({ gold: z.number().int().nonnegative(), heroExp: z.number().int().nonnegative() }),
   offline: z.object({
     lastClaimAt: z.number(),
+    /** Якорь случайных трофеев текущего сундука; банковка/коррекция часов не перебрасывают добычу. */
+    lootAnchorAt: z.number().optional().catch(undefined),
+    /** Снимок/якорь действуют только при совпадении с lastClaimAt; старая сборка может сдвинуть якорь без их обновления. */
+    lootStateAt: z.number().optional().catch(undefined),
+    /** Уже заработанные полные тики: новые этапы и главы не меняют эти трофеи. Очищаются только при сборе. */
+    bankedLoot: z.object({
+      ticks: z.number().int().nonnegative(),
+      items: z.array(z.string()),
+      cards: z.array(z.object({ templateId: z.string(), rarity: CardRaritySchema })),
+      gems: z.number().int().nonnegative(),
+      scrolls: z.number().int().nonnegative(),
+    }).optional().catch(undefined),
     /**
      * P11 (T4-06/T4-09). «Долг» сундука, мс: сколько времени уже выплачено наперёд, когда часы были впереди.
      * При переводе часов назад якорь lastClaimAt сдвигается на now, а долг = min(скачок, лимит сундука) —

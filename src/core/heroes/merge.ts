@@ -54,7 +54,7 @@ export function mergeRule(hero: HeroState, ctx: GameContext): MergeRule | null {
   return ctx.cards.merge.find((m) => m.from === hero.rarity) ?? null;
 }
 
-/** Почему экземпляр нельзя отдать в корм (null — можно): закреплён, в отряде, в пресете, в экспедиции. */
+/** Почему экземпляр нельзя отдать в корм (null — можно): закреплён, в отряде/Башне, в пресете, в экспедиции. */
 export function fodderBlocker(save: SaveState, fodderId: string, ctx: GameContext): string | null {
   const h = save.heroes.find((x) => x.id === fodderId);
   if (!h) return 'карточка не найдена';
@@ -63,6 +63,8 @@ export function fodderBlocker(save: SaveState, fodderId: string, ctx: GameContex
   if (save.squad.includes(h.id)) return `${name} стоит в отряде`;
   if (save.presets.some((p) => p.squad.includes(h.id))) return `${name} есть в пресете отряда`;
   if (save.bounties.active.some((b) => b.heroIds.includes(h.id))) return `${name} в экспедиции`;
+  const towerRun = save.tower.run;
+  if (towerRun?.squad.includes(h.id) || towerRun?.fallen.includes(h.id)) return `${name} участвует в забеге Башни — сначала завершите забег`;
   if (h.companion) return `${name} — ваш спутник: повышайте профессию этого героя, используя его копии`;
   const paid = paidHeroTraining(h, ctx);
   if (paid.exp > 0 || paid.gold > 0) return `${name} обучен: сначала верните вложенные ресурсы`;
