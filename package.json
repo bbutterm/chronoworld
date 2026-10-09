@@ -27,7 +27,8 @@
     "e2e:chapter1": "node scripts/e2e-chapter1.mjs",
     "playthrough": "tsx scripts/playthrough.ts",
     "backend:check": "node scripts/backend-check.mjs",
-    "backend:sql": "node scripts/backend-sql.mjs"
+    "backend:sql": "node scripts/backend-sql.mjs",
+    "i18n:extract": "tsx scripts/i18n-extract.ts"
   },
   "dependencies": {
     "phaser": "^3.90.0",

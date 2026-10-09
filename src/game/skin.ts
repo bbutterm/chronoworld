@@ -1,3 +1,4 @@
+import { tr } from './locale';
 import type Phaser from 'phaser';
 import { addAtlasAliases, blitExtruded, shelfPack } from './packedTexture';
 import { R } from './theme';
@@ -741,8 +742,8 @@ function buildSkinTextures(scene: Phaser.Scene): void {
       c.fillRect(0, H / 2 - size / 2, W, size * 0.35);
       c.restore();
     });
-  banner('skin_banner_victory', 'ПОБЕДА', ['#fff0c0', '#d6a040'], SKIN.gold, ['#f0cf8a', '#8f6a2c']);
-  banner('skin_banner_defeat', 'ПОРАЖЕНИЕ', ['#ffc0b0', '#b8402e'], '#8a3a2e', ['#9a8a7a', '#4a3a30']);
+  banner('skin_banner_victory', tr('ПОБЕДА'), ['#fff0c0', '#d6a040'], SKIN.gold, ['#f0cf8a', '#8f6a2c']);
+  banner('skin_banner_defeat', tr('ПОРАЖЕНИЕ'), ['#ffc0b0', '#b8402e'], '#8a3a2e', ['#9a8a7a', '#4a3a30']);
 
   // Лесной фон (как в референсе): градиент, силуэты крон двумя планами, лучи и светлячки.
   canvas(scene, 'skin_bg_forest', BG_W, BG_H, (c) => drawForest(c, BG_W, BG_H));

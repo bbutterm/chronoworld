@@ -1,3 +1,4 @@
+import { tr } from './locale';
 import { newGame, type SaveState } from '../core';
 import { GAME } from './content';
 import { localDay } from './flow';
@@ -152,9 +153,9 @@ function showStale(): void {
     'position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;' +
     'background:rgba(0,0,0,.85);color:#fff;font:18px sans-serif;text-align:center;padding:24px';
   const text = document.createElement('div');
-  text.textContent = 'Игра открыта в другой вкладке. Здесь прогресс больше не сохраняется.';
+  text.textContent = tr('Игра открыта в другой вкладке. Здесь прогресс больше не сохраняется.');
   const btn = document.createElement('button');
-  btn.textContent = 'Играть здесь';
+  btn.textContent = tr('Играть здесь');
   btn.style.cssText = 'font:18px sans-serif;padding:10px 24px;border-radius:8px;border:0;cursor:pointer';
   btn.onclick = () => location.reload();
   el.append(text, btn);

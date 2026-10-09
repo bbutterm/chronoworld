@@ -442,3 +442,8 @@ heroes?: [id героя], heroCards?: {blue?, purple?}, heroPicks?: [{rarity}]}`
 6. После правок боя/профессий/карточек/главы 1 — перемерить босса главы 1 и `tests/chapter1-playthrough.test.ts`. Модель игрока
    (`playthrough`, `balance`) тратит опыт пула сама (`autoLevel` — по уровню самому низкому герою отряда) и возносит героев копиями
    (ветка — своей роли, `PLAYER_MODEL.branch`); опыт этапов — в пул (прежние числа ×3).
+
+## 14. Перевод нового текста на английский
+
+Любой новый или изменённый текст для игрока (data/ или src/) → `npm run i18n:extract` → заполнить пустые переводы в
+`locales/en/*.json` (глоссарий `locales/en/_glossary.md`) → `npm run check`. Подробно — `docs/AGENTS.md`, раздел 15.

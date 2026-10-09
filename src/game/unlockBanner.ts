@@ -8,6 +8,7 @@ import { commit, session } from './session';
 import { SKIN, SKIN_TINT, skinIcon, type SkinIcon } from './skin';
 import { speedGate } from './state';
 import { mugIcon } from './tavernEntry';
+import { tr } from './locale';
 import { C, COLOR, FS, leading, OUTLINE, R, S, T, TITLE_STYLE } from './theme';
 import { unlockTagline } from './tipTexts';
 import { BTN, button, clampLines, plate, pressable, SURFACE, text, toast } from './ui';
@@ -180,7 +181,7 @@ function banner(scene: Phaser.Scene, f: FeatureView, more: number, close: (go: b
   const kicker = text(scene, cx, 0, 'Новая функция', T.caption, COLOR.accent, { fontStyle: 'bold' }).setOrigin(0.5, 0);
   const title = text(scene, cx, 0, f.title, T.title, COLOR.title, { fontStyle: 'bold' }).setOrigin(0.5, 0);
   const line = clampLines(
-    text(scene, cx, 0, unlockTagline(f.description), T.body, COLOR.textSecondary, {
+    text(scene, cx, 0, unlockTagline(tr(f.description)), T.body, COLOR.textSecondary, {
       wordWrap: { width: BOX_W - 2 * S.xl, useAdvancedWrap: true },
       align: 'center',
       lineSpacing: leading(T.body),

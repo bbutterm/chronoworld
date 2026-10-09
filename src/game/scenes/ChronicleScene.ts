@@ -22,6 +22,7 @@ import { button, chip, ellipsize, listRow, mixHex, plate, pressable, ScrollArea,
 import { C, COLOR, COLOR_N, FAMILY, FS, R, S, T } from '../theme';
 import { chronicleLayout } from '../chronicleLayout';
 import { minimumFontSize, minimumTouchSize, onViewChange } from '../viewport';
+import { tr } from '../locale';
 
 const TABS: { id: ChronicleTab; label: string }[] = [
   { id: 'world', label: 'Мир' },
@@ -247,7 +248,7 @@ export class ChronicleScene extends Phaser.Scene {
       subtitle = w.lore?.location ?? chapter?.episode?.subtitle ?? `Глава ${chNo}`;
     } else {
       title = w.entry.title;
-      subtitle = firstSentence(w.entry.text);
+      subtitle = firstSentence(tr(w.entry.text));
     }
     const row = listRow(this, GAME_W / 2, y, CW, {
       icon: w.kind === 'chapter' ? (s, x, iy, size) => medallion(s, x, iy, size, w.open ? String(chNo) : '?', w.open) : w.open ? 'scroll' : (s, x, iy, size) => medallion(s, x, iy, size, '?', false),
