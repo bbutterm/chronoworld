@@ -11,6 +11,7 @@ import { SKIN_TINT } from './skin';
 import { goldDot, roundIcon, ROUND_ICON } from './homeBuildings';
 import { BTN, button, ellipsize, plate, ScrollArea, SURFACE, text } from './ui';
 import { C, COLOR, FAMILY, FS, M, R, S, T, TINT } from './theme';
+import { tr } from './locale';
 
 /**
  * Летопись (лор RO, data/lore): общие помощники экранов — прочитанные записи (localStorage), значок «новое»,
@@ -351,7 +352,7 @@ export function itemModal(scene: Phaser.Scene, def: ItemDef, opts: { refine?: nu
 /** Прозвище и первая фраза лора монстра (подсказка на экране этапа); лора нет — undefined. */
 export function monsterTeaser(unitId: string): string | undefined {
   const l = LORE.monsters[unitId];
-  return l ? `${l.title}. ${firstSentence(l.text)}` : undefined;
+  return l ? `${tr(l.title)}. ${firstSentence(tr(l.text))}` : undefined;
 }
 
 // ---------- строки-комментарии ----------

@@ -45,6 +45,7 @@ import { staggerIn } from '../juice';
 import { minimumTouchSize, onViewChange, view, worldPoint } from '../viewport';
 import { setTgBack } from '../telegram';
 import { eveningChoiceBounds, eveningCreditPreview, eveningDialogueLayout, eveningModalLayout, eveningPreviewRowHeight, eveningSectionLayout } from '../compactEveningLayout';
+import { tr } from '../locale';
 
 export const TAVERN_EVENING = 'TavernEvening';
 /** Имя слоя плашки вечера (e2e и скриншоты). Не 'dialogue' — дымовые прогоны листают только сюжетные сцены. */
@@ -346,8 +347,8 @@ export class TavernEveningScene extends Phaser.Scene {
         this.tweens.add({ targets: fp, scale: 1, duration: M.fast, ease: E.pop });
       }
       table.focus(l.speaker);
-      full = l.text;
-      if (lineChimes(full)) sfx('bell_chime', { delay: 0.2 });
+      full = tr(l.text);
+      if (lineChimes(l.text)) sfx('bell_chime', { delay: 0.2 });
       shown = 0;
       body.setText('');
       bodyArea.offset = 0;
@@ -392,7 +393,7 @@ export class TavernEveningScene extends Phaser.Scene {
       face.removeAll(true);
       faceOf = undefined;
       placeName(false);
-      full = c.prompt;
+      full = tr(c.prompt);
       shown = full.length;
       body.setText(full);
       bodyArea.offset = 0;

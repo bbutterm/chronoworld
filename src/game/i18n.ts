@@ -71,6 +71,13 @@ export function compileDict(entries: Record<string, string>): Dict {
     for (const [ru, en] of genderVariants(ru0, en0)) {
       if (!HAS_SLOT.test(ru)) {
         exact.set(ru, en);
+        // Ключ «\nВыбор карты» из сцепки в коде — строка на экране делится по переводу строки и приходит без него.
+        const bare = ru.trim();
+        if (bare !== ru && !entries[bare]) exact.set(bare, en.trim());
+        // «Глава 2. Под мостовой» — экраны показывают и одно название главы («Под мостовой»).
+        const ch = /^Глава\s*\d+\.\s*(.+)$/s.exec(ru);
+        const chEn = /^Chapter\s*\d+\.\s*(.+)$/s.exec(en);
+        if (ch && chEn && !entries[ch[1]]) exact.set(ch[1], chEn[1]);
         continue;
       }
       const parts = ru.split(/\{(?:[0-9]+|[a-z][a-z0-9_]*)\}/);
@@ -91,7 +98,14 @@ export function compileDict(entries: Record<string, string>): Dict {
   return { exact, templates };
 }
 
-const SEPARATORS = ['\n', ' · ', ' — ', ': ', ' • ', ' / ', ', '];
+const SEPARATORS = ['\n', ' · ', ' — ', ' → ', ': ', ' • ', ' / ', ', '];
+
+/** Кавычки и скобки, которыми код обрамляет строку из data/ («реплика», (пометка)). */
+const WRAP = /^([«"„“(])([\s\S]+)([»"“”)])$/;
+const QUOTES_EN: Record<string, string> = { '«': '“', '„': '“', '»': '”', '“': '”' };
+/** Слово кириллицей (для перевода по словам коротких строк из сокращений: «+150 ОЗ · +4 ЗАЩ»). */
+const WORD = /[А-Яа-яЁё][А-Яа-яЁё-]*/g;
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /**
  * Перевести строку. Без кириллицы — как есть. depth ограничивает рекурсию (вставки и части).
@@ -118,6 +132,8 @@ export function translate(s: string, d: Dict, onMissing?: (s: string) => void, d
       for (let i = 1; i < m.length; i++) out = out.replaceAll(`\u0000${i - 1}\u0000`, translate(m[i], d, undefined, depth + 1));
       return out;
     }
+    const alt = fallback(s, d, depth);
+    if (alt !== undefined) return alt;
     for (const sep of SEPARATORS) {
       if (!s.includes(sep)) continue;
       const pieces = s.split(sep);
@@ -129,9 +145,51 @@ export function translate(s: string, d: Dict, onMissing?: (s: string) => void, d
         return joined;
       }
     }
+    const words = byWords(s, d);
+    if (words !== undefined) return words;
   }
-  if (depth === 0) onMissing?.(s);
+  // Одна буква (аватар с первой буквой имени) — не строка для перевода.
+  if (depth === 0 && s.trim().length > 1) onMissing?.(s);
   return s;
+}
+
+/** Запасные пути до разбора по частям: кавычки вокруг строки, регистр (ЗАГЛАВНЫЕ, «Огонь» из «огонь»). */
+function fallback(s: string, d: Dict, depth: number): string | undefined {
+  const sub = (x: string) => translate(x, d, undefined, depth + 1);
+  const w = WRAP.exec(s);
+  if (w) {
+    const inner = sub(w[2]);
+    if (inner !== w[2]) return (QUOTES_EN[w[1]] ?? w[1]) + inner + (QUOTES_EN[w[3]] ?? w[3]);
+  }
+  const lower = s.toLowerCase();
+  if (s === s.toUpperCase() && s !== lower) {
+    // «ЛЕТОПИСЬ ОТРЯДА» — ключ «Летопись отряда» или «летопись отряда».
+    for (const v of [capitalize(lower), lower]) {
+      const t = sub(v);
+      if (t !== v && !hasCyrillic(t)) return t.toUpperCase();
+    }
+  } else if (s.charAt(0) !== s.charAt(0).toLowerCase()) {
+    const v = s.charAt(0).toLowerCase() + s.slice(1);
+    const t = sub(v);
+    if (t !== v && !hasCyrillic(t)) return capitalize(t);
+  }
+  return undefined;
+}
+
+/** Последний путь: по словам. */
+function byWords(s: string, d: Dict): string | undefined {
+  // По словам — только если переведено каждое слово и слов немного (сокращения статов, а не фразы).
+  const words = s.match(WORD) ?? [];
+  if (words.length && words.length <= 4) {
+    let ok = true;
+    const out = s.replace(WORD, (word) => {
+      const t = d.exact.get(word) ?? d.exact.get(word.toLowerCase());
+      if (t === undefined) ok = false;
+      return t ?? word;
+    });
+    if (ok) return out;
+  }
+  return undefined;
 }
 
 /** Кэш переводов строк, которые экран выводит снова и снова (таймеры, счётчики с русскими словами). */

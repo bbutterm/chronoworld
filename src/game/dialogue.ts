@@ -14,6 +14,7 @@ import { introPages, showPages } from './storyPage';
 import { type Panel, BTN, button, mixHex, plate, SURFACE, text } from './ui';
 import { COLOR, E, FAMILY, M, R, S, T } from './theme';
 import { onViewChange, view } from './viewport';
+import { tr } from './locale';
 
 /** Имя слоя диалога (e2e ищет его, чтобы пролистать сцену). */
 export const DIALOGUE_NAME = 'dialogue';
@@ -278,9 +279,9 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     setFace(who.sprite, who.gender, who.illust);
     face.setVisible(!artOf);
     placeName(!artOf);
-    full = l.text;
+    full = tr(l.text);
     // Колокольчик Греты звенит в реплике — слышно (ограничитель не даст звенеть чаще раза в 1.5 с).
-    if (lineChimes(full)) sfx('bell_chime', { delay: 0.2 });
+    if (lineChimes(l.text)) sfx('bell_chime', { delay: 0.2 });
     shown = 0;
     body.setText('');
     more.setText('');
@@ -327,7 +328,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     face.setVisible(false);
     placeName(false);
     nameText.setText('Ваш ответ');
-    full = choice.prompt;
+    full = tr(choice.prompt);
     shown = full.length;
     body.setText(full);
     more.setText('');

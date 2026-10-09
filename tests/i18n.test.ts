@@ -50,6 +50,31 @@ describe('перевод строк (src/game/i18n.ts)', () => {
     expect(translate('Вика и Алан ушла вперёд', d)).toBe('Alan and Vika went ahead');
   });
 
+  it('запасные пути: стрелки, кавычки, ЗАГЛАВНЫЕ, заглавная буква, статы по словам, ключ с \\n, название главы', () => {
+    const d = compileDict({
+      Мечник: 'Swordman',
+      Рыцарь: 'Knight',
+      'Летопись отряда · глава {0}': 'Squad Chronicle · chapter {0}',
+      огонь: 'fire',
+      ОЗ: 'HP',
+      ЗАЩ: 'DEF',
+      'Список короткий.': 'The list is short.',
+      '\nВыбор карты': '\nCard choice',
+      'Глава 2. Под мостовой': 'Chapter 2. Under the Cobbles',
+    });
+    expect(translate('Мечник → Рыцарь', d)).toBe('Swordman → Knight');
+    expect(translate('«Список короткий.»', d)).toBe('“The list is short.”');
+    expect(translate('ЛЕТОПИСЬ ОТРЯДА · ГЛАВА 4', d)).toBe('SQUAD CHRONICLE · CHAPTER 4');
+    expect(translate('Огонь', d)).toBe('Fire');
+    expect(translate('+150 ОЗ · +4 ЗАЩ', d)).toBe('+150 HP · +4 DEF');
+    expect(translate('Выбор карты', d)).toBe('Card choice');
+    expect(translate('Под мостовой', d)).toBe('Under the Cobbles');
+    const missing: string[] = [];
+    expect(translate('ОЗ отряда', d, (s) => missing.push(s))).toBe('ОЗ отряда');
+    expect(translate('щ', d, (s) => missing.push(s))).toBe('щ');
+    expect(missing).toEqual(['ОЗ отряда']);
+  });
+
   it('Translator кэширует и собирает непереведённое', () => {
     const t = new Translator(dict, true);
     expect(t.t('Глава 9')).toBe('Chapter 9');
