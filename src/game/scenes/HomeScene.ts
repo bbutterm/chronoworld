@@ -1,3 +1,5 @@
+import { LOCALE_NAMES } from '../i18n';
+import { LOCALE, setLocale } from '../locale';
 import { openCodes } from '../codesView';
 import Phaser from 'phaser';
 import { hintDone, resetHints } from '../hints';
@@ -253,6 +255,8 @@ export class HomeScene extends Phaser.Scene {
       if (detail) area.add(detail.setY(y + layout.explanationY));
       y += layout.height;
     };
+    // Язык: подпись на обоих языках — чтобы найти её, не понимая текущего. Смена — перезагрузка (locale.ts).
+    row('Язык / Language', 'language', () => LOCALE_NAMES[LOCALE], () => setLocale(LOCALE === 'ru' ? 'en' : 'ru'));
     row('Скорость боя', 'battleSpeed', () => `${playback.speed}x`, () => setPlaybackSpeed(nextPlaybackSpeed()),
       isUnlocked('speed_x2') ? 'Запоминается; меняется и прямо в бою' : lockLabel('speed_x2'), false, isUnlocked('speed_x2'));
     row('Частота кадров', 'fpsCap', () => `${fps.cap} FPS`, () => {

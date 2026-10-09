@@ -8,7 +8,7 @@
 // Выход: <save>_<WxH>_<Экран>.jpg, index.html (листы по экранам), errors.txt (ошибки консоли по экранам).
 // Playwright глобальный (npm root -g), Chromium — из PLAYWRIGHT_BROWSERS_PATH; скрипт ничего не устанавливает.
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { browserOptions, loadPlaywright } from './lib/perf-browser.mjs';
 
@@ -17,7 +17,18 @@ const arg = (name, def) => {
   return i >= 0 ? process.argv[i + 1] : def;
 };
 const PORT = Number(process.env.ATLAS_PORT ?? 5195);
-const URL = `http://localhost:${PORT}/`;
+const LANG = arg('lang', 'ru');
+// --lang en: английская версия (?lang=en) и сбор непереведённых строк (?i18n=1 → window.__i18nMissing, i18n-missing.txt).
+const URL = `http://localhost:${PORT}/${LANG === 'ru' ? '' : `?lang=${LANG}&i18n=1`}`;
+/** Подписи кнопок, по которым атлас кликает, — на языке снимков (locales/en/*.json). */
+const LABELS = new Map();
+if (LANG === 'en') {
+  for (const f of readdirSync('locales/en')) {
+    if (!f.endsWith('.json') || f.startsWith('_')) continue;
+    for (const [k, v] of Object.entries(JSON.parse(readFileSync(join('locales/en', f), 'utf8')))) if (v) LABELS.set(k, v);
+  }
+}
+const label = (l) => LABELS.get(l) ?? l;
 const OUT = resolve(arg('out', 'ui-atlas'));
 const SIZES = arg('sizes', '390x844,360x640')
   .split(',')
@@ -122,7 +133,7 @@ async function waitScene(page, key, timeout = 20000) {
 }
 
 /** Клик по видимому тексту сцены (как в e2e.mjs): координаты мира → окно. */
-async function clickText(page, key, label) {
+async function clickText(page, key, labelRu) {
   const pos = await page.evaluate(
     ([k, l]) => {
       const all = (list) => list.flatMap((o) => (o.list ? [o, ...all(o.list)] : [o]));
@@ -132,7 +143,7 @@ async function clickText(page, key, label) {
       const v = window.__view?.() ?? { worldX: 0, worldY: 0, worldW: 1080 };
       return [b.centerX, b.centerY, v.worldX, v.worldY, v.worldW];
     },
-    [key, label],
+    [key, label(labelRu)],
   );
   if (!pos) return false;
   const box = await page.locator('canvas').boundingBox();
@@ -245,6 +256,7 @@ async function runCombo(browser, saveName, meta, size, hints) {
   const tag = `${saveName}_${size}`;
   let current = 'Boot';
   const errors = [];
+  let missing = [];
   page.on('pageerror', (e) => errors.push(`${tag} ${current}: pageerror: ${e.message}`));
   page.on('console', (m) => {
     if (m.type() !== 'error' || /favicon/.test(m.location()?.url ?? '')) return;
@@ -331,10 +343,11 @@ async function runCombo(browser, saveName, meta, size, hints) {
   } catch (e) {
     skip('Boot', String(e.message ?? e).split('\n')[0]);
   } finally {
+    if (LANG !== 'ru') missing = await page.evaluate(() => [...(window.__i18nMissing ?? [])]).catch(() => []);
     await context.close();
   }
   log(`${tag}: снимков ${results.filter((r) => r.file).length}, пропущено ${results.filter((r) => r.skip).length}, ошибок консоли ${errors.length}`);
-  return { results, errors };
+  return { results, errors, missing };
 }
 
 /** Бой этапа: 3-я секунда, момент ульты, итоги. */
@@ -437,6 +450,7 @@ async function main() {
   let browser;
   const all = [];
   const errors = [];
+  const missingAll = new Set();
   try {
     browser = await chromium.launch(browserOptions());
     const jobs = SAVES.filter((s) => saves[s]).flatMap((s) => SIZES.map((size) => [s, size]));
@@ -447,6 +461,7 @@ async function main() {
         const r = await runCombo(browser, s, saves[s], size, hints);
         all.push(...r.results);
         errors.push(...r.errors);
+        for (const m of r.missing) missingAll.add(m);
       }
     };
     await Promise.all(Array.from({ length: Math.min(PARALLEL, jobs.length) }, worker));
@@ -459,6 +474,10 @@ async function main() {
   const seconds = Math.round((Date.now() - t0) / 1000);
   writeIndex(all, SAVES.filter((s) => saves[s]).map((s) => saves[s].label), seconds);
   writeFileSync(join(OUT, 'errors.txt'), errors.length ? errors.join('\n') + '\n' : 'ошибок нет\n');
+  if (LANG !== 'ru') {
+    writeFileSync(join(OUT, 'i18n-missing.txt'), [...missingAll].sort().join('\n') + '\n');
+    log(`непереведённых строк на экранах: ${missingAll.size} (i18n-missing.txt)`);
+  }
   const shots = all.filter((r) => r.file);
   const skipped = all.filter((r) => r.skip);
   log(`готово за ${seconds} с: снимков ${shots.length}, пропущено ${skipped.length}, ошибок консоли ${errors.length}`);
