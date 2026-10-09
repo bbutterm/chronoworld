@@ -1,8 +1,7 @@
-import Phaser from 'phaser';
 import { compileDict, defaultLocale, isLocale, LOCALE_KEY, Translator, type Locale } from './i18n';
 
 /**
- * Язык игры в браузере: выбор игрока (localStorage) → `?lang=` в адресе → язык Telegram/браузера. Смена языка —
+ * Язык игры: `?lang=` в адресе → выбор игрока (localStorage) → язык пользователя Telegram (вне Telegram — русский). Смена языка —
  * перезагрузка страницы (тексты экранов собираются заново). Перевод подключается к Phaser.Text: каждая строка с
  * кириллицей проходит словарь при setText (и в конструкторе). Логика словаря — i18n.ts.
  * `?i18n=1` или dev-сборка — непереведённые строки копятся в window.__i18nMissing (для атласа и QA).
@@ -29,7 +28,8 @@ function detect(): Locale {
   } catch {
     /* нет location — тесты */
   }
-  return stored() ?? defaultLocale(tgLanguage() ?? globalThis.navigator?.language);
+  // Вне Telegram (веб-сборка, e2e, атлас) — русский по умолчанию: язык браузера не угадываем.
+  return stored() ?? defaultLocale(tgLanguage());
 }
 
 export const LOCALE: Locale = detect();
@@ -73,6 +73,7 @@ export async function installI18n(): Promise<void> {
     /* нет location */
   }
   translator = new Translator(compileDict(entries), collect);
+  const Phaser = (await import('phaser')).default;
   if (collect) Object.assign(globalThis, { __i18nMissing: translator.missing });
   const proto = Phaser.GameObjects.Text.prototype as unknown as { setText(v: string | string[]): unknown };
   const setText = proto.setText;
