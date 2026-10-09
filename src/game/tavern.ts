@@ -248,7 +248,8 @@ export function againOption(st: SummonStatus): PullOption | null {
 export function firstTenTag(count: number, rarity: CardRarity): string {
   if (count === 1) {
     const r = RARITY_CARD[rarity];
-    return `${r.charAt(0).toUpperCase()}${r.slice(1)} гарантирована`;
+    const name = r.charAt(0).toUpperCase() + r.slice(1);
+    return `${name} гарантирована`;
   }
   return `Гарант: ${count} ${RARITY_PLURAL[rarity]}`;
 }

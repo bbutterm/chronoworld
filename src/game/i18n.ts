@@ -98,7 +98,7 @@ export function compileDict(entries: Record<string, string>): Dict {
   return { exact, templates };
 }
 
-const SEPARATORS = ['\n', ' · ', ' — ', ' → ', ': ', ' • ', ' / ', ', '];
+const SEPARATORS = ['\n', ' · ', ' • ', ' — ', ' → ', ' / ', ': ', ', '];
 
 /** Кавычки и скобки, которыми код обрамляет строку из data/ («реплика», (пометка)). */
 const WRAP = /^([«"„“(])([\s\S]+)([»"“”)])$/;
@@ -108,19 +108,33 @@ const WORD = /[А-Яа-яЁё][А-Яа-яЁё-]*/g;
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /**
- * Перевести строку. Без кириллицы — как есть. depth ограничивает рекурсию (вставки и части).
- * onMissing получает строку, которую перевести не удалось (для отчёта QA), — один раз на целую строку.
+ * Перевести строку. Без кириллицы — как есть. Если в итоге осталась кириллица (перевод частичный или его нет),
+ * onMissing получает исходную строку (для отчёта QA).
  */
-export function translate(s: string, d: Dict, onMissing?: (s: string) => void, depth = 0): string {
+export function translate(s: string, d: Dict, onMissing?: (s: string) => void): string {
+  const out = tr(s, d, 0);
+  if (onMissing && hasCyrillic(out) && s.trim().length > 1) onMissing(s);
+  return out;
+}
+
+/** Полный перевод лучше частичного: частичный запоминаем и пробуем следующий путь. */
+function tr(s: string, d: Dict, depth: number): string {
   if (!s || !hasCyrillic(s)) return s;
   const hit = d.exact.get(s);
   if (hit !== undefined) return hit;
+  let partial: string | undefined;
+  const take = (t: string | undefined): string | undefined => {
+    if (t === undefined || t === s) return undefined;
+    if (!hasCyrillic(t)) return t;
+    partial ??= t;
+    return undefined;
+  };
   // Пробелы по краям — не часть ключа.
   const trimmed = s.trim();
   if (trimmed !== s) {
     const lead = s.slice(0, s.indexOf(trimmed));
     const tail = s.slice(lead.length + trimmed.length);
-    const t = translate(trimmed, d, undefined, depth + 1);
+    const t = tr(trimmed, d, depth + 1);
     if (t !== trimmed) return lead + t + tail;
   }
   if (depth < 4) {
@@ -129,37 +143,37 @@ export function translate(s: string, d: Dict, onMissing?: (s: string) => void, d
       const m = tpl.re.exec(s);
       if (!m) continue;
       let out = tpl.out;
-      for (let i = 1; i < m.length; i++) out = out.replaceAll(`\u0000${i - 1}\u0000`, translate(m[i], d, undefined, depth + 1));
-      return out;
+      for (let i = 1; i < m.length; i++) out = out.replaceAll(`\u0000${i - 1}\u0000`, tr(m[i], d, depth + 1));
+      const r = take(out);
+      if (r !== undefined) return r;
     }
-    const alt = fallback(s, d, depth);
+    const alt = take(fallback(s, d, depth));
     if (alt !== undefined) return alt;
     for (const sep of SEPARATORS) {
       if (!s.includes(sep)) continue;
       const pieces = s.split(sep);
-      const done = pieces.map((p) => translate(p, d, undefined, depth + 1));
-      if (done.some((p, i) => p !== pieces[i])) {
-        const joined = done.join(sep);
-        if (!hasCyrillic(joined) || depth > 0) return joined;
-        onMissing?.(s);
-        return joined;
-      }
+      const r = take(pieces.map((p) => tr(p, d, depth + 1)).join(sep));
+      if (r !== undefined) return r;
     }
-    const words = byWords(s, d);
+    const words = take(byWords(s, d));
     if (words !== undefined) return words;
   }
-  // Одна буква (аватар с первой буквой имени) — не строка для перевода.
-  if (depth === 0 && s.trim().length > 1) onMissing?.(s);
-  return s;
+  return partial ?? s;
 }
 
 /** Запасные пути до разбора по частям: кавычки вокруг строки, регистр (ЗАГЛАВНЫЕ, «Огонь» из «огонь»). */
 function fallback(s: string, d: Dict, depth: number): string | undefined {
-  const sub = (x: string) => translate(x, d, undefined, depth + 1);
+  const sub = (x: string) => tr(x, d, depth + 1);
   const w = WRAP.exec(s);
   if (w) {
     const inner = sub(w[2]);
     if (inner !== w[2]) return (QUOTES_EN[w[1]] ?? w[1]) + inner + (QUOTES_EN[w[3]] ?? w[3]);
+  }
+  // Тире или маркер в начале строки («— находок главы собрано: 4 из 4»).
+  const lead = /^([—–•·-] )([\s\S]+)$/.exec(s);
+  if (lead) {
+    const t = sub(lead[2]);
+    if (t !== lead[2]) return lead[1] + t;
   }
   const lower = s.toLowerCase();
   if (s === s.toUpperCase() && s !== lower) {
