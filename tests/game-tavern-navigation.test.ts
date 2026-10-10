@@ -88,12 +88,10 @@ describe('навигация после призыва в Таверне', () =>
     session.save = pulled.save;
     const afterPull = JSON.stringify(session.save);
     const state = { results: pulled.results, count: 10, body: { offset: 124 } };
-    // В призыве теперь есть и награды (не герои) — смотрим первого героя серии (первый ×10 даёт не меньше двух).
-    const hero = pulled.results.find((r) => r.kind === 'hero')!;
-    h.scene.inspectResult(state, hero.heroId);
+    h.scene.inspectResult(state, pulled.results[0].heroId);
     const [key, data] = h.sceneStart.mock.calls[0];
     expect(key).toBe('Hero');
-    expect(data.heroId).toBe(hero.heroId);
+    expect(data.heroId).toBe(pulled.results[0].heroId);
     expect(data.back.to).toBe('Tavern');
     h.start(data.back.data);
     expect(h.reveal).toHaveBeenCalledWith({ results: pulled.results, count: 10, resume: true, offset: 124 });
