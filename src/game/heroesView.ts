@@ -109,17 +109,21 @@ export function missingTemplates(save: SaveState, filter: HeroFilter, ctx: GameC
 }
 
 /**
- * Коллекция с копиями одним местом (как в AFK): по одной плитке на героя — лучший экземпляр в порядке списка
- * (первый встреченный) и сколько экземпляров героя в списке. Порядок — как у heroes.
+ * Коллекция с копиями одним местом (как в AFK): по одной плитке на героя — экземпляр из отряда, иначе свой спутник,
+ * иначе лучший в порядке списка (первый встреченный), и сколько экземпляров героя в списке. Порядок — как у heroes.
  */
-export function groupCopies(heroes: readonly HeroState[]): { hero: HeroState; copies: number; ids: string[] }[] {
+export function groupCopies(heroes: readonly HeroState[], squad: readonly (string | null)[] = []): { hero: HeroState; copies: number; ids: string[] }[] {
   const out = new Map<string, { hero: HeroState; copies: number; ids: string[] }>();
+  // Лицо плитки: копия из отряда (в отряде и в коллекции — один и тот же герой, без «синего Алана ниоткуда»),
+  // иначе свой спутник, иначе первый по порядку списка.
+  const inSquad = new Set(squad.filter((id): id is string => !!id));
+  const rank = (h: HeroState) => (inSquad.has(h.id) ? 2 : h.companion ? 1 : 0);
   for (const h of heroes) {
     const g = out.get(h.templateId);
     if (g) {
       g.copies++;
       g.ids.push(h.id);
-      if (h.companion && !g.hero.companion) g.hero = h;
+      if (rank(h) > rank(g.hero)) g.hero = h;
     } else out.set(h.templateId, { hero: h, copies: 1, ids: [h.id] });
   }
   return [...out.values()];

@@ -284,6 +284,15 @@ describe('Герои v2 (V2): копии одной плиткой, счётчи
     expect(grouped[0].ids).toEqual([copy.id, personal.id]);
   });
 
+  it('лицо плитки — копия из отряда: в коллекции тот же герой, что стоит в отряде (не спутник и не сильнейший)', () => {
+    const s = rich();
+    const personal = s.heroes.find(h => h.templateId === 'iris' && h.companion)!;
+    const copy = s.heroes.find(h => h.templateId === 'iris' && h.level === 3)!;
+    const heroes = [{ ...personal }, { ...copy, rarity: 'blue' as const }];
+    expect(groupCopies(heroes)[0].hero.id).toBe(personal.id);
+    expect(groupCopies(heroes, [null, copy.id])[0]).toMatchObject({ hero: { id: copy.id, rarity: 'blue' }, copies: 2 });
+  });
+
   it('ascendPreview: выбранная ветка на переходе синий → фиолетовый', () => {
     let s = rich();
     s = addHeroCard(s, 'alan', 'blue', { level: 40 }).save;
