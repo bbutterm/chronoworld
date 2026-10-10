@@ -263,6 +263,12 @@ export const SummonConfigSchema = z
         ]),
       )
       .default([]),
+    /**
+     * Вес героя, которого у игрока ещё не было (нет в summon.discovered), относительно уже знакомого (вес 1):
+     * 0.25 — новый выпадает вчетверо реже копии. Коллекция растёт постепенно, копии для вознесения копятся.
+     * Не задан — все равновероятно.
+     */
+    newHeroWeight: z.number().positive().max(1).optional(),
     /** Первый призыв ×10 содержит не меньше count карт этой редкости или выше и не меньше heroes героев (один раз). */
     firstTen: z.object({ rarity: CardRaritySchema, count: z.number().int().positive().max(10), heroes: z.number().int().positive().max(10).optional() }),
     freePerDay: z.number().int().nonnegative(),

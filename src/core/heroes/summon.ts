@@ -180,6 +180,19 @@ function rollDraw(rng: Rng, ctx: GameContext): { hero: CardRarity } | { loot: Lo
   return last ? { loot: last } : { hero: ctx.summon.rates[ctx.summon.rates.length - 1].rarity };
 }
 
+/** Герой из пула: незнакомые (нет в discovered) — с весом newWeight, знакомые — 1; без веса — равновероятно. */
+function pickTemplate(pool: readonly string[], discovered: readonly string[], newWeight: number | undefined, rng: Rng): string {
+  if (newWeight === undefined || newWeight >= 1) return pool[rng.int(pool.length)];
+  const known = new Set(discovered);
+  const w = pool.map((t) => (known.has(t) ? 1 : newWeight));
+  let x = rng.next() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < pool.length; i++) {
+    if (x < w[i]) return pool[i];
+    x -= w[i];
+  }
+  return pool[pool.length - 1];
+}
+
 const ITEM_LOOK: Record<string, CardRarity> = { common: 'green', rare: 'blue', epic: 'purple' };
 const LOOT_NAMES: Record<Exclude<SummonLootKind, 'gear'>, string> = { heroExp: 'Опыт героев', gold: 'Золото', gems: 'Алмазы', ore: 'Благословенная руда' };
 
@@ -296,7 +309,7 @@ export function summon(
       results.push(got.loot);
     } else if (rarity !== null) {
       const pool = summonPool(ctx, rarity);
-      const templateId = pool[rng.int(pool.length)];
+      const templateId = pickTemplate(pool, next.summon.discovered, cfg.newHeroWeight, rng);
       const isNew = !next.summon.discovered.includes(templateId);
       const added = addHeroCard(next, templateId, rarity, { isNew: true });
       next = added.save;

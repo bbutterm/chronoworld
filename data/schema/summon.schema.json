@@ -192,6 +192,11 @@
         ]
       }
     },
+    "newHeroWeight": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
     "firstTen": {
       "type": "object",
       "properties": {
