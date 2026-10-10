@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { newGame, type SaveState } from '../src/core';
-import { autoNextStage, heroesBadgeCount } from '../src/game/flow';
+import { ascendReady, autoNextStage, heroAlerts, heroesBadgeCount } from '../src/game/flow';
 import { HINT_KEY, HINT_MAX, HINT_TEXT, hintDone, hintNagged, hintShown, markHint, markHintShown, NAG_LIMIT, noteHintVisit, pickHomeHint, pickPrepHint, pickResultHint, reloadHints, resetHints, setHintObsolete, TUTORIAL_CHAIN, type HintId } from '../src/game/hints';
 import { loadFullContext, loadGameContext } from '../scripts/lib/content-node';
 import { placeCallout, sceneObstacles, type SceneNode } from '../src/game/hintLayout';
@@ -184,11 +184,19 @@ describe('R: авто-прохождение кампании', () => {
   it('значок «Герои»: сколько героев можно вознести (копий и золота хватает)', () => {
     const full = loadFullContext();
     expect(heroesBadgeCount(save, full)).toBe(0);
-    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный. Одна свободная зелёная копия Алана — к вознесению
-    // готов каждый зелёный герой отряда (Алан, Бран, Вика); сама копия — нет (герои отряда в корм не идут).
+    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный. Одна свободная зелёная копия Алана подходит каждому
+    // зелёному герою отряда (метка на карточке — у всех трёх), но вознести можно только одного: значок считает
+    // одновременно возможные вознесения (ascendAllocation), а не кандидатов. Раньше здесь было 3.
     const copies = [{ id: 'h90', templateId: 'alan', rarity: 'green' as const, level: 1 }];
     const ready = { ...save, heroes: [...save.heroes, ...copies], resources: { ...save.resources, gold: 5000 } };
-    expect(heroesBadgeCount(ready, full)).toBe(3);
+    expect(ascendReady(ready, full).map((h) => h.id).sort()).toEqual(['h1', 'h2', 'h3']);
+    expect(heroesBadgeCount(ready, full)).toBe(1);
+    // Повод получает первый в отряде; остальные — не «вознести».
+    expect(heroAlerts(ready, full).filter((a) => a.kind === 'ascend').map((a) => a.heroId)).toEqual([ready.squad[0]]);
+    // Две разные копии — два вознесения; золота на одно — одно.
+    const two = { ...ready, heroes: [...ready.heroes, { id: 'h91', templateId: 'iris', rarity: 'green' as const, level: 1 }] };
+    expect(heroesBadgeCount(two, full)).toBe(2);
+    expect(heroesBadgeCount({ ...two, resources: { ...two.resources, gold: 500 } }, full)).toBe(1);
     // Синий → фиолетовый — 3 одинаковых синих и 30 000 золота: две синие копии Алана — готов только Алан.
     const blues = [{ id: 'h90', templateId: 'alan', rarity: 'blue' as const, level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'blue' as const, level: 1 }];
     const blueSquad = { ...save, heroes: [...save.heroes.map((h) => ({ ...h, rarity: 'blue' as const })), ...blues], resources: { ...save.resources, gold: 30_000 } };

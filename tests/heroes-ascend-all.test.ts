@@ -5,7 +5,7 @@
  * героя остаётся (BUG-168).
  */
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, ascendAll, keeperIds, ascendAllSummary, ascendHero, HeroError, needsBranch, newGame, resetHeroLevel, type CardRarity, type SaveState } from '../src/core';
+import { addHeroCard, ascendAll, ascendAllocation, keeperIds, ascendAllSummary, ascendHero, HeroError, needsBranch, newGame, resetHeroLevel, type CardRarity, type SaveState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 
 const ctx = loadFullContext();
@@ -116,9 +116,57 @@ describe('ascendAll', () => {
     expect(ascendAll(s, ctx).done.filter((d) => d.heroId === 'h1')).toEqual([]);
   });
 
+  it('дефицитные «та же» первыми: «любой» фиолетового → золотого не съедает копии для золотого → красного', () => {
+    // h1 Алан — золотой (2 такие же фиолетовые → красный), h2 Бран (отряд) — фиолетовый (2 любые фиолетовые → золотой).
+    // Лишние фиолетовые — только две копии Алана h4/h5. Раньше дешёвый переход Брана шёл первым и съедал их.
+    let s = withCards([['alan', 'purple'], ['alan', 'purple']]);
+    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold' as const, level: 80, branch: 'knight' } : h.id === 'h2' ? { ...h, rarity: 'purple' as const, level: 60 } : h)) };
+    const r = ascendAll(s, ctx);
+    expect(r.done.map((d) => [d.heroId, d.from, d.to, [...d.consumed].sort()])).toEqual([['h1', 'gold', 'red', ['h4', 'h5']]]);
+    expect(r.save.heroes.find((h) => h.id === 'h2')!.rarity).toBe('purple');
+    // Защиты прежние: закреплённая копия h4 не бронируется и не едится — Алану не хватает «той же», Брану — двух
+    // «любых» (свободна только h5), вознесений нет.
+    const locked: SaveState = { ...s, heroes: s.heroes.map((h) => (h.id === 'h4' ? { ...h, locked: true } : h)) };
+    expect(ascendAll(locked, ctx).done).toEqual([]);
+    expect(ascendAll(s, ctx)).toEqual(r);
+  });
+
+  it('копия, нужная слоту «та же», не становится целью дешёвого перехода', () => {
+    // h1 Алан золотой; фиолетовые копии Алана h4, h5, h6. Раньше h4 сам возносился в золотой, съедая h5/h6, и Алан
+    // оставался золотым. Теперь бронь Алана (две самые слабые копии) идёт на красный, h4 остаётся фиолетовым.
+    let s = withCards([['alan', 'purple', 30], ['alan', 'purple'], ['alan', 'purple']]);
+    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold' as const, level: 80, branch: 'knight' } : h)) };
+    const r = ascendAll(s, ctx);
+    expect(r.done.map((d) => [d.heroId, d.to, [...d.consumed].sort()])).toEqual([['h1', 'red', ['h5', 'h6']]]);
+    expect(r.save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('purple');
+  });
+
+  it('бронь не мешает, когда героя «та же» вознести нельзя (не хватает золота) — копии идут в «любой»', () => {
+    let s = withCards([['alan', 'purple'], ['alan', 'purple']], mergeGold('purple'));
+    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold' as const, level: 80, branch: 'knight' } : h.id === 'h2' ? { ...h, rarity: 'purple' as const, level: 60 } : h)) };
+    const r = ascendAll(s, ctx);
+    expect(r.done.map((d) => [d.heroId, d.to, [...d.consumed].sort()])).toEqual([['h2', 'gold', ['h4', 'h5']]]);
+  });
+
   it('ascendHero без deferBranch по-прежнему требует ветку', () => {
     const s = withCards([['iris', 'blue'], ['iris', 'blue'], ['iris', 'blue']]);
     expect(() => ascendHero(s, 'h4', ['h5', 'h6'], ctx)).toThrow(HeroError);
     expect(ascendHero(s, 'h4', ['h5', 'h6'], ctx, { deferBranch: true }).save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('purple');
+  });
+});
+
+describe('ascendAllocation (значок «Герои»)', () => {
+  it('одна копия — одно вознесение; слоты «та же» закрываются раньше «любых», даже если герой дальше по порядку', () => {
+    // Первая Ирис h4 — спутник (не корм), лишняя — h5.
+    const one = withCards([['iris', 'green'], ['iris', 'green']]);
+    expect(ascendAllocation(one, ['h1', 'h2', 'h3'], ctx)).toEqual([{ heroId: 'h1', fodder: ['h5'] }]);
+    let s = withCards([['alan', 'purple'], ['alan', 'purple']]);
+    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold' as const, level: 80, branch: 'knight' } : h.id === 'h2' ? { ...h, rarity: 'purple' as const, level: 60 } : h)) };
+    // Бран первым по приоритету, но его «любые» — те же копии Алана: возможен только Алан.
+    expect(ascendAllocation(s, ['h2', 'h1'], ctx).map((a) => [a.heroId, [...a.fodder].sort()])).toEqual([['h1', ['h4', 'h5']]]);
+    // Золото общее: на два перехода зелёный → синий не хватает.
+    const two = withCards([['iris', 'green'], ['iris', 'green'], ['iris', 'green']], mergeGold('green') * 2 - 1);
+    expect(ascendAllocation(two, ['h1', 'h2', 'h3'], ctx).map((a) => a.heroId)).toEqual(['h1']);
+    expect(ascendAllocation({ ...two, resources: { ...two.resources, gold: mergeGold('green') * 2 } }, ['h1', 'h2', 'h3'], ctx).map((a) => a.heroId)).toEqual(['h1', 'h2']);
   });
 });

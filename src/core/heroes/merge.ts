@@ -300,6 +300,75 @@ export function keeperIds(save: Pick<SaveState, 'heroes' | 'squad'>): Set<string
   return new Set([...best.values()].map((h) => h.id));
 }
 
+/**
+ * Бронь слотов «та же» для «Вознести всех»: герои, которые могут вознестись прямо сейчас (не заняты профессией, хватает
+ * золота) и у которых все слоты «та же» закрываются свободными копиями. fodder — самые слабые такие копии.
+ */
+function sameClaims(save: SaveState, heroes: readonly HeroState[], ctx: GameContext): { heroId: string; rarity: CardRarity; fodder: string[] }[] {
+  const out: { heroId: string; rarity: CardRarity; fodder: string[] }[] = [];
+  for (const hero of heroes) {
+    const rule = mergeRule(hero, ctx);
+    if (!rule || save.resources.gold < rule.gold || heroProfessionBlocker(save, hero.id)) continue;
+    const slots = slotList(rule).filter((x) => x.kind === 'same');
+    if (!slots.length) continue;
+    const free = freeHeroes(save, hero.id, ctx);
+    const chosen: string[] = [];
+    for (const slot of slots) {
+      const pick = free.find((h) => !chosen.includes(h.id) && fits(hero, h, slot));
+      if (!pick) break;
+      chosen.push(pick.id);
+    }
+    if (chosen.length === slots.length) out.push({ heroId: hero.id, rarity: hero.rarity, fodder: chosen });
+  }
+  return out;
+}
+
+/**
+ * Какие вознесения из targetIds возможны одновременно — без общего корма и с общим золотом (значок «Герои»).
+ * Порядок targetIds — приоритет. Сначала по порядку закрываются дефицитные слоты «та же», затем слоты «любой» (копии
+ * других героев первыми) и золото; цель не идёт в корм другой цели. Каждая копия — не больше чем в одно вознесение.
+ */
+export function ascendAllocation(save: SaveState, targetIds: readonly string[], ctx: GameContext): { heroId: string; fodder: string[] }[] {
+  const targets = targetIds.filter((id, i) => targetIds.indexOf(id) === i && save.heroes.some((h) => h.id === id && ctx.content.heroes[h.templateId]));
+  const isTarget = new Set(targets);
+  const used = new Set<string>();
+  const take = (hero: HeroState, slots: Pick<FodderSlot, 'kind' | 'rarity'>[], free: HeroState[]): string[] | null => {
+    const chosen: string[] = [];
+    for (const slot of slots) {
+      const cands = free.filter((h) => !used.has(h.id) && !isTarget.has(h.id) && !chosen.includes(h.id) && fits(hero, h, slot));
+      const pick = slot.kind === 'any' ? (cands.find((h) => h.templateId !== hero.templateId) ?? cands[0]) : cands[0];
+      if (!pick) return null;
+      chosen.push(pick.id);
+    }
+    return chosen;
+  };
+  const stage1: { hero: HeroState; rule: MergeRule; same: string[]; free: HeroState[] }[] = [];
+  for (const id of targets) {
+    const req = ascendRequirement(save, id, ctx);
+    if (!req || req.blockers.length) continue;
+    const hero = findHero(save, id);
+    const rule = mergeRule(hero, ctx)!;
+    const free = freeHeroes(save, id, ctx);
+    const same = take(hero, slotList(rule).filter((x) => x.kind === 'same'), free);
+    if (!same) continue;
+    for (const f of same) used.add(f);
+    stage1.push({ hero, rule, same, free });
+  }
+  const out: { heroId: string; fodder: string[] }[] = [];
+  let gold = save.resources.gold;
+  for (const { hero, rule, same, free } of stage1) {
+    const any = gold >= rule.gold ? take(hero, slotList(rule).filter((x) => x.kind === 'any'), free) : null;
+    if (!any) {
+      for (const f of same) used.delete(f);
+      continue;
+    }
+    for (const f of any) used.add(f);
+    gold -= rule.gold;
+    out.push({ heroId: hero.id, fodder: [...same, ...any] });
+  }
+  return out;
+}
+
 /** Одно вознесение «Вознести всех». */
 export interface AscendAllStep {
   heroId: string;
@@ -320,7 +389,9 @@ export interface AscendAllStep {
  * не замок). Слоты «та же» — копии того же героя. Слоты «любой» (золотой → красный, BUG-168) — сначала лишние копии
  * того же героя, затем лишние копии других героев: лучший экземпляр каждого героя (keeperIds) в корм не идёт никогда,
  * так что «Вознести всех» не убирает героя из коллекции. Свои вознесения других героев идут раньше (они дешевле), и
- * их копии уходят сначала на них. Переход с выбором ветки — без ветки (deferBranch; уже выбранная сохраняется).
+ * их копии уходят сначала на них. Дефицитные слоты «та же» бронируются (sameClaims): копии, которые закрывают «та же»
+ * другого героя (золотой → красный, синий → фиолетовый), не идут ни в «любой», ни целью дешёвого перехода — пока тот
+ * герой может вознестись. Переход с выбором ветки — без ветки (deferBranch; уже выбранная сохраняется).
  * Чистая функция; пусто — нечего.
  */
 export function ascendAll(save: SaveState, ctx: GameContext): { save: SaveState; events: ProgressEvent[]; done: AscendAllStep[] } {
@@ -336,31 +407,39 @@ export function ascendAll(save: SaveState, ctx: GameContext): { save: SaveState;
   // Каждое вознесение убирает хотя бы одну карточку — цикл конечен; guard — на всякий случай.
   for (let guard = 0; guard < 1000; guard++) {
     const s = cur;
-    let step: { hero: HeroState; fodder: string[]; to: CardRarity } | null = null;
-    for (const hero of [...s.heroes].filter((h) => ctx.content.heroes[h.templateId]).sort(order(s))) {
-      if (heroProfessionBlocker(s, hero.id)) continue;
-      const rule = mergeRule(hero, ctx);
-      const to = nextRarity(hero.rarity);
-      if (!rule || !to || s.resources.gold < rule.gold) continue;
-      const keep = keeperIds(s);
-      const all = freeHeroes(s, hero.id, ctx);
-      // Сначала копии того же героя, затем лишние копии других (не лучший экземпляр своего героя); слабые первыми.
-      const free = [...all.filter((h) => h.templateId === hero.templateId), ...all.filter((h) => h.templateId !== hero.templateId && !keep.has(h.id))];
-      const chosen: string[] = [];
-      let ok = true;
-      for (const slot of slotList(rule)) {
-        const pick = free.find((h) => !chosen.includes(h.id) && fits(hero, h, slot));
-        if (!pick) {
-          ok = false;
-          break;
+    const keep = keeperIds(s);
+    const heroes = [...s.heroes].filter((h) => ctx.content.heroes[h.templateId]).sort(order(s));
+    const claims = sameClaims(s, heroes, ctx);
+    const pickStep = (reserve: boolean): { hero: HeroState; fodder: string[]; to: CardRarity } | null => {
+      for (const hero of heroes) {
+        if (heroProfessionBlocker(s, hero.id)) continue;
+        const rule = mergeRule(hero, ctx);
+        const to = nextRarity(hero.rarity);
+        if (!rule || !to || s.resources.gold < rule.gold) continue;
+        // Копии, нужные слотам «та же» другого героя (другой редкости), который может вознестись прямо сейчас, — не трогаем:
+        // ни целью, ни кормом. Иначе дешёвый «любой» (фиолетовый → золотой) съест копии золотого → красного.
+        const reserved = new Set<string>();
+        if (reserve) for (const c of claims) if (c.heroId !== hero.id && c.rarity !== hero.rarity) for (const id of c.fodder) reserved.add(id);
+        if (reserved.has(hero.id)) continue;
+        const all = freeHeroes(s, hero.id, ctx).filter((h) => !reserved.has(h.id));
+        // Сначала копии того же героя, затем лишние копии других (не лучший экземпляр своего героя); слабые первыми.
+        const free = [...all.filter((h) => h.templateId === hero.templateId), ...all.filter((h) => h.templateId !== hero.templateId && !keep.has(h.id))];
+        const chosen: string[] = [];
+        let ok = true;
+        for (const slot of slotList(rule)) {
+          const pick = free.find((h) => !chosen.includes(h.id) && fits(hero, h, slot));
+          if (!pick) {
+            ok = false;
+            break;
+          }
+          chosen.push(pick.id);
         }
-        chosen.push(pick.id);
+        if (ok) return { hero, fodder: chosen, to };
       }
-      if (ok) {
-        step = { hero, fodder: chosen, to };
-        break;
-      }
-    }
+      return null;
+    };
+    // Без брони — только если с бронёй не вышло ничего (страховка: бронь дают лишь те, кто сам может вознестись).
+    const step = pickStep(true) ?? (claims.length ? pickStep(false) : null);
     if (!step) break;
     const r = ascendHero(s, step.hero.id, step.fodder, ctx, { deferBranch: true });
     cur = r.save;
