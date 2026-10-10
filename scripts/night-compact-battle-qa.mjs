@@ -170,7 +170,7 @@ try {
   const fightLabel = await page.evaluate(() => {
     const sc = window.__game.scene.getScene('Stage');
     const walk = list => list.flatMap(o => [o, ...(o.list ? walk(o.list) : [])]);
-    return walk(sc.children.list).find(o => o.type === 'Text' && ['В бой', 'Повторить', 'Тренировка'].includes(o.text))?.text;
+    return walk(sc.children.list).find(o => o.type === 'Text' && o.text === 'В бой')?.text;
   });
   check(!!fightLabel, 'lawful Stage exposes its actual available fight action', fightLabel);
   // Stage is owned by another compact packet. Click its visible classic CTA, then let Battle START opt in.

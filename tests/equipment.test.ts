@@ -30,6 +30,7 @@ import {
   type SaveState,
 } from '../src/core';
 import { loadGameContext, readJsonDir } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const root = join(import.meta.dirname, '..');
 const read = (f: string) => JSON.parse(readFileSync(join(root, f), 'utf8'));
@@ -251,11 +252,14 @@ describe('K6 выпадение', () => {
     expect(losses).toBeGreaterThan(0);
   });
 
-  it('actSkipStage: пройденный этап — не первое прохождение (по chance)', () => {
+  // Выпущенные данные повторы запрещают (stage_cleared); правило выпадения при повторе — при явном replay: true.
+  it('actSkipStage (replay: true): пройденный этап — не первое прохождение (по chance)', () => {
     const s = { ...game([]), campaign: { cleared: [s1] } };
+    const rctx = withReplay(ctx);
+    expect(() => actSkipStage(s, D1, s1, 1, ctx)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
     for (let seed = 1; seed <= 20; seed++) {
-      const out = actSkipStage(s, D1, s1, seed, ctx);
-      const expected = out.result.winner === 'A' ? rollDrops(s1, seed, false, ctx) : [];
+      const out = actSkipStage(s, D1, s1, seed, rctx);
+      const expected = out.result.winner === 'A' ? rollDrops(s1, seed, false, rctx) : [];
       expect(out.drops.map((d) => d.itemId)).toEqual(expected);
     }
   });

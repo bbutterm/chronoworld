@@ -58,8 +58,11 @@ export const KitchenConfigSchema = z
       hunt: z
         .object({ min: z.number().int().nonnegative(), max: z.number().int().nonnegative(), tiersPerExtra: z.number().int().positive() })
         .refine((r) => r.max >= r.min, 'max не меньше min'),
-      /** Победный повтор этапа с наградой: с шансом chance — count штук. */
-      replay: z.object({ chance: z.number().min(0).max(1), count: z.number().int().positive() }),
+      /**
+       * Победный повтор этапа с наградой: с шансом chance — count штук. Нет поля — повторы продуктов не дают
+       * (в выпущенных данных повторов этапов нет: progression.campaign.replay = false).
+       */
+      replay: z.object({ chance: z.number().min(0).max(1), count: z.number().int().positive() }).optional(),
       /** Полный тик сундука простоя: с шансом chancePerTick — одна штука. */
       chest: z.object({ chancePerTick: z.number().min(0).max(1) }),
     }),

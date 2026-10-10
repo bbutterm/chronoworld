@@ -58,12 +58,19 @@ const midClock = load(`${midBase}.clock.json`);
 let midNow = midClock.now + 48 * 3600_000;
 const midDay = new Date(midNow).toISOString().slice(0, 10);
 let mid = core.actClaimOffline(load(`${midBase}.json`), midNow, midDay, game).save;
+// Пройденные этапы больше не сражаются (progression.campaign.replay: false): пять законных попыток — на текущем открытом
+// этапе (победа открывает следующий), а не повторы ch1_s1.
+const midStages = [];
 for (let i = 0; i < 5; i++) {
-  const r = core.actPlayStage(mid, midDay, 'ch1_s1', 900 + i, game, midNow);
-  assert.equal(r.result.winner, 'A');
+  const open = game.content.stages.find((st) => core.stageStatus(mid, st.id, game) === 'open');
+  assert(open, 'В mid fixture должен быть открытый этап');
+  const r = core.actPlayStage(mid, midDay, open.id, 900 + i, game, midNow);
+  midStages.push({ stage: open.id, winner: r.result.winner });
   mid = r.save;
   midNow += Math.round(r.result.duration * 1000);
 }
+// Без побед задание «победы в боях» не выполнено — законно добираем быстрые награды (третье готовое задание).
+if (core.questStatus(mid, game, midDay).quests.filter((q) => q.done && !q.claimed).length < 3) mid = core.actUseFastRewards(mid, midDay, game).save;
 assert(core.questStatus(mid, game, midDay).quests.filter((q) => q.done && !q.claimed).length >= 3);
 assert(core.shopStatus(mid, midDay, game).slots.some((s) => !s.affordable && !s.soldOut));
 const lateFile = path.join(root, 'tests/fixtures/boot-late-save.json');
@@ -79,7 +86,7 @@ const fixtures = {
 };
 report.fixtureEvidence = {
   early: { inputSha256: sha(fs.readFileSync(`${earlyBase}.json`)), inputClock: earlyClock, actualWinner: earlyWin.result.winner, actualDuration: earlyWin.result.duration, cleared: earlyWin.save.campaign.cleared.length },
-  mid: { inputSha256: sha(fs.readFileSync(`${midBase}.json`)), inputClock: midClock, waitedHours: 48, offlineCapAppliedByCore: true, replaySeeds: [900, 901, 902, 903, 904], replayStage: 'ch1_s1', now: midNow, day: midDay, resources: mid.resources, currency: mid.currency },
+  mid: { inputSha256: sha(fs.readFileSync(`${midBase}.json`)), inputClock: midClock, waitedHours: 48, offlineCapAppliedByCore: true, attemptSeeds: [900, 901, 902, 903, 904], attempts: midStages, now: midNow, day: midDay, resources: mid.resources, currency: mid.currency },
   late: { inputSha256: sha(fs.readFileSync(lateFile)), now: lateNow, cleared: late.campaign.cleared.length, heroes: late.heroes.length, inventory: late.inventory.items.length },
 };
 const hintsSource = fs.readFileSync(path.join(root, 'src/game/hints.ts'), 'utf8');

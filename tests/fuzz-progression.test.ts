@@ -46,8 +46,10 @@ import {
 } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 import { deepFreeze, fuzzSeeds, isRuleError, saveProblems } from './invariants';
+import { withReplay } from './helpers';
 
 const ctx = loadFullContext();
+const replayCtx = withReplay(ctx);
 const STEPS = Number(process.env.FUZZ_STEPS ?? '') || 100;
 const DAY_MS = 86_400_000;
 const T0 = Date.UTC(2026, 0, 1, 12);
@@ -121,7 +123,9 @@ type Op = (w: World, rng: Rng, day: string) => SaveState;
 /** Действия игрока с весами. Каждое возвращает новый save (или бросает ошибку правил). */
 const OPS: [string, number, Op][] = [
   ['playStage', 20, (w, rng, day) => actPlayStage(w.save, day, pickStage(rng, w.save), seed32(rng), ctx).save],
-  ['skipStage', 6, (w, rng, day) => actSkipStage(w.save, day, pickStage(rng, w.save), seed32(rng), ctx).save],
+  // Выпущенные данные запрещают повторы: playStage на пройденном этапе — ошибка правил (stage_cleared). «Быстрый бой»
+  // остаётся в коде для контекстов с повторами — фаззим его при явном replay: true, чтобы путь повтора не остался без проверки.
+  ['skipStage', 6, (w, rng, day) => actSkipStage(w.save, day, pickStage(rng, w.save), seed32(rng), replayCtx).save],
   [
     'claimOffline',
     8,

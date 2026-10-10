@@ -89,8 +89,22 @@ export interface StageOutcome {
   ingredients?: Pantry;
 }
 
-/** Число победных повторов с добычей за день. Первые прохождения бюджет не расходуют. */
+/**
+ * Можно ли сражаться на пройденном этапе (progression.campaign.replay). В выпущенных данных — нет (как в AFK Arena:
+ * бой только на текущем этапе). Нет поля — можно (старые контексты тестов и инструментов).
+ */
+export function replayAllowed(ctx: GameContext): boolean {
+  return ctx.progression.campaign.replay !== false;
+}
+
+/** Доля награды за повтор (progression.campaign.replayRewardMultiplier, нет поля — 0.5). */
+export function replayRewardMultiplier(ctx: GameContext): number {
+  return ctx.progression.campaign.replayRewardMultiplier ?? 0.5;
+}
+
+/** Число победных повторов с добычей за день. Первые прохождения бюджет не расходуют. Повторы запрещены — 0. */
 export function replayRewardLimit(ctx: GameContext): number {
+  if (!replayAllowed(ctx)) return 0;
   return ctx.progression.campaign.replayDailyWins ?? 6;
 }
 
@@ -131,6 +145,7 @@ export function squadUnits(save: SaveState, ctx: GameContext, day?: string): { s
 /**
  * T-B. Сыграть этап. Чистая функция: исходный save не меняется.
  * - GameRuleError('unknown_stage') / ('stage_locked') / ('empty_squad') / ('duplicate_card');
+ *   ('stage_cleared') — этап пройден, а повторы выключены (progression.campaign.replay: false — выпущенные данные);
  * - отряд игрока: save.squad → buildUnit(hero) (null — пустой слот);
  * - бой: simulateBattle(ctx.content, squad, enemySquad, seed, { combat: ctx.combat });
  * - battleSeq + 1 всегда;
@@ -150,7 +165,9 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   // Экипировка героев из сохранения (если в контексте есть предметы).
   ctx = withGear(ctx, save);
   const stage = getStage(ctx, stageId);
-  if (stageStatus(save, stageId, ctx) === 'locked') throw new GameRuleError('stage_locked', `Этап ${stage.name} ещё закрыт`);
+  const status = stageStatus(save, stageId, ctx);
+  if (status === 'locked') throw new GameRuleError('stage_locked', `Этап ${stage.name} ещё закрыт`);
+  if (status === 'cleared' && !replayAllowed(ctx)) throw new GameRuleError('stage_cleared', 'Этап уже пройден — бой идёт на следующем этапе');
   const { squad } = squadUnits(save, ctx, day);
   const firstTime = !save.campaign.cleared.includes(stage.id);
   const allowance = firstTime ? undefined : replayAllowance(save, day, ctx);
@@ -162,7 +179,7 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   if (result.winner !== 'A') return { save: next, result, events, ...(allowance ? { replay: { rewarded: false, used: allowance.used, limit: allowance.limit } } : {}) };
 
   const rewarded = firstTime || allowance!.remaining > 0;
-  const mult = firstTime ? 1 : rewarded ? ctx.progression.campaign.replayRewardMultiplier : 0;
+  const mult = firstTime ? 1 : rewarded ? replayRewardMultiplier(ctx) : 0;
   const gold = Math.floor(stage.rewards.gold * mult);
   // Блюдо дня с прибавкой опыта (Молочная каша) — +% к опыту героев за этап.
   const heroExp = mealExp(Math.floor(stage.rewards.jobExp * mult), save, day, ctx);

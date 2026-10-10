@@ -1,7 +1,7 @@
 {
-  "$comment": "Ежедневные задания (K5). Числа — заглушки до баланса. Формат — docs/content/features.md. jobExp — опыт в общий пул героев. unlock — функция data/unlocks.json, без которой задание скрыто. Заданий на 160 очков, пороги — до 100: для сундуков дня хватает любых 6–7 заданий (docs/design/daily-loop-2026-10-10.md).",
+  "$comment": "Ежедневные задания (K5). Числа — заглушки до баланса. Формат — docs/content/features.md. win_stages считает победы кампании и Башни (battle_win): пройденные этапы не повторяются, у «стены» победы добираются в Башне. jobExp — опыт в общий пул героев. unlock — функция data/unlocks.json, без которой задание скрыто. Заданий на 160 очков, пороги — до 100: для сундуков дня хватает любых 6–7 заданий (docs/design/daily-loop-2026-10-10.md).",
   "quests": [
-    { "id": "win_stages", "name": "Победить в 3 боях кампании", "event": "stage_win", "target": 3, "points": 20 },
+    { "id": "win_stages", "name": "Победить в 3 боях кампании или Башни", "event": "battle_win", "target": 3, "points": 20 },
     { "id": "fight", "name": "Провести 5 боёв", "event": "stage_attempt", "target": 5, "points": 20 },
     { "id": "offline_chest", "name": "Забрать сундук офлайн-наград", "event": "offline_claim", "target": 1, "points": 20 },
     { "id": "fast_rewards", "name": "Взять быстрые награды", "event": "fast_rewards", "target": 1, "points": 20 },

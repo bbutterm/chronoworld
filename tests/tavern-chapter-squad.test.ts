@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/tavern-chapter1-before-win.json';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 import { actPlayStage, chooseOption, deserialize, eveningSquadHeroes, finishEvening, sanitizeSave, serialize, setSquad, type SaveState } from '../src/core';
 
 const ctx = loadFullContext();
@@ -53,7 +54,9 @@ describe('chapter trust follows the first final-stage participants', () => {
   it('a second genuine victory with a different party does not overwrite the original chapter', () => {
     const first = firstWin().save;
     const changed = setSquad(first, first.squad.map(id => id === 'h12' ? 'h5' : id));
-    const replay = actPlayStage(changed, DAY, FINAL, 21, ctx, NOW + 1000);
+    // Выпущенные данные повторы запрещают; при явном replay: true вторая победа не переписывает главу.
+    expect(() => actPlayStage(changed, DAY, FINAL, 21, ctx, NOW + 1000)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    const replay = actPlayStage(changed, DAY, FINAL, 21, withReplay(ctx), NOW + 1000);
     expect(replay.result.winner).toBe('A');
     expect(replay.save.tavern?.chapterSquads).toEqual({ chapter1: PARTICIPANTS });
     expect(finishEvening(replay.save, EVENING, ctx).gains).toEqual(GAINS);
@@ -111,7 +114,7 @@ describe('safe compatibility of optional chapter snapshots', () => {
     const won = firstWin().save;
     const legacy = { ...won, tavern: { ...won.tavern, chapterSquads: undefined } };
     const changed = setSquad(legacy, legacy.squad.map(id => id === 'h12' ? 'h5' : id));
-    const replay = actPlayStage(changed, DAY, FINAL, 21, ctx, NOW + 1000).save;
+    const replay = actPlayStage(changed, DAY, FINAL, 21, withReplay(ctx), NOW + 1000).save;
     expect(replay.tavern?.chapterSquads).toBeUndefined();
     const delayed = onlyLira(replay);
     expect(eveningSquadHeroes(delayed, EVENING, ctx)).toEqual(['lira']);

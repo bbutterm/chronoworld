@@ -329,7 +329,7 @@ export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext, ba
     if (canAscendFurther) return { text: 'Отряд на пределе уровней своих редкостей. Героям ниже максимальной редкости нужны копии и «Вознести» («Герои»).', action: 'Heroes' };
     return { text: 'Отряд на пределе уровней и редкости. Попробуйте другую расстановку и сочетание навыков («Отряд»).', action: 'Squad' };
   }
-  return { text: 'Прокачайте героев: повторите пройденные этапы и заберите сундук в кампании, затем «Улучшить».', action: 'Campaign' };
+  return { text: 'Прокачайте героев: заберите сундук и быстрые награды в кампании, затем «Улучшить».', action: 'Campaign' };
 }
 
 /** RR-02. Все герои отряда — на пределе уровня своей редкости (опыт уже не поднимет никому уровень). */
@@ -679,6 +679,8 @@ export function untilReset(now: Date): string {
 export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | 'Heroes' | 'Tower' | 'Expeditions' | 'Hunt' | 'Shop' | 'Autobattler' | 'Kitchen' {
   switch (event) {
     case 'stage_win':
+    // Победы кампании или Башни — ведём на текущий этап кампании (Башня видна рядом в «Приключениях»).
+    case 'battle_win':
     case 'stage_attempt':
     // Сундук и быстрые награды — на странице «Кампания».
     case 'offline_claim':

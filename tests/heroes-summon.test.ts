@@ -18,6 +18,7 @@ import {
   type SaveState,
 } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const ctx = loadFullContext();
 const cfg = ctx.summon;
@@ -260,7 +261,9 @@ describe('Таверна: подарок открытия', () => {
     expect(out.events).toContainEqual({ type: 'tavernUnlocked', gems: cfg.welcome.gems, scrolls: cfg.welcome.scrolls });
     expect(out.save.currency).toEqual({ gems: cfg.welcome.gems, scrolls: cfg.welcome.scrolls });
     expect(out.save.summon.welcomeGiven).toBe(true);
-    const again = playStage(out.save, cfg.unlockAfterStage, 1, ctx);
+    // Выпущенные данные повторы запрещают (stage_cleared); правило «повтор ничего не даёт» — при явном replay: true.
+    expect(() => playStage(out.save, cfg.unlockAfterStage, 1, ctx)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    const again = playStage(out.save, cfg.unlockAfterStage, 1, withReplay(ctx));
     expect(again.events.some((e) => e.type === 'tavernUnlocked')).toBe(false);
     expect(grantTavernWelcome(out.save, ctx).save).toBe(out.save);
     // До открытия подарка нет.
