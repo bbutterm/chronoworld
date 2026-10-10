@@ -33,7 +33,7 @@
       {
         "tasks": [
           { "id": "nb1_stages", "name": "Пройдите 3 этапа кампании", "counter": "stages_cleared", "target": 3, "points": 10 },
-          { "id": "nb1_summons", "name": "Призовите 10 героев в Таверне", "counter": "summons", "target": 10, "points": 10 },
+          { "id": "nb1_summons", "name": "Сделайте 10 призывов в Таверне", "counter": "summons", "target": 10, "points": 10 },
           { "id": "nb1_level", "name": "Поднимите героя до 10-го уровня", "counter": "hero_max_level", "target": 10, "points": 10 }
         ]
       },
@@ -55,7 +55,7 @@
         "tasks": [
           { "id": "nb4_stages", "name": "Пройдите 20 этапов кампании", "counter": "stages_cleared", "target": 20, "points": 10 },
           { "id": "nb4_tower", "name": "Поднимитесь на 20-й этаж башни", "counter": "tower_floor", "target": 20, "points": 10 },
-          { "id": "nb4_summons", "name": "Призовите 30 героев в Таверне", "counter": "summons", "target": 30, "points": 10 }
+          { "id": "nb4_summons", "name": "Сделайте 30 призывов в Таверне", "counter": "summons", "target": 30, "points": 10 }
         ]
       },
       {

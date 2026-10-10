@@ -240,6 +240,9 @@ describe('H4 «Вознесение»', () => {
     const lines = copySources(s, 'alan', ctx);
     expect(lines.some((l) => l.includes('Таверна'))).toBe(true);
     expect(lines.some((l) => l.includes('Карты героя'))).toBe(true);
+    // Доли — как в «Шансы и гарант» Таверны: редкий фиолетовый 0,5% не округляется до 0 или 1%.
+    const tavern = lines.find((l) => l.includes('Таверна'))!;
+    for (const r of ctx.summon.rates) expect(tavern).toContain(`${String(Math.round(r.chance * 1000) / 10).replace('.', ',')}%`);
   });
 
   it('у каждой ветки есть строка возвышения для показа выбора и вознесения', () => {

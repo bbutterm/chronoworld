@@ -1,4 +1,4 @@
-import { rarityIndex, type CardRarity, type SummonPay, type SummonResult, type SummonStatus } from '../core';
+import { rarityIndex, type CardRarity, type SummonLootKind, type SummonPay, type SummonResult, type SummonStatus } from '../core';
 import { SUMMON_TENSION_MS, type SUMMON_REVEAL } from './audioCatalog';
 
 /**
@@ -135,6 +135,17 @@ export function resultTag(r: Pick<SummonResult, 'isNew'> | { kind: 'new' | 'copy
   if ('kind' in r && r.kind === 'loot') return { text: '', kind: 'loot' };
   const fresh = 'kind' in r ? r.kind === 'new' : r.isNew;
   return fresh ? { text: 'Новый', kind: 'new' } : { text: '+1 копия', kind: 'copy' };
+}
+
+/**
+ * Метка под картой-наградой в итоге: куда ушла награда (вещь — в сумку, опыт — в общий запас «Опыт в запасе» на
+ * экране «Герои», руда — на заточку). Золото и алмазы видны в шапке — без метки (null).
+ */
+export function lootTag(loot: SummonLootKind): string | null {
+  if (loot === 'gear') return 'В сумке';
+  if (loot === 'heroExp') return 'В запас';
+  if (loot === 'ore') return 'Для заточки';
+  return null;
 }
 
 /**

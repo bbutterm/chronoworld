@@ -261,9 +261,9 @@ export function ascendPreview(hero: HeroState, ctx: GameContext, choice?: string
 export function copySources(_save: SaveState, templateId: string, ctx: GameContext): string[] {
   const hc = ctx.cards.heroCards;
   const name = ctx.content.heroes[templateId]?.name ?? templateId;
-  const pct = (x: number | undefined) => `${Math.round((x ?? 0) * 1000) / 10}%`;
+  const pct = (x: number | undefined) => `${String(Math.round((x ?? 0) * 1000) / 10).replace('.', ',')}%`;
   return [
-    `Таверна — там выпадает и ${name} (любой герой: ${ctx.summon.rates.map((r) => `${rarityDef(ctx, r.rarity).name.toLowerCase()} ${Math.round(r.chance * 100)}%`).join(', ')})`,
+    `Таверна — там выпадает и ${name} (герои: ${ctx.summon.rates.map((r) => `${rarityDef(ctx, r.rarity).name.toLowerCase()} ${pct(r.chance)}`).join(', ')})`,
     `Карты героя (случайный герой): первое прохождение этапа — ${pct(hc.firstClear.blue)} синяя, босс главы — ${pct(hc.bossFirstClear.blue)}`,
     'Сундук, охота, экспедиции, достижения, Лавка, события',
   ];
