@@ -19,10 +19,11 @@ export type RecordedKind = (typeof RECORDED_KINDS)[number];
  * Виды, которые не записываются, а читаются из собственного суточного состояния системы (daily-loop-2026-10-10):
  * hunt_attempt — попыток Охоты сегодня (save.hunt.used, если save.hunt.day — сегодня; зачистка тоже попытка);
  * shop_buy — покупок в Лавке сегодня (сумма save.shop.boughtToday за сегодняшний ассортимент);
- * arena_wins — лучший итог побед Арены за сегодня (rewardWins дня награды или победы текущего матча, начатого сегодня).
+ * arena_wins — лучший итог побед Арены за сегодня (rewardWins дня награды или победы текущего матча, начатого сегодня);
+ * kitchen_cook — блюдо дня приготовлено сегодня (save.kitchen.meal.day).
  * Так задания видят Охоту, Лавку и Арену без новых полей сохранения и без правок их экранов.
  */
-export const DERIVED_KINDS = ['hunt_attempt', 'shop_buy', 'arena_wins'] as const;
+export const DERIVED_KINDS = ['hunt_attempt', 'shop_buy', 'arena_wins', 'kitchen_cook'] as const;
 export type DerivedKind = (typeof DERIVED_KINDS)[number];
 
 /** Все виды заданий дня (поле event в data/quests.json). */
@@ -136,6 +137,8 @@ export function questCounter(s: SaveState, kind: ActivityKind): number {
       const live = ab.run && ab.run.day === day ? ab.run.wins : 0;
       return Math.max(done, live);
     }
+    case 'kitchen_cook':
+      return s.kitchen?.meal?.day === day ? 1 : 0;
     default:
       return s.daily.quests[kind] ?? 0;
   }

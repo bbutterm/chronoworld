@@ -52,6 +52,7 @@ const QUEST_ICON: Record<ActivityKind, SkinIcon> = {
   hunt_attempt: 'trophy',
   shop_buy: 'bag',
   arena_wins: 'castle',
+  kitchen_cook: 'pot',
 };
 
 /** Очки активности до «Забрать» — для отсчёта числа на новом экране. */

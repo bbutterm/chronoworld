@@ -11,7 +11,8 @@
     { "id": "expedition", "name": "Забрать добычу экспедиции", "event": "expedition_claim", "target": 1, "points": 10, "unlock": "bounties" },
     { "id": "hunt", "name": "Сразиться с MVP дня на Охоте", "event": "hunt_attempt", "target": 1, "points": 10, "unlock": "hunt" },
     { "id": "arena", "name": "Одержать 2 победы в матче Арены", "event": "arena_wins", "target": 2, "points": 10, "unlock": "autobattler" },
-    { "id": "shop", "name": "Купить товар в Лавке", "event": "shop_buy", "target": 1, "points": 10, "unlock": "shop" }
+    { "id": "shop", "name": "Купить товар в Лавке", "event": "shop_buy", "target": 1, "points": 10, "unlock": "shop" },
+    { "id": "kitchen", "name": "Приготовить блюдо дня", "event": "kitchen_cook", "target": 1, "points": 10, "unlock": "kitchen" }
   ],
   "milestones": [
     { "points": 20, "rewards": { "gold": 200, "gems": 0, "jobExp": 0 } },

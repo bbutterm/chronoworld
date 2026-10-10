@@ -38,7 +38,7 @@ const late = () => game(ctx.content.stages.find((s) => s.id === 'ch2_s5')!.id);
 describe('задания дня покрывают ежедневные системы', () => {
   it('у Охоты, Арены, Лавки, экспедиций, Башни и Таверны есть задание дня', () => {
     const byUnlock = new Set(quests.map((q) => q.unlock));
-    for (const f of ['hunt', 'autobattler', 'shop', 'bounties', 'tower', 'tavern'] as const) expect(byUnlock, f).toContain(f);
+    for (const f of ['hunt', 'autobattler', 'shop', 'bounties', 'tower', 'tavern', 'kitchen'] as const) expect(byUnlock, f).toContain(f);
   });
 
   it('пороги активности не изменились: до 100 очков, гемов за день — 90', () => {
@@ -86,6 +86,13 @@ describe('производные счётчики', () => {
     const s = { ...s0, shop: { day: D1, refreshes: 0, slots: [], boughtToday: { a: 1, b: 2 } } };
     expect(questCounter(s, 'shop_buy')).toBe(3);
     expect(questStatus(s, ctx).quests.find((q) => q.id === 'shop')).toMatchObject({ done: true, progress: 1 });
+  });
+
+  it('Кухня: блюдо дня приготовлено сегодня; вчерашнее не считается', () => {
+    expect(questCounter({ ...s0, kitchen: { pantry: {}, meal: { id: 'roast_meat', day: D0 } } }, 'kitchen_cook')).toBe(0);
+    const s = { ...s0, kitchen: { pantry: {}, meal: { id: 'roast_meat', day: D1 } } };
+    expect(questCounter(s, 'kitchen_cook')).toBe(1);
+    expect(questStatus(s, ctx).quests.find((q) => q.id === 'kitchen')).toMatchObject({ done: true, progress: 1 });
   });
 
   it('Арена: лучший итог дня — награда дня или матч, начатый сегодня', () => {

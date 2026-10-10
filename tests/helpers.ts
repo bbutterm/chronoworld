@@ -119,7 +119,7 @@ export function unit(side: 'A' | 'B', slot: number, x: number, y: number, patch:
 
 /**
  * Сохранение, где выполнены задания quests на день day: функции заданий (unlock) открыты — их этапы пройдены,
- * записываемые виды — recordActivity, производные (Охота, Лавка, Арена) — их суточное состояние на day.
+ * записываемые виды — recordActivity, производные (Охота, Лавка, Арена, Кухня) — их суточное состояние на day.
  */
 export function withQuestsDone(save: SaveState, day: string, ctx: FeatureContext, quests: readonly QuestDef[] = ctx.features.quests.quests): SaveState {
   const stages = quests.flatMap((q) => (q.unlock ? [featureStage(q.unlock, ctx)] : [])).filter((x): x is string => !!x);
@@ -127,6 +127,7 @@ export function withQuestsDone(save: SaveState, day: string, ctx: FeatureContext
   for (const q of quests) {
     if (q.event === 'hunt_attempt') s = { ...s, hunt: { day, used: q.target, best: { ...(s.hunt?.best ?? {}) } } };
     else if (q.event === 'shop_buy') s = { ...s, shop: { day, refreshes: 0, slots: [], boughtToday: { test: q.target } } };
+    else if (q.event === 'kitchen_cook') s = { ...s, kitchen: { pantry: { ...(s.kitchen?.pantry ?? {}) }, meal: { id: 'test', day } } };
     else if (q.event === 'arena_wins') s = { ...s, autobattler: { seq: 0, bestWins: q.target, completed: 1, rewardDay: day, rewardWins: q.target } };
     else s = recordActivity(s, day, q.event, q.target);
   }

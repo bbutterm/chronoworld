@@ -24,8 +24,8 @@ describe('Ежедневные задания без принудительно�
     expect(result.milestones).toEqual([20, 40, 60, 80, 100]);
     expect(result.quests).not.toContain('level_ups');
     expect(result.save.heroes).toEqual(s.heroes);
-    // Без новых заданий (Охота, Арена, Лавка, экспедиции) — прежние 100 очков: старый набор по-прежнему закрывает пороги.
-    const old = withQuestsDone(fresh(), day, ctx, ctx.features.quests.quests.filter((q) => q.event !== 'hero_level_up' && !['expedition', 'hunt', 'arena', 'shop'].includes(q.id)));
+    // Без новых заданий (Охота, Арена, Лавка, экспедиции, Кухня) — прежние 100 очков: старый набор по-прежнему закрывает пороги.
+    const old = withQuestsDone(fresh(), day, ctx, ctx.features.quests.quests.filter((q) => q.event !== 'hero_level_up' && !['expedition', 'hunt', 'arena', 'shop', 'kitchen'].includes(q.id)));
     expect(claimAllQuests(old, day, ctx).points).toBe(100);
     expect(claimAllQuests(result.save, day, ctx).rewards).toEqual({ gold: 0, gems: 0, jobExp: 0 });
   });
@@ -33,7 +33,7 @@ describe('Ежедневные задания без принудительно�
   it('уже полученное задание даёт новые очки, а полученные пороги не выдаются повторно', () => {
     const s = fresh();
     // Прежний набор заданий без «Улучшить» — ровно 100 очков (новые задания daily-loop-2026-10-10 не берём).
-    s.daily.claimedQuests = ctx.features.quests.quests.filter((q) => q.id !== 'level_ups' && !['expedition', 'hunt', 'arena', 'shop'].includes(q.id)).map((q) => q.id);
+    s.daily.claimedQuests = ctx.features.quests.quests.filter((q) => q.id !== 'level_ups' && !['expedition', 'hunt', 'arena', 'shop', 'kitchen'].includes(q.id)).map((q) => q.id);
     s.daily.activityClaimed = [20, 40, 60, 80];
     expect(questStatus(s, ctx).activity).toBe(100);
     const out = claimAllQuests(s, day, ctx);
