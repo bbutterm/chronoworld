@@ -153,7 +153,7 @@ export class HeroesScene extends Phaser.Scene {
       ascendAllButton?.setY(contentBottom() - TOUCH_COMFORT / 2 - S.xs);
     });
     // Копии одного героя — одной плиткой (лучший экземпляр) с «+N»; все экземпляры — на карточке и в корме вознесения.
-    const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)));
+    const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)), save.squad);
     const heroes = groups.map((g) => g.hero);
     heroesUi.order = heroes.map((h) => h.id);
     const picks = pendingPicks(save);
