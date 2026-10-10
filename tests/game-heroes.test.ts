@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, cardStats, heroCard, heroTemplate, jobTitle, levelUpHero, levelUpInfo, newGame, resetHeroLevel, type SaveState } from '../src/core';
+import { addHeroCard, addHeroExp, ascendRequirement, autoFodder, branchOptions, cardStats, groupDigits, heroCard, heroTemplate, jobTitle, levelUpHero, levelUpInfo, newGame, resetHeroLevel, type SaveState } from '../src/core';
 import {
   ascendButtonState,
   ascendHint,
@@ -43,6 +43,16 @@ function rich(): SaveState {
   add('meilin', 'purple', 44);
   add('lira', 'red', 90);
   return { ...s, resources: { ...s.resources, gold: 1_000_000 } };
+}
+
+/**
+ * rich() + две синие копии Кая (ур. 1 и 3, подаренные): после пересмотра 10.10 слоты «та же» есть только у синий →
+ * фиолетовый (3 одинаковых синих) и золотой → красный; зелёный → синий — «любой» зелёный.
+ */
+function richKai(): SaveState {
+  let s = rich();
+  for (const level of [1, 3]) s = addHeroCard(s, 'kai', 'blue', { level, granted: true }).save;
+  return s;
 }
 
 describe('H4 «Герои»: коллекция', () => {
@@ -138,31 +148,49 @@ describe('H4 «Вознесение»', () => {
   });
 
   it('слоты корма: раскладка выбора и готовность', () => {
-    const s = rich();
+    // Пересмотр 10.10: зелёный → синий — один слот «любой» зелёный (было 2 «та же»).
+    const s = richKai();
     const target = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
     const req = ascendRequirement(s, target.id, ctx)!;
-    expect(fodderSlots(req)).toHaveLength(2);
-    expect(placeFodder(req, [])).toEqual([null, null]);
+    expect(fodderSlots(req)).toHaveLength(1);
+    expect(placeFodder(req, [])).toEqual([null]);
     const auto = autoFodder(s, target.id, ctx)!;
+    expect(auto).toHaveLength(1);
     expect(placeFodder(req, auto).every(Boolean)).toBe(true);
     expect(ascendReadyWith(s, target.id, auto, ctx)).toBe(true);
-    expect(ascendReadyWith(s, target.id, auto.slice(0, 1), ctx)).toBe(false);
-    expect(fodderSlotLabel(req.fodder[0], target, ctx)).toBe('Ирис · Зелёный');
+    expect(ascendReadyWith(s, target.id, [], ctx)).toBe(false);
+    expect(fodderSlotLabel(req.fodder[0], target, ctx)).toBe('Любой герой · Зелёный');
     expect(valuableFodder(s, auto)).toEqual([]);
+    // «Та же» — синий → фиолетовый: два слота синих копий Кая; синие в корме — ценные (предупреждение).
+    const kai = s.heroes.find((h) => h.templateId === 'kai' && h.level === 25)!;
+    const kreq = ascendRequirement(s, kai.id, ctx)!;
+    expect(fodderSlots(kreq)).toHaveLength(2);
+    expect(placeFodder(kreq, [])).toEqual([null, null]);
+    const kauto = autoFodder(s, kai.id, ctx)!;
+    expect(placeFodder(kreq, kauto).every(Boolean)).toBe(true);
+    expect(ascendReadyWith(s, kai.id, kauto, ctx)).toBe(true);
+    expect(ascendReadyWith(s, kai.id, kauto.slice(0, 1), ctx)).toBe(false);
+    expect(fodderSlotLabel(kreq.fodder[0], kai, ctx)).toBe('Кай · Синий');
+    expect(valuableFodder(s, kauto)).toHaveLength(2);
   });
 
   it('экран вознесения: подписи слотов, выбор корма с метками занятых, причина неактивной кнопки', () => {
-    let s = rich();
-    const target = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
-    const weak = s.heroes.find((h) => h.templateId === 'iris' && h.level === 1)!;
-    const mid = s.heroes.find((h) => h.templateId === 'iris' && h.level === 3)!;
+    // Пересмотр 10.10: два слота «та же» — у синий → фиолетовый (Кай и его синие копии), зелёный → синий — «любой».
+    let s = richKai();
+    const iris = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
+    const ireq = ascendRequirement(s, iris.id, ctx)!;
+    expect(fodderSlotCaption(ireq.fodder[0], iris, ctx)).toEqual({ who: 'Любой', rarity: 'зелёный' });
+    expect(ascendButtonState(s, iris.id, [], ctx).reason).toMatch(/ещё 1 карту/);
+    const target = s.heroes.find((h) => h.templateId === 'kai' && h.level === 25)!;
+    const weak = s.heroes.find((h) => h.templateId === 'kai' && h.level === 1)!;
+    const mid = s.heroes.find((h) => h.templateId === 'kai' && h.level === 3)!;
     let req = ascendRequirement(s, target.id, ctx)!;
-    expect(fodderSlotCaption(req.fodder[0], target, ctx)).toEqual({ who: 'Ирис', rarity: 'зелёный' });
+    expect(fodderSlotCaption(req.fodder[0], target, ctx)).toEqual({ who: 'Кай', rarity: 'синий' });
     expect(fodderSlotCaption({ kind: 'any', rarity: 'purple' }, target, ctx)).toEqual({ who: 'Любой', rarity: 'фиолетовый' });
-    // Пусто — «положите ещё 2»; одна выбрана — «ещё 1»; обе — готово.
+    // Пусто — «положите ещё 2»; одна выбрана — «ещё 1»; обе — готово (ветку выбирают на этом же экране).
     expect(ascendButtonState(s, target.id, [], ctx).reason).toMatch(/ещё 2 карты/);
     expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toMatch(/ещё 1 карту/);
-    expect(ascendButtonState(s, target.id, [weak.id, mid.id], ctx)).toEqual({ ready: true, reason: null });
+    expect(ascendButtonState(s, target.id, [weak.id, mid.id], ctx, { branchChosen: true })).toEqual({ ready: true, reason: null });
     // Копия в отряде: в выборе — последней, с меткой, и её не хватает на слот.
     s = { ...s, squad: [mid.id, null, null, null, null] };
     req = ascendRequirement(s, target.id, ctx)!;
@@ -171,15 +199,15 @@ describe('H4 «Вознесение»', () => {
       [weak.id, null, true],
       [mid.id, 'в отряде', false],
     ]);
-    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Ирис, зелёный');
-    // LT-07: подпись на карточке — точная причина (копии есть, не хватает золота).
+    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Кай, синий');
+    // LT-07: подпись на карточке — точная причина (копии есть, не хватает золота). Синий → фиолетовый — 30 000 золота.
     const noGold = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
-    expect(ascendHint(noGold, target.id, ctx)).toEqual({ ready: false, text: 'нужно 500 золота' });
+    expect(ascendHint(noGold, target.id, ctx)).toEqual({ ready: false, text: `нужно ${groupDigits(30_000)} золота` });
     expect(ascendHint(s, target.id, ctx)?.text).toBe('нужны копии');
     expect(ascendHint({ ...noGold, resources: { ...s.resources } }, target.id, ctx)).toEqual({ ready: true, text: 'копии готовы!' });
     // Золото — после корма.
     const poor = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
-    expect(ascendButtonState(poor, target.id, [weak.id, mid.id], ctx).reason).toBe('Не хватает золота: 400');
+    expect(ascendButtonState(poor, target.id, [weak.id, mid.id], ctx).reason).toBe(`Не хватает золота: ${groupDigits(29_900)}`);
   });
 
   it('вознесение на фиолетовый: без выбранной ветки кнопка ждёт ветку; мощь «было → станет» растёт', () => {
@@ -246,21 +274,25 @@ describe('Герои v2 (V2): копии одной плиткой, счётчи
   });
 
   it('copyCounter: сколько копий героя и сколько подходящих в корм следующего вознесения', () => {
-    const s = rich();
-    const best = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
+    // Пересмотр 10.10: счёт «к вознесению» — по слотам «та же» (синий → фиолетовый); у зелёного слот «любой» — только копии.
+    const s = richKai();
+    const best = s.heroes.find((h) => h.templateId === 'kai' && h.level === 25)!;
     const c = copyCounter(s, best.id, ctx);
     expect(c.others).toBe(2);
     expect(c.need).toBe(2);
     expect(c.have).toBe(2);
     expect(c.text).toBe('Копий: 2 · к вознесению 2/2');
+    const iris = s.heroes.find((h) => h.templateId === 'iris' && h.level === 12)!;
+    expect(copyCounter(s, iris.id, ctx)).toEqual({ others: 2, text: 'Копий: 2' });
     const lira = s.heroes.find((h) => h.templateId === 'lira')!;
     expect(copyCounter(s, lira.id, ctx).text).toBe('Копий: 0');
   });
 
   it('обученная копия остаётся в счётчике коллекции, но доступна для вознесения только после возврата ресурсов', () => {
-    let s = rich();
-    const target = s.heroes.find(h => h.templateId === 'iris' && h.level === 12)!;
-    const copy = s.heroes.find(h => h.templateId === 'iris' && h.level === 1)!;
+    // Пересмотр 10.10: слоты «та же» — у синий → фиолетовый, поэтому проверяем на синих копиях Кая.
+    let s = richKai();
+    const target = s.heroes.find(h => h.templateId === 'kai' && h.level === 25)!;
+    const copy = s.heroes.find(h => h.templateId === 'kai' && h.level === 1)!;
     s = addHeroExp(s, 10_000);
     s = levelUpHero(s, copy.id, ctx).save;
     expect(copyCounter(s, target.id, ctx)).toMatchObject({ others: 2, need: 2, have: 1 });

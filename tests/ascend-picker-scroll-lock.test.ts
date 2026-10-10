@@ -78,7 +78,8 @@ function setup(initiallyLocked = false, modal: 'picker' | 'sources' | 'confirm' 
   if (modal === 'sources') s['sources'](hero);
   else if (modal === 'confirm') {
     s['chosen'] = autoFodder(save, hero.id, GAME)!;
-    expect(s['chosen']).toHaveLength(2);
+    // Пересмотр 10.10: зелёный → синий — одна любая зелёная копия (было две такие же).
+    expect(s['chosen']).toHaveLength(1);
     s['confirmAscend'](hero, req);
   } else s['pick'](hero, req, 0);
   const wheel = () => s.input.emit('wheel', { x: 540, y: 800 }, [], 0, -180);

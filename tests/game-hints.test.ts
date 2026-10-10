@@ -184,10 +184,15 @@ describe('R: авто-прохождение кампании', () => {
   it('значок «Герои»: сколько героев можно вознести (копий и золота хватает)', () => {
     const full = loadFullContext();
     expect(heroesBadgeCount(save, full)).toBe(0);
-    // Две зелёные копии Алана — Алан готов к вознесению (герои v2: копиями, осколков нет).
-    const copies = [{ id: 'h90', templateId: 'alan', rarity: 'green' as const, level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'green' as const, level: 1 }];
+    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный. Одна свободная зелёная копия Алана — к вознесению
+    // готов каждый зелёный герой отряда (Алан, Бран, Вика); сама копия — нет (герои отряда в корм не идут).
+    const copies = [{ id: 'h90', templateId: 'alan', rarity: 'green' as const, level: 1 }];
     const ready = { ...save, heroes: [...save.heroes, ...copies], resources: { ...save.resources, gold: 5000 } };
-    expect(heroesBadgeCount(ready, full)).toBe(1);
+    expect(heroesBadgeCount(ready, full)).toBe(3);
+    // Синий → фиолетовый — 3 одинаковых синих и 30 000 золота: две синие копии Алана — готов только Алан.
+    const blues = [{ id: 'h90', templateId: 'alan', rarity: 'blue' as const, level: 1 }, { id: 'h91', templateId: 'alan', rarity: 'blue' as const, level: 1 }];
+    const blueSquad = { ...save, heroes: [...save.heroes.map((h) => ({ ...h, rarity: 'blue' as const })), ...blues], resources: { ...save.resources, gold: 30_000 } };
+    expect(heroesBadgeCount(blueSquad, full)).toBe(1);
   });
 });
 

@@ -42,7 +42,7 @@ function codeOf(fn: () => unknown): string | undefined {
 }
 
 describe('Таверна: правила', () => {
-  it('пул — все 12 героев (сюжетные тоже, Грета и Дорн — с открытия); герои 30 / 5 / 0,5, остальное — награды; гаранты синей (10) и фиолетовой (50)', () => {
+  it('пул — все 12 героев (сюжетные тоже, Грета и Дорн — с открытия); герои 30 / 12 / 0,5, остальное — награды; гаранты синей (10) и фиолетовой (50)', () => {
     const all = Object.keys(ctx.content.heroes).sort();
     expect(all).toHaveLength(12);
     for (const r of ['green', 'blue', 'purple'] as CardRarity[]) expect(summonPool(ctx, r)).toEqual(all);
@@ -50,13 +50,13 @@ describe('Таверна: правила', () => {
     expect(summonPool(ctx, 'purple')).toContain('dorn');
     expect(cfg.rates.map((r) => [r.rarity, r.chance])).toEqual([
       ['green', 0.3],
-      ['blue', 0.05],
+      ['blue', 0.12], // пересмотр 10.10: было 5%
       ['purple', 0.005],
     ]);
     expect(cfg.loot.map((l) => [l.kind, l.chance])).toEqual([
       ['gear', 0.2],
-      ['heroExp', 0.2],
-      ['gold', 0.19],
+      ['heroExp', 0.165], // пересмотр 10.10: было 20 / 19%
+      ['gold', 0.155],
       ['gems', 0.05],
       ['ore', 0.005],
     ]);
