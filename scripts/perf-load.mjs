@@ -48,7 +48,10 @@ function collect() {
     .map((r) => ({ name: r.name.replace(location.origin, ''), start: Math.round(r.startTime), end: Math.round(r.responseEnd), size: r.transferSize, body: r.decodedBodySize }));
   kinds.other[0]++;
   kinds.other[1] += nav?.transferSize ?? 0;
-  return { files, fcp, boot: mark('cw:boot-frame'), bootScript: mark('cw:script'), home, kinds, cached };
+  // Все метки cw:* (main.ts, BootScene) — по ним видно, на что уходит время между этапами.
+  const marks = {};
+  for (const m of performance.getEntriesByType('mark')) if (m.name.startsWith('cw:') && !(m.name in marks)) marks[m.name] = Math.round(m.startTime);
+  return { files, fcp, boot: mark('cw:boot-frame'), bootScript: mark('cw:script'), home, kinds, cached, marks };
 }
 
 async function measure(browser, { warm }) {
@@ -94,6 +97,8 @@ function report(name, runs) {
   log(`  FCP (заставка index.html)  ${sec(m((r) => r.fcp))}`);
   log(`  первый кадр BootScene      ${sec(m((r) => r.boot))}`);
   log(`  главная готова             ${sec(m((r) => r.home))}`);
+  const names = [...new Set(runs.flatMap((r) => Object.keys(r.marks ?? {})))].sort((a, b) => (runs[0].marks[a] ?? 0) - (runs[0].marks[b] ?? 0));
+  log(`  метки: ${names.map((n) => `${n.slice(3)} ${sec(m((r) => r.marks?.[n] ?? null))}`).join(', ')}`);
   log(`  до главной: JS ${k.js[0]} файл(ов) ${kb(k.js[1])}, картинки ${k.img[0]} ${kb(k.img[1])}, прочее ${k.other[0]} ${kb(k.other[1])}; из кэша ${runs[0].cached}`);
   return { fcp: m((r) => r.fcp), boot: m((r) => r.boot), home: m((r) => r.home), kinds: k, cached: runs[0].cached };
 }

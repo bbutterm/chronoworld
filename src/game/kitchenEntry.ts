@@ -8,6 +8,7 @@ import { skinIcon } from './skin';
 import { COLOR, hexNum, RARITY } from './theme';
 import { tag } from './ui';
 import { isUnlocked } from './unlockBanner';
+import { roIcon, roIconScale } from './itemIcons';
 
 /**
  * Кухня в Таверне (docs/design/kitchen.md, ядро src/core/kitchen): вход со страницы «Город» (kitchenTile — под
@@ -29,8 +30,13 @@ export const FOOD_TINT: Record<KitchenIcon, string> = {
   pot: COLOR.title,
 };
 
-/** Иконка продукта/блюда (контур скина в цвете продукта) с центром (x, y). */
+/**
+ * Иконка продукта/блюда с центром (x, y): родная иконка RO (assets/ui/icons/item_food_<icon>.png — яблоко 512, морковь 515,
+ * мясо 517, мёд 518, молоко 519; целый масштаб, без tint), нет такой — контур скина в цвете продукта (котелок).
+ */
 export function foodIcon(scene: Phaser.Scene, x: number, y: number, icon: KitchenIcon, size: number): Phaser.GameObjects.Image {
+  const ro = roIcon(scene, `food_${icon}`);
+  if (ro) return scene.add.image(x, y, ro).setScale(roIconScale(size));
   return scene.add.image(x, y, skinIcon(icon)).setDisplaySize(size, size).setTint(hexNum(FOOD_TINT[icon]));
 }
 

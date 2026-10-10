@@ -2589,6 +2589,31 @@
   "png": 1032,
   "webp": 256
  },
+ "ui/icons/item_food_apple.png": {
+  "sha1": "f895eb637f71024f0288d3849188bc72972a4640",
+  "png": 315,
+  "webp": 186
+ },
+ "ui/icons/item_food_carrot.png": {
+  "sha1": "19437cb0121909c992cb9ced6dbe783fcde59c33",
+  "png": 396,
+  "webp": 244
+ },
+ "ui/icons/item_food_honey.png": {
+  "sha1": "35b797cfab5f2cdaa17a25fc0886ad649a76d5ef",
+  "png": 451,
+  "webp": 274
+ },
+ "ui/icons/item_food_meat.png": {
+  "sha1": "471186e90cdf95b880683505487c827b6e868080",
+  "png": 333,
+  "webp": 202
+ },
+ "ui/icons/item_food_milk.png": {
+  "sha1": "c7e15a188f8658f442b56da62e3676395b494203",
+  "png": 389,
+  "webp": 208
+ },
  "ui/icons/item_full_plate.png": {
   "sha1": "70e3e57f090b0086267293c280ce0935081a4bcf",
   "png": 1095,
