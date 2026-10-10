@@ -19,7 +19,6 @@ import {
   actSummon,
   actUnequip,
   actUseFastRewards,
-  addHeroCard,
   addItems,
   applyPreset,
   autoFodder,
@@ -81,9 +80,6 @@ function start(rng: Rng): World {
       resources: { gold: rng.int(100_000), heroExp: rng.int(200_000) },
     };
     save = addItems(save, Array.from({ length: rng.int(12) }, () => pick(rng, ITEM_IDS))).save;
-    // Копии стартовых героев: с 10.10 Таверна чаще даёт награды, чем героев (35,5% героев), и без копий на старте
-    // фазз за 100 шагов почти не доходит до вознесения.
-    for (const h of save.heroes.slice(0, 3)) save = addHeroCard(save, h.templateId, h.rarity).save;
     save = syncAchievementCounters(save);
   }
   return { save, now: T0 + dayIdx * DAY_MS, dayIdx };
