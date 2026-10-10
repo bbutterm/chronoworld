@@ -163,8 +163,8 @@
    }
   },
   "iris": {
-   "voice": "",
-   "label": "Chronoworld iris — свой голос (Voice Design, создать перед озвучкой)",
+   "voice": "mIF8TV4f3iegfB3iNxGe",
+   "label": "Chronoworld iris — свой голос (Voice Design)",
    "settings": {
     "stability": 0.3,
     "similarity_boost": 0.8,
@@ -177,8 +177,8 @@
    }
   },
   "teo": {
-   "voice": "",
-   "label": "Chronoworld teo — свой голос (Voice Design, создать перед озвучкой)",
+   "voice": "1i3gaNrClaOuWryuGIVX",
+   "label": "Chronoworld teo — свой голос (Voice Design)",
    "settings": {
     "stability": 0.3,
     "similarity_boost": 0.8,
@@ -191,8 +191,8 @@
    }
   },
   "otto": {
-   "voice": "",
-   "label": "Chronoworld otto — свой голос (Voice Design, создать перед озвучкой)",
+   "voice": "QAmoBxp2cNePqqq18p9u",
+   "label": "Chronoworld otto — свой голос (Voice Design)",
    "settings": {
     "stability": 0.3,
     "similarity_boost": 0.8,
