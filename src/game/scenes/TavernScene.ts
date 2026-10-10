@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSummon, addHeroCard, grantTavernWelcome, heroCard, rarityDef, summonPool, summonStatus, type CardRarity, type HeroState, type SummonResult, type SummonStatus } from '../../core';
+import { actSummon, addHeroCard, grantTavernWelcome, heroCard, rarityDef, summonPool, summonStatus, type CardRarity, type HeroState, type SummonDraw, type SummonStatus } from '../../core';
 import { SUMMON_REVEAL } from '../audioCatalog';
 import { sfx, summonSound } from '../audio';
 import { haptic } from '../haptics';
@@ -39,6 +39,7 @@ import { button, chip, plate, pressable, progressBar, rewardRow, ScrollArea, SUR
 import { hintDone, markHint } from '../hints';
 import { onViewChange, view } from '../viewport';
 import { tavernLayout, tavernRevealLayout } from '../compactTavernLayout';
+import { summonLootFace } from '../summonLootCard';
 
 /**
  * Лицо карты призыва — общая плитка карточки героя (heroCard.ts, тот же вид, что в «Героях»): рамка редкости,
@@ -52,7 +53,7 @@ function summonFace(scene: Phaser.Scene, x: number, y: number, w: number, h: num
 
 export interface TavernData {
   /** Показать призыв: результаты уже в сохранении (actSummon), экран только проигрывает показ. */
-  reveal?: { results: SummonResult[]; count: number; resume?: boolean; offset?: number };
+  reveal?: { results: SummonDraw[]; count: number; resume?: boolean; offset?: number };
   /** Только что забран подарок Гаррета: «таблетка» свитков подпрыгивает. */
   gift?: boolean;
 }
@@ -105,7 +106,7 @@ interface CardView {
 
 /** Состояние показа (читает и e2e: фаза, результаты, карты). */
 interface RevealState {
-  results: SummonResult[];
+  results: SummonDraw[];
   count: number;
   /** deal — карты летят на стол; pick — открываются (сами по очереди или касанием); showcase — момент редкой; done — итог. */
   phase: Phase;
@@ -418,11 +419,19 @@ export class TavernScene extends Phaser.Scene {
         content.add(text(this, width, y + 24, `${String(Math.round(r.chance * 1000) / 10).replace('.', ',')}%`, T.body, def.color, { fontStyle: 'bold' }).setOrigin(1, 0.5));
         y += 72;
       }
+      // Награды вместо героя (вещь главы, опыт, золото, алмазы, руда) — одной строкой на вид.
+      const LOOT_ROW: Record<string, string> = { gear: 'Вещь главы', heroExp: 'Опыт героев', gold: 'Золото', gems: 'Алмазы', ore: 'Благословенная руда' };
+      for (const l of GAME.summon.loot) {
+        content.add(text(this, 48, y + 24, LOOT_ROW[l.kind] ?? l.kind, T.body, COLOR.textSecondary).setOrigin(0, 0.5));
+        content.add(text(this, width, y + 24, `${String(Math.round(l.chance * 1000) / 10).replace('.', ',')}%`, T.body, COLOR.textSecondary, { fontStyle: 'bold' }).setOrigin(1, 0.5));
+        y += 64;
+      }
       y += S.s;
       const s = GAME.summon;
       const rules = [
         ...s.pity.map((p) => `${p.every - 1} призывов подряд без ${RARITY_FEM[p.rarity]} — следующая карта ${RARITY_CARD[p.rarity]}.`),
-        `Первый ×10 (один раз) — ${firstTenText(s.firstTen.count, s.firstTen.rarity, true)}.`,
+        `Первый ×10 (один раз) — ${firstTenText(s.firstTen.count, s.firstTen.rarity, true)}${s.firstTen.heroes ? `, героев не меньше ${s.firstTen.heroes}` : ''}.`,
+        'Не герой — награда сразу в запасе: вещь в сумке, опыт в пуле героев.',
         `Бесплатно: ${s.freePerDay} призыв в день. Свиток — 1 призыв.`,
         'Фиолетовая приходит без ветки — её выбирают на карточке героя.',
         'Копии — для вознесения в «Героях».',
@@ -489,8 +498,9 @@ export class TavernScene extends Phaser.Scene {
     layer.add(skip.container);
     state.ui.push(skip.container);
 
-    const heroes = results.map((r) => session.save.heroes.find((h) => h.id === r.heroId)).filter((h): h is HeroState => !!h);
-    if (heroes.length !== results.length) {
+    // Награды (не герои) — без героя; у героя — его экземпляр из сохранения.
+    const heroes = results.map((r) => (r.kind === 'hero' ? (session.save.heroes.find((h) => h.id === r.heroId) ?? null) : null));
+    if (results.some((r, i) => r.kind === 'hero' && !heroes[i])) {
       // Сохранение успело поменяться (другая вкладка) — показывать нечего, сразу итог по данным призыва.
       this.finish(state);
       return;
@@ -504,7 +514,7 @@ export class TavernScene extends Phaser.Scene {
       state.footerBottom = view().safeBottom;
     });
     // Листы героев грузим до раздачи — фигуры встанут в карты без «Загрузка…» посреди показа.
-    whenSprites(this, [...new Set(heroes.map((h) => heroSprite(h, GAME)))], () => {
+    whenSprites(this, [...new Set(heroes.filter((h): h is HeroState => !!h).map((h) => heroSprite(h, GAME)))], () => {
       if (this.reveal !== state) return;
       state.cards = results.map((_, i) => this.makeCard(state, i, slots[i], heroes[i], count === 1));
       if (resume) {
@@ -543,12 +553,13 @@ export class TavernScene extends Phaser.Scene {
     });
   }
 
-  private makeCard(state: RevealState, i: number, slot: CardSlot, hero: HeroState, big: boolean): CardView {
+  private makeCard(state: RevealState, i: number, slot: CardSlot, hero: HeroState | null, big: boolean): CardView {
     const r = state.results[i];
-    const col = hexNum(rarityDef(GAME, r.rarity).color);
+    const col = hexNum(rarityDef(GAME, r.kind === 'loot' ? r.look : r.rarity).color);
     const root = this.add.container(slot.x, slot.y);
     const glow = this.add.image(0, 0, GLOW).setTint(col).setBlendMode(Phaser.BlendModes.ADD).setDisplaySize(slot.w * 2, slot.h * 1.7).setAlpha(0);
-    const face = summonFace(this, 0, 0, slot.w, slot.h, hero, big).setVisible(false);
+    // Награда (вещь, опыт, золото, алмазы, руда) — своя карта в той же рамке.
+    const face = (r.kind === 'loot' ? summonLootFace(this, 0, 0, slot.w, slot.h, r) : summonFace(this, 0, 0, slot.w, slot.h, hero!, big)).setVisible(false);
     // Рубашка — ровно по размеру лица: переворот не «прыгает».
     const back = this.add.image(0, 0, CARD_BACK).setDisplaySize(face.getData('w') as number, face.getData('h') as number);
     root.add([glow, back, face]);
@@ -557,7 +568,7 @@ export class TavernScene extends Phaser.Scene {
     state.body.add(root);
     pressable(this, root, slot.w, slot.h, state.body.tap(() => {
       if (state.phase === 'pick') void this.flip(state, cv, 'tap');
-      else if (state.phase === 'done') this.inspectResult(state, r.heroId);
+      else if (state.phase === 'done' && r.kind === 'hero') this.inspectResult(state, r.heroId);
     }));
     return cv;
   }
@@ -767,8 +778,9 @@ export class TavernScene extends Phaser.Scene {
    */
   private showcase(state: RevealState, cv: CardView): Promise<void> {
     const r = state.results[cv.i];
-    const hero = session.save.heroes.find((h) => h.id === r.heroId);
     state.momentShown = true;
+    if (r.kind !== 'hero') return Promise.resolve();
+    const hero = session.save.heroes.find((h) => h.id === r.heroId);
     if (!hero) return Promise.resolve();
     state.phase = 'showcase';
     for (const o of state.ui) (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(false);
@@ -889,6 +901,7 @@ export class TavernScene extends Phaser.Scene {
     const L2 = state.layer;
     state.cards.forEach((cv, k) => {
       const t = resultTag(state.tags[cv.i]);
+      if (t.kind === 'loot') return;
       const fh = cv.face.getData('h') as number;
       const y = cv.slot.y + fh / 2 + (state.count === 1 ? S.l : 34);
       const mark = tag(this, cv.slot.x, y, t.text, t.kind === 'new' ? 'gold' : 'neutral', { solid: t.kind === 'new' }).setName(`summonTag_${cv.i}`);
