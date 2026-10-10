@@ -7,12 +7,6 @@ import { HeroError } from './errors';
 import { addHeroCard } from './roster';
 import { rarityIndex, type CardRarity } from './schema';
 import { groupDigits } from '../format';
-import { idleIncome, lastClearedStage } from '../campaign/offline';
-import { itemPools } from '../equipment/chest';
-import { addItems } from '../equipment/equipment';
-import { progressChapter } from '../equipment/gates';
-import type { EquipmentConfig } from '../equipment/load';
-import { addHeroExp } from './level';
 
 /**
  * Таверна (призыв героев, docs/design/heroes-v2.md, раздел 4; числа — data/summon.json). Детерминирована:
@@ -23,7 +17,6 @@ import { addHeroExp } from './level';
 export type SummonPay = 'gems' | 'scroll' | 'free';
 
 export interface SummonResult {
-  kind: 'hero';
   /** id нового экземпляра в save.heroes. */
   heroId: string;
   templateId: string;
@@ -34,33 +27,6 @@ export interface SummonResult {
   /** Выдана гарантом (pity) или первым ×10. */
   guaranteed: boolean;
 }
-
-/** Вид награды-не-героя (data/summon.json → loot). */
-export type SummonLootKind = 'gear' | 'heroExp' | 'gold' | 'gems' | 'ore';
-
-/**
- * Вытягивание-награда (не герой): вещь главы, опыт героев, золото, алмазы, Благословенная руда — уже в сохранении.
- * rarity у награды всегда 'green' (без нарастания и момента в показе), рамка — look.
- */
-export interface SummonLoot {
-  kind: 'loot';
-  loot: SummonLootKind;
-  /** Сколько (золото, опыт, алмазы; вещь и руда — 1). */
-  amount: number;
-  /** Вещь: id предмета и выданного экземпляра. */
-  itemId?: string;
-  instanceId?: string;
-  /** Подпись на карте: «Золото», «Опыт героев», имя вещи. */
-  name: string;
-  /** Цвет рамки карты: вещь — по редкости, руда — фиолетовая, алмазы — синяя, остальное — зелёная. */
-  look: CardRarity;
-  rarity: 'green';
-  isNew: false;
-  guaranteed: false;
-}
-
-/** Одно вытягивание в Таверне: герой или награда. */
-export type SummonDraw = SummonResult | SummonLoot;
 
 /** Таверна открыта: пройден summon.unlockAfterStage. */
 export function summonUnlocked(save: Pick<SaveState, 'campaign'>, ctx: GameContext): boolean {
@@ -162,75 +128,13 @@ export function grantTavernWelcome(save: SaveState, ctx: GameContext): { save: S
   };
 }
 
-type SummonCtx = GameContext & { equipment?: EquipmentConfig };
-type LootDef = SummonCtx['summon']['loot'][number];
-
-/** Что выпало: редкость героя или вид награды (шансы rates + loot, сумма 1). */
-function rollDraw(rng: Rng, ctx: GameContext): { hero: CardRarity } | { loot: LootDef } {
+function rollRarity(rng: Rng, ctx: GameContext): CardRarity {
   let x = rng.next();
   for (const r of ctx.summon.rates) {
-    if (x < r.chance) return { hero: r.rarity };
+    if (x < r.chance) return r.rarity;
     x -= r.chance;
   }
-  for (const l of ctx.summon.loot) {
-    if (x < l.chance) return { loot: l };
-    x -= l.chance;
-  }
-  const last = ctx.summon.loot.at(-1);
-  return last ? { loot: last } : { hero: ctx.summon.rates[ctx.summon.rates.length - 1].rarity };
-}
-
-/** Герой из пула: незнакомые (нет в discovered) — с весом newWeight, знакомые — 1; без веса — равновероятно. */
-function pickTemplate(pool: readonly string[], discovered: readonly string[], newWeight: number | undefined, rng: Rng): string {
-  if (newWeight === undefined || newWeight >= 1) return pool[rng.int(pool.length)];
-  const known = new Set(discovered);
-  const w = pool.map((t) => (known.has(t) ? 1 : newWeight));
-  let x = rng.next() * w.reduce((a, b) => a + b, 0);
-  for (let i = 0; i < pool.length; i++) {
-    if (x < w[i]) return pool[i];
-    x -= w[i];
-  }
-  return pool[pool.length - 1];
-}
-
-const ITEM_LOOK: Record<string, CardRarity> = { common: 'green', rare: 'blue', epic: 'purple' };
-const LOOT_NAMES: Record<Exclude<SummonLootKind, 'gear'>, string> = { heroExp: 'Опыт героев', gold: 'Золото', gems: 'Алмазы', ore: 'Благословенная руда' };
-
-/** Выдать награду в сохранение. Вещи в главе нет (или нет конфига снаряжения) — вместо неё золото. */
-function grantLoot(save: SaveState, def: LootDef, rng: Rng, ctx: SummonCtx): { save: SaveState; loot: SummonLoot } {
-  const base = { rarity: 'green' as const, isNew: false as const, guaranteed: false as const };
-  const income = (minutes: number) => {
-    const stage = lastClearedStage(save, ctx);
-    return stage ? idleIncome(stage, minutes, ctx) : { gold: 0, jobExp: 0 };
-  };
-  if (def.kind === 'gear') {
-    const pools = ctx.equipment ? itemPools(ctx.equipment.items, progressChapter(save, ctx)) : null;
-    const want = rng.next() < def.blueChance ? 'rare' : 'common';
-    const pool = pools ? (pools[want].length ? pools[want] : pools.common.length ? pools.common : pools.rare) : [];
-    if (pool.length && ctx.equipment) {
-      const itemId = pool[rng.int(pool.length)];
-      const r = addItems(save, [itemId]);
-      const item = ctx.equipment.items[itemId];
-      return { save: r.save, loot: { kind: 'loot', loot: 'gear', amount: 1, itemId, instanceId: r.added[0].id, name: item.name, look: ITEM_LOOK[item.rarity] ?? 'green', ...base } };
-    }
-    return grantLoot(save, { kind: 'gold', chance: def.chance, minutes: 60 }, rng, ctx);
-  }
-  if (def.kind === 'gold') {
-    const amount = Math.max(1, Math.floor(income(def.minutes).gold));
-    return { save: { ...save, resources: { ...save.resources, gold: save.resources.gold + amount } }, loot: { kind: 'loot', loot: 'gold', amount, name: LOOT_NAMES.gold, look: 'green', ...base } };
-  }
-  if (def.kind === 'heroExp') {
-    const amount = Math.max(1, Math.floor(income(def.minutes).jobExp));
-    return { save: addHeroExp(save, amount), loot: { kind: 'loot', loot: 'heroExp', amount, name: LOOT_NAMES.heroExp, look: 'green', ...base } };
-  }
-  if (def.kind === 'gems') {
-    const amount = def.min + rng.int(def.max - def.min + 1);
-    return { save: { ...save, currency: { ...save.currency, gems: save.currency.gems + amount } }, loot: { kind: 'loot', loot: 'gems', amount, name: LOOT_NAMES.gems, look: 'blue', ...base } };
-  }
-  return {
-    save: { ...save, currency: { ...save.currency, blessedOre: (save.currency.blessedOre ?? 0) + 1 } },
-    loot: { kind: 'loot', loot: 'ore', amount: 1, name: LOOT_NAMES.ore, look: 'purple', ...base },
-  };
+  return ctx.summon.rates[ctx.summon.rates.length - 1].rarity;
 }
 
 /**
@@ -242,9 +146,9 @@ function grantLoot(save: SaveState, def: LootDef, rng: Rng, ctx: SummonCtx): { s
  */
 export function summon(
   save: SaveState,
-  ctx: SummonCtx,
+  ctx: GameContext,
   opts: { count: number; pay: SummonPay; day: string },
-): { save: SaveState; results: SummonDraw[]; events: ProgressEvent[] } {
+): { save: SaveState; results: SummonResult[]; events: ProgressEvent[] } {
   const cfg = ctx.summon;
   const { count, pay, day } = opts;
   if (!summonUnlocked(save, ctx)) {
@@ -270,57 +174,43 @@ export function summon(
   }
 
   const rng = new Rng(summonSeed(save.createdAt, save.summon.seq));
-  // Награды (какая вещь, сколько алмазов) — отдельный поток: выпадение героев не зависит от того, что за награды.
-  const lootRng = new Rng(summonSeed(save.createdAt, save.summon.seq) ^ 0x5bd1e995);
   next.summon.seq = save.summon.seq + 1;
   const firstTen = count === 10 && !save.summon.firstTenDone;
-  const results: SummonDraw[] = [];
+  const results: SummonResult[] = [];
   const events: ProgressEvent[] = [];
   const pities = [...cfg.pity].sort((x, y) => rarityIndex(y.rarity) - rarityIndex(x.rarity));
   for (let i = 0; i < count; i++) {
-    const draw = rollDraw(rng, ctx);
-    let rarity: CardRarity | null = 'hero' in draw ? draw.hero : null;
+    let rarity = rollRarity(rng, ctx);
     let guaranteed = false;
-    // Гаранты (героем): старший (фиолетовый) первым; награда тоже уступает гаранту.
+    // Гаранты: старший (фиолетовый) первым.
     for (const p of pities) {
-      if (pityCounter(next.summon, p.rarity) + 1 >= p.every && (rarity === null || rarityIndex(rarity) < rarityIndex(p.rarity))) {
+      if (pityCounter(next.summon, p.rarity) + 1 >= p.every && rarityIndex(rarity) < rarityIndex(p.rarity)) {
         rarity = p.rarity;
         guaranteed = true;
         break;
       }
     }
     if (firstTen) {
-      const heroes = results.filter((r): r is SummonResult => r.kind === 'hero');
-      const left = count - i;
-      const needRare = cfg.firstTen.count - heroes.filter((r) => rarityIndex(r.rarity) >= rarityIndex(cfg.firstTen.rarity)).length;
-      const needHeroes = (cfg.firstTen.heroes ?? 0) - heroes.length;
-      if (needRare >= left && (rarity === null || rarityIndex(rarity) < rarityIndex(cfg.firstTen.rarity))) {
+      const have = results.filter((r) => rarityIndex(r.rarity) >= rarityIndex(cfg.firstTen.rarity)).length;
+      if (cfg.firstTen.count - have >= count - i && rarityIndex(rarity) < rarityIndex(cfg.firstTen.rarity)) {
         rarity = cfg.firstTen.rarity;
-        guaranteed = true;
-      } else if (Math.max(needRare, needHeroes) >= left && rarity === null) {
-        rarity = cfg.rates[0].rarity;
         guaranteed = true;
       }
     }
-    const ri = rarity === null ? -1 : rarityIndex(rarity);
-    if (rarity === null && 'loot' in draw) {
-      const got = grantLoot(next, draw.loot, lootRng, ctx);
-      next = got.save;
-      results.push(got.loot);
-    } else if (rarity !== null) {
-      const pool = summonPool(ctx, rarity);
-      const templateId = pickTemplate(pool, next.summon.discovered, cfg.newHeroWeight, rng);
-      const isNew = !next.summon.discovered.includes(templateId);
-      const added = addHeroCard(next, templateId, rarity, { isNew: true });
-      next = added.save;
-      results.push({ kind: 'hero', heroId: added.hero.id, templateId, name: heroName(added.hero, ctx), rarity, isNew, guaranteed });
-    }
+    const pool = summonPool(ctx, rarity);
+    const templateId = pool[rng.int(pool.length)];
+    const isNew = !next.summon.discovered.includes(templateId);
+    const added = addHeroCard(next, templateId, rarity, { isNew: true });
+    next = added.save;
+    const ri = rarityIndex(rarity);
     next.summon = {
       ...next.summon,
       total: next.summon.total + 1,
       sincePurple: ri >= rarityIndex('purple') ? 0 : next.summon.sincePurple + 1,
       sinceBlue: ri >= rarityIndex('blue') ? 0 : (next.summon.sinceBlue ?? 0) + 1,
     };
+    const result: SummonResult = { heroId: added.hero.id, templateId, name: heroName(added.hero, ctx), rarity, isNew, guaranteed };
+    results.push(result);
   }
   if (count === 10) next.summon = { ...next.summon, firstTenDone: true };
   // Порядок ключей как в схеме — serialize(deserialize(x)) === x.

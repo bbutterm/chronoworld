@@ -98,8 +98,6 @@ describe('one-slot squad choice after the first summon', () => {
         if (option.id === 'fighters') for (const id of option.squad) expect(canHealAllies(save.heroes.find((h) => h.id === id)!, ctx)).toBe(false);
       }
     }
-    // С 10.10 первый ×10 даёт не меньше 2 героев (остальное — награды), а не 10: выбор пятого слота есть реже —
-    // при 6+ героях. Проверка корректности вариантов выше прежняя; здесь — что выбор вообще встречается заметно часто.
-    expect(available).toBeGreaterThan(30);
+    expect(available).toBeGreaterThan(50);
   });
 });
