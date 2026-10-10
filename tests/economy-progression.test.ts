@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  claimAllQuests, claimActivity, newGame, questStatus, recordActivity,
+  claimAllQuests, claimActivity, newGame, questStatus,
   startTowerRun, towerEnemyMult, runFloorEnemies, serialize, deserialize,
 } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withQuestsDone } from './helpers';
 
 const ctx = loadFullContext();
 const day = '2026-10-03';
@@ -15,21 +16,24 @@ const atStage = (index: number) => {
 
 describe('Ежедневные задания без принудительной прокачки', () => {
   it('все награды доступны без улучшения героев и дополнительных боёв', () => {
-    let s = fresh();
-    for (const q of ctx.features.quests.quests) {
-      if (q.event !== 'hero_level_up') s = recordActivity(s, day, q.event, q.target);
-    }
+    // Все функции открыты: заданий без «Улучшить» — больше 100 очков (daily-loop-2026-10-10: Охота, Арена, Лавка,
+    // экспедиции), до последнего порога хватает и без прокачки.
+    const s = withQuestsDone(fresh(), day, ctx, ctx.features.quests.quests.filter((q) => q.event !== 'hero_level_up'));
     const result = claimAllQuests(s, day, ctx);
-    expect(result.points).toBe(100);
+    expect(result.points).toBeGreaterThanOrEqual(100);
     expect(result.milestones).toEqual([20, 40, 60, 80, 100]);
     expect(result.quests).not.toContain('level_ups');
     expect(result.save.heroes).toEqual(s.heroes);
+    // Без новых заданий (Охота, Арена, Лавка, экспедиции) — прежние 100 очков: старый набор по-прежнему закрывает пороги.
+    const old = withQuestsDone(fresh(), day, ctx, ctx.features.quests.quests.filter((q) => q.event !== 'hero_level_up' && !['expedition', 'hunt', 'arena', 'shop'].includes(q.id)));
+    expect(claimAllQuests(old, day, ctx).points).toBe(100);
     expect(claimAllQuests(result.save, day, ctx).rewards).toEqual({ gold: 0, gems: 0, jobExp: 0 });
   });
 
   it('уже полученное задание даёт новые очки, а полученные пороги не выдаются повторно', () => {
     const s = fresh();
-    s.daily.claimedQuests = ctx.features.quests.quests.filter((q) => q.id !== 'level_ups').map((q) => q.id);
+    // Прежний набор заданий без «Улучшить» — ровно 100 очков (новые задания daily-loop-2026-10-10 не берём).
+    s.daily.claimedQuests = ctx.features.quests.quests.filter((q) => q.id !== 'level_ups' && !['expedition', 'hunt', 'arena', 'shop'].includes(q.id)).map((q) => q.id);
     s.daily.activityClaimed = [20, 40, 60, 80];
     expect(questStatus(s, ctx).activity).toBe(100);
     const out = claimAllQuests(s, day, ctx);

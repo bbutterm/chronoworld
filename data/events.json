@@ -1,6 +1,6 @@
 {
   "$schema": "schema/events.schema.json",
-  "$comment": "События новичка (docs/design/afk-gap.md, п. 2) и системные письма. Награды: gold, gems, jobExp (опыт в общий пул), scrolls (свитки призыва), heroes (id шаблонов data/heroes, на базовой редкости), heroCards (карты случайных героев: {blue, purple}), heroPicks (\"Контракт героя\": [{rarity}] — герой и ветка на выбор игрока). Бюджет недели — docs/content/balance.md, раздел «События новичка»: свитки и гемы обоих событий вместе ≈ 2 призыва ×10 (10 свитков + 270 гемов) и 2 фиолетовых «Контракта героя». Рецепт — docs/CONTENT_RECIPES.md «Награды событий».",
+  "$comment": "События новичка (docs/design/afk-gap.md, п. 2) и системные письма. login.cycle — «Ежедневный вход» после календаря: неделя по кругу, 60 гемов и 2 свитка в неделю (docs/design/daily-loop-2026-10-10.md). Награды: gold, gems, jobExp (опыт в общий пул), scrolls (свитки призыва), heroes (id шаблонов data/heroes, на базовой редкости), heroCards (карты случайных героев: {blue, purple}), heroPicks (\"Контракт героя\": [{rarity}] — герой и ветка на выбор игрока). Бюджет недели — docs/content/balance.md, раздел «События новичка»: свитки и гемы обоих событий вместе ≈ 2 призыва ×10 (10 свитков + 270 гемов) и 2 фиолетовых «Контракта героя». Рецепт — docs/CONTENT_RECIPES.md «Награды событий».",
   "login": {
     "name": "Вход 7 дней",
     "days": [
@@ -11,7 +11,19 @@
       { "rewards": { "gems": 100 } },
       { "rewards": { "scrolls": 2, "jobExp": 5000 } },
       { "rewards": { "heroPicks": [{ "rarity": "purple" }] }, "label": "Контракт героя" }
-    ]
+    ],
+    "cycle": {
+      "name": "Ежедневный вход",
+      "days": [
+        { "rewards": { "gold": 2000 } },
+        { "rewards": { "jobExp": 2000 } },
+        { "rewards": { "gems": 20 } },
+        { "rewards": { "gold": 2000, "jobExp": 2000 } },
+        { "rewards": { "scrolls": 1 } },
+        { "rewards": { "jobExp": 3000 } },
+        { "rewards": { "gems": 40, "scrolls": 1 } }
+      ]
+    }
   },
   "newbie": {
     "name": "7 дней новичка",

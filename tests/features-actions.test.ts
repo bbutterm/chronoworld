@@ -216,7 +216,8 @@ describe('обёртки наград с опытом: опыт — в общи�
     expect(plain.events.filter((e) => e.type === 'heroCard')).toHaveLength(2);
     const out = actClaimExpedition(s, D1, 'ant_hell', 1000, mctx);
     expect(out.events).toEqual(plain.events);
-    expect(out.save.daily.quests).toEqual({});
+    // Уровней награда не даёт; добыча экспедиции засчитывается заданию дня «expedition» (daily-loop-2026-10-10).
+    expect(out.save.daily.quests).toEqual({ expedition_claim: 1 });
     expect(out.save.achievements).toEqual(plain.save.achievements);
     expect(() => actClaimExpedition(s, D1, 'ant_hell', 999, mctx)).toThrow(MetaError);
   });

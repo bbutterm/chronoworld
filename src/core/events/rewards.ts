@@ -14,6 +14,7 @@ export type EventErrorCode =
   | 'unknown_login_day'
   | 'login_locked'
   | 'login_claimed'
+  | 'login_expired'
   | 'event_over'
   | 'unknown_task'
   | 'task_locked'
