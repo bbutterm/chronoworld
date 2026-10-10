@@ -43,12 +43,15 @@ const D2 = '2026-10-11';
 const HOUR = 3_600_000;
 
 const chapter1 = ctx.content.stages.filter((s) => s.chapter === 'chapter1').map((s) => s.id);
+/** Этапы до открытия Кухни включительно (решение владельца 10.10: 2-3, ch2_s2 — на 1-10 и так Башня и Арена). */
+const KITCHEN_STAGE = 'ch2_s2';
+const toKitchen = ctx.content.stages.slice(0, ctx.content.stages.findIndex((s) => s.id === KITCHEN_STAGE) + 1).map((s) => s.id);
 
-/** Глава 1 пройдена (Кухня открыта), кладовая полная, золото есть. */
+/** Этапы до 2-3 пройдены (Кухня открыта), кладовая полная, золото есть. */
 function openSave(extra: Partial<SaveState> = {}, createdAt = 777): SaveState {
   const s = newGame(ctx, createdAt, D1);
   const pantry = Object.fromEntries(cfg.ingredients.map((g) => [g.id, 20]));
-  return { ...s, campaign: { cleared: [...chapter1] }, resources: { ...s.resources, gold: 1_000_000 }, kitchen: { pantry }, ...extra };
+  return { ...s, campaign: { cleared: [...toKitchen] }, resources: { ...s.resources, gold: 1_000_000 }, kitchen: { pantry }, ...extra };
 }
 
 function codeOf(fn: () => unknown): string | undefined {
@@ -76,10 +79,10 @@ describe('Кухня: конфиг и открытие', () => {
     expect(() => parseKitchenConfig({ ...(raw.kitchen as object), recipes: [{ ...cfg.recipes[0], cost: { truffle: 1 } }] })).toThrow(/data\/kitchen.json/);
   });
 
-  it('Кухня открывается финалом главы 1 (последний этап)', () => {
+  it('Кухня открывается на 2-3 (ch2_s2)', () => {
     const def = ctx.unlocks?.features.find((f) => f.id === 'kitchen');
-    expect(def?.stage).toBe(chapter1.at(-1));
-    const closed = { ...openSave(), campaign: { cleared: chapter1.slice(0, -1) } };
+    expect(def?.stage).toBe(KITCHEN_STAGE);
+    const closed = { ...openSave(), campaign: { cleared: toKitchen.slice(0, -1) } };
     expect(kitchenStatus(closed, D1, kctx).unlocked).toBe(false);
     expect(codeOf(() => cookMeal(closed, D1, 'feast', kctx))).toBe('kitchen_locked');
     expect(kitchenReady(closed, D1, kctx)).toBe(false);
