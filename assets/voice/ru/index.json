@@ -4,7 +4,7 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 8,
+  "chars": 11,
   "from": "chapter1/ch1_intro"
  },
  "18cce020c466ac": {
@@ -12,7 +12,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_intro"
  },
  "15f54affa19c1b": {
@@ -20,15 +20,15 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 6,
   "from": "chapter1/ch1_intro"
  },
  "148d8e775991f4": {
   "text": "То есть никогда. Капитан, а что их гонит?",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 7,
   "from": "chapter1/ch1_intro"
  },
  "0765679aed4d31": {
@@ -36,31 +36,31 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 11,
   "from": "chapter1/ch1_intro"
  },
  "1fd2948de6ba61": {
   "text": "Бинты со мной. Я взяла очень много бинтов.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 8,
   "from": "chapter1/ch1_intro"
  },
  "16d4aa3ef83a06": {
   "text": "Смотрите, какая пушистая гусеничка… Ай! Она кусается!",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 10,
   "from": "chapter1/ch1_s1_before"
  },
  "1dfd521901131f": {
   "text": "Пушистая и кусается. Алан — впереди, принимает удары. Мы сзади, бьём и лечим.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 8,
+  "chars": 11,
   "from": "chapter1/ch1_s1_before"
  },
  "0a96a2207bc127": {
@@ -68,31 +68,31 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 6,
   "from": "chapter1/ch1_s1_before"
  },
  "1b411d453b65b4": {
   "text": "Коконы у самой изгороди, кролики бегут из леса, поринги — стаями. Втрое больше обычного. Я считал.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 11,
+  "chars": 14,
   "from": "chapter1/ch1_s11_after"
  },
  "1e198673d0a8f2": {
   "text": "Они не нападают. Они убегают. Будто их кто-то гонит из чащи.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_s11_after"
  },
  "16602d26ba6c7e": {
   "text": "И вот ещё: на изгороди клок серой ткани. Шерсть, дорогая. Поринги такую не носят.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 12,
   "from": "chapter1/ch1_s11_after"
  },
  "05a91fe1d5d69d": {
@@ -100,7 +100,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_s11_after"
  },
  "108b0af8bf5ca2": {
@@ -108,7 +108,7 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 10,
   "from": "chapter1/ch1_s4_before"
  },
  "00719c0876d063": {
@@ -116,23 +116,23 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 3,
+  "chars": 5,
   "from": "chapter1/ch1_s4_before"
  },
  "0d349ab41dae95": {
   "text": "А я — туда, откуда видно всех. Кто-то же должен попадать.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 8,
   "from": "chapter1/ch1_s4_before"
  },
  "028daac75c36d7": {
   "text": "А я буду вас штопать. Кто-то же должен.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 7,
   "from": "chapter1/ch1_s4_before"
  },
  "1f32b9cdb0c5f4": {
@@ -140,7 +140,7 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 13,
   "from": "chapter1/ch1_s4_after"
  },
  "038eb9d4bf9a33": {
@@ -164,7 +164,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 14,
   "from": "chapter1/ch1_s5_after"
  },
  "1f6ca4bc9f8e93": {
@@ -172,15 +172,15 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 13,
   "from": "chapter1/ch1_s5_after"
  },
  "13310203e37a8e": {
   "text": "Серый капюшон. Та самая шерсть с изгороди. Капюшон украл колокольчик, а поринги бегут от него.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 12,
   "from": "chapter1/ch1_s5_after"
  },
  "1442a3d5ec5740": {
@@ -188,7 +188,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 11,
   "from": "chapter1/ch1_s5_after"
  },
  "0ae8ee5b450a28": {
@@ -196,7 +196,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 11,
+  "chars": 13,
   "from": "chapter1/ch1_s5_after"
  },
  "05b2d03b248f3b": {
@@ -204,7 +204,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 11,
   "from": "chapter1/ch1_s5_after"
  },
  "0216e79535c0a5": {
@@ -212,15 +212,15 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 14,
   "from": "chapter1/ch1_s6_after"
  },
  "160e2395eac515": {
   "text": "Сядь. Не дёргайся. Я… я не боюсь крови. Совсем. Вот. Перевязала. Руки почти не дрожат.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 16,
   "from": "chapter1/ch1_s6_after"
  },
  "0419fe325d6075": {
@@ -228,7 +228,7 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 12,
   "from": "chapter1/ch1_s6_after"
  },
  "18d3e05404bc52": {
@@ -236,31 +236,31 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 5,
   "from": "chapter1/ch1_s6_after"
  },
  "142b6b8bf0798a": {
   "text": "Записываю: Алан должен Вике один бинт. Первая строчка в тетради. Чует моё сердце — не последняя.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 11,
+  "chars": 13,
   "from": "chapter1/ch1_s6_after"
  },
  "1b7e6b55f76092": {
   "text": "Следы слизи. Огромные. Этот поринг размером с телегу.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 7,
   "from": "chapter1/ch1_s7_before"
  },
  "091ed83688f657": {
   "text": "Тут корзинка и записка: «Ушла проучить главного. Грета».",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 11,
   "from": "chapter1/ch1_s7_before"
  },
  "1f183d51cab941": {
@@ -268,31 +268,31 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 7,
   "from": "chapter1/ch1_s7_before"
  },
  "0085b401033430": {
   "text": "Или глупо. В твоём духе. Поторопимся.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 6,
   "from": "chapter1/ch1_s7_before"
  },
  "1d8422b250a253": {
   "text": "В плотине вместо веток — ложки, пуговицы, подковы. Всё блестящее. Это не бобры строили.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 12,
   "from": "chapter1/ch1_s15_after"
  },
  "18c4c1a6e81721": {
   "text": "Поринги таскают блестяшки в чащу. Кто-то велел им собирать всё, что звенит.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 8,
+  "chars": 11,
   "from": "chapter1/ch1_s15_after"
  },
  "13c080ab9d9270": {
@@ -300,7 +300,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 9,
   "from": "chapter1/ch1_s15_after"
  },
  "0fdb06a587871a": {
@@ -314,33 +314,33 @@
  "15013af88a374b": {
   "text": "Живая! И очень сердитая. Это хорошо: сердитые долго держатся.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_s15_after"
  },
  "081416152de17a": {
   "text": "Стойте. На краю поляны, под луной. Серый капюшон.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 8,
   "from": "chapter1/ch1_s16_after"
  },
  "1cca23237176d2": {
   "text": "Новички из Пронтеры? Идите домой, дети. Король порингов уже несёт мне колокольчик.",
   "role": "herald",
-  "voice": "FdDRUc9rNHCcx1AeKuej",
+  "voice": "DdFgum7xgn361E6iwo3i",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 12,
   "from": "chapter1/ch1_s16_after"
  },
  "1cfdf473b43f09": {
   "text": "Звени, малыш, звени. Хозяин слышит. Скоро все, кого вы любили, вернутся домой.",
   "role": "herald",
-  "voice": "FdDRUc9rNHCcx1AeKuej",
+  "voice": "DdFgum7xgn361E6iwo3i",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 11,
   "from": "chapter1/ch1_s16_after"
  },
  "09d42cbd2cb4d8": {
@@ -348,15 +348,15 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 14,
   "from": "chapter1/ch1_s16_after"
  },
  "170eb443348ed7": {
   "text": "«Все, кого любили, вернутся»… Почему от этих слов так холодно?",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_s16_after"
  },
  "19cb6bde39409f": {
@@ -364,15 +364,15 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 8,
+  "chars": 10,
   "from": "chapter1/ch1_s18_before"
  },
  "177655b371aed8": {
   "text": "Ты остановился? Сам? Запишу в тетрадь. На отдельную страницу: «чудеса».",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 8,
+  "chars": 11,
   "from": "chapter1/ch1_s18_before"
  },
  "01d16d9be2de34": {
@@ -380,15 +380,15 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 11,
   "from": "chapter1/ch1_s18_before"
  },
  "17e79136fbfe01": {
   "text": "Пупы на стенах вот-вот вылупятся. Бьём сначала тех, кто ближе к нам, потом — дальних.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 12,
   "from": "chapter1/ch1_s18_before"
  },
  "112ca22878024f": {
@@ -396,7 +396,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 3,
+  "chars": 5,
   "from": "chapter1/ch1_s10_before"
  },
  "11c2a516a1748a": {
@@ -404,15 +404,15 @@
   "role": "mastering",
   "voice": "mOTbMAOniC3yoEvgo4bi",
   "model": "eleven_v4",
-  "chars": 1,
+  "chars": 2,
   "from": "chapter1/ch1_s10_before"
  },
  "1af7af9003e7c8": {
   "text": "Внутри него кто-то есть. И машет сковородкой!",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 7,
   "from": "chapter1/ch1_s10_before"
  },
  "12d2218b84b179": {
@@ -426,9 +426,9 @@
  "127a6d5a72e563": {
   "text": "Сначала свиту! Каждый павший поринг его злит.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 8,
   "from": "chapter1/ch1_s10_before"
  },
  "12ff47f335c895": {
@@ -444,7 +444,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 3,
+  "chars": 6,
   "from": "chapter1/ch1_outro"
  },
  "0d8a659f84bf4d": {
@@ -458,9 +458,9 @@
  "0d9caff602b034": {
   "text": "Колокольчик с чёрным знаком… И пахнет сыростью и старыми трубами.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_outro"
  },
  "1c7e1cac0babce": {
@@ -468,7 +468,7 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 12,
   "from": "chapter1/ch1_outro"
  },
  "09a262f6013a82": {
@@ -476,7 +476,7 @@
   "role": "garret",
   "voice": "6A9D8WSMm4rFsg2DWFeE",
   "model": "eleven_v4",
-  "chars": 11,
+  "chars": 13,
   "from": "chapter1/ch1_outro"
  },
  "1cca5c54065c67": {
@@ -484,7 +484,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 13,
   "from": "chapter1/tav_ch1"
  },
  "048ca7855b5d41": {
@@ -498,9 +498,9 @@
  "1f4ab6ca6b4473": {
   "text": "Записываю: «Ужин — за счёт Греты». Первая строчка в тетради, которую платит не Алан.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 11,
   "from": "chapter1/tav_ch1"
  },
  "0706e812c4d193": {
@@ -508,15 +508,15 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 7,
   "from": "chapter1/tav_ch1"
  },
  "03c8ca2506448c": {
   "text": "И первым в него провалился. Я тебя за сапог вытаскивала. Бинты, кстати, опять твои.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 11,
   "from": "chapter1/tav_ch1"
  },
  "0ae50834641027": {
@@ -524,7 +524,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 3,
+  "chars": 7,
   "from": "chapter1/tav_ch1"
  },
  "15edcf96727ae3": {
@@ -532,7 +532,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 10,
   "from": "chapter1/tav_ch1"
  },
  "07e03481ed2597": {
@@ -564,7 +564,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 7,
   "from": "chapter1/tav_ch1:reply"
  },
  "047d085d7482e4": {
@@ -572,7 +572,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 9,
   "from": "chapter1/tav_ch1:reply"
  },
  "1f6706a14a4ee8": {
@@ -588,39 +588,39 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 10,
   "from": "chapter1/tav_ch1:reply"
  },
  "0b720890547c9c": {
   "text": "Записал. Посмотрим, сколько продержится.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 6,
   "from": "chapter1/tav_ch1:reply"
  },
  "15c2d98674d176": {
   "text": "Поздно уже. Спи, огонёк…",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 3,
+  "chars": 7,
   "from": "chapter1/tav_ch1"
  },
  "15c32c9d9780cd": {
   "text": "Ты всегда так свечи гасишь? Ладонью?",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 6,
   "from": "chapter1/tav_ch1"
  },
  "05557c67fb3694": {
   "text": "Брат так делал. Давно. …Не больно, если быстро.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 9,
   "from": "chapter1/tav_ch1"
  },
  "0847778f6a4f1f": {
@@ -628,7 +628,7 @@
   "role": "bruno",
   "voice": "txnCCHHGKmYIwrn7HfHQ",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 13,
   "from": "chapter1/tav_ch1"
  },
  "17fa7d5f76af94": {
@@ -652,7 +652,7 @@
   "role": "narrator",
   "voice": "pM78bgjPVk0JXtaEnFoj",
   "model": "eleven_v4",
-  "chars": 32,
+  "chars": 33,
   "from": "chapter1/legend"
  },
  "197d039c30bb56": {
@@ -674,9 +674,9 @@
  "1304a1ba0731f5": {
   "text": "Кто-то в деревне хорошо знает Алана. Подозреваю всю деревню.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 9,
   "from": "chapter1/finding:ch1_s1:comment"
  },
  "0963d017e9ef1f": {
@@ -690,9 +690,9 @@
  "038c685e325dc1": {
   "text": "Ладан — это из церкви. А сырость… сырость точно не из церкви.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/finding:ch1_s11:comment"
  },
  "07e15f44f34c93": {
@@ -706,9 +706,9 @@
  "14d44258677a64": {
   "text": "Четырнадцать ложек. Всё блестящее и всё звенит. Это не воры, это сборщики.",
   "role": "bran",
-  "voice": "RvcToHi9ENVDatbeYNJe",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
   "model": "eleven_v4",
-  "chars": 8,
+  "chars": 11,
   "from": "chapter1/finding:ch1_s13:comment"
  },
  "15716cd8190aa6": {
@@ -724,7 +724,7 @@
   "role": "alan",
   "voice": "u3pPktIMgx1Kt5EJ391v",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 9,
   "from": "chapter1/finding:ch1_s16:comment"
  }
 }
