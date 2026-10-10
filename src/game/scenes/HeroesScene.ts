@@ -377,7 +377,7 @@ export class HeroesScene extends Phaser.Scene {
     row.add(ico);
     const left = -w / 2 + S.s + 74 + S.s;
     row.add(text(this, left, -22, 'Новые герои — в Таверне', T.body, lock ? COLOR.textSecondary : COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5));
-    const sub = lock ? `${lock.charAt(0).toUpperCase()}${lock.slice(1)}` : 'Три одинаковые карты — следующая редкость';
+    const sub = lock ? `${lock.charAt(0).toUpperCase()}${lock.slice(1)}` : 'Копии героев — для вознесения';
     row.add(ellipsize(text(this, left, 26, sub, T.caption, COLOR.textSecondary).setOrigin(0, 0.5), w / 2 - left - S.xl));
     if (!lock) {
       row.add(text(this, w / 2 - S.m, 0, '›', T.title, COLOR.title, { fontStyle: 'bold' }).setOrigin(1, 0.5));
@@ -391,7 +391,7 @@ export class HeroesScene extends Phaser.Scene {
     const plan = ascendAll(session.save, GAME);
     const rows = ascendAllSummary(plan.done);
     if (!rows.length) {
-      toast(this, 'Вознести некого: нужны свободные копии героя (для красного — ещё лишние фиолетовые) и золото.', C.muted);
+      toast(this, 'Вознести некого: не хватает свободных копий нужной редкости или золота.', C.muted);
       return;
     }
     const line = (r: (typeof rows)[number]) => `${r.name}: ${RARITY_CARD[r.from]} → ${RARITY_CARD[r.to]}${r.branchPending ? ' (ветка — потом)' : ''}`;
@@ -401,7 +401,7 @@ export class HeroesScene extends Phaser.Scene {
     const gold = session.save.resources.gold - plan.save.resources.gold;
     const eaten = plan.done.reduce((n, d) => n + d.consumed.length, 0);
     const cost = `${gold > 0 ? `Золото: −${formatNumber(gold)} · ` : ''}копий в корм: ${eaten}`;
-    // Слоты «любой» (золотой → красный) едят лишние копии других героев — назвать их (BUG-168).
+    // Слоты «любой» (зелёный → синий, фиолетовый → золотой) едят лишние копии других героев — назвать их (BUG-168).
     const byId = new Map(session.save.heroes.map((h) => [h.id, h]));
     const others = plan.done.flatMap((d) => d.consumed.map((id) => byId.get(id)).filter((h) => h && h.templateId !== d.templateId).map((h) => this.content.heroes[h!.templateId]?.name ?? h!.templateId));
     const otherLine = others.length ? `\nЛишние копии других героев: ${[...new Set(others)].join(', ')}.` : '';

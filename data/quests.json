@@ -6,7 +6,7 @@
     { "id": "offline_chest", "name": "Забрать сундук офлайн-наград", "event": "offline_claim", "target": 1, "points": 20 },
     { "id": "fast_rewards", "name": "Взять быстрые награды", "event": "fast_rewards", "target": 1, "points": 20 },
     { "id": "level_ups", "name": "Улучшить героев 2 раза", "event": "hero_level_up", "target": 2, "points": 20 },
-    { "id": "summon", "name": "Призвать героя в Таверне", "event": "summon", "target": 1, "points": 10 },
+    { "id": "summon", "name": "Призыв в Таверне", "event": "summon", "target": 1, "points": 10 },
     { "id": "tower", "name": "Штурмовать башню испытаний", "event": "tower_attempt", "target": 1, "points": 10 }
   ],
   "milestones": [
