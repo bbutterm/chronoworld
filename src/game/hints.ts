@@ -68,7 +68,7 @@ export const HINT_TEXT: Record<HintId, string> = {
   chest_claim: 'В сундуке добыча — заберите',
   level_up: 'Опыта хватает — улучшите героя',
   tavern_summon: 'Таверна открыта — наймите героев',
-  ascend: 'Три копии — пора вознести героя',
+  ascend: 'Копии готовы — пора вознести героя',
   fast_rewards: 'Быстрые награды: сегодня даром',
   quests_open: 'Задания дня — гемы за простые дела',
   /** CampaignScene дописывает « Загляните в «Приключения»» — вместе тоже ≤ 40. */
@@ -261,6 +261,9 @@ export function pickHomeHint(s: HomeHintInput, doneFn: (id: HintId) => boolean =
   const isDone = (id: HintId) => doneFn(id) || hintNagged(id, where);
   if (s.cleared === 0 && !isDone('home_campaign')) return 'home_campaign';
   if (s.chestHasIncome && !isDone('chest_claim')) return 'chest_claim';
+  // После обучения (Таверна и задания пройдены) вознесение важнее очередного уровня: 500 золота — +8% мощи, а
+  // «Улучшить» горит почти всегда и съедало золото — к концу главы 1 никто не вознесён (first-30min-2026-10-10).
+  if (s.ascendReady && !isDone('ascend') && doneFn('tavern_summon') && doneFn('quests_open')) return 'ascend';
   if (s.levelUpReady && !isDone('level_up')) return 'level_up';
   if (s.tavernReady && !isDone('tavern_summon')) return 'tavern_summon';
   if (s.fastRewardsFree && !isDone('fast_rewards')) return 'fast_rewards';

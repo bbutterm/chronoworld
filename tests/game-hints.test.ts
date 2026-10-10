@@ -59,6 +59,10 @@ describe('R: подсказки первой сессии', () => {
     }
     expect(seen).toEqual(['chest_claim', 'level_up', 'tavern_summon', 'fast_rewards', 'quests_open', 'ascend']);
     expect(seen).toEqual(TUTORIAL_CHAIN.filter((id) => seen.includes(id)));
+    // После обучения вознесение опережает «Улучшить» (first-30min-2026-10-10: «Улучшить» съедало золото).
+    const learned = new Set<HintId>(['chest_claim', 'tavern_summon', 'fast_rewards', 'quests_open']);
+    expect(pickHomeHint(all, (x) => learned.has(x))).toBe('ascend');
+    expect(pickHomeHint({ ...all, ascendReady: false }, (x) => learned.has(x))).toBe('level_up');
   });
 
   it('итоги боя: сначала «Дальше», потом «К кампании»; расстановка: «Авто» при новых героях, иначе «В бой»', () => {
