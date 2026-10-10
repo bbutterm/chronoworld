@@ -249,8 +249,22 @@ export const SummonConfigSchema = z
      * (счётчики save.summon.sinceBlue / sincePurple).
      */
     pity: z.array(z.object({ rarity: z.enum(['blue', 'purple']), every: z.number().int().positive() })).min(1),
-    /** Первый призыв ×10 содержит не меньше count карт этой редкости или выше (один раз). */
-    firstTen: z.object({ rarity: CardRaritySchema, count: z.number().int().positive().max(10) }),
+    /**
+     * Не герой (решение владельца 10.10): вещь главы, опыт героев, золото, алмазы, Благословенная руда. Шансы rates +
+     * loot = 1. Золото и опыт — minutes минут дохода текущего этапа (растут с главой); алмазы — от min до max.
+     */
+    loot: z
+      .array(
+        z.discriminatedUnion('kind', [
+          z.object({ kind: z.literal('gear'), chance: z.number().min(0).max(1), blueChance: z.number().min(0).max(1) }),
+          z.object({ kind: z.enum(['heroExp', 'gold']), chance: z.number().min(0).max(1), minutes: z.number().int().positive() }),
+          z.object({ kind: z.literal('gems'), chance: z.number().min(0).max(1), min: z.number().int().positive(), max: z.number().int().positive() }),
+          z.object({ kind: z.literal('ore'), chance: z.number().min(0).max(1) }),
+        ]),
+      )
+      .default([]),
+    /** Первый призыв ×10 содержит не меньше count карт этой редкости или выше и не меньше heroes героев (один раз). */
+    firstTen: z.object({ rarity: CardRaritySchema, count: z.number().int().positive().max(10), heroes: z.number().int().positive().max(10).optional() }),
     freePerDay: z.number().int().nonnegative(),
     welcome: z.object({
       gems: z.number().int().nonnegative(),
@@ -260,8 +274,12 @@ export const SummonConfigSchema = z
     }),
   })
   .superRefine((cfg, c) => {
-    const sum = cfg.rates.reduce((s, r) => s + r.chance, 0);
-    if (Math.abs(sum - 1) > 1e-9) c.addIssue({ code: 'custom', path: ['rates'], message: `сумма шансов ${sum}, а должна быть 1` });
+    const sum = cfg.rates.reduce((s, r) => s + r.chance, 0) + cfg.loot.reduce((s, r) => s + r.chance, 0);
+    if (Math.abs(sum - 1) > 1e-9) c.addIssue({ code: 'custom', path: ['rates'], message: `сумма шансов героев и наград ${sum}, а должна быть 1` });
+    cfg.loot.forEach((l, i) => {
+      if (cfg.loot.findIndex((x) => x.kind === l.kind) !== i) c.addIssue({ code: 'custom', path: ['loot', i, 'kind'], message: 'награда этого вида указана дважды' });
+      if (l.kind === 'gems' && l.min > l.max) c.addIssue({ code: 'custom', path: ['loot', i, 'min'], message: 'min больше max' });
+    });
     cfg.pity.forEach((p, i) => {
       if (p.every < 10) c.addIssue({ code: 'custom', path: ['pity', i, 'every'], message: 'гарант не меньше 10 призывов' });
       if (!cfg.rates.some((r) => r.rarity === p.rarity)) c.addIssue({ code: 'custom', path: ['pity', i, 'rarity'], message: 'редкости гаранта нет среди rates' });
