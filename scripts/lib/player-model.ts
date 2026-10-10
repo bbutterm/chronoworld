@@ -540,7 +540,7 @@ export class BalancePlayer {
     this.step('summon', r.save);
     this.summons += r.results.length;
     this.spendTime(this.model.summonSec * 1000);
-    this.summonLog.push({ t: this.t, active_min: this.activeMin, pay, count, rarities: r.results.map((x) => x.rarity) });
+    this.summonLog.push({ t: this.t, active_min: this.activeMin, pay, count, rarities: r.results.flatMap((x) => (x.kind === 'hero' ? [x.rarity] : [])) });
   }
 
   /**

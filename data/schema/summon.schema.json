@@ -85,6 +85,118 @@
         ]
       }
     },
+    "loot": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "gear"
+              },
+              "chance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "blueChance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "chance",
+              "blueChance"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "heroExp",
+                  "gold"
+                ]
+              },
+              "chance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "minutes": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "chance",
+              "minutes"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "gems"
+              },
+              "chance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "min": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "max": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "chance",
+              "min",
+              "max"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "ore"
+              },
+              "chance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "chance"
+            ]
+          }
+        ]
+      }
+    },
+    "newHeroWeight": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
     "firstTen": {
       "type": "object",
       "properties": {
@@ -99,6 +211,11 @@
           ]
         },
         "count": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 10
+        },
+        "heroes": {
           "type": "integer",
           "exclusiveMinimum": 0,
           "maximum": 10
