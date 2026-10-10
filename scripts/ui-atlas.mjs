@@ -95,6 +95,7 @@ const SCREENS = [
   { name: 'Tavern', key: 'Tavern' },
   { name: 'TavernEvening', key: 'TavernEvening', add: ['/src/game/scenes/TavernEveningScene.ts', 'TavernEveningScene'] },
   { name: 'Shop', key: 'Shop' },
+  { name: 'Kitchen', key: 'Kitchen' },
   { name: 'Quests', key: 'Quests' },
   { name: 'Events', key: 'Events' },
   { name: 'Mail', key: 'Mail' },

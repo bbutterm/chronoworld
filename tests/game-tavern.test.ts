@@ -11,6 +11,7 @@ import {
   firstTenTag,
   firstTenText,
   freeInLabel,
+  lootTag,
   resultTag,
   revealOrder,
   revealSchedule,
@@ -86,6 +87,14 @@ describe('Таверна: раскладка и итог', () => {
     expect(resultTag({ isNew: true })).toEqual({ text: 'Новый', kind: 'new' });
     expect(resultTag({ isNew: false })).toEqual({ text: '+1 копия', kind: 'copy' });
     expect(resultTag({ kind: 'copy' }).text).toBe('+1 копия');
+  });
+
+  it('метки наград: вещь — в сумке, опыт — в запас, руда — для заточки; золото и алмазы без метки', () => {
+    expect(lootTag('gear')).toBe('В сумке');
+    expect(lootTag('heroExp')).toBe('В запас');
+    expect(lootTag('ore')).toBe('Для заточки');
+    expect(lootTag('gold')).toBeNull();
+    expect(lootTag('gems')).toBeNull();
   });
 
   it('нарастание у лучшей карты, и она открывается последней', () => {

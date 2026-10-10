@@ -6,6 +6,7 @@
  *   npm run balance -- --days 7 --no-events   без «Входа 7 дней», «7 дней новичка» и почты (сравнить «до/после»)
  *   npm run balance -- --days 7 --no-hunt     без «Охоты на босса»; --seed N — другой сдвиг seed боёв
  *   npm run balance -- --days 7 --no-shop     без покупок в Лавке (сравнить «до/после»)
+ *   npm run balance -- --days 7 --no-kitchen  без блюд Кухни (сравнить «до/после»)
  *   npm run balance -- --levels               калибровка уровней врагов (power.levels, balance.md 4а)
  * Модель игрока — scripts/lib/player-model.ts (PLAYER_MODEL). Описание — docs/content/balance.md.
  */
@@ -48,6 +49,7 @@ const model = {
   hunt: !process.argv.includes('--no-hunt'),
   seedBase: intArg('seed', PLAYER_MODEL.seedBase),
   shop: !process.argv.includes('--no-shop'),
+  kitchen: !process.argv.includes('--no-kitchen'),
   expeditions: !process.argv.includes('--no-expeditions'),
   branch: (arg('branch') ?? PLAYER_MODEL.branch) as typeof PLAYER_MODEL.branch,
   refine: !process.argv.includes('--no-refine'),
@@ -204,6 +206,8 @@ console.log(
 );
 const shopBuys = Object.entries(res.shopBuys).map(([k, n]) => `${k} ${n}`).join(', ');
 if (shopBuys) console.log(`  лавка, покупки: ${shopBuys}`);
+const meals = Object.entries(res.meals).map(([k, n]) => `${k} ${n}`).join(', ');
+if (meals || res.ingredientsBought) console.log(`  кухня, блюда дня: ${meals || '—'}; продуктов куплено: ${res.ingredientsBought}`);
 if (res.refines) console.log(`  заточка: шагов ${res.refines}, неудачных шагов ${res.refineFailures}, золота ${res.spend.refine.gold} (${Math.round((res.spend.refine.gold / Math.max(1, sp.gold)) * 100)}% расхода)`);
 {
   const oreIn = Object.entries(res.oreIn).map(([k, n]) => `${k} ${n}`).join(', ');

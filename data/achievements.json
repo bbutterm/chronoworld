@@ -8,7 +8,7 @@
     { "id": "battles_100", "name": "Ветеран", "description": "Победите в 100 боях", "counter": "battles_won", "target": 100, "rewards": { "gems": 50, "heroCards": { "blue": 1 } } },
     { "id": "tower_5", "name": "Восхождение", "description": "Поднимитесь на 5 этаж башни", "counter": "tower_floor", "target": 5, "rewards": { "gems": 20 } },
     { "id": "tower_20", "name": "Выше облаков", "description": "Поднимитесь на 20 этаж башни", "counter": "tower_floor", "target": 20, "rewards": { "gems": 50 } },
-    { "id": "first_summon", "name": "Новое знакомство", "description": "Призовите героя в Таверне", "counter": "summons", "target": 1, "rewards": { "gold": 200 } },
+    { "id": "first_summon", "name": "Новое знакомство", "description": "Сделайте первый призыв в Таверне", "counter": "summons", "target": 1, "rewards": { "gold": 200 } },
     { "id": "summons_30", "name": "Завсегдатай таверны", "description": "Призовите 30 героев", "counter": "summons", "target": 30, "rewards": { "gems": 30 } },
     { "id": "first_ascend", "name": "Вознесение", "description": "Вознесите карточку героя на следующую редкость", "counter": "ascensions", "target": 1, "rewards": { "gems": 30, "heroCards": { "blue": 1 } } },
     { "id": "first_equip", "name": "При оружии", "description": "Наденьте предмет на героя", "counter": "items_equipped", "target": 1, "rewards": { "gold": 100 } },

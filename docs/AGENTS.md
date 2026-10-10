@@ -257,7 +257,7 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 
 `features [{id, stage, title (≤40), description (≤140), icon, line? (≤120)}]` — одна таблица «функция → этап» (как в AFK: функции
 открываются по ходу главы 1). `id` — из `FEATURE_IDS` (`fast_rewards` 1-2, `quests` 1-2, `speed_x2` 1-3, `achievements` 1-3, `tavern` 1-5,
-`bounties` 1-8, `tower` 1-10, `hunt` 2-1, `shop` 2-1); нет строки — функция открыта сразу. `icon` — иконка скина или `mug` (кружка Таверны). `line` — реплика
+`bounties` 1-8, `tower` 1-10, `kitchen` 1-10 (финал главы 1), `hunt` 2-1, `shop` 2-1); нет строки — функция открыта сразу. `icon` — иконка скина или `mug` (кружка Таверны). `line` — реплика
 капитана Гаррета на баннере (контент-хук). Открыта = этап в `campaign.cleared`. Таверна и Башня берут этап отсюда (ядро:
 `summonUnlocked`, `towerUnlocked`); быстрые награды, задания, достижения, поручения, скорость ×2 — закрывают экраны
 (`src/game/unlockBanner.ts`) и модель игрока (`scripts/lib/player-model.ts`), действия ядра их не проверяют. **Таверна — на `ch1_s5`**:
@@ -536,6 +536,20 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 - Экран — `ShopScene`; плитка на главной — `shopTile` (одна строка в HomeScene), зелёная точка — бесплатное обновление ещё не взято.
   Модель игрока — `Sim.shop()` в `scripts/lib/player-model.ts` (`--no-shop` — без неё). Тесты — `tests/shop.test.ts`.
 
+## 2е. Кухня в Таверне — API ядра (`src/core/kitchen`)
+
+Дизайн и числа — `docs/design/kitchen.md`, данные — `data/kitchen.json` (`FullContext.kitchen?`; нет файла — Кухни нет).
+- `kitchenStatus(save, day, ctx)` → `{unlocked, pantry [продукт + count, priceNow], recipes [+ affordable, missing, active], meal,
+  canCook, ready, bought, buyLimit, buyLeft}`; `kitchenReady` — красная точка.
+- `cookMeal` / `actCookMeal(save, day, recipeId, ctx)` — блюдо дня (`save.kitchen.meal = {id, day}`), раз в день, часы назад —
+  `KitchenError('already_cooked')`; `buyIngredient` / `actBuyIngredient` — за золото, лимит `shop.dailyLimit` в день.
+- Прибавка: `withMeal(squad, save, day, ctx)` внутри `squadUnits(save, ctx, day)` и `towerRunSquad(save, ctx, day)`; опыт —
+  `mealExp` в `playStage`. Арена не затронута.
+- Продукты: `claimExpedition`, `fightHunt`/`sweepHunt` (`grant.ingredients`), `playStage` (повтор с наградой), `claimOffline` —
+  поле `ingredients` в итоге. Сохранение — необязательное `save.kitchen` без смены версии.
+- Экран — `KitchenScene`, вход — `kitchenTile` (`src/game/kitchenEntry.ts`) под Лавкой; модель игрока — `BalancePlayer.cook()`
+  (`--no-kitchen` — без неё). Тесты — `tests/kitchen.test.ts`, `tests/kitchen-ui.test.ts`.
+
 ---
 
 ## 3. Сохранение
@@ -564,7 +578,7 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   `data/unlocks.json`, `sanitizeSave` → `initSeenUnlocks` отмечает показанным всё уже открытое, чтобы не вывалить пачку баннеров;
   тест `tests/unlocks.test.ts`). `newGame` ставит `[]`.
 - Новое поле: если оно необязательное (`.optional()`/`.default()`) — версия не меняется (так добавлены `seenScenes`, `storyQueue`,
-  `pendingChapterDone`, `revision`, `shop`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
+  `pendingChapterDone`, `revision`, `shop`, `kitchen`, `bankedExp`, `hero.gender` — его `sanitizeSave` выводит по имени, неизвестное → м). Обязательное — `SAVE_VERSION + 1` и миграция в `MIGRATIONS`, тест в `tests/save.test.ts`.
 - `sanitizeSave(save, ctx)` — подгоняет сохранение к текущему контенту: неизвестная карточка — экземпляр убирается вместе со ссылками,
   редкость/уровень вне правил шаблона — к правилам, чужая ветка или ветка ниже фиолетового — снимается, вторая копия карточки уходит из отряда, неизвестные предметы убираются; сообщения
   миграции (`notices`) и правки показываются игроку тостом.

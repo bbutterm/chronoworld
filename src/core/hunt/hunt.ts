@@ -13,6 +13,7 @@
 import type { z } from 'zod';
 import { simulateBattle } from '../battle';
 import { squadUnits } from '../campaign/campaign';
+import { grantHuntIngredients, type Pantry } from '../kitchen/kitchen';
 import type { UnitDef } from '../content/schema';
 import { attackElement, defenseElement, weakTo, type Element } from '../elements';
 import { cardDef } from '../equipment/cards';
@@ -90,6 +91,8 @@ export interface HuntGrant {
   ore: number;
   /** Карта MVP (id из hunt.cards) — только за победу над MVP. */
   card?: string;
+  /** Продукты Кухни (kitchen.ts grantHuntIngredients): взят хотя бы первый порог. Нет поля — ничего. */
+  ingredients?: Pantry;
 }
 
 /** Герой игрока, чья стихия атаки бьёт MVP (подсказка состава). */
@@ -441,9 +444,16 @@ function grant(save: SaveState, reward: HuntReward, lootSeedValue: number, ctx: 
  * порог. Бросок от seed добычи этой попытки. Так в день выходит 1–3 руды.
  */
 function grantOre(save: SaveState, g: { save: SaveState; grant: HuntGrant }, day: string, tier: number, lootSeedValue: number, ctx: HuntContext): { save: SaveState; grant: HuntGrant } {
+  g = withIngredients(g, tier, lootSeedValue, ctx);
   if (tier < 0 || stateOf(save, day).used > 0) return g;
   const ore = grantBlessedOre(g.save, lootSeedValue, ctx);
   return { save: ore.save, grant: { ...g.grant, ore: ore.count } };
+}
+
+/** Продукты Кухни за попытку (бой или «Зачистка»): по взятому порогу, бросок от seed добычи попытки. */
+function withIngredients(g: { save: SaveState; grant: HuntGrant }, tier: number, lootSeedValue: number, ctx: HuntContext): { save: SaveState; grant: HuntGrant } {
+  const k = grantHuntIngredients(g.save, tier, lootSeedValue, ctx);
+  return Object.keys(k.gained).length ? { save: k.save, grant: { ...g.grant, ingredients: k.gained } } : g;
 }
 
 /** Записать попытку и лучший урон по боссу (поля MVP — победы, карты, гарантия — остаются как были). */
@@ -490,7 +500,7 @@ export function fightHunt(save: SaveState, day: string, ctx: HuntContext, opts: 
   const top = huntRank(save, ctx);
   const rank = Math.max(0, Math.min(top, Math.floor(opts.rank ?? top)));
   const boss = huntBoss(day, ctx, rank);
-  const { squad } = squadUnits(save, gctx);
+  const { squad } = squadUnits(save, gctx, day);
   const enemies: (UnitDef | null)[] = [null, null, null, null, null];
   enemies[ctx.hunt.slot] = boss.def;
   const result = simulateBattle(ctx.content, ctx.hunt.mvp ? huntSquad(squad, boss, ctx) : squad, enemies, huntSeed(save, day), {

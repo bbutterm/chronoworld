@@ -283,6 +283,21 @@ branches`) на уровнях 60–100. Кусочек ветки открыв�
    `npm run balance -- --days 7` против `--no-shop` (Лавка не должна отнимать золото у «Улучшить»: главы не позже, стены не длиннее) —
    итог в `docs/content/balance.md`, «Лавка».
 
+## 8в. Блюдо Кухни
+
+Кухня — `data/kitchen.json` (схема `src/core/kitchen/schema.ts`, подсказки — `data/schema/kitchen.schema.json`, дизайн — `docs/design/kitchen.md`).
+
+1. Блюдо — строка `recipes[]`: `{"id": "roast_meat", "name": "Жареное мясо", "description": "…", "icon": "meat",
+   "cost": {"meat": 3, "honey": 1}, "buff": {"atk": 5}}`. `cost` — продукты из `ingredients[]` (2–3 вида, 4–10 штук), `buff` — проценты
+   `atk` / `hp` / `def` (к отряду в кампании, Башне, охоте) и `exp` (к опыту за этапы). `icon` — `meat, apple, carrot, honey, milk, pot`
+   (контурные иконки скина, `src/game/skin.ts`; новая иконка — правка `KITCHEN_ICONS` и скина). Название ≤ 24, описание ≤ 90.
+2. Новый продукт — строка `ingredients[]` `{id, name, icon, price, weight}`: цена в золоте на главе 1, вес — частота выдачи.
+3. Числа: одно блюдо действует целый день, поэтому прибавка к статам — 2–6 %; «дорогое» блюдо — чуть больше по сумме, но не
+   больше 8–10 % суммарно. id лежат в сохранениях — не переименовывать.
+4. Проверка: `npm run content:schema` (если меняли схему), `npm run content:check`, `npx vitest run tests/kitchen.test.ts`,
+   `npm run i18n:extract` + перевод, `npm run balance -- --days 7` против `--no-kitchen` (этапов не больше +5 %, первый фиолетовый —
+   день 2–3) — итог в `docs/design/kitchen.md`.
+
 ## 9. Ежедневное задание, локация экспедиций, достижение
 
 - **Задание** — `data/quests.json → quests[]`: `{id, name, event, target, points}`; `event` — одно из `ACTIVITY_KINDS`
@@ -308,7 +323,7 @@ branches`) на уровнях 60–100. Кусочек ветки открыв�
    цель Ц4 (`docs/content/balance.md`) и `npm run e2e:chapter1`.
 2. Текст баннера: `title` (≤ 40, он же в тосте замка «Поручения: откроется на этапе 1-8»), `description` (≤ 140, 1–2 фразы),
    `icon` — иконка скина (`map, helmet, home, gear, gift, bag, lock, chest, scroll, tower, trophy, swords, check, back, next,
-   hourglass, flag, star`) или `mug` (кружка Таверны). `line` — необязательная реплика капитана Гаррета (≤ 120, как строка сюжета);
+   hourglass, flag, star, pot`) или `mug` (кружка Таверны). `line` — необязательная реплика капитана Гаррета (≤ 120, как строка сюжета);
    длинная сцена с несколькими репликами — обычная сцена `afterStage` того же этапа в `data/story` (она идёт перед баннером).
 3. Новая функция (нового id ещё нет) — это правка кода: id в `FEATURE_IDS` (`src/core/unlocks/schema.ts`), замок на её входе
    (`isUnlocked` / `lockedTile` / `lockCover` / `lockedScreen` из `src/game/unlockBanner.ts`), куда ведёт «Перейти» (`GOTO` там же),

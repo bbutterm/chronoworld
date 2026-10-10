@@ -5,9 +5,29 @@ import type { SaveState } from '../save/schema';
 import type { FeatureContext, FeatureEvent } from './config';
 import { rollDay } from './daily';
 import { FeatureError } from './errors';
+import { featureUnlocked } from '../unlocks/unlocks';
+import { FEATURE_IDS } from '../unlocks/schema';
 
-/** Виды событий, из которых считаются ежедневные задания. */
-export const ACTIVITY_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'summon', 'hero_level_up', 'hero_ascend', 'tower_attempt'] as const;
+/**
+ * Виды событий, которые обёртки actions.ts записывают в daily.quests (recordActivity).
+ * expedition_claim — добыча экспедиций (actClaimExpedition / actClaimAllExpeditions, по числу экспедиций).
+ */
+export const RECORDED_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'summon', 'hero_level_up', 'hero_ascend', 'tower_attempt', 'expedition_claim'] as const;
+export type RecordedKind = (typeof RECORDED_KINDS)[number];
+
+/**
+ * Виды, которые не записываются, а читаются из собственного суточного состояния системы (daily-loop-2026-10-10):
+ * hunt_attempt — попыток Охоты сегодня (save.hunt.used, если save.hunt.day — сегодня; зачистка тоже попытка);
+ * shop_buy — покупок в Лавке сегодня (сумма save.shop.boughtToday за сегодняшний ассортимент);
+ * arena_wins — лучший итог побед Арены за сегодня (rewardWins дня награды или победы текущего матча, начатого сегодня);
+ * kitchen_cook — блюдо дня приготовлено сегодня (save.kitchen.meal.day).
+ * Так задания видят Охоту, Лавку и Арену без новых полей сохранения и без правок их экранов.
+ */
+export const DERIVED_KINDS = ['hunt_attempt', 'shop_buy', 'arena_wins', 'kitchen_cook'] as const;
+export type DerivedKind = (typeof DERIVED_KINDS)[number];
+
+/** Все виды заданий дня (поле event в data/quests.json). */
+export const ACTIVITY_KINDS = [...RECORDED_KINDS, ...DERIVED_KINDS] as const;
 export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
 
 const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в нижнем регистре, цифры и _');
@@ -21,6 +41,11 @@ export const QuestDefSchema = z.object({
   target: z.number().int().positive(),
   /** Очки активности за получение награды задания. */
   points: z.number().int().nonnegative(),
+  /**
+   * Функция из data/unlocks.json, без которой задание не показывается (Охота, Арена, Лавка…): новичок не видит
+   * невыполнимых заданий. Нет — задание видно сразу.
+   */
+  unlock: z.enum(FEATURE_IDS).optional(),
 });
 
 export const MilestoneRewardsSchema = z.object({
@@ -65,7 +90,7 @@ export type QuestsConfig = z.infer<typeof QuestsConfigSchema>;
  * Засчитать событие для ежедневных заданий: rollDay, затем daily.quests[kind] += amount.
  * amount ≤ 0 — ничего не меняет (но день всё равно переключается). Чистая функция.
  */
-export function recordActivity(save: SaveState, day: string, kind: ActivityKind, amount = 1): SaveState {
+export function recordActivity(save: SaveState, day: string, kind: RecordedKind, amount = 1): SaveState {
   const s = rollDay(save, day);
   if (!(amount > 0)) return s;
   const n = Math.floor(amount);
@@ -94,6 +119,36 @@ export interface QuestStatus {
   milestones: MilestoneView[];
 }
 
+/**
+ * Счётчик задания на сегодня (s.daily.day; rollDay — до вызова). Записываемые виды — из daily.quests,
+ * производные (DERIVED_KINDS) — из суточного состояния Охоты, Лавки и Арены. Чистая функция.
+ */
+export function questCounter(s: SaveState, kind: ActivityKind): number {
+  const day = s.daily.day;
+  switch (kind) {
+    case 'hunt_attempt':
+      return s.hunt && s.hunt.day === day ? s.hunt.used : 0;
+    case 'shop_buy':
+      return s.shop && s.shop.day === day ? Object.values(s.shop.boughtToday).reduce((a, n) => a + n, 0) : 0;
+    case 'arena_wins': {
+      const ab = s.autobattler;
+      if (!ab) return 0;
+      const done = ab.rewardDay === day ? (ab.rewardWins ?? 0) : 0;
+      const live = ab.run && ab.run.day === day ? ab.run.wins : 0;
+      return Math.max(done, live);
+    }
+    case 'kitchen_cook':
+      return s.kitchen?.meal?.day === day ? 1 : 0;
+    default:
+      return s.daily.quests[kind] ?? 0;
+  }
+}
+
+/** Задание видно игроку: его функция открыта (unlock) или условия нет. */
+export function questVisible(save: SaveState, q: QuestDef, ctx: FeatureContext): boolean {
+  return !q.unlock || featureUnlocked(save, q.unlock, ctx);
+}
+
 /** Текущие очки активности. */
 export function activityPoints(save: SaveState, ctx: FeatureContext): number {
   const claimed = new Set(save.daily.claimedQuests);
@@ -109,14 +164,15 @@ export function questStatus(save: SaveState, ctx: FeatureContext, day?: string):
   const claimed = new Set(s.daily.claimedQuests);
   const activity = activityPoints(s, ctx);
   const cfg = ctx.features.quests;
+  const visible = cfg.quests.filter((q) => questVisible(s, q, ctx));
   return {
     day: s.daily.day,
-    quests: cfg.quests.map((q) => {
-      const raw = s.daily.quests[q.event] ?? 0;
+    quests: visible.map((q) => {
+      const raw = questCounter(s, q.event);
       return { ...q, progress: Math.min(raw, q.target), done: raw >= q.target, claimed: claimed.has(q.id) };
     }),
     activity,
-    maxActivity: cfg.quests.reduce((sum, q) => sum + q.points, 0),
+    maxActivity: visible.reduce((sum, q) => sum + q.points, 0),
     milestones: cfg.milestones.map((m) => ({ ...m, reached: activity >= m.points, claimed: s.daily.activityClaimed.includes(m.points) })),
   };
 }
@@ -129,8 +185,9 @@ export function claimQuest(save: SaveState, day: string, questId: string, ctx: F
   const s = rollDay(save, day);
   const q = ctx.features.quests.quests.find((x) => x.id === questId);
   if (!q) throw new FeatureError('unknown_quest', `Неизвестное задание: ${questId}`);
+  if (!questVisible(s, q, ctx)) throw new FeatureError('quest_locked', `Задание «${q.name}» откроется вместе со своей функцией`);
   if (s.daily.claimedQuests.includes(q.id)) throw new FeatureError('quest_already_claimed', `Награда за задание «${q.name}» уже получена`);
-  const progress = s.daily.quests[q.event] ?? 0;
+  const progress = questCounter(s, q.event);
   if (progress < q.target) throw new FeatureError('quest_not_done', `Задание «${q.name}» ещё не выполнено (${progress}/${q.target})`);
   const next: SaveState = { ...s, daily: { ...s.daily, claimedQuests: [...s.daily.claimedQuests, q.id] } };
   return { save: next, points: q.points, events: [{ type: 'questClaimed', questId: q.id, points: q.points, activity: activityPoints(next, ctx) }] };

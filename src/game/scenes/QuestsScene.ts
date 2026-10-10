@@ -48,6 +48,11 @@ const QUEST_ICON: Record<ActivityKind, SkinIcon> = {
   hero_level_up: 'star',
   hero_ascend: 'helmet',
   tower_attempt: 'tower',
+  expedition_claim: 'compass',
+  hunt_attempt: 'trophy',
+  shop_buy: 'bag',
+  arena_wins: 'castle',
+  kitchen_cook: 'pot',
 };
 
 /** Очки активности до «Забрать» — для отсчёта числа на новом экране. */

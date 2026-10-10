@@ -1,13 +1,18 @@
 {
-  "$comment": "Ежедневные задания (K5). Числа — заглушки до баланса. Формат — docs/content/features.md. jobExp — опыт в общий пул героев.",
+  "$comment": "Ежедневные задания (K5). Числа — заглушки до баланса. Формат — docs/content/features.md. jobExp — опыт в общий пул героев. unlock — функция data/unlocks.json, без которой задание скрыто. Заданий на 160 очков, пороги — до 100: для сундуков дня хватает любых 6–7 заданий (docs/design/daily-loop-2026-10-10.md).",
   "quests": [
     { "id": "win_stages", "name": "Победить в 3 боях кампании", "event": "stage_win", "target": 3, "points": 20 },
     { "id": "fight", "name": "Провести 5 боёв", "event": "stage_attempt", "target": 5, "points": 20 },
     { "id": "offline_chest", "name": "Забрать сундук офлайн-наград", "event": "offline_claim", "target": 1, "points": 20 },
     { "id": "fast_rewards", "name": "Взять быстрые награды", "event": "fast_rewards", "target": 1, "points": 20 },
     { "id": "level_ups", "name": "Улучшить героев 2 раза", "event": "hero_level_up", "target": 2, "points": 20 },
-    { "id": "summon", "name": "Призвать героя в Таверне", "event": "summon", "target": 1, "points": 10 },
-    { "id": "tower", "name": "Штурмовать башню испытаний", "event": "tower_attempt", "target": 1, "points": 10 }
+    { "id": "summon", "name": "Призыв в Таверне", "event": "summon", "target": 1, "points": 10, "unlock": "tavern" },
+    { "id": "tower", "name": "Штурмовать башню испытаний", "event": "tower_attempt", "target": 1, "points": 10, "unlock": "tower" },
+    { "id": "expedition", "name": "Забрать добычу экспедиции", "event": "expedition_claim", "target": 1, "points": 10, "unlock": "bounties" },
+    { "id": "hunt", "name": "Сразиться с MVP дня на Охоте", "event": "hunt_attempt", "target": 1, "points": 10, "unlock": "hunt" },
+    { "id": "arena", "name": "Одержать 2 победы в матче Арены", "event": "arena_wins", "target": 2, "points": 10, "unlock": "autobattler" },
+    { "id": "shop", "name": "Купить товар в Лавке", "event": "shop_buy", "target": 1, "points": 10, "unlock": "shop" },
+    { "id": "kitchen", "name": "Приготовить блюдо дня", "event": "kitchen_cook", "target": 1, "points": 10, "unlock": "kitchen" }
   ],
   "milestones": [
     { "points": 20, "rewards": { "gold": 200, "gems": 0, "jobExp": 0 } },

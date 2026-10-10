@@ -21,6 +21,7 @@ import {
   pityInfo,
   RARITY_CARD,
   RARITY_FEM,
+  lootTag,
   resultTag,
   revealOrder,
   revealSchedule,
@@ -901,11 +902,14 @@ export class TavernScene extends Phaser.Scene {
     const L2 = state.layer;
     state.cards.forEach((cv, k) => {
       const t = resultTag(state.tags[cv.i]);
-      if (t.kind === 'loot') return;
+      const r = state.results[cv.i];
+      // Награда (не герой): метка, куда она ушла («В сумке», «В запас»); золото и алмазы — без метки (видны в шапке).
+      const label = t.kind === 'loot' ? (r?.kind === 'loot' ? lootTag(r.loot) : null) : t.text;
+      if (!label) return;
       const fh = cv.face.getData('h') as number;
       const y = cv.slot.y + fh / 2 + (state.count === 1 ? S.l : 34);
-      const mark = tag(this, cv.slot.x, y, t.text, t.kind === 'new' ? 'gold' : 'neutral', { solid: t.kind === 'new' }).setName(`summonTag_${cv.i}`);
-      if (t.kind === 'copy' && !view().adaptive) mark.setScale(0.85);
+      const mark = tag(this, cv.slot.x, y, label, t.kind === 'new' ? 'gold' : 'neutral', { solid: t.kind === 'new' }).setName(`summonTag_${cv.i}`);
+      if (t.kind !== 'new' && !view().adaptive) mark.setScale(0.85);
       state.body.add(mark);
       if (!motion.reduced) {
         mark.setAlpha(0);

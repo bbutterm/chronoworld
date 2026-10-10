@@ -482,6 +482,18 @@ export const SaveStateSchema = z.object({
       value: z.number().finite().nonnegative(),
     }).optional(),
   }).optional(),
+  /**
+   * Кухня в Таверне (src/core/kitchen, docs/design/kitchen.md): pantry — продукт → штук, meal — блюдо дня (id из
+   * data/kitchen.json и день, когда приготовлено: действует только в этот день), bought — покупки продуктов за день.
+   * Без смены версии: нет поля — кладовая пуста, блюд не было.
+   */
+  kitchen: z
+    .object({
+      pantry: z.record(z.string(), z.number().int().nonnegative()),
+      meal: z.object({ id: z.string(), day: DayStringSchema }).optional(),
+      bought: z.object({ day: DayStringSchema, count: z.number().int().nonnegative() }).optional(),
+    })
+    .optional(),
 });
 
 export type HeroState = z.infer<typeof HeroStateSchema>;

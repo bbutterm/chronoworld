@@ -417,8 +417,11 @@ export class AscendScene extends Phaser.Scene {
 
   private sources(hero: HeroState): void {
     const name = heroTemplate(GAME, hero.templateId).name;
+    // Синий → фиолетовый и золотой → красный — только копии этого героя; остальные ступени — «любой герой».
+    const req = ascendRequirement(session.save, hero.id, GAME);
+    const anyHero = !req || req.fodder.some((f) => f.kind === 'any');
     this.lockBodyFor(() => noticeModal(this, 'Где взять копии', [
-      `Карты этого героя (${name}) и любых других героев:`,
+      anyHero ? `Карты этого героя (${name}) и любых других героев:` : `Нужны карты именно этого героя (${name}):`,
       ...copySources(session.save, hero.templateId, GAME).map((s) => `• ${s}`),
       'Опыт и золото, вложенные в выбранные копии, вернутся в запас.',
     ]));
@@ -565,7 +568,10 @@ export class AscendScene extends Phaser.Scene {
     if (choose) lines.push(`Ветка: ${(req.branches ?? []).find((b) => b.job === this.branch)?.jobName ?? this.branch}`);
     const restored = ascendedBranch(hero, req.to, GAME);
     if (!hero.branch && restored) lines.push(`Восстановится прежняя профессия: ${heroCard({ ...hero, rarity: req.to, branch: restored }, GAME).jobName}`);
-    if (this.chosen.length) lines.push(`Будет использовано: ${this.chosen.length} ${this.chosen.length === 1 ? 'карта' : 'карты'} · ${formatNumber(req.gold)} золота`);
+    // Кого именно съест вознесение: на ступенях «любой герой» это может быть копия другого героя (Бран для Алана).
+    const fodder = this.chosen.map((id) => session.save.heroes.find((h) => h.id === id)).filter((h): h is HeroState => !!h);
+    const eaten = fodder.map((h) => `${heroCard(h, GAME).name} (ур. ${h.level})`).join(', ');
+    if (this.chosen.length) lines.push(`Будет использовано: ${eaten || this.chosen.length} · ${formatNumber(req.gold)} золота`);
     if (valuableFodder(session.save, this.chosen).length) lines.push('Выбраны синие карточки и выше');
     this.lockBodyFor(() => {
       const previous = this.children.getByName('confirmModal');

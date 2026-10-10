@@ -6,6 +6,7 @@ import { COMBAT } from '../core/config';
  * Чистые помощники экранов (без Phaser) — их проверяют тесты tests/game-flow.test.ts.
  */
 import {
+  ascendAllocation,
   ascendRequirement,
   ascendPlan,
   maxLevelOf,
@@ -164,7 +165,10 @@ export function heroAlerts(save: SaveState, ctx: GameContext): HeroAlert[] {
   const out: HeroAlert[] = pendingPicks(save).map((p, i) => ({ kind: 'pick' as const, key: `pick:${i}:${p.rarity}` }));
   const squad = save.heroes.filter((h) => save.squad.includes(h.id) && ctx.content.heroes[h.templateId]);
   if (!squad.length) return out;
-  const ready = new Set(ascendReady(save, ctx).map((h) => h.id));
+  // Вознести — только столько героев отряда, сколько можно вознести одновременно: одна лишняя копия не зажигает повод у
+  // каждого героя (ascendAllocation, приоритет — порядок в отряде). Метка на карточке (ascendReady) — у всех кандидатов.
+  const order = squad.map((h) => h.id).sort((a, b) => save.squad.indexOf(a) - save.squad.indexOf(b));
+  const ready = new Set(ascendAllocation(save, order, ctx).map((a) => a.heroId));
   for (const h of squad) {
     if (ready.has(h.id)) out.push({ kind: 'ascend', heroId: h.id, key: heroAlertKey('ascend', h) });
     else if (needsBranch(h, ctx)) out.push({ kind: 'branch', heroId: h.id, key: `branch:${h.id}` });
@@ -672,7 +676,7 @@ export function untilReset(now: Date): string {
 }
 
 /** Куда вести игрока, чтобы выполнить задание. */
-export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | 'Heroes' | 'Tower' {
+export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | 'Heroes' | 'Tower' | 'Expeditions' | 'Hunt' | 'Shop' | 'Autobattler' | 'Kitchen' {
   switch (event) {
     case 'stage_win':
     case 'stage_attempt':
@@ -687,6 +691,16 @@ export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | '
       return 'Heroes';
     case 'tower_attempt':
       return 'Tower';
+    case 'expedition_claim':
+      return 'Expeditions';
+    case 'hunt_attempt':
+      return 'Hunt';
+    case 'shop_buy':
+      return 'Shop';
+    case 'arena_wins':
+      return 'Autobattler';
+    case 'kitchen_cook':
+      return 'Kitchen';
   }
 }
 

@@ -412,7 +412,9 @@ const visitTavern = async () => {
   const s = await save();
   const got = s.heroes.slice(before).map((h) => `${h.templateId} ${h.rarity}`);
   log(`Таверна: +${got.length} карт (${got.join(', ')}), свитков ${s.currency.scrolls}, гемов ${s.currency.gems}`);
-  if (got.length < 10) throw new Error(`Таверна: после «Призыв ×10» новых карт ${got.length}, ждали не меньше 10`);
+  // Таверна выдаёт героев и награды (data/summon.json → loot): первый ×10 — не меньше firstTen.heroes героев.
+  const minHeroes = JSON.parse(readFileSync('data/summon.json', 'utf8')).firstTen?.heroes ?? 10;
+  if (got.length < minHeroes) throw new Error(`Таверна: после «Призыв ×10» новых карт ${got.length}, ждали не меньше ${minHeroes}`);
   await clickNamed('Tavern', 'backButton');
   await waitScene('Home');
   await clickText('Home', 'Кампания');

@@ -104,6 +104,9 @@ import {
   type FullContext,
   type GameContext,
   type SaveState,
+  kitchenStatus,
+  cookMeal,
+  buyIngredient,
 } from '../../src/core';
 import { loadFullContext } from './content-node';
 import { prepareModelTower } from './tower-player';
@@ -171,6 +174,11 @@ export interface PlayerModel {
   shop: boolean;
   /** false — не покупать опыт, когда все герои отряда уже упёрлись в пределы редкости. */
   shopExpWhenCapped?: boolean;
+  /**
+   * Кухня (data/kitchen.json): раз в день готовить лучшее блюдо, на которое хватает продуктов (оценка kitchenScore);
+   * не хватает ни на одно — докупить недостающее за золото сверх запаса на уровни (лимит дня). Нет поля — готовить.
+   */
+  kitchen?: boolean;
   /**
    * Заточка снаряжения (data/drops.json → refine): после подготовки — самый дешёвый шаг среди надетого на отряд, пока
    * золото сверх резерва (refineReserve: refineReserveLevels уровней на героя + золото на опыт пула). false — не точить.
@@ -363,7 +371,7 @@ export interface LevelLog {
 }
 
 /** Источники доходов/расходов золота, гемов и опыта. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'expeditions', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop', 'refine'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'expeditions', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop', 'refine', 'kitchen'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number; exp: number }>;
 
@@ -416,6 +424,9 @@ export interface BalanceResult {
   huntLog: { day: number; damage: number; tier: number; sweep: boolean }[];
   /** Покупки в Лавке: id товара → сколько раз. */
   shopBuys: Record<string, number>;
+  /** Кухня: блюда дня (id → дней) и продуктов куплено за золото. */
+  meals: Record<string, number>;
+  ingredientsBought: number;
   /** Шагов заточки (всего) и уровни заточки надетого на отряд на конец каждого дня (средний, максимум). */
   refines: number;
   /** Сломано вещей при заточке. */
@@ -613,12 +624,18 @@ export class BalancePlayer {
       this.ascensions.push({ day: this.dayNo, t: this.t, active_min: this.activeMin, heroId: d.heroId, templateId: d.templateId, rarity: d.to });
     }
     for (const h of this.save.heroes) {
-      if (!needsBranch(h, this.ctx)) continue;
+      // Герой в экспедиции ветку не выбирает (HeroError hero_busy) — выберет, когда вернётся.
+      if (!needsBranch(h, this.ctx) || this.busy(h.id)) continue;
       const branch = this.branchFor(h.templateId, h.id);
       this.step('heroes', chooseBranch(this.save, h.id, branch, this.ctx).save);
       this.branches.push({ day: this.dayNo, t: this.t, templateId: h.templateId, branch, via: 'ascend' });
     }
     this.save = { ...this.save, squad: this.formation() };
+  }
+
+  /** Герой в экспедиции (менять профессию нельзя). */
+  busy(heroId: string): boolean {
+    return this.save.bounties.active.some((e) => e.heroIds.includes(heroId));
   }
 
   /** Вознесение с политикой ветки (если переход с выбором ветки). */
@@ -647,7 +664,8 @@ export class BalancePlayer {
   /** Фиолетовые без ветки (Таверна, миграция) — выбрать ветку по политике (бесплатно). */
   pickBranches(): void {
     for (const h of this.save.heroes) {
-      if (!needsBranch(h, this.ctx)) continue;
+      // Герой в экспедиции ветку не выбирает (HeroError hero_busy) — выберет, когда вернётся.
+      if (!needsBranch(h, this.ctx) || this.busy(h.id)) continue;
       const branch = this.branchFor(h.templateId, h.id);
       this.step('heroes', chooseBranch(this.save, h.id, branch, this.ctx).save);
       this.branches.push({ day: this.dayNo, t: this.t, templateId: h.templateId, branch, via: 'card' });
@@ -784,6 +802,7 @@ export class BalancePlayer {
     this.save = { ...this.save, squad: this.formation() };
     this.develop();
     this.shop();
+    this.cook();
     this.autoEquip();
     this.save = { ...this.save, squad: this.formation() };
     this.refine();
@@ -934,6 +953,38 @@ export class BalancePlayer {
     }
   }
 
+  /** Блюда дня, приготовленные моделью: id → дней. */
+  meals: Record<string, number> = {};
+  /** Продуктов куплено за золото. */
+  ingredientsBought = 0;
+
+  /**
+   * Кухня: раз в день — лучшее блюдо по kitchenScore среди тех, на которые хватает продуктов. Ни на одно не хватает —
+   * лучшее блюдо, недостающее к которому можно купить в пределах лимита дня и золота сверх goldReserve.
+   */
+  cook(): void {
+    if (this.model.kitchen === false || !this.ctx.kitchen) return;
+    let st = kitchenStatus(this.save, this.day, this.ctx);
+    if (!st.canCook) return;
+    const ranked = [...st.recipes].sort((a, b) => kitchenScore(b.buff) - kitchenScore(a.buff));
+    let pick = ranked.find((r) => r.affordable);
+    if (!pick) {
+      for (const r of ranked) {
+        const need = Object.values(r.missing).reduce((a, n) => a + n, 0);
+        const cost = Object.entries(r.missing).reduce((a, [id, n]) => a + n * (st.pantry.find((p) => p.id === id)?.priceNow ?? Infinity), 0);
+        if (need > st.buyLeft || this.save.resources.gold - cost < this.goldReserve()) continue;
+        for (const [id, n] of Object.entries(r.missing)) this.step('kitchen', buyIngredient(this.save, this.day, id, this.ctx, n));
+        this.ingredientsBought += need;
+        st = kitchenStatus(this.save, this.day, this.ctx);
+        pick = st.recipes.find((x) => x.id === r.id && x.affordable);
+        break;
+      }
+    }
+    if (!pick) return;
+    this.save = cookMeal(this.save, this.day, pick.id, this.ctx);
+    this.meals[pick.id] = (this.meals[pick.id] ?? 0) + 1;
+  }
+
   claimOffline(): void {
     this.step('offline', actClaimOffline(this.save, this.now, this.day, this.ctx).save);
   }
@@ -1060,6 +1111,11 @@ export class BalancePlayer {
 }
 
 /** Прогнать модель игрока на days дней. Детерминирована: одинаковые входы — одинаковый результат. */
+/** Оценка прибавки блюда для модели: АТК важнее ОЗ, защита и опыт — меньше. */
+export function kitchenScore(b: { atk?: number; hp?: number; def?: number; exp?: number }): number {
+  return (b.atk ?? 0) + 0.8 * (b.hp ?? 0) + 0.5 * (b.def ?? 0) + 0.3 * (b.exp ?? 0);
+}
+
 export function runBalance(ctx: FullContext, days: number, model: PlayerModel = PLAYER_MODEL): BalanceResult {
   const sim = new BalancePlayer(ctx, model);
   const rows: SessionRow[] = [];
@@ -1277,6 +1333,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     spareByDay,
     eventClaims: sim.eventClaims,
     shopBuys: sim.shopBuys,
+    meals: sim.meals,
+    ingredientsBought: sim.ingredientsBought,
     refines: sim.refines,
     refineFailures: sim.refineFailures,
     refineModes: sim.refineModes,

@@ -74,6 +74,7 @@ export function readRawGameData(root: string = ROOT): RawGameData {
     hunt: readJsonFile('data/hunt.json', root),
     shop: readJsonFile('data/shop.json', root),
     codes: readJsonFile('data/codes.json', root),
+    kitchen: readJsonFile('data/kitchen.json', root),
     stories: readJsonDir('data/story', root),
   };
 }
