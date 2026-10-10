@@ -64,6 +64,15 @@ export function chapterCleared(save: Pick<SaveState, 'campaign'>, chapterId: str
   return !!last && save.campaign.cleared.includes(last.id);
 }
 
+/**
+ * Герои выросли: пройдена глава 4 (дальше — «Годы дорог» перед главой 5). С этого момента личные сцены в таверне
+ * звучат взрослыми голосами (assets/voice: взрослая версия клипа — ключ-a.mp3).
+ */
+export function heroesGrown(save: Pick<SaveState, 'campaign'>, content: Pick<Content, 'chapters' | 'stages'>): boolean {
+  const ch4 = content.chapters.find((c) => c.order === 4);
+  return !!ch4 && chapterCleared(save, ch4.id, content);
+}
+
 /** Летопись главы пора показать: есть, глава пройдена, ещё не показана. */
 export function pendingChronicle(save: SaveState, chapterId: string, content: Pick<Content, 'chapters' | 'stages'>): ChapterChronicleDef | undefined {
   const c = chapterChronicle(chapterId, content);

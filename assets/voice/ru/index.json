@@ -7639,7 +7639,7 @@
   "chars": 9,
   "from": "chapter10/finding:ch10_s16:comment"
  },
- "08fbdf455d7401": {
+ "08fbdf455d7401-a": {
   "text": "Не спится. Скажу одну вещь, а ты не смейся, ладно?",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7647,7 +7647,7 @@
   "chars": 9,
   "from": "bonds/bond:alan"
  },
- "0f016e537d9e19": {
+ "0f016e537d9e19-a": {
   "text": "У нас в деревне отца звали «Задний». Раз в жизни отступил — от волков, с тремя детьми на руках.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7655,7 +7655,7 @@
   "chars": 12,
   "from": "bonds/bond:alan"
  },
- "04c0e0a7058b35": {
+ "04c0e0a7058b35-a": {
   "text": "Детей довёл. А деревня запомнила одно: шёл назад. Двадцать лет — «Задний».",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7663,7 +7663,7 @@
   "chars": 10,
   "from": "bonds/bond:alan"
  },
- "10637e664a9794": {
+ "10637e664a9794-a": {
   "text": "Он бил меня, если я вставал вторым. Чтобы меня так никогда не звали.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7671,7 +7671,7 @@
   "chars": 10,
   "from": "bonds/bond:alan"
  },
- "17af111b98ca40": {
+ "17af111b98ca40-a": {
   "text": "А Гаррет говорит: научись отступать. И я думаю — кто прав? Отец или деревня?",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7679,7 +7679,7 @@
   "chars": 11,
   "from": "bonds/bond:alan"
  },
- "1964d151b24f13": {
+ "1964d151b24f13-a": {
   "text": "Отец. Деревня всегда неправа, я считал. Трое детей живы — это итог. Остальное — сплетни.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7687,7 +7687,7 @@
   "chars": 12,
   "from": "bonds/bond:alan"
  },
- "031df8e2edcd0b": {
+ "031df8e2edcd0b-a": {
   "text": "Ты не спал?",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7695,7 +7695,7 @@
   "chars": 2,
   "from": "bonds/bond:alan"
  },
- "0a7472aea2e617": {
+ "0a7472aea2e617-a": {
   "text": "Считал, сколько раз ты вздохнёшь. Сбился на сорока.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7703,7 +7703,7 @@
   "chars": 8,
   "from": "bonds/bond:alan"
  },
- "09bd83ee6925e0": {
+ "09bd83ee6925e0-a": {
   "text": "…Спасибо. Только не записывай.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7711,7 +7711,7 @@
   "chars": 6,
   "from": "bonds/bond:alan"
  },
- "12868402d814f8": {
+ "12868402d814f8-a": {
   "text": "Уже. Новая графа: «Я должен Алану». Пока одна строчка — этот разговор.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7719,7 +7719,7 @@
   "chars": 10,
   "from": "bonds/bond:alan"
  },
- "0355c3c7a5aede": {
+ "0355c3c7a5aede-a": {
   "text": "Все живы. Все! Это даже лучше, чем первым. …Не говорите отцу, что я так сказал.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7727,7 +7727,7 @@
   "chars": 13,
   "from": "bonds/bond:alan"
  },
- "08f888d7e97d77": {
+ "08f888d7e97d77-a": {
   "text": "Смотри. Расписка. Мамина. Четыре серебряных и двадцать медяков. Ферму забрали за меньшее.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7735,7 +7735,7 @@
   "chars": 13,
   "from": "bonds/bond:bran"
  },
- "01b1be50a0e7fa": {
+ "01b1be50a0e7fa-a": {
   "text": "Я давно могу заплатить. Ростовщик жив, сидит в Пронтере, у рыбного ряда.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7743,7 +7743,7 @@
   "chars": 10,
   "from": "bonds/bond:bran"
  },
- "05b4dd3f023fd5": {
+ "05b4dd3f023fd5-a": {
   "text": "И не плачу. Знаешь почему?",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7751,7 +7751,7 @@
   "chars": 5,
   "from": "bonds/bond:bran"
  },
- "047c2068040e3a": {
+ "047c2068040e3a-a": {
   "text": "Пока долг есть, она будто ещё тут. В тетради. Последней строчкой, которая не сошлась.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7759,7 +7759,7 @@
   "chars": 13,
   "from": "bonds/bond:bran"
  },
- "1559fbfb276b74": {
+ "1559fbfb276b74-a": {
   "text": "Бран… Долг — это не она. Она — это ты. Тот, кто всё записывает и всё равно рядом.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7767,7 +7767,7 @@
   "chars": 11,
   "from": "bonds/bond:bran"
  },
- "08a997f5048478": {
+ "08a997f5048478-a": {
   "text": "Сентиментально. Неточно. …Ладно. Завтра зайду к рыбному ряду.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7775,7 +7775,7 @@
   "chars": 10,
   "from": "bonds/bond:bran"
  },
- "0df55dc4a3cb94": {
+ "0df55dc4a3cb94-a": {
   "text": "Если меня там обсчитают — запиши на свой счёт.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7783,7 +7783,7 @@
   "chars": 7,
   "from": "bonds/bond:bran"
  },
- "0d83e0260d5e8e": {
+ "0d83e0260d5e8e-a": {
   "text": "Сорок с чем-то секунд. Я округлил в нашу пользу. Все так делают.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7791,7 +7791,7 @@
   "chars": 9,
   "from": "bonds/bond:bran"
  },
- "1a321ca7efd031": {
+ "1a321ca7efd031-a": {
   "text": "У меня есть огарок. Брат зажёг его в последний вечер, когда приходил. Я его не жгу. Десять лет.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7799,7 +7799,7 @@
   "chars": 13,
   "from": "bonds/bond:vika"
  },
- "1713c20b7f4e08": {
+ "1713c20b7f4e08-a": {
   "text": "В поветрие я держала тазы у отца Бенедикта. Сорок детей. Кровь с тех пор… ну, ты видел.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7807,7 +7807,7 @@
   "chars": 12,
   "from": "bonds/bond:vika"
  },
- "182f81fd917c89": {
+ "182f81fd917c89-a": {
   "text": "Думала: стану служительницей — руки перестанут дрожать. Не перестали.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7815,7 +7815,7 @@
   "chars": 9,
   "from": "bonds/bond:vika"
  },
- "01f38f4163f571": {
+ "01f38f4163f571-a": {
   "text": "У меня тоже дрожат. Перед каждым боем. Поэтому я и бегу первым — чтобы никто не заметил.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7823,7 +7823,7 @@
   "chars": 12,
   "from": "bonds/bond:vika"
  },
- "02b40921aec42b": {
+ "02b40921aec42b-a": {
   "text": "Правда?",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7831,7 +7831,7 @@
   "chars": 3,
   "from": "bonds/bond:vika"
  },
- "03b73e65155ed3": {
+ "03b73e65155ed3-a": {
   "text": "Нет. …Да. Не говори Брану.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -7839,7 +7839,7 @@
   "chars": 7,
   "from": "bonds/bond:vika"
  },
- "013721aa63504f": {
+ "013721aa63504f-a": {
   "text": "Не скажу. Дрожат — и пусть. Главное, чтобы бинт шёл ровно, а меч — вперёд.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7847,7 +7847,7 @@
   "chars": 10,
   "from": "bonds/bond:vika"
  },
- "1706dea94fd76e": {
+ "1706dea94fd76e-a": {
   "text": "Спи, огонёк… Это я огарку. Привычка. Его я не гашу — он и так не горит.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7855,7 +7855,7 @@
   "chars": 13,
   "from": "bonds/bond:vika"
  },
- "02bfb8416e7a77": {
+ "02bfb8416e7a77-a": {
   "text": "Отпела. Всех. Руки дрожали — а бинт шёл ровно.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7863,7 +7863,7 @@
   "chars": 9,
   "from": "bonds/bond:vika"
  },
- "167e426ccca913": {
+ "167e426ccca913-a": {
   "text": "Хочешь секрет трактира? Я тогда бежала не за колокольчиком. Ну, не только.",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -7871,7 +7871,7 @@
   "chars": 8,
   "from": "bonds/bond:greta"
  },
- "0a086d45c850f1": {
+ "0a086d45c850f1-a": {
   "text": "Двенадцать лет за стойкой. Все уходят — в поход, на войну, в Моррок. Я наливаю и остаюсь.",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -7879,7 +7879,7 @@
   "chars": 10,
   "from": "bonds/bond:greta"
  },
- "0ee73e11adeb48": {
+ "0ee73e11adeb48-a": {
   "text": "А тут серый, колокольчик, дверь нараспашку… Сейчас или никогда. И побежала.",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -7887,7 +7887,7 @@
   "chars": 8,
   "from": "bonds/bond:greta"
  },
- "051712d42bc213": {
+ "051712d42bc213-a": {
   "text": "Бесстрашная, говорят. Ерунда. Я боюсь одного — снова остаться, когда все ушли.",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -7895,7 +7895,7 @@
   "chars": 9,
   "from": "bonds/bond:greta"
  },
- "0dd9a629848cad": {
+ "0dd9a629848cad-a": {
   "text": "Не останешься. У тебя сковородка. Сковородку не оставляют.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7903,7 +7903,7 @@
   "chars": 10,
   "from": "bonds/bond:greta"
  },
- "0720fd56cefea6": {
+ "0720fd56cefea6-a": {
   "text": "Это самое красивое, что мне говорил мужчина. Вырежу на двери.",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -7911,7 +7911,7 @@
   "chars": 7,
   "from": "bonds/bond:greta"
  },
- "00696b90a0f763": {
+ "00696b90a0f763-a": {
   "text": "Давай я. У меня почерк лучше.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7919,7 +7919,7 @@
   "chars": 4,
   "from": "bonds/bond:greta"
  },
- "180fd5eca88bd3": {
+ "180fd5eca88bd3-a": {
   "text": "Вот теперь сделка закрыта. Три часа в желе — один удар сковородкой. Выгодно!",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -7927,7 +7927,7 @@
   "chars": 8,
   "from": "bonds/bond:greta"
  },
- "07f3772b6840a9": {
+ "07f3772b6840a9-a": {
   "text": "Ты спрашивал, за что мне стыдно. Расскажу. Один раз.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7935,7 +7935,7 @@
   "chars": 8,
   "from": "bonds/bond:dorn"
  },
- "0a692086290f31": {
+ "0a692086290f31-a": {
   "text": "Моррок. Булочник Хамид задолжал гильдии. Послали меня. Мне было семнадцать.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7943,7 +7943,7 @@
   "chars": 10,
   "from": "bonds/bond:dorn"
  },
- "1b2748bc54376f": {
+ "1b2748bc54376f-a": {
   "text": "Я сломал ему руку. При дочке. Она держала поднос с лепёшками и не уронила ни одной.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7951,7 +7951,7 @@
   "chars": 11,
   "from": "bonds/bond:dorn"
  },
- "0379d7a9bda9ad": {
+ "0379d7a9bda9ad-a": {
   "text": "С тех пор в Морроке беру хлеб только у Хамида. Плачу вдвое. Он берёт молча.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7959,7 +7959,7 @@
   "chars": 10,
   "from": "bonds/bond:dorn"
  },
- "19b22f73dda10f": {
+ "19b22f73dda10f-a": {
   "text": "Руку это не вылечит. Но печёт он одной рукой и немного второй. Вторую считаю за свой счёт.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7967,7 +7967,7 @@
   "chars": 12,
   "from": "bonds/bond:dorn"
  },
- "021ca722e73a7c": {
+ "021ca722e73a7c-a": {
   "text": "Это не так считается.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -7975,7 +7975,7 @@
   "chars": 5,
   "from": "bonds/bond:dorn"
  },
- "1247ce165f5ebb": {
+ "1247ce165f5ebb-a": {
   "text": "У тебя — не так. У меня — так.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7983,7 +7983,7 @@
   "chars": 5,
   "from": "bonds/bond:dorn"
  },
- "0ddb7e1d69f7aa": {
+ "0ddb7e1d69f7aa-a": {
   "text": "Дорн, ты хороший. Не спорь, это я как лекарь говорю.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -7991,7 +7991,7 @@
   "chars": 9,
   "from": "bonds/bond:dorn"
  },
- "0b88895af85299": {
+ "0b88895af85299-a": {
   "text": "…Не злите меня добротой. Я не знаю, что с ней делать.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -7999,7 +7999,7 @@
   "chars": 9,
   "from": "bonds/bond:dorn"
  },
- "11c1aba45d5bec": {
+ "11c1aba45d5bec-a": {
   "text": "Стоял до конца. Пусть гильдия запишет. Бран, ты тоже.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -8007,7 +8007,7 @@
   "chars": 8,
   "from": "bonds/bond:dorn"
  },
- "0b1489254837bf": {
+ "0b1489254837bf-a": {
   "text": "А ты признаешь?",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -8015,7 +8015,7 @@
   "chars": 4,
   "from": "bonds/bond:iris"
  },
- "0a27dd11875cd5": {
+ "0a27dd11875cd5-a": {
   "text": "Гаррет велит считать тех, кто дошёл. Я пока учусь.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -8023,7 +8023,7 @@
   "chars": 8,
   "from": "bonds/bond:iris"
  },
- "0d18b3f30bf868": {
+ "0d18b3f30bf868-a": {
   "text": "Хочешь, пойду с тобой? Я могу молчать. Недолго, но могу.",
   "role": "alan",
   "voice": "D6vtKm1CLiqY1APjAWK0",
@@ -8183,7 +8183,7 @@
   "chars": 10,
   "from": "bonds/bond:meilin"
  },
- "08a473152d9f18": {
+ "08a473152d9f18-a": {
   "text": "Запишем: коза невиновна.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -8199,7 +8199,7 @@
   "chars": 11,
   "from": "bonds/bond:meilin"
  },
- "08ab11ebaaed00": {
+ "08ab11ebaaed00-a": {
   "text": "У следа бывает продолжение. У отряда — тоже. Можно проверить оба.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -8215,7 +8215,7 @@
   "chars": 10,
   "from": "bonds/bond:meilin"
  },
- "15e5559e7a4b37": {
+ "15e5559e7a4b37-a": {
   "text": "Покажешь, как читать следы? Я пока умею читать только расписки.",
   "role": "bran",
   "voice": "q7JUzcMhLn6JgJjEtcN4",
@@ -8247,7 +8247,7 @@
   "chars": 9,
   "from": "bonds/bond:meilin"
  },
- "067b1c0b9e8f66": {
+ "067b1c0b9e8f66-a": {
   "text": "Можно новую купить. Даже со скидкой договорюсь.",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -8255,7 +8255,7 @@
   "chars": 5,
   "from": "bonds/bond:otto"
  },
- "0473c3cee90175": {
+ "0473c3cee90175-a": {
   "text": "А без тележки что говорит?",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -8263,7 +8263,7 @@
   "chars": 3,
   "from": "bonds/bond:otto"
  },
- "1efcd32ec30cbf": {
+ "1efcd32ec30cbf-a": {
   "text": "Давай вернём, что найдём. И соберём то, что будет возить тебя дальше.",
   "role": "greta",
   "voice": "1mzvHDyghaSCyjFAszPO",
@@ -8271,7 +8271,7 @@
   "chars": 8,
   "from": "bonds/bond:otto"
  },
- "13bfc847ca23c6": {
+ "13bfc847ca23c6-a": {
   "text": "А зачем шёпотом?",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -8279,7 +8279,7 @@
   "chars": 4,
   "from": "bonds/bond:teo"
  },
- "07a44e41d07ca0": {
+ "07a44e41d07ca0-a": {
   "text": "Ему не обязательно нужна песня. Можно посидеть рядом.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -8287,7 +8287,7 @@
   "chars": 7,
   "from": "bonds/bond:teo"
  },
- "039d93c710b4bd": {
+ "039d93c710b4bd-a": {
   "text": "Мне вчера был нужен человек, который держал таз. Ты ни разу не пел. Я заметила.",
   "role": "vika",
   "voice": "ExHQN7vFigaQ7UBqUt5S",
@@ -8303,7 +8303,7 @@
   "chars": 13,
   "from": "bonds/bond:zara"
  },
- "0ada0f796fe125": {
+ "0ada0f796fe125-a": {
   "text": "Назови кто. Я поговорю.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -8319,7 +8319,7 @@
   "chars": 8,
   "from": "bonds/bond:zara"
  },
- "06516090572aee": {
+ "06516090572aee-a": {
   "text": "Тогда постою рядом.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -8335,7 +8335,7 @@
   "chars": 11,
   "from": "bonds/bond:zara"
  },
- "0e51c89a43bff5": {
+ "0e51c89a43bff5-a": {
   "text": "Не ушёл. И сейчас постою. Только скажи, где, я плохо понимаю намёки.",
   "role": "dorn",
   "voice": "8qXAnGS4OZi8BO8eSzez",
@@ -8622,5 +8622,493 @@
   "model": "eleven_v4",
   "chars": 82,
   "from": "chapter5/interlude"
+ },
+ "08fbdf455d7401": {
+  "text": "Не спится. Скажу одну вещь, а ты не смейся, ладно?",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "bonds/bond:alan"
+ },
+ "0f016e537d9e19": {
+  "text": "У нас в деревне отца звали «Задний». Раз в жизни отступил — от волков, с тремя детьми на руках.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 12,
+  "from": "bonds/bond:alan"
+ },
+ "04c0e0a7058b35": {
+  "text": "Детей довёл. А деревня запомнила одно: шёл назад. Двадцать лет — «Задний».",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:alan"
+ },
+ "10637e664a9794": {
+  "text": "Он бил меня, если я вставал вторым. Чтобы меня так никогда не звали.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:alan"
+ },
+ "17af111b98ca40": {
+  "text": "А Гаррет говорит: научись отступать. И я думаю — кто прав? Отец или деревня?",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "bonds/bond:alan"
+ },
+ "1964d151b24f13": {
+  "text": "Отец. Деревня всегда неправа, я считал. Трое детей живы — это итог. Остальное — сплетни.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 12,
+  "from": "bonds/bond:alan"
+ },
+ "031df8e2edcd0b": {
+  "text": "Ты не спал?",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 2,
+  "from": "bonds/bond:alan"
+ },
+ "0a7472aea2e617": {
+  "text": "Считал, сколько раз ты вздохнёшь. Сбился на сорока.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:alan"
+ },
+ "09bd83ee6925e0": {
+  "text": "…Спасибо. Только не записывай.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "bonds/bond:alan"
+ },
+ "12868402d814f8": {
+  "text": "Уже. Новая графа: «Я должен Алану». Пока одна строчка — этот разговор.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:alan"
+ },
+ "0355c3c7a5aede": {
+  "text": "Все живы. Все! Это даже лучше, чем первым. …Не говорите отцу, что я так сказал.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 13,
+  "from": "bonds/bond:alan"
+ },
+ "08f888d7e97d77": {
+  "text": "Смотри. Расписка. Мамина. Четыре серебряных и двадцать медяков. Ферму забрали за меньшее.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 13,
+  "from": "bonds/bond:bran"
+ },
+ "01b1be50a0e7fa": {
+  "text": "Я давно могу заплатить. Ростовщик жив, сидит в Пронтере, у рыбного ряда.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:bran"
+ },
+ "05b4dd3f023fd5": {
+  "text": "И не плачу. Знаешь почему?",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "bonds/bond:bran"
+ },
+ "047c2068040e3a": {
+  "text": "Пока долг есть, она будто ещё тут. В тетради. Последней строчкой, которая не сошлась.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 13,
+  "from": "bonds/bond:bran"
+ },
+ "1559fbfb276b74": {
+  "text": "Бран… Долг — это не она. Она — это ты. Тот, кто всё записывает и всё равно рядом.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "bonds/bond:bran"
+ },
+ "08a997f5048478": {
+  "text": "Сентиментально. Неточно. …Ладно. Завтра зайду к рыбному ряду.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:bran"
+ },
+ "0df55dc4a3cb94": {
+  "text": "Если меня там обсчитают — запиши на свой счёт.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "bonds/bond:bran"
+ },
+ "0d83e0260d5e8e": {
+  "text": "Сорок с чем-то секунд. Я округлил в нашу пользу. Все так делают.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "bonds/bond:bran"
+ },
+ "1a321ca7efd031": {
+  "text": "У меня есть огарок. Брат зажёг его в последний вечер, когда приходил. Я его не жгу. Десять лет.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 13,
+  "from": "bonds/bond:vika"
+ },
+ "1713c20b7f4e08": {
+  "text": "В поветрие я держала тазы у отца Бенедикта. Сорок детей. Кровь с тех пор… ну, ты видел.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 12,
+  "from": "bonds/bond:vika"
+ },
+ "182f81fd917c89": {
+  "text": "Думала: стану служительницей — руки перестанут дрожать. Не перестали.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "bonds/bond:vika"
+ },
+ "01f38f4163f571": {
+  "text": "У меня тоже дрожат. Перед каждым боем. Поэтому я и бегу первым — чтобы никто не заметил.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 12,
+  "from": "bonds/bond:vika"
+ },
+ "02b40921aec42b": {
+  "text": "Правда?",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 3,
+  "from": "bonds/bond:vika"
+ },
+ "03b73e65155ed3": {
+  "text": "Нет. …Да. Не говори Брану.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "bonds/bond:vika"
+ },
+ "013721aa63504f": {
+  "text": "Не скажу. Дрожат — и пусть. Главное, чтобы бинт шёл ровно, а меч — вперёд.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:vika"
+ },
+ "1706dea94fd76e": {
+  "text": "Спи, огонёк… Это я огарку. Привычка. Его я не гашу — он и так не горит.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 13,
+  "from": "bonds/bond:vika"
+ },
+ "02bfb8416e7a77": {
+  "text": "Отпела. Всех. Руки дрожали — а бинт шёл ровно.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "bonds/bond:vika"
+ },
+ "167e426ccca913": {
+  "text": "Хочешь секрет трактира? Я тогда бежала не за колокольчиком. Ну, не только.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:greta"
+ },
+ "0a086d45c850f1": {
+  "text": "Двенадцать лет за стойкой. Все уходят — в поход, на войну, в Моррок. Я наливаю и остаюсь.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:greta"
+ },
+ "0ee73e11adeb48": {
+  "text": "А тут серый, колокольчик, дверь нараспашку… Сейчас или никогда. И побежала.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:greta"
+ },
+ "051712d42bc213": {
+  "text": "Бесстрашная, говорят. Ерунда. Я боюсь одного — снова остаться, когда все ушли.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "bonds/bond:greta"
+ },
+ "0dd9a629848cad": {
+  "text": "Не останешься. У тебя сковородка. Сковородку не оставляют.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:greta"
+ },
+ "0720fd56cefea6": {
+  "text": "Это самое красивое, что мне говорил мужчина. Вырежу на двери.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "bonds/bond:greta"
+ },
+ "00696b90a0f763": {
+  "text": "Давай я. У меня почерк лучше.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "bonds/bond:greta"
+ },
+ "180fd5eca88bd3": {
+  "text": "Вот теперь сделка закрыта. Три часа в желе — один удар сковородкой. Выгодно!",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:greta"
+ },
+ "07f3772b6840a9": {
+  "text": "Ты спрашивал, за что мне стыдно. Расскажу. Один раз.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:dorn"
+ },
+ "0a692086290f31": {
+  "text": "Моррок. Булочник Хамид задолжал гильдии. Послали меня. Мне было семнадцать.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:dorn"
+ },
+ "1b2748bc54376f": {
+  "text": "Я сломал ему руку. При дочке. Она держала поднос с лепёшками и не уронила ни одной.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "bonds/bond:dorn"
+ },
+ "0379d7a9bda9ad": {
+  "text": "С тех пор в Морроке беру хлеб только у Хамида. Плачу вдвое. Он берёт молча.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:dorn"
+ },
+ "19b22f73dda10f": {
+  "text": "Руку это не вылечит. Но печёт он одной рукой и немного второй. Вторую считаю за свой счёт.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 12,
+  "from": "bonds/bond:dorn"
+ },
+ "021ca722e73a7c": {
+  "text": "Это не так считается.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "bonds/bond:dorn"
+ },
+ "1247ce165f5ebb": {
+  "text": "У тебя — не так. У меня — так.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "bonds/bond:dorn"
+ },
+ "0ddb7e1d69f7aa": {
+  "text": "Дорн, ты хороший. Не спорь, это я как лекарь говорю.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "bonds/bond:dorn"
+ },
+ "0b88895af85299": {
+  "text": "…Не злите меня добротой. Я не знаю, что с ней делать.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "bonds/bond:dorn"
+ },
+ "11c1aba45d5bec": {
+  "text": "Стоял до конца. Пусть гильдия запишет. Бран, ты тоже.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:dorn"
+ },
+ "0b1489254837bf": {
+  "text": "А ты признаешь?",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "bonds/bond:iris"
+ },
+ "0a27dd11875cd5": {
+  "text": "Гаррет велит считать тех, кто дошёл. Я пока учусь.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:iris"
+ },
+ "0d18b3f30bf868": {
+  "text": "Хочешь, пойду с тобой? Я могу молчать. Недолго, но могу.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:iris"
+ },
+ "08a473152d9f18": {
+  "text": "Запишем: коза невиновна.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "bonds/bond:meilin"
+ },
+ "08ab11ebaaed00": {
+  "text": "У следа бывает продолжение. У отряда — тоже. Можно проверить оба.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:meilin"
+ },
+ "15e5559e7a4b37": {
+  "text": "Покажешь, как читать следы? Я пока умею читать только расписки.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "bonds/bond:meilin"
+ },
+ "067b1c0b9e8f66": {
+  "text": "Можно новую купить. Даже со скидкой договорюсь.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "bonds/bond:otto"
+ },
+ "0473c3cee90175": {
+  "text": "А без тележки что говорит?",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 3,
+  "from": "bonds/bond:otto"
+ },
+ "1efcd32ec30cbf": {
+  "text": "Давай вернём, что найдём. И соберём то, что будет возить тебя дальше.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "bonds/bond:otto"
+ },
+ "13bfc847ca23c6": {
+  "text": "А зачем шёпотом?",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "bonds/bond:teo"
+ },
+ "07a44e41d07ca0": {
+  "text": "Ему не обязательно нужна песня. Можно посидеть рядом.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "bonds/bond:teo"
+ },
+ "039d93c710b4bd": {
+  "text": "Мне вчера был нужен человек, который держал таз. Ты ни разу не пел. Я заметила.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "bonds/bond:teo"
+ },
+ "0ada0f796fe125": {
+  "text": "Назови кто. Я поговорю.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "bonds/bond:zara"
+ },
+ "06516090572aee": {
+  "text": "Тогда постою рядом.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "bonds/bond:zara"
+ },
+ "0e51c89a43bff5": {
+  "text": "Не ушёл. И сейчас постою. Только скажи, где, я плохо понимаю намёки.",
+  "role": "dorn",
+  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "bonds/bond:zara"
  }
 }

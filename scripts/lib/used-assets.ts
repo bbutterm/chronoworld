@@ -130,13 +130,13 @@ export function collectUsedAssets(root: string): UsedAssets {
   });
 }
 
-/** Озвучка (src/game/voice.ts, scripts/voice-gen.ts): assets/voice/<язык>/<ключ>.mp3; index.json — только для скриптов. */
+/** Озвучка (src/game/voice.ts, scripts/voice-gen.ts): assets/voice/<язык>/<ключ>.mp3 (взрослая версия — <ключ>-a.mp3); index.json — только для скриптов. */
 export function voiceFiles(root: string): string[] {
   const dir = join(root, ASSETS_DIR, 'voice');
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((lang) => statSync(join(dir, lang)).isDirectory())
-    .flatMap((lang) => readdirSync(join(dir, lang)).filter((n) => /^[0-9a-f]{14}\.mp3$/.test(n)).map((n) => `voice/${lang}/${n}`))
+    .flatMap((lang) => readdirSync(join(dir, lang)).filter((n) => /^[0-9a-f]{14}(-a)?\.mp3$/.test(n)).map((n) => `voice/${lang}/${n}`))
     .sort();
 }
 
