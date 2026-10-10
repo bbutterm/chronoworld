@@ -42,17 +42,17 @@
  "1fd2948de6ba61": {
   "text": "Бинты со мной. Я взяла очень много бинтов.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 8,
   "from": "chapter1/ch1_intro"
  },
  "16d4aa3ef83a06": {
   "text": "Смотрите, какая пушистая гусеничка… Ай! Она кусается!",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 10,
   "from": "chapter1/ch1_s1_before"
  },
  "1dfd521901131f": {
@@ -82,9 +82,9 @@
  "1e198673d0a8f2": {
   "text": "Они не нападают. Они убегают. Будто их кто-то гонит из чащи.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_s11_after"
  },
  "16602d26ba6c7e": {
@@ -130,9 +130,9 @@
  "028daac75c36d7": {
   "text": "А я буду вас штопать. Кто-то же должен.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 4,
+  "chars": 7,
   "from": "chapter1/ch1_s4_before"
  },
  "1f32b9cdb0c5f4": {
@@ -218,9 +218,9 @@
  "160e2395eac515": {
   "text": "Сядь. Не дёргайся. Я… я не боюсь крови. Совсем. Вот. Перевязала. Руки почти не дрожат.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 16,
   "from": "chapter1/ch1_s6_after"
  },
  "0419fe325d6075": {
@@ -258,9 +258,9 @@
  "091ed83688f657": {
   "text": "Тут корзинка и записка: «Ушла проучить главного. Грета».",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 6,
+  "chars": 11,
   "from": "chapter1/ch1_s7_before"
  },
  "1f183d51cab941": {
@@ -282,9 +282,9 @@
  "1d8422b250a253": {
   "text": "В плотине вместо веток — ложки, пуговицы, подковы. Всё блестящее. Это не бобры строили.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 10,
+  "chars": 12,
   "from": "chapter1/ch1_s15_after"
  },
  "18c4c1a6e81721": {
@@ -314,9 +314,9 @@
  "15013af88a374b": {
   "text": "Живая! И очень сердитая. Это хорошо: сердитые долго держатся.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_s15_after"
  },
  "081416152de17a": {
@@ -354,9 +354,9 @@
  "170eb443348ed7": {
   "text": "«Все, кого любили, вернутся»… Почему от этих слов так холодно?",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/ch1_s16_after"
  },
  "19cb6bde39409f": {
@@ -386,9 +386,9 @@
  "17e79136fbfe01": {
   "text": "Пупы на стенах вот-вот вылупятся. Бьём сначала тех, кто ближе к нам, потом — дальних.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 12,
   "from": "chapter1/ch1_s18_before"
  },
  "112ca22878024f": {
@@ -426,9 +426,9 @@
  "127a6d5a72e563": {
   "text": "Сначала свиту! Каждый павший поринг его злит.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 8,
   "from": "chapter1/ch1_s10_before"
  },
  "12ff47f335c895": {
@@ -514,9 +514,9 @@
  "03c8ca2506448c": {
   "text": "И первым в него провалился. Я тебя за сапог вытаскивала. Бинты, кстати, опять твои.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 9,
+  "chars": 11,
   "from": "chapter1/tav_ch1"
  },
  "0ae50834641027": {
@@ -602,9 +602,9 @@
  "15c2d98674d176": {
   "text": "Поздно уже. Спи, огонёк…",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 3,
+  "chars": 7,
   "from": "chapter1/tav_ch1"
  },
  "15c32c9d9780cd": {
@@ -618,9 +618,9 @@
  "05557c67fb3694": {
   "text": "Брат так делал. Давно. …Не больно, если быстро.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 5,
+  "chars": 9,
   "from": "chapter1/tav_ch1"
  },
  "0847778f6a4f1f": {
@@ -690,9 +690,9 @@
  "038c685e325dc1": {
   "text": "Ладан — это из церкви. А сырость… сырость точно не из церкви.",
   "role": "vika",
-  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "voice": "FuL7liD72Uod1to0xCVx",
   "model": "eleven_v4",
-  "chars": 7,
+  "chars": 10,
   "from": "chapter1/finding:ch1_s11:comment"
  },
  "07e15f44f34c93": {

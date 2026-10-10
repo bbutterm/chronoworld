@@ -1,5 +1,5 @@
 {
- "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора). Бран и Серый капюшон — свои голоса из Voice Design (аккаунт владельца); остальные — библиотека. Пометки эмоций — scripts/voice/direction, ударения — scripts/voice/stress.json.",
+ "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора). Вика, Бран и Серый капюшон — свои голоса из Voice Design (аккаунт владельца); остальные — библиотека. Пометки эмоций — scripts/voice/direction, ударения — scripts/voice/stress.json.",
  "model": "eleven_v4",
  "format": "mp3_44100_64",
  "voices": {
@@ -54,12 +54,11 @@
    }
   },
   "vika": {
-   "voice": "t6lBrEl93uCiLR1Lgm8v",
-   "label": "Alisa — Вика",
+   "voice": "FuL7liD72Uod1to0xCVx",
+   "label": "Chronoworld Вика — свой голос (Voice Design, весёлый вариант A)",
    "settings": {
-    "stability": 0.45,
+    "stability": 0.25,
     "similarity_boost": 0.8,
-    "style": 0.3,
     "use_speaker_boost": true
    }
   },
