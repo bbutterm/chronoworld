@@ -54,7 +54,7 @@ export type ProgressEvent =
 /** Нарушение правил игры (этап закрыт, нет героя и т. п.). */
 export class GameRuleError extends Error {
   constructor(
-    public code: 'stage_locked' | 'unknown_stage' | 'empty_squad' | 'unknown_job' | 'unknown_hero' | 'unknown_template' | 'duplicate_card' | 'invalid_choice' | 'choice_closed',
+    public code: 'stage_locked' | 'stage_cleared' | 'unknown_stage' | 'empty_squad' | 'unknown_job' | 'unknown_hero' | 'unknown_template' | 'duplicate_card' | 'invalid_choice' | 'choice_closed',
     message: string,
   ) {
     super(message);

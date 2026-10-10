@@ -63,6 +63,7 @@
  "В отряде нет героев": "No heroes in the squad",
  "В отряде может быть только одна копия каждой карточки": "Only one copy of each card can be in the squad",
  "Этап {0} ещё закрыт": "Stage {0} is still locked",
+ "Этап уже пройден — бой идёт на следующем этапе": "Stage already cleared — the fight continues on the next stage",
  "Этап ещё закрыт": "Stage is still locked",
  "Лимит должен содержать целое положительное число тиков боя": "Limit must be a positive whole number of battle ticks",
  "Верхняя граница разброса меньше нижней": "Upper spread bound is below the lower one",

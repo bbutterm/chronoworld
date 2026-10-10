@@ -160,7 +160,7 @@ try {
   const button = await page.evaluate(() => {
     const sc = window.__game.scene.getScene('Stage');
     const walk = list => list.flatMap(o => [o, ...(o.list ? walk(o.list) : [])]);
-    return walk(sc.children.list).find(o => o.type === 'Text' && ['В бой', 'Повторить', 'Тренировка'].includes(o.text))?.text;
+    return walk(sc.children.list).find(o => o.type === 'Text' && o.text === 'В бой')?.text;
   });
   if (!button) throw new Error('Fight button missing');
   if(COMPACT)await page.evaluate(()=>{const url=new URL(location.href);url.searchParams.set('compact','1');history.replaceState(null,'',url);});

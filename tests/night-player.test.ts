@@ -50,7 +50,8 @@ describe('Ускоренный QA-игрок без подмены ресурс�
     expect(result.save.campaign.cleared).not.toContain(last.stage);
     expect(result.attempts.filter((attempt) => attempt.stage === last.stage).every((attempt) => attempt.winner !== 'A')).toBe(true);
     expect(result.actions.some((action) => action.kind === 'arena_round')).toBe(true);
-    expect(result.actions.some((action) => action.kind === 'replay')).toBe(true);
+    // Пройденные этапы больше не сражаются (campaign.replay: false): ночной игрок у стены повторов не делает.
+    expect(result.actions.some((action) => action.kind === 'replay')).toBe(false);
     expect(result.save.resources.gold).toBeGreaterThanOrEqual(0);
     expect(result.save.resources.heroExp).toBeGreaterThanOrEqual(0);
     expect(result.save.currency.gems).toBeGreaterThanOrEqual(0);

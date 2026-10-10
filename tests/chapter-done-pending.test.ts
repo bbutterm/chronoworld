@@ -10,6 +10,7 @@ import {
   type SaveState,
 } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const ctx = loadFullContext();
 const T0 = Date.UTC(2026, 8, 27, 10);
@@ -44,8 +45,10 @@ describe('«Глава пройдена» переживает перезагр�
     const left = clearChapterDone(reloaded);
     expect(left.pendingChapterDone).toBeUndefined();
     expect(deserialize(serialize(left)).pendingChapterDone).toBeUndefined();
+    // Выпущенные данные повторы запрещают (stage_cleared); правило «повтор ничего не даёт» — при явном replay: true.
+    expect(() => actPlayStage(left, D0, boss.id, 1, ctx, T0)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
     for (let seed = 1; seed < 20; seed++) {
-      const again = actPlayStage(left, D0, boss.id, seed, ctx, T0);
+      const again = actPlayStage(left, D0, boss.id, seed, withReplay(ctx), T0);
       expect(again.save.pendingChapterDone).toBeUndefined();
     }
   });

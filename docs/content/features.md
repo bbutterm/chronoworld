@@ -82,7 +82,7 @@ const fctx = withFeatures(gameCtx, progressionJson, questsJson); // битый �
 ```json
 {
   "quests": [
-    { "id": "win_stages", "name": "Победить в 3 боях кампании", "event": "stage_win", "target": 3, "points": 20 }
+    { "id": "win_stages", "name": "Победить в 3 боях кампании или Башни", "event": "battle_win", "target": 3, "points": 20 }
   ],
   "milestones": [
     { "points": 20, "rewards": { "gold": 200, "gems": 0, "jobExp": 0 } }
@@ -99,6 +99,7 @@ const fctx = withFeatures(gameCtx, progressionJson, questsJson); // битый �
 | --- | --- |
 | `stage_attempt` | любой бой кампании (в т. ч. пропущенный) |
 | `stage_win` | победа в бою кампании |
+| `battle_win` | победа в бою кампании или Башни (`win_stages`: повторов этапов нет — у «стены» победы добираются в Башне) |
 | `offline_claim` | сбор непустого офлайн-сундука |
 | `fast_rewards` | взяты быстрые награды |
 | `summon` | каждая карточка, призванная в Таверне |
@@ -121,7 +122,7 @@ const fctx = withFeatures(gameCtx, progressionJson, questsJson); // битый �
 
 | Обёртка | Вызывает | Засчитывает |
 | --- | --- | --- |
-| `actPlayStage(save, day, stageId, seed, ctx)` | `playStage` | `stage_attempt`, `stage_win` |
+| `actPlayStage(save, day, stageId, seed, ctx)` | `playStage` | `stage_attempt`, `stage_win`, `battle_win` |
 | `actSkipStage(save, day, stageId, seed, ctx)` | `skipStage` | то же |
 | `actClaimOffline(save, now, day, ctx)` | `claimOffline` | `offline_claim` (если что-то получено) |
 | `actLevelUp(save, day, heroId, ctx, times?)` | `levelUpHero` | `hero_level_up` (по числу уровней) |
@@ -141,6 +142,10 @@ level-up только увеличивает `daily.quests.hero_level_up` — з
 игрок забирает его сам (`actClaimQuest`).
 
 ## K7. Повтор и пропуск боя
+
+Выключено в выпущенных данных (`data/progression.json → campaign.replay: false`, решение владельца 10.10.2026): как в AFK Arena,
+пройденный этап больше не сражается — обе функции и `playStage` бросают `GameRuleError('stage_cleared')`, экран этапа
+показывает пройденный этап только для просмотра. Ниже — поведение при `replay ≠ false` (тесты, песочница адвансов).
 
 - `skipStage(save, stageId, seed, ctx)` — только для пройденного этапа (`FeatureError('stage_not_cleared')`).
   Это обычный `playStage` (тот же seed → тот же итог, награда за повтор × `campaign.replayRewardMultiplier`),

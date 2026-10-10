@@ -13,7 +13,7 @@
 | `content.test.ts`, `context.test.ts`, `jobs.test.ts` | схемы контента, сборка полного контекста (`buildGameContext`), профессии |
 | `progression.test.ts`, `campaign.test.ts`, `chapters.test.ts`, `offline.test.ts` | статы и навыки героев, опыт, кампания, офлайн-сундук |
 | `save.test.ts` (+ `tests/fixtures/save-v*.json`) | сохранение, миграции старых версий, битые сохранения |
-| `features-*.test.ts` | K1 быстрые награды, K2 мощь, K5 задания, K7 пропуск/повтор, обёртки `act*` |
+| `features-*.test.ts` | K1 быстрые награды, K2 мощь, K5 задания, K7 пропуск/повтор (при `withReplay`; `campaign-no-replay.test.ts` — запрет в выпущенных данных), обёртки `act*` |
 | `equipment.test.ts`, `tower.test.ts`, `meta-*.test.ts` | K6 экипировка, K4 башня, K8 пресеты, K9 экспедиции (`meta-expeditions.test.ts`: автоподбор, порог мощи, сроки, детерминизм, получение, миграция v5 → v6), K10 достижения |
 | `game-*.test.ts` | помощники экранов из `src/game` |
 | `sim.test.ts`, `balance.test.ts` | симулятор серий боёв и инструмент баланса |

@@ -61,8 +61,7 @@
   "sources": {
     "expedition": { "min": 2, "max": 4 },
     "hunt": { "min": 1, "max": 3, "tiersPerExtra": 3 },
-    "replay": { "chance": 0.5, "count": 1 },
-    "chest": { "chancePerTick": 0.05 }
+    "chest": { "chancePerTick": 0.08 }
   },
   "shop": { "dailyLimit": 5, "chapterGrowth": 1.0 }
 }

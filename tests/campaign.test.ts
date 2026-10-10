@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildContent, enemySquad, GameRuleError, getStage, growthStep, newGame, playStage, stageStatus, type SaveState } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const ctx = loadGameContext();
 const stages = ctx.content.stages;
@@ -10,8 +11,8 @@ const fresh = () => newGame(ctx, 0);
 const clearedUpTo = (n: number): SaveState => ({ ...fresh(), campaign: { cleared: stages.slice(0, n).map((s) => s.id) } });
 
 /** Первый seed из 1..20, при котором отряд побеждает на этапе. */
-function winningSeed(save: SaveState, stageId: string): number {
-  for (let seed = 1; seed <= 20; seed++) if (playStage(save, stageId, seed, ctx).result.winner === 'A') return seed;
+function winningSeed(save: SaveState, stageId: string, c: typeof ctx = ctx): number {
+  for (let seed = 1; seed <= 20; seed++) if (playStage(save, stageId, seed, c).result.winner === 'A') return seed;
   throw new Error(`Отряд не может пройти ${stageId} ни с одним seed 1..20`);
 }
 
@@ -116,11 +117,13 @@ describe('кампания', () => {
     expect(next.heroes.slice(0, save.heroes.length)).toEqual(save.heroes);
   });
 
-  it('playStage: повтор пройденного — награда × replayRewardMultiplier, без stageUnlocked', () => {
+  // Выпущенные данные повторы запрещают (tests/campaign-no-replay.test.ts); правило награды повтора — при явном replay: true.
+  it('playStage: повтор пройденного (replay: true) — награда × replayRewardMultiplier, без stageUnlocked', () => {
     const save = clearedUpTo(1);
-    const seed = winningSeed(save, s1);
-    const { save: next, events } = playStage(save, s1, seed, ctx, undefined, '2026-10-04');
-    const m = ctx.progression.campaign.replayRewardMultiplier;
+    const rctx = withReplay(ctx);
+    const seed = winningSeed(save, s1, rctx);
+    const { save: next, events } = playStage(save, s1, seed, rctx, undefined, '2026-10-04');
+    const m = rctx.progression.campaign.replayRewardMultiplier!;
     const r = stages[0].rewards;
     expect(next.resources.gold).toBe(Math.floor(r.gold * m));
     expect(next.campaign.cleared).toEqual([s1]);

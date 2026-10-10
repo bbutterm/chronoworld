@@ -41,6 +41,7 @@ const TRACK = { h: 260, medal: 150, x0: 300, x1: GAME_W - S.l - S.m - 44, chest:
 /** Иконка задания по событию, которое его двигает. */
 const QUEST_ICON: Record<ActivityKind, SkinIcon> = {
   stage_win: 'swords',
+  battle_win: 'swords',
   stage_attempt: 'flag',
   offline_claim: 'chest',
   fast_rewards: 'hourglass',

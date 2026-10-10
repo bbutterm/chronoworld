@@ -38,6 +38,7 @@ import {
   type SaveState,
 } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const ctx = loadFullContext();
 const cfg = ctx.equipment.drops.refine!;
@@ -389,8 +390,9 @@ describe('Заточка: Благословенная руда', () => {
     const n = ev!.type === 'blessedOre' ? ev!.count : 0;
     expect(n).toBeGreaterThanOrEqual(1);
     expect(blessedOre(first!.save)).toBe(n);
-    // Повтор босса — без руды.
-    const again = actPlayStage(first!.save, '2026-01-01', boss.id, 1, ctx);
+    // Повтор босса — без руды. Выпущенные данные повторы запрещают (stage_cleared); правило «повтор ничего не даёт» — при явном replay: true.
+    expect(() => actPlayStage(first!.save, '2026-01-01', boss.id, 1, ctx)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    const again = actPlayStage(first!.save, '2026-01-01', boss.id, 1, withReplay(ctx));
     expect(again.events.some((e) => e.type === 'blessedOre')).toBe(false);
     expect(blessedOre(again.save)).toBe(n);
   });

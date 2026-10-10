@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { GAME } from '../src/game/content';
 import { prepareAdvanceLab, clearAdvanceLabExtras } from '../src/game/lab';
 import { activeForm, deserialize, serialize, sanitizeSave, setSquad, playStage } from '../src/core';
+import { withReplay } from './helpers';
 
 const prepared = () => prepareAdvanceLab(GAME, 1_800_000_000_000, '2027-01-15');
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules(); });
@@ -25,7 +26,9 @@ describe('ADVANCE LAB', () => {
   });
   it('runs a real late campaign battle using the prepared squad', () => {
     const s = prepared();
-    const result = playStage(s, GAME.content.stages.at(-1)!.id, 42, GAME, s.createdAt);
+    // Песочница проходит все этапы заранее; сборка VITE_ADVANCE_LAB включает повторы (src/game/content.ts), обычная — нет.
+    expect(() => playStage(s, GAME.content.stages.at(-1)!.id, 42, GAME, s.createdAt)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    const result = playStage(s, GAME.content.stages.at(-1)!.id, 42, withReplay(GAME), s.createdAt);
     expect(result.save.battleSeq).toBe(1);
   });
   it('blocks all API calls even with Telegram credentials and mock query', async () => {

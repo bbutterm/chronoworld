@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { itemCell, oreIcon } from '../itemIcons';
 import { GAME } from '../content';
 import { autoNextStage, decimal, defeatAdvice, describeEvents, equipBestSquad, formatNumber, keyEventsFirst, levelUpReady, nextOpenStage, squadGearUpgrades, stageNeeds, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
-import { collectFinding, featureUnlocked, pendingFinding, stageFinding, type BattleResult, type Side } from '../../core';
+import { collectFinding, featureUnlocked, pendingFinding, replayAllowed, stageFinding, type BattleResult, type Side } from '../../core';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from '../layout';
 import { commit, session } from '../session';
 import { findingIcon, findingPage, showPages } from '../storyPage';
@@ -208,12 +208,6 @@ export class ResultScene extends Phaser.Scene {
     /** Строка: рисует свои объекты на высоте ly, кладёт их put (в слой или прокрутку) — затем вешает нажатие. */
     type Put = <O extends Obj>(o: O) => O;
     const rows: { draw: (ly: number, put: Put) => Obj[] }[] = [];
-    // Повтор этапа после дневной пачки остается доступной тренировкой, без ожидания наград.
-    const replay = (stage?.outcome as { replay?: { rewarded: boolean; used: number; limit: number } } | undefined)?.replay;
-    if (replay) {
-      const label = replay.rewarded ? `Повтор: наград осталось ${Math.max(0, replay.limit - replay.used)} из ${replay.limit}` : 'Тренировка · награды на сегодня получены';
-      rows.push({ draw: (ly, put) => [put(ellipsize(text(this, GAME_W / 2, ly, label, T.caption, COLOR.textSecondary).setName('resultReplay'), L.contentW))] });
-    }
     const tactic = tacticalSuccess(data.result);
     if (tactic) rows.push({ draw: (ly, put) => [put(text(this, GAME_W / 2, ly, tactic, T.caption, COLOR.positive).setName('resultTactic'))] });
     const found = stage && firstClear ? stageFinding(stage.stageId, GAME.content) : undefined;
@@ -402,7 +396,10 @@ export class ResultScene extends Phaser.Scene {
       return;
     }
     const next = nextOpenStage(session.save, stage.stageId, GAME);
-    keep(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), T.body, { variant: 'secondary' }));
+    // Пройденный этап больше не сражается (progression.campaign.replay: false) — вместо «Повторить» прокачка героев.
+    // «Повторить» — только где повторы включены (песочница адвансов).
+    if (replayAllowed(GAME)) keep(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'Повторить', () => this.scene.start('Battle', { mode: 'stage', stageId: stage.stageId }), T.body, { variant: 'secondary' }));
+    else keep(button(this, L.side.x, this.endpointLayout.row1, L.side.w, Math.max(BTN.l, minimumTouchSize()), '', 'Герои', () => this.scene.start('Heroes'), T.body, { variant: 'secondary' })).container.setName('resultHeroes');
     const nextBtn = keep(cta(this, L.main.x, this.endpointLayout.row1, 'Дальше', () => {
       markHint('result_next');
       if (next) this.scene.start('Stage', { stageId: next.id });

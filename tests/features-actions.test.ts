@@ -30,6 +30,7 @@ import {
   type SaveState,
 } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const root = join(import.meta.dirname, '..');
 const read = (f: string) => JSON.parse(readFileSync(join(root, f), 'utf8'));
@@ -38,8 +39,11 @@ const D1 = '2026-09-26';
 const s1 = ctx.content.stages[0].id;
 const s2 = ctx.content.stages[1].id;
 
-function winningSeed(save: SaveState, stageId: string): number {
-  for (let seed = 1; seed <= 50; seed++) if (playStage(save, stageId, seed, ctx).result.winner === 'A') return seed;
+// Выпущенные данные запрещают повторы пройденных этапов; K7 (пропуск/повтор) проверяется при явном replay: true.
+const rctx = withReplay(ctx);
+
+function winningSeed(save: SaveState, stageId: string, c: typeof ctx = ctx): number {
+  for (let seed = 1; seed <= 50; seed++) if (playStage(save, stageId, seed, c).result.winner === 'A') return seed;
   throw new Error(`нет победного seed для ${stageId}`);
 }
 
@@ -60,22 +64,30 @@ describe('K7 пропуск и повтор', () => {
     expect(() => skipStage(s, 'nope', 1, ctx)).toThrow(GameRuleError);
   });
 
-  it('skipStage = playStage без лога (тот же итог, награды за повтор)', () => {
+  it('skipStage = playStage без лога (тот же итог, награды за повтор; replay: true)', () => {
     const s = cleared();
-    const seed = winningSeed(s, s1);
-    const full = playStage(s, s1, seed, ctx, undefined, D1);
-    const skip = skipStage(s, s1, seed, ctx, D1);
+    const seed = winningSeed(s, s1, rctx);
+    const full = playStage(s, s1, seed, rctx, undefined, D1);
+    const skip = skipStage(s, s1, seed, rctx, D1);
     expect(full.result.log.length).toBeGreaterThan(0);
     expect(skip.result.log).toEqual([]);
     expect(skip.save).toEqual(full.save);
     expect(skip.events).toEqual(full.events);
     expect({ ...skip.result, log: undefined }).toEqual({ ...full.result, log: undefined });
-    expect(skip.save.resources.gold - s.resources.gold).toBe(Math.floor(ctx.content.stages[0].rewards.gold * ctx.progression.campaign.replayRewardMultiplier));
+    expect(skip.save.resources.gold - s.resources.gold).toBe(Math.floor(ctx.content.stages[0].rewards.gold * rctx.progression.campaign.replayRewardMultiplier!));
   });
 
-  it('repeatStage = playStage с логом для пройденного', () => {
+  it('repeatStage = playStage с логом для пройденного (replay: true)', () => {
     const s = cleared();
-    expect(repeatStage(s, s1, 3, ctx)).toEqual(playStage(s, s1, 3, ctx));
+    expect(repeatStage(s, s1, 3, rctx)).toEqual(playStage(s, s1, 3, rctx));
+  });
+
+  it('выпущенные данные: пропуск и повтор пройденного этапа запрещены (stage_cleared)', () => {
+    const s = cleared();
+    for (const f of [() => skipStage(s, s1, 3, ctx, D1), () => repeatStage(s, s1, 3, ctx, D1), () => actSkipStage(s, D1, s1, 3, ctx)]) {
+      expect(f).toThrow(GameRuleError);
+      expect(f).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    }
   });
 });
 
@@ -87,7 +99,8 @@ describe('обёртки действий засчитывают задания'
     const base = playStage(s, s1, seed, ctx);
     expect(base.events.some((e) => e.type === 'levelUp')).toBe(false);
     expect(out.result).toEqual(base.result);
-    expect(out.save.daily.quests).toEqual({ stage_attempt: 1, stage_win: 1 });
+    // battle_win — задание «победы в боях» (кампания или Башня) после отмены повторов этапов.
+    expect(out.save.daily.quests).toEqual({ stage_attempt: 1, stage_win: 1, battle_win: 1 });
     // K10: обёртка ещё засчитывает достижения (battles_won, stages_cleared…).
     expect({ ...out.save, daily: undefined, achievements: undefined }).toEqual({ ...base.save, daily: undefined, achievements: undefined });
   });
@@ -102,9 +115,9 @@ describe('обёртки действий засчитывают задания'
     expect(out.save.daily.quests).toEqual({ stage_attempt: 1 });
   });
 
-  it('actSkipStage считает бой', () => {
+  it('actSkipStage считает бой (replay: true)', () => {
     const s = cleared();
-    const out = actSkipStage(s, D1, s1, winningSeed(s, s1), ctx);
+    const out = actSkipStage(s, D1, s1, winningSeed(s, s1, rctx), rctx);
     expect(out.save.daily.quests.stage_attempt).toBe(1);
     expect(out.save.daily.quests.stage_win).toBe(1);
   });

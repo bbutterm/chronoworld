@@ -82,7 +82,7 @@ export class KitchenScene extends Phaser.Scene {
     }
     y += S.s;
     groups.push(collect(this.children, () => {
-      const hint = text(this, GAME_W / 2, y, 'Продукты приносят экспедиции, охота на MVP, повторы этапов и сундук простоя. Недостающее — в кладовой за золото.', T.caption, COLOR.textSecondary, {
+      const hint = text(this, GAME_W / 2, y, 'Продукты приносят экспедиции, охота на MVP и сундук простоя. Недостающее — в кладовой за золото.', T.caption, COLOR.textSecondary, {
         align: 'center',
         wordWrap: { width: KITCHEN_L.w - 2 * S.s },
       }).setOrigin(0.5, 0).setName('kitchenHint');
