@@ -126,8 +126,18 @@ export function collectUsedAssets(root: string): UsedAssets {
     v2: readJson(join(assets, 'sprites/sprites.json')),
     spriteIds: contentSpriteIds(root),
     skillIcons: skillIconFiles(root),
-    extra: [...bustFiles(root), ...illustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...cardArtFiles(root), ...damageDigitFiles(root), ...fontFiles(root)],
+    extra: [...bustFiles(root), ...illustFiles(root), ...themeBackgroundFiles(root), ...audioFiles(root), ...roItemFiles(root), ...cardArtFiles(root), ...damageDigitFiles(root), ...fontFiles(root), ...voiceFiles(root)],
   });
+}
+
+/** Озвучка (src/game/voice.ts, scripts/voice-gen.ts): assets/voice/<язык>/<ключ>.mp3; index.json — только для скриптов. */
+export function voiceFiles(root: string): string[] {
+  const dir = join(root, ASSETS_DIR, 'voice');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((lang) => statSync(join(dir, lang)).isDirectory())
+    .flatMap((lang) => readdirSync(join(dir, lang)).filter((n) => /^[0-9a-f]{14}\.mp3$/.test(n)).map((n) => `voice/${lang}/${n}`))
+    .sort();
 }
 
 /** Шрифты интерфейса (index.html, @font-face; src/game/theme.ts, FONT_FILES): assets/fonts/*.woff2 и их лицензия OFL.txt. */

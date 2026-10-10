@@ -49,9 +49,10 @@ describe('звук: настройки громкости (localStorage)', () =>
   it('сохраняются и читаются обратно под своим ключом', () => {
     const s = memStore();
     // «Своя музыка» и отметка её подсказки — в том же ключе (переживают «Начать заново», как остальной звук).
-    saveAudioSettings({ music: 0.25, sfx: 1, muted: true, battleSfx: false, ownMusic: true, ownMusicHint: true }, s);
+    // Громкость озвучки — тоже здесь.
+    saveAudioSettings({ music: 0.25, sfx: 1, muted: true, battleSfx: false, ownMusic: true, ownMusicHint: true, voice: 0.5 }, s);
     expect(s.m.has(AUDIO_KEY)).toBe(true);
-    expect(loadAudioSettings(s)).toEqual({ music: 0.25, sfx: 1, muted: true, battleSfx: false, ownMusic: true, ownMusicHint: true });
+    expect(loadAudioSettings(s)).toEqual({ music: 0.25, sfx: 1, muted: true, battleSfx: false, ownMusic: true, ownMusicHint: true, voice: 0.5 });
   });
 
   it('мусор, чужие типы и выход за 0…1 не ломают игру', () => {
@@ -59,10 +60,11 @@ describe('звук: настройки громкости (localStorage)', () =>
     s.setItem(AUDIO_KEY, '{oops');
     expect(loadAudioSettings(s)).toEqual(DEFAULT_AUDIO);
     s.setItem(AUDIO_KEY, JSON.stringify({ music: 7, sfx: -1, muted: 'yes' }));
-    expect(loadAudioSettings(s)).toEqual({ music: 1, sfx: 0, muted: false, battleSfx: true, ownMusic: false, ownMusicHint: false });
-    // Старая запись без «Своей музыки» — режим выключен.
+    expect(loadAudioSettings(s)).toEqual({ music: 1, sfx: 0, muted: false, battleSfx: true, ownMusic: false, ownMusicHint: false, voice: 1 });
+    // Старая запись без «Своей музыки» и озвучки — режим выключен, озвучка на полную.
     s.setItem(AUDIO_KEY, JSON.stringify({ music: 0.5, sfx: 0.75, muted: false, battleSfx: true }));
     expect(loadAudioSettings(s).ownMusic).toBe(false);
+    expect(loadAudioSettings(s).voice).toBe(1);
     s.setItem(AUDIO_KEY, 'null');
     expect(loadAudioSettings(s)).toEqual(DEFAULT_AUDIO);
   });

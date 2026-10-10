@@ -29,9 +29,11 @@ export interface AudioSettings {
   ownMusic: boolean;
   /** Подсказка про «Свою музыку» уже показана (один раз, в Городе после первой музыки). */
   ownMusicHint: boolean;
+  /** Громкость озвучки реплик и страниц (voice.ts), 0…1; 0 — озвучка выключена. */
+  voice: number;
 }
 
-export const DEFAULT_AUDIO: Readonly<AudioSettings> = { music: 0.5, sfx: 0.75, muted: false, battleSfx: true, ownMusic: false, ownMusicHint: false };
+export const DEFAULT_AUDIO: Readonly<AudioSettings> = { music: 0.5, sfx: 0.75, muted: false, battleSfx: true, ownMusic: false, ownMusicHint: false, voice: 1 };
 
 /** Шаги громкости в настройках (кнопка по кругу): 0 — выключено. */
 export const VOLUME_STEPS = [0, 0.25, 0.5, 0.75, 1] as const;
@@ -66,6 +68,7 @@ export function loadAudioSettings(storage?: KV | null): AudioSettings {
       battleSfx: v.battleSfx !== false,
       ownMusic: v.ownMusic === true,
       ownMusicHint: v.ownMusicHint === true,
+      voice: clamp01(v.voice, DEFAULT_AUDIO.voice),
     };
   } catch {
     return { ...DEFAULT_AUDIO };
@@ -75,7 +78,7 @@ export function loadAudioSettings(storage?: KV | null): AudioSettings {
 /** Запомнить настройки (ошибка хранилища не мешает игре). */
 export function saveAudioSettings(s: AudioSettings, storage?: KV | null): void {
   try {
-    store(storage)?.setItem(AUDIO_KEY, JSON.stringify({ music: s.music, sfx: s.sfx, muted: s.muted, battleSfx: s.battleSfx, ownMusic: s.ownMusic, ownMusicHint: s.ownMusicHint }));
+    store(storage)?.setItem(AUDIO_KEY, JSON.stringify({ music: s.music, sfx: s.sfx, muted: s.muted, battleSfx: s.battleSfx, ownMusic: s.ownMusic, ownMusicHint: s.ownMusicHint, voice: s.voice }));
   } catch {
     // Не запомнили — не страшно.
   }

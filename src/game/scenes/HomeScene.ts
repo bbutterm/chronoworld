@@ -274,6 +274,7 @@ export class HomeScene extends Phaser.Scene {
     }, 'Режим оставляет только звуки игры. Свою музыку можно слушать отдельно', true);
     volumeRow('Музыка', 'musicVolume', () => volumeLabel(audioSettings.music), () => setAudioSettings({ music: nextVolume(audioSettings.music) }));
     volumeRow('Звуки', 'sfxVolume', () => volumeLabel(audioSettings.sfx), () => setAudioSettings({ sfx: nextVolume(audioSettings.sfx) }));
+    volumeRow('Озвучка', 'voiceVolume', () => volumeLabel(audioSettings.voice), () => setAudioSettings({ voice: nextVolume(audioSettings.voice) }));
     volumeRow('Звуки боя', 'battleSfx', () => battleSfxLabel(audioSettings), () => setAudioSettings({ battleSfx: !audioSettings.battleSfx }));
     volumeRow('Без звука', 'muteAll', () => (audioSettings.muted ? 'Вкл' : 'Выкл'), () => setAudioSettings({ muted: !audioSettings.muted }));
     volumeRow('Вибрация', 'haptics', () => (hapticSettings.on ? 'Вкл' : 'Выкл'), () => setHapticsOn(!hapticSettings.on));

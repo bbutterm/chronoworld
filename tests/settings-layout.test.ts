@@ -9,7 +9,7 @@ vi.mock('phaser', () => ({ default: {
   Math: { Clamp: (n: number, min: number, max: number) => Math.min(max, Math.max(min, n)) },
   BlendModes: { ADD: 1 },
 } }));
-vi.mock('../src/game/audio', () => ({ sfx: vi.fn(), audioSettings: { music: 1, sfx: 1, ownMusic: false, muted: false, battleSfx: true }, setAudioSettings: vi.fn() }));
+vi.mock('../src/game/audio', () => ({ sfx: vi.fn(), audioSettings: { music: 1, sfx: 1, ownMusic: false, muted: false, battleSfx: true, voice: 1 }, setAudioSettings: vi.fn() }));
 vi.mock('../src/game/haptics', () => ({ haptic: vi.fn(), hapticSettings: { on: true }, setHapticsOn: vi.fn() }));
 vi.mock('../src/game/session', () => ({ session: {}, startOver: vi.fn() }));
 
@@ -134,7 +134,7 @@ describe('Настройки: ограниченная прокрутка и ч�
     vi.stubEnv('DEV', dev);
     vi.stubGlobal('location', { search: '' });
     const h = setup(); const layer = h.open();
-    expect(h.buttons.map((b) => b.node.name)).toEqual(['language', 'battleSpeed', 'fpsCap', 'reduceMotion', 'ownMusic', 'musicVolume', 'sfxVolume', 'battleSfx', 'muteAll', 'haptics', ...(dev ? ['testBattle'] : []), 'codesBtn', 'resetHints', 'resetProgress', 'settingsClose']);
+    expect(h.buttons.map((b) => b.node.name)).toEqual(['language', 'battleSpeed', 'fpsCap', 'reduceMotion', 'ownMusic', 'musicVolume', 'sfxVolume', 'voiceVolume', 'battleSfx', 'muteAll', 'haptics', ...(dev ? ['testBattle'] : []), 'codesBtn', 'resetHints', 'resetProgress', 'settingsClose']);
     const rows = h.buttons.filter((b) => b.node.name !== 'settingsClose');
     rows.forEach((b, i) => {
       expect(b.node.height).toBeGreaterThanOrEqual(132);
@@ -205,13 +205,14 @@ describe('Настройки: ограниченная прокрутка и ч�
   it('звук и вибрация используют прежние настройки устройства', () => {
     const h = setup(); h.open();
     vi.spyOn(ui, 'toast').mockImplementation(() => undefined);
-    for (const name of ['ownMusic', 'musicVolume', 'sfxVolume', 'battleSfx', 'muteAll', 'haptics'])
+    for (const name of ['ownMusic', 'musicVolume', 'sfxVolume', 'voiceVolume', 'battleSfx', 'muteAll', 'haptics'])
       h.buttons.find((b) => b.node.name === name)!.tap();
     expect(setAudioSettings).toHaveBeenNthCalledWith(1, { ownMusic: true, ownMusicHint: true });
     expect(setAudioSettings).toHaveBeenNthCalledWith(2, { music: 0 });
     expect(setAudioSettings).toHaveBeenNthCalledWith(3, { sfx: 0 });
-    expect(setAudioSettings).toHaveBeenNthCalledWith(4, { battleSfx: false });
-    expect(setAudioSettings).toHaveBeenNthCalledWith(5, { muted: true });
+    expect(setAudioSettings).toHaveBeenNthCalledWith(4, { voice: 0 });
+    expect(setAudioSettings).toHaveBeenNthCalledWith(5, { battleSfx: false });
+    expect(setAudioSettings).toHaveBeenNthCalledWith(6, { muted: true });
     expect(setHapticsOn).toHaveBeenCalledExactlyOnceWith(false);
   });
 

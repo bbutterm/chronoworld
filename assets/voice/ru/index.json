@@ -1,0 +1,730 @@
+{
+ "06c52a0d90fee7": {
+  "text": "Новички! Поринги на южных лугах Пронтеры взбесились — стаями лезут к деревне.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/ch1_intro"
+ },
+ "18cce020c466ac": {
+  "text": "Поринги? Да я их одной левой! А когда меня посвятят в рыцари?",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/ch1_intro"
+ },
+ "15f54affa19c1b": {
+  "text": "Когда научишься отступать. Не раньше.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "chapter1/ch1_intro"
+ },
+ "148d8e775991f4": {
+  "text": "То есть никогда. Капитан, а что их гонит?",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/ch1_intro"
+ },
+ "0765679aed4d31": {
+  "text": "Это вам и узнать. Бой идёт сам — ваше дело собрать отряд и расти. Живыми назад!",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_intro"
+ },
+ "1fd2948de6ba61": {
+  "text": "Бинты со мной. Я взяла очень много бинтов.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/ch1_intro"
+ },
+ "16d4aa3ef83a06": {
+  "text": "Смотрите, какая пушистая гусеничка… Ай! Она кусается!",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/ch1_s1_before"
+ },
+ "1dfd521901131f": {
+  "text": "Пушистая и кусается. Алан — впереди, принимает удары. Мы сзади, бьём и лечим.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/ch1_s1_before"
+ },
+ "0a96a2207bc127": {
+  "text": "Наконец-то! Вперёд, за Пронтеру!",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "chapter1/ch1_s1_before"
+ },
+ "1b411d453b65b4": {
+  "text": "Коконы у самой изгороди, кролики бегут из леса, поринги — стаями. Втрое больше обычного. Я считал.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter1/ch1_s11_after"
+ },
+ "1e198673d0a8f2": {
+  "text": "Они не нападают. Они убегают. Будто их кто-то гонит из чащи.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/ch1_s11_after"
+ },
+ "16602d26ba6c7e": {
+  "text": "И вот ещё: на изгороди клок серой ткани. Шерсть, дорогая. Поринги такую не носят.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s11_after"
+ },
+ "05a91fe1d5d69d": {
+  "text": "Серый плащ, бешеные поринги… Тайна! Люблю тайны. Их можно победить.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/ch1_s11_after"
+ },
+ "108b0af8bf5ca2": {
+  "text": "Вы окрепли. Зачистите опушку — а дальше втроём станет тесно: пора искать товарищей.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s4_before"
+ },
+ "00719c0876d063": {
+  "text": "Я — вперёд, в самое пекло!",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 3,
+  "from": "chapter1/ch1_s4_before"
+ },
+ "0d349ab41dae95": {
+  "text": "А я — туда, откуда видно всех. Кто-то же должен попадать.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/ch1_s4_before"
+ },
+ "028daac75c36d7": {
+  "text": "А я буду вас штопать. Кто-то же должен.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "chapter1/ch1_s4_before"
+ },
+ "1f32b9cdb0c5f4": {
+  "text": "Опушка чиста. Запомните: сильнее не тот, кто машет мечом, а тот, кто собрал крепкий отряд.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_s4_after"
+ },
+ "038eb9d4bf9a33": {
+  "text": "За лесом — трактир «Два колокола». Втроём далеко не уйдёте: там найдёте, кого нанять.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s4_after"
+ },
+ "139d48906d844e": {
+  "text": "А свой путь в гильдии каждый выберет позже — когда вырастет и станет ясно, кто он в строю.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_s4_after"
+ },
+ "05039d78afb914": {
+  "text": "Стража? Наконец-то! Вчера постоялец в сером капюшоне сорвал колокольчик у меня над дверью.",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_s5_after"
+ },
+ "1f6ca4bc9f8e93": {
+  "text": "Грета, дочка, схватила сковородку — и за ним, в лес. Где поринги. До сих пор не вернулась!",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_s5_after"
+ },
+ "13310203e37a8e": {
+  "text": "Серый капюшон. Та самая шерсть с изгороди. Капюшон украл колокольчик, а поринги бегут от него.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_s5_after"
+ },
+ "1442a3d5ec5740": {
+  "text": "Найдите её. Бойцы в зале без дела сидят — нанимайте кого хотите, счёт потом сочтём.",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s5_after"
+ },
+ "0ae8ee5b450a28": {
+  "text": "Наёмники у меня любят громкие имена — есть и «Греты» со сковородками. А моя Грета одна, и она в лесу!",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter1/ch1_s5_after"
+ },
+ "05b2d03b248f3b": {
+  "text": "Найдём! И колокольчик вернём. И капюшон… ну, тоже вернём. В тюрьму.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/ch1_s5_after"
+ },
+ "0216e79535c0a5": {
+  "text": "Видали, как я один влетел в рощу? Ива даже моргнуть не… Ой. Это что, кровь? Моя?",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s6_after"
+ },
+ "160e2395eac515": {
+  "text": "Сядь. Не дёргайся. Я… я не боюсь крови. Совсем. Вот. Перевязала. Руки почти не дрожат.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s6_after"
+ },
+ "0419fe325d6075": {
+  "text": "Влетел один, а она тебя штопает. Отступать тоже надо уметь, Алан. Строй бьёт сильнее героя.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_s6_after"
+ },
+ "18d3e05404bc52": {
+  "text": "Отступать — для трусов, капитан!",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "chapter1/ch1_s6_after"
+ },
+ "142b6b8bf0798a": {
+  "text": "Записываю: Алан должен Вике один бинт. Первая строчка в тетради. Чует моё сердце — не последняя.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter1/ch1_s6_after"
+ },
+ "1b7e6b55f76092": {
+  "text": "Следы слизи. Огромные. Этот поринг размером с телегу.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/ch1_s7_before"
+ },
+ "091ed83688f657": {
+  "text": "Тут корзинка и записка: «Ушла проучить главного. Грета».",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/ch1_s7_before"
+ },
+ "1f183d51cab941": {
+  "text": "В одиночку против того, кто гонит всех порингов? Смело!",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/ch1_s7_before"
+ },
+ "0085b401033430": {
+  "text": "Или глупо. В твоём духе. Поторопимся.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "chapter1/ch1_s7_before"
+ },
+ "1d8422b250a253": {
+  "text": "В плотине вместо веток — ложки, пуговицы, подковы. Всё блестящее. Это не бобры строили.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_s15_after"
+ },
+ "18c4c1a6e81721": {
+  "text": "Поринги таскают блестяшки в чащу. Кто-то велел им собирать всё, что звенит.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/ch1_s15_after"
+ },
+ "13c080ab9d9270": {
+  "text": "Тише! Слышите? Откуда-то глухо звенит. И кто-то ругается.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/ch1_s15_after"
+ },
+ "0fdb06a587871a": {
+  "text": "…ВЫПУСТИ МЕНЯ, ЖЕЛЕ ПРОТИВНОЕ! Я тебе все зубы пересчитаю! Ой, у тебя их нет…",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/ch1_s15_after"
+ },
+ "15013af88a374b": {
+  "text": "Живая! И очень сердитая. Это хорошо: сердитые долго держатся.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/ch1_s15_after"
+ },
+ "081416152de17a": {
+  "text": "Стойте. На краю поляны, под луной. Серый капюшон.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/ch1_s16_after"
+ },
+ "1cca23237176d2": {
+  "text": "Новички из Пронтеры? Идите домой, дети. Король порингов уже несёт мне колокольчик.",
+  "role": "herald",
+  "voice": "FdDRUc9rNHCcx1AeKuej",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s16_after"
+ },
+ "1cfdf473b43f09": {
+  "text": "Звени, малыш, звени. Хозяин слышит. Скоро все, кого вы любили, вернутся домой.",
+  "role": "herald",
+  "voice": "FdDRUc9rNHCcx1AeKuej",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s16_after"
+ },
+ "09d42cbd2cb4d8": {
+  "text": "Стой, вор! …Исчез. Как туман. Капитан бы сказал — не гнаться. Ладно. Сначала Грета.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s16_after"
+ },
+ "170eb443348ed7": {
+  "text": "«Все, кого любили, вернутся»… Почему от этих слов так холодно?",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/ch1_s16_after"
+ },
+ "19cb6bde39409f": {
+  "text": "Желейные врата. За ними — трон. Бегу первым, рублю всё, что… нет. Стоп.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/ch1_s18_before"
+ },
+ "177655b371aed8": {
+  "text": "Ты остановился? Сам? Запишу в тетрадь. На отдельную страницу: «чудеса».",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/ch1_s18_before"
+ },
+ "01d16d9be2de34": {
+  "text": "В роще я влетел один и чуть не лёг. Держим строй. Я впереди, вы за мной — вместе.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s18_before"
+ },
+ "17e79136fbfe01": {
+  "text": "Пупы на стенах вот-вот вылупятся. Бьём сначала тех, кто ближе к нам, потом — дальних.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s18_before"
+ },
+ "112ca22878024f": {
+  "text": "Это… поринг? Да он с дом!",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 3,
+  "from": "chapter1/ch1_s10_before"
+ },
+ "11c2a516a1748a": {
+  "text": "ПУ-У-РИНГ!",
+  "role": "mastering",
+  "voice": "mOTbMAOniC3yoEvgo4bi",
+  "model": "eleven_v4",
+  "chars": 1,
+  "from": "chapter1/ch1_s10_before"
+ },
+ "1af7af9003e7c8": {
+  "text": "Внутри него кто-то есть. И машет сковородкой!",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/ch1_s10_before"
+ },
+ "12d2218b84b179": {
+  "text": "Эй, снаружи! Колокольчик у него в брюхе, рядом со мной. Бейте, я изнутри помогу!",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_s10_before"
+ },
+ "127a6d5a72e563": {
+  "text": "Сначала свиту! Каждый павший поринг его злит.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/ch1_s10_before"
+ },
+ "12ff47f335c895": {
+  "text": "Фух! Три часа в желе. Спасибо! Я Грета — та самая, из «Двух колоколов». И я иду с вами.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/ch1_outro"
+ },
+ "125f18bfbd3bd8": {
+  "text": "С нами? У тебя даже меча нет.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 3,
+  "from": "chapter1/ch1_outro"
+ },
+ "0d8a659f84bf4d": {
+  "text": "Зато есть сковородка. И вот — колокольчик нашего трактира. Серый капюшон его пометил.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_outro"
+ },
+ "0d9caff602b034": {
+  "text": "Колокольчик с чёрным знаком… И пахнет сыростью и старыми трубами.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/ch1_outro"
+ },
+ "1c7e1cac0babce": {
+  "text": "Рогатый знак. Я видел его двадцать лет назад — на воротах, куда не надо было входить.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/ch1_outro"
+ },
+ "09a262f6013a82": {
+  "text": "Капюшон ушёл вниз, в каналы под Пронтерой. Король как раз зовёт новичков чистить стоки. Вам — туда.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter1/ch1_outro"
+ },
+ "1cca5c54065c67": {
+  "text": "Живая! Три часа в желе, а волосы — хоть на ярмарку. Садитесь, герои. Сегодня за счёт дома.",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/tav_ch1"
+ },
+ "048ca7855b5d41": {
+  "text": "Отец, «за счёт дома» — это за мой счёт. Я здесь двенадцать лет полы мою.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/tav_ch1"
+ },
+ "1f4ab6ca6b4473": {
+  "text": "Записываю: «Ужин — за счёт Греты». Первая строчка в тетради, которую платит не Алан.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/tav_ch1"
+ },
+ "0706e812c4d193": {
+  "text": "Эй! Я, между прочим, короля порингов первым ударил.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/tav_ch1"
+ },
+ "03c8ca2506448c": {
+  "text": "И первым в него провалился. Я тебя за сапог вытаскивала. Бинты, кстати, опять твои.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/tav_ch1"
+ },
+ "0ae50834641027": {
+  "text": "Это была разведка. Изнутри.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 3,
+  "from": "chapter1/tav_ch1"
+ },
+ "15edcf96727ae3": {
+  "text": "Колокольчик снова над дверью, а молчит. Бабка говорила: звенит он у одной Греты.",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/tav_ch1"
+ },
+ "07e03481ed2597": {
+  "text": "Он меня уважает. …Слушайте, а можно я правда пойду с вами? Не на вечер. Совсем.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter1/tav_ch1"
+ },
+ "17c1db825724ef": {
+  "text": "Грета смотрит на тебя, а не на Алана. Что ответить?",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/tav_ch1:choice"
+ },
+ "189fd424d5bcec": {
+  "text": "Слышал, отец? Меня позвали! Сковородку беру свою.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/tav_ch1:reply"
+ },
+ "12b63981586455": {
+  "text": "Бери. Всё равно ты ею тут только мух бьёшь.",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/tav_ch1:reply"
+ },
+ "047d085d7482e4": {
+  "text": "Отец её с девяти лет не удержит. Иди, дочка. Только пиши.",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/tav_ch1:reply"
+ },
+ "1f6706a14a4ee8": {
+  "text": "Писать буду. Счета.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 2,
+  "from": "chapter1/tav_ch1:reply"
+ },
+ "076ad05cefd092": {
+  "text": "Не перестану! …Ладно. Буду лезть вторым. Сразу после неё.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter1/tav_ch1:reply"
+ },
+ "0b720890547c9c": {
+  "text": "Записал. Посмотрим, сколько продержится.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "chapter1/tav_ch1:reply"
+ },
+ "15c2d98674d176": {
+  "text": "Поздно уже. Спи, огонёк…",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 3,
+  "from": "chapter1/tav_ch1"
+ },
+ "15c32c9d9780cd": {
+  "text": "Ты всегда так свечи гасишь? Ладонью?",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 4,
+  "from": "chapter1/tav_ch1"
+ },
+ "05557c67fb3694": {
+  "text": "Брат так делал. Давно. …Не больно, если быстро.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 5,
+  "from": "chapter1/tav_ch1"
+ },
+ "0847778f6a4f1f": {
+  "text": "Утром Гаррет пришлёт указ. А пока — спать. Наверху три койки и одна сковородка на страже.",
+  "role": "bruno",
+  "voice": "txnCCHHGKmYIwrn7HfHQ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter1/tav_ch1"
+ },
+ "17fa7d5f76af94": {
+  "text": "Первого поринга не забывает никто. Особенно если поринг запомнил тебя.",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/episode:quote"
+ },
+ "0af05ed1e568bc": {
+  "text": "Пронтера, столица Рун-Мидгарда, просыпается под звон соборных колоколов. За южными воротами лежат луга, где новички из тренировочного лагеря впервые берутся за оружие: бьют фабров, гоняют люнатиков и учатся не бояться порингов. Этой весной поринги перестали быть смирными. Они сбиваются в стаи, тащат в чащу всё, что блестит, и бегут к деревне так, будто их кто-то гонит. Капитан Гаррет собирает всех, кто держит оружие, — даже тех, кто держит его неправильно.",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 51,
+  "from": "chapter1/episode"
+ },
+ "1594ff9668f948": {
+  "text": "Поринг — первое чудовище любого новичка и первое, которое он недооценил. Розовое желе ест всё, что упало в траву: яблоки, монеты, забытые сапоги. Старые пастухи говорят, что, когда порингов становится слишком много, они сливаются в одного — и тот, большой, помнит всё, что проглотили маленькие.",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 32,
+  "from": "chapter1/legend"
+ },
+ "197d039c30bb56": {
+  "text": "Весной поринги южных лугов взбесились, и капитан Гаррет отправил в поле троих новичков: Алана, Брана и Вику. Отряд прошёл луга от деревенской изгороди до лунной поляны, набрал в «Двух колоколах» наёмников и понял, что порингов гонит не голод, а чужая воля. Серый капюшон, укравший колокольчик трактирщика Бруно, ушёл от погони, как туман. Колокольчик нашёлся в брюхе Мастеринга, короля порингов, — рядом с дочерью трактирщика Гретой, которая просидела в желе три часа. Грета вышла злая, с колокольчиком и в отряде. На колокольчике чернел рогатый знак. Капитан Гаррет, увидев его, долго молчал, а потом отправил отряд вниз — в каналы под Пронтерой, куда ушёл серый.",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 73,
+  "from": "chapter1/chronicle"
+ },
+ "07ed6c344908c3": {
+  "text": "Доска прибита к изгороди у самой деревни, буквы выведены дёгтем, крупно и сердито: «Порингов не кормить. Особенно яблоками. Особенно Алану». Ниже кто-то приписал мелом: «Алан, это про тебя».",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 21,
+  "from": "chapter1/finding:ch1_s1"
+ },
+ "1304a1ba0731f5": {
+  "text": "Кто-то в деревне хорошо знает Алана. Подозреваю всю деревню.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/finding:ch1_s1:comment"
+ },
+ "0963d017e9ef1f": {
+  "text": "Зацепился за гвоздь изгороди на высоте плеча. Шерсть тонкая и дорогая — такую не носят ни пастухи, ни стражники. Пахнет ладаном, как в соборе, и сыростью, как в подвале, где давно не открывали окон.",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 22,
+  "from": "chapter1/finding:ch1_s11"
+ },
+ "038c685e325dc1": {
+  "text": "Ладан — это из церкви. А сырость… сырость точно не из церкви.",
+  "role": "vika",
+  "voice": "t6lBrEl93uCiLR1Lgm8v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/finding:ch1_s11:comment"
+ },
+ "07e15f44f34c93": {
+  "text": "Листок, приколотый к двери мельницы: «Пропало за неделю: ложек — 14, подков — 3, колокольчик с козы — 1, пряжка от праздничного пояса — 1, пуговиц — не считал. Коза цела. Кто вернёт — тому мешок муки. Кто вернёт пряжку — два».",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 25,
+  "from": "chapter1/finding:ch1_s13"
+ },
+ "14d44258677a64": {
+  "text": "Четырнадцать ложек. Всё блестящее и всё звенит. Это не воры, это сборщики.",
+  "role": "bran",
+  "voice": "RvcToHi9ENVDatbeYNJe",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter1/finding:ch1_s13:comment"
+ },
+ "15716cd8190aa6": {
+  "text": "Посреди лунной поляны — старый пень, и на срезе выжжен знак: круг, а в нём рогатая голова. Угли под пнём ещё тёплые. Трава вокруг поседела, как зимой, и поринги обходят это место стороной.",
+  "role": "narrator",
+  "voice": "pM78bgjPVk0JXtaEnFoj",
+  "model": "eleven_v4",
+  "chars": 21,
+  "from": "chapter1/finding:ch1_s16"
+ },
+ "17807adbc44375": {
+  "text": "Рогатый знак. Будто его рисовали не для нас, а для кого-то внизу.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter1/finding:ch1_s16:comment"
+ }
+}

@@ -15,6 +15,7 @@ import { type Panel, BTN, button, mixHex, plate, SURFACE, text } from './ui';
 import { COLOR, E, FAMILY, M, R, S, T } from './theme';
 import { onViewChange, view } from './viewport';
 import { tr } from './locale';
+import { hush, speak } from './voice';
 
 /** Имя слоя диалога (e2e ищет его, чтобы пролистать сцену). */
 export const DIALOGUE_NAME = 'dialogue';
@@ -178,6 +179,8 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
   /** Когда появилась текущая строка (performance.now) и засчитано ли касание, начатое на затемнении. */
   let lineAt = performance.now();
   let armed = false;
+  /** До какого момента (performance.now) звучит озвучка текущей строки — авто-режим не листает раньше. */
+  let voiceUntil = 0;
 
   const stopTimers = () => {
     typer?.remove();
@@ -189,6 +192,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     closed = true;
     stopTimers();
     scene.events.off('shutdown', shutdown);
+    hush();
     if (destroyLayer) layer.destroy();
     onClose();
   };
@@ -197,6 +201,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     closed = true;
     choosing = false;
     stopTimers();
+    hush();
   };
   scene.events.once('shutdown', shutdown);
   if (opts.readOnly) {
@@ -219,7 +224,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     body.setText(full);
     // Счётчик реплик и «›» — без инструкции «коснитесь…» (§3 п. 3): листание касанием — привычный жест.
     more.setText(pickedLabel || dialogueCounter(line, lines.length));
-    if (auto) autoNext = scene.time.delayedCall(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, advance);
+    if (auto) autoNext = scene.time.delayedCall(Math.max(AUTO_LINE_MS + full.length * AUTO_CHAR_MS, voiceUntil - performance.now() + 600), advance);
   };
   let faceOf: string | null | undefined;
   let artOf: string | null = null;
@@ -282,6 +287,12 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     full = tr(l.text);
     // Колокольчик Греты звенит в реплике — слышно (ограничитель не даст звенеть чаще раза в 1.5 с).
     if (lineChimes(l.text)) sfx('bell_chime', { delay: 0.2 });
+    // Озвучка строки (есть клип — звучит; прежняя обрывается сама).
+    voiceUntil = 0;
+    const said = viewVersion;
+    void speak(l.text).then((d) => {
+      if (d && said === viewVersion && !closed) voiceUntil = performance.now() + d * 1000;
+    });
     shown = 0;
     body.setText('');
     more.setText('');
@@ -329,6 +340,7 @@ function showScene(scene: Phaser.Scene, s: StoryScene, onClose: () => void, opts
     placeName(false);
     nameText.setText('Ваш ответ');
     full = tr(choice.prompt);
+    void speak(choice.prompt);
     shown = full.length;
     body.setText(full);
     more.setText('');

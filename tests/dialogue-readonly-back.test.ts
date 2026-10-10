@@ -51,7 +51,7 @@ vi.mock('../src/game/session', () => ({
   session: { get save() { return h.save; } }, takeWarnings: () => [],
   commit: (save: SaveState) => { h.save = save; h.commits.push(save); },
 }));
-vi.mock('../src/game/audio', () => ({ sfx: vi.fn() }));
+vi.mock('../src/game/audio', () => ({ sfx: vi.fn(), playVoiceFile: vi.fn(async () => null), stopVoiceFile: vi.fn() }));
 vi.mock('../src/game/haptics', () => ({ haptic: vi.fn() }));
 vi.mock('../src/game/transitions', () => ({ isLeaving: () => false }));
 vi.mock('../src/game/juice', () => ({ animateCurrency: vi.fn() }));
