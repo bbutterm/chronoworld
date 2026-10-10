@@ -22,6 +22,8 @@ import type { CombatConfig, Content } from './types';
 import { parseUnlocks, validateUnlocks } from './unlocks/unlocks';
 import { parseShopConfig, withShop, type ShopConfig } from './shop';
 import { parseCodesConfig, type CodesConfig } from './codes';
+import { parseKitchenConfig } from './kitchen/kitchen';
+import type { KitchenConfig } from './kitchen/schema';
 import { parseAutobattlerConfig, validateAutobattlerConfig, type AutobattlerConfig } from './autobattler';
 
 /** Полный контекст игры: прогрессия и кампания + K-функции, экипировка, башня, пресеты / экспедиции / достижения. */
@@ -33,6 +35,8 @@ export type FullContext = FeatureContext & EquipmentContext & TowerContext & Met
   shop?: ShopConfig;
   /** Коды из настроек (data/codes.json); нет файла — кодов нет. */
   codes?: CodesConfig;
+  /** Кухня в Таверне (data/kitchen.json); нет файла — Кухни нет, продукты не выпадают. */
+  kitchen?: KitchenConfig;
   /** События экспедиций (data/expedition_events.json); нет файла — экспедиции без событий. */
   expeditionEvents?: ExpeditionEventsConfig;
 };
@@ -70,6 +74,8 @@ export interface RawGameData {
   shop?: unknown;
   /** data/codes.json — коды из настроек (нет — кодов нет). */
   codes?: unknown;
+  /** data/kitchen.json — Кухня (нет — Кухни нет). */
+  kitchen?: unknown;
   /** data/story/*.json — сюжет глав (нет — без сюжета). */
   stories?: RawFile[];
   /** По умолчанию — data/combat.json (COMBAT). */
@@ -135,6 +141,7 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
     stage('data/hunt.json', () => parseHuntConfig(raw.hunt));
     if (raw.shop !== undefined) stage('data/shop.json', () => parseShopConfig(raw.shop));
     if (raw.codes !== undefined) stage('data/codes.json', () => parseCodesConfig(raw.codes));
+    if (raw.kitchen !== undefined) stage('data/kitchen.json', () => parseKitchenConfig(raw.kitchen));
     if (raw.expeditionEvents !== undefined) stage('data/expedition_events.json', () => parseExpeditionEvents(raw.expeditionEvents));
     return { content, problems };
   }
@@ -163,12 +170,13 @@ export function collectGameContext(raw: RawGameData): GameContextResult {
   if (hunt) validateHunt(hunt, content, problems);
   const shop = raw.shop === undefined || !equipment ? undefined : stage('data/shop.json', () => withShop({ ...base, equipment }, raw.shop).shop);
   const codes = raw.codes === undefined ? undefined : stage('data/codes.json', () => parseCodesConfig(raw.codes));
+  const kitchen = raw.kitchen === undefined ? undefined : stage('data/kitchen.json', () => parseKitchenConfig(raw.kitchen));
   const autobattler = raw.autobattler === undefined ? undefined : stage('data/autobattler.json', () => parseAutobattlerConfig(raw.autobattler));
   if (autobattler) validateAutobattlerConfig(autobattler, base, problems);
 
   if (problems.length || !features || !equipment || !tower || !meta || !story || !events || !hunt) return { content, problems };
   return {
-    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}), ...(codes ? { codes } : {}), ...(expeditionEvents ? { expeditionEvents } : {}), ...(autobattler ? { autobattler } : {}) },
+    ctx: { ...base, features, equipment, tower, meta, story, events, hunt, ...(shop ? { shop } : {}), ...(codes ? { codes } : {}), ...(kitchen ? { kitchen } : {}), ...(expeditionEvents ? { expeditionEvents } : {}), ...(autobattler ? { autobattler } : {}) },
     content,
     problems,
   };

@@ -19,6 +19,7 @@ import { hapticSettings, setHapticsOn } from '../haptics';
 import { battleSfxLabel, nextVolume, ownMusicLabel, volumeLabel } from '../audioCore';
 import { tavernTile } from '../tavernEntry';
 import { shopTile } from '../shopEntry';
+import { kitchenTile } from '../kitchenEntry';
 import { compactEntry, ROUND_ICON } from '../homeBuildings';
 import { isUnlocked, lockLabel, showUnlockBanners } from '../unlockBanner';
 import { homeEventIcons, touchToday } from '../homeEvents';
@@ -40,7 +41,7 @@ import { onViewChange, view } from '../viewport';
  * - диорама «Отряд в походе» во всю ширину — главный герой экрана (idle-бой отряда с монстрами текущего этапа,
  *   монетки летят в сундук; касание — «Кампания», idleDiorama.ts); на ней слева — «Летопись» (и «Друзья» в Telegram);
  * - «здания» разного размера по важности (homeBuildings.ts): Таверна — большая витрина, Лавка — витрина поуже,
- *   Задания и Достижения — небольшие входы. Без строк-пояснений: состояние — тегом, полоской или числом.
+ *   Кухня (под Лавкой), Задания и Достижения — небольшие входы. Без строк-пояснений: состояние — тегом, полоской или числом.
  * Сундук, быстрые награды и «В бой» — на странице «Кампания», Башня, экспедиции и охота — «Приключения».
  */
 const L = { left: S.l } as const;
@@ -89,11 +90,12 @@ export class HomeScene extends Phaser.Scene {
     const drawBuildings = (animate = false) => {
       buildings.removeAll(true);
       layout = homeLayout(contentBottom());
-      const { tavern, shop, quests, achievements } = layout;
+      const { tavern, shop, kitchen, quests, achievements } = layout;
       const rows = [
         collect(this.children, () => {
           tavernTile(this, tavern.x, tavern.y, tavern.w, tavern.h);
           shopTile(this, shop.x, shop.y, shop.w, shop.h);
+          kitchenTile(this, kitchen.x, kitchen.y, kitchen.w, kitchen.h);
         }),
         collect(this.children, () => {
           this.questsEntry(quests.x, quests.y, quests.w, quests.h);

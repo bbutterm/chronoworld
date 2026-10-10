@@ -1,0 +1,248 @@
+{
+  "title": "Кухня (продукты, блюда, источники)",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "$comment": {
+      "type": "string"
+    },
+    "ingredients": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 24
+          },
+          "icon": {
+            "type": "string",
+            "enum": [
+              "meat",
+              "apple",
+              "carrot",
+              "honey",
+              "milk",
+              "pot"
+            ]
+          },
+          "price": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "weight": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "price",
+          "weight"
+        ]
+      }
+    },
+    "recipes": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 24
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 90
+          },
+          "icon": {
+            "type": "string",
+            "enum": [
+              "meat",
+              "apple",
+              "carrot",
+              "honey",
+              "milk",
+              "pot"
+            ]
+          },
+          "cost": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "additionalProperties": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "buff": {
+            "type": "object",
+            "properties": {
+              "atk": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 50
+              },
+              "hp": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 50
+              },
+              "def": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 50
+              },
+              "exp": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "icon",
+          "cost",
+          "buff"
+        ]
+      }
+    },
+    "sources": {
+      "type": "object",
+      "properties": {
+        "expedition": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ]
+        },
+        "hunt": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "tiersPerExtra": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "min",
+            "max",
+            "tiersPerExtra"
+          ]
+        },
+        "replay": {
+          "type": "object",
+          "properties": {
+            "chance": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "count": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "chance",
+            "count"
+          ]
+        },
+        "chest": {
+          "type": "object",
+          "properties": {
+            "chancePerTick": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "chancePerTick"
+          ]
+        }
+      },
+      "required": [
+        "expedition",
+        "hunt",
+        "replay",
+        "chest"
+      ]
+    },
+    "shop": {
+      "type": "object",
+      "properties": {
+        "dailyLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "chapterGrowth": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "dailyLimit",
+        "chapterGrowth"
+      ]
+    }
+  },
+  "required": [
+    "ingredients",
+    "recipes",
+    "sources",
+    "shop"
+  ]
+}

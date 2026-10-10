@@ -10,6 +10,7 @@ import { CARD_RARITIES } from '../heroes/schema';
 import { Rng } from '../rng';
 import type { HeroState, SaveState } from '../save/schema';
 import { withBondLinks } from '../tavern/tavern';
+import { withMeal } from '../kitchen/kitchen';
 import type { BattleResult, PlayerControl } from '../types';
 import { blessingBattle, blessingById, familyStates, runEffects, type FamilyState } from './blessings';
 import {
@@ -618,8 +619,8 @@ export function towerPathPreview(save: SaveState, index: number, ctx: TowerConte
   return { floor: run.floor + 1, kind, enemies: isBattleNode(kind) ? runFloorEnemies(run, run.floor + 1, kind, ctx) : null };
 }
 
-/** Отряд забега для боя: герои (с экипировкой) по слотам, ОЗ в тысячных. */
-export function towerRunSquad(save: SaveState, ctx: TowerContext): { squad: (UnitDef | null)[]; hp: Record<string, number> } {
+/** Отряд забега для боя: герои (с экипировкой) по слотам, ОЗ в тысячных. day — день боя: блюдо Кухни этого дня (withMeal). */
+export function towerRunSquad(save: SaveState, ctx: TowerContext, day?: string): { squad: (UnitDef | null)[]; hp: Record<string, number> } {
   const run = need(save);
   const gctx = withGear(ctx, save);
   const hp: Record<string, number> = {};
@@ -632,7 +633,7 @@ export function towerRunSquad(save: SaveState, ctx: TowerContext): { squad: (Uni
     return u;
   });
   // Заслуженные связки следуют за участниками забега, даже если общий отряд изменён.
-  return { squad: withBondLinks(squad, { ...save, squad: run.squad }, ctx), hp };
+  return { squad: withMeal(withBondLinks(squad, { ...save, squad: run.squad }, ctx), save, day, ctx), hp };
 }
 
 export interface TowerFightOutcome {
@@ -699,7 +700,7 @@ export function fightTowerFloor(save: SaveState, day: string, ctx: TowerContext,
   if (!kind || !isBattleNode(kind)) throw new TowerError('bad_choice', 'Сначала выберите путь');
   const n = run.floor + 1;
   const enemies = runFloorEnemies(run, n, kind, ctx);
-  const { squad, hp } = towerRunSquad(save, ctx);
+  const { squad, hp } = towerRunSquad(save, ctx, day);
   if (!squad.some(Boolean)) throw new TowerError('bad_choice', 'В отряде забега никого нет');
   const bb = blessingBattle(runEffects(run.cards, cfg), hp)!;
   const seed = towerFightSeed(run, n);

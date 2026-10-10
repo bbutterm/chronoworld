@@ -4,6 +4,7 @@ import { addHeroExp } from '../heroes/level';
 import type { GameContext, ProgressEvent } from '../progression/types';
 import { bankedChestLoot, chestAnchorAt, chestSeed, chestTicks, EMPTY_LOOT, grantChestLoot, lootEmpty, rollChestLoot, type ChestLoot, type ChestLootGrant } from '../equipment/chest';
 import type { EquipmentConfig } from '../equipment/load';
+import { grantChestIngredients, type Pantry } from '../kitchen/kitchen';
 
 export interface OfflineRewards {
   /** Засчитанные минуты (с учётом лимита). */
@@ -159,7 +160,7 @@ export function claimOffline(
   save: SaveState,
   now: number,
   ctx: ChestContext,
-): { save: SaveState; rewards: OfflineRewards; loot: ChestLootGrant; events: ProgressEvent[] } {
+): { save: SaveState; rewards: OfflineRewards; loot: ChestLootGrant; events: ProgressEvent[]; ingredients?: Pantry } {
   const noLoot: ChestLootGrant = { ...EMPTY_LOOT, items: [], cards: [], added: [], heroEvents: [] };
   // Время не число (сбой часов) — ничего не начисляем и якорь не портим.
   if (!Number.isFinite(now)) return { save, rewards: { minutes: 0, gold: 0, jobExp: 0 }, loot: noLoot, events: [] };
@@ -184,5 +185,8 @@ export function claimOffline(
     loot = g.grant;
     events.push(...loot.heroEvents);
   }
-  return { save: next, rewards, loot, events };
+  // Кухня: продукты за полные тики сундука (бросок от seed сундука до сбора).
+  const food = grantChestIngredients(next, chestTicks(rewards.minutes, ctx), chestSeed(s), ctx);
+  next = food.save;
+  return { save: next, rewards, loot, events, ...(Object.keys(food.gained).length ? { ingredients: food.gained } : {}) };
 }

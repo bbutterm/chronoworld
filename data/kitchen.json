@@ -1,0 +1,68 @@
+{
+  "$schema": "schema/kitchen.schema.json",
+  "$comment": "Кухня в Таверне (docs/design/kitchen.md, ядро src/core/kitchen): продукты RO копятся из источников sources (броски от seed источника) и покупаются за золото (shop: лимит в день, цена × (1 + chapterGrowth × (глава − 1))). Раз в день готовится одно блюдо recipes: прибавка buff в процентах (atk/hp/def — к отряду в боях кампании, Башни и охоты, не на Арене; exp — к опыту героев за этапы кампании) до смены дня. id продуктов и блюд лежат в сохранениях — не переименовывать. Открытие — data/unlocks.json (kitchen). Баланс — docs/design/kitchen.md, «Модель игрока и баланс»; рецепт — docs/CONTENT_RECIPES.md, «Блюдо Кухни».",
+  "ingredients": [
+    { "id": "meat", "name": "Мясо", "icon": "meat", "price": 1200, "weight": 3 },
+    { "id": "apple", "name": "Яблоко", "icon": "apple", "price": 800, "weight": 3 },
+    { "id": "carrot", "name": "Морковь", "icon": "carrot", "price": 800, "weight": 3 },
+    { "id": "honey", "name": "Мёд", "icon": "honey", "price": 1500, "weight": 2 },
+    { "id": "milk", "name": "Молоко", "icon": "milk", "price": 1000, "weight": 2 }
+  ],
+  "recipes": [
+    {
+      "id": "roast_meat",
+      "name": "Жареное мясо",
+      "description": "Мясо с медовой корочкой — любимое блюдо наёмников.",
+      "icon": "meat",
+      "cost": { "meat": 3, "honey": 1 },
+      "buff": { "atk": 5 }
+    },
+    {
+      "id": "apple_juice",
+      "name": "Яблочный сок",
+      "description": "Свежий сок из пронтерских яблок бодрит до самого вечера.",
+      "icon": "apple",
+      "cost": { "apple": 3, "honey": 1 },
+      "buff": { "hp": 5 }
+    },
+    {
+      "id": "carrot_juice",
+      "name": "Морковный сок",
+      "description": "Густой сок с молоком: крепкие кости, крепкая броня.",
+      "icon": "carrot",
+      "cost": { "carrot": 3, "milk": 1 },
+      "buff": { "def": 6 }
+    },
+    {
+      "id": "honey_pie",
+      "name": "Медовый пирог",
+      "description": "Пирог по рецепту хозяйки «Двух колоколов».",
+      "icon": "honey",
+      "cost": { "honey": 2, "milk": 2, "apple": 1 },
+      "buff": { "atk": 2, "hp": 2, "def": 2 }
+    },
+    {
+      "id": "milk_porridge",
+      "name": "Молочная каша",
+      "description": "Тёплая каша перед дорогой: в бою герои учатся быстрее.",
+      "icon": "milk",
+      "cost": { "milk": 3, "honey": 1 },
+      "buff": { "exp": 10 }
+    },
+    {
+      "id": "feast",
+      "name": "Пир",
+      "description": "Пир на весь отряд: мясо, яблоки, мёд и молоко.",
+      "icon": "pot",
+      "cost": { "meat": 4, "apple": 2, "honey": 2, "milk": 2 },
+      "buff": { "atk": 4, "hp": 4 }
+    }
+  ],
+  "sources": {
+    "expedition": { "min": 2, "max": 4 },
+    "hunt": { "min": 1, "max": 3, "tiersPerExtra": 3 },
+    "replay": { "chance": 0.5, "count": 1 },
+    "chest": { "chancePerTick": 0.05 }
+  },
+  "shop": { "dailyLimit": 5, "chapterGrowth": 1.0 }
+}

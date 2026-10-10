@@ -2,7 +2,7 @@ import { GAME_W, HEADER_H } from './layout';
 import { DIORAMA_H } from './idleDioramaPlan';
 import { S } from './theme';
 
-/** Лагерь и все четыре входа сохраняют размер, свободное место уходит в отступы; тесный экран листается. */
+/** Лагерь и все входы (Таверна, Лавка, Кухня, Задания, Достижения) сохраняют размер, свободное место уходит в отступы; тесный экран листается. */
 export function homeLayout(bottom: number) {
   const left = S.l;
   const width = GAME_W - 2 * left;
@@ -16,11 +16,14 @@ export function homeLayout(bottom: number) {
   const shopW = width - S.s - tavernW;
   const smallW = (width - S.s) / 2;
   const smallY = bigY + bigH / 2 + S.s + pad + compactH / 2;
+  // Правая колонка: Лавка сверху, Кухня — компактный вход под ней (низ — вровень с Таверной).
+  const shopH = bigH - compactH - S.s;
   return {
     left, bodyTop: HEADER_H, bodyBottom: bottom,
     bodyHeight: smallY + compactH / 2 + pad,
     tavern: { x: left + tavernW / 2, y: bigY, w: tavernW, h: bigH },
-    shop: { x: GAME_W - left - shopW / 2, y: bigY, w: shopW, h: bigH },
+    shop: { x: GAME_W - left - shopW / 2, y: bigY - bigH / 2 + shopH / 2, w: shopW, h: shopH },
+    kitchen: { x: GAME_W - left - shopW / 2, y: bigY + bigH / 2 - compactH / 2, w: shopW, h: compactH },
     quests: { x: left + smallW / 2, y: smallY, w: smallW, h: compactH },
     achievements: { x: GAME_W - left - smallW / 2, y: smallY, w: smallW, h: compactH },
   };

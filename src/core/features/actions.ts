@@ -20,6 +20,7 @@ import { useFastRewards, type FastRewards } from './fastRewards';
 import { claimActivity, claimAllQuests, claimQuest, recordActivity, type MilestoneRewards } from './quests';
 import { skipStage } from './skip';
 import { queueAfterStage, queueChapterDone, type StoryContext } from '../story/story';
+import { buyIngredient, cookMeal, type KitchenContext, type Pantry } from '../kitchen/kitchen';
 
 /**
  * Обёртки над действиями игрока для UI: вызывают функцию ядра и засчитывают события ежедневных заданий
@@ -73,13 +74,13 @@ export function actSkipStage(save: SaveState, day: string, stageId: string, seed
   return queueStory(recordBattle(playWithEquipment(save, stageId, seed, ctx, (c) => skipStage(save, stageId, seed, c, day)), day), ctx);
 }
 
-/** claimOffline (с трофеями при ctx.equipment) + offline_claim (только если получены золото или опыт). */
+/** claimOffline (с трофеями при ctx.equipment и продуктами Кухни) + offline_claim (только если получены золото или опыт). */
 export function actClaimOffline(
   save: SaveState,
   now: number,
   day: string,
   ctx: GameContext & { equipment?: EquipmentConfig },
-): { save: SaveState; rewards: OfflineRewards; loot: ChestLootGrant; events: ProgressEvent[] } {
+): { save: SaveState; rewards: OfflineRewards; loot: ChestLootGrant; events: ProgressEvent[]; ingredients?: Pantry } {
   const out = claimOffline(save, now, ctx);
   const s = syncAchievementCounters(recordActivity(out.save, day, 'offline_claim', out.rewards.gold > 0 || out.rewards.jobExp > 0 ? 1 : 0));
   return { ...out, save: s };
@@ -191,4 +192,17 @@ export function actClaimAllExpeditions(save: SaveState, day: string, now: number
 /** «Забрать всё» достижений: claimAllAchievements. */
 export function actClaimAllAchievements(save: SaveState, day: string, ctx: MetaContext): ReturnType<typeof claimAllAchievements> {
   return recordLevelUps(claimAllAchievements(save, ctx), day);
+}
+
+/**
+ * Кухня (src/core/kitchen): приготовить блюдо дня. Заданий и достижений Кухня пока не засчитывает (data/quests.json —
+ * отдельный пакет); обёртка — единая точка для экранов и будущих крючков заданий. Ошибки — KitchenError.
+ */
+export function actCookMeal(save: SaveState, day: string, recipeId: string, ctx: KitchenContext): SaveState {
+  return cookMeal(save, day, recipeId, ctx);
+}
+
+/** Кухня: купить продукт за золото (лимит в день). Ошибки — KitchenError. */
+export function actBuyIngredient(save: SaveState, day: string, ingredientId: string, ctx: KitchenContext, count = 1): SaveState {
+  return buyIngredient(save, day, ingredientId, ctx, count);
 }

@@ -39,6 +39,7 @@ const GOTO: Record<FeatureId, { scene: string; data?: object }> = {
   shop: { scene: 'Shop' },
   refine: { scene: 'Heroes' },
   autobattler: { scene: 'Autobattler' },
+  kitchen: { scene: 'Kitchen' },
 };
 
 /** Функция открыта у текущего игрока. */
