@@ -18,6 +18,7 @@ export const PAGE_LIMITS = {
   episode: 900,
   legend: 400,
   chronicle: 800,
+  interlude: 900,
   finding: 300,
   /** Комментарий героя к находке. */
   comment: 120,
@@ -58,6 +59,17 @@ export const LegendSchema = z.object({
   text: line(PAGE_LIMITS.legend, 'текст легенды'),
   /** Подпись («из путевых записей лесника Пайона»); UI ставит тире. */
   source: line(PAGE_LIMITS.subtitle, 'подпись легенды').optional(),
+});
+
+/**
+ * Перерыв во времени перед главой (прошли годы, герои выросли — с главы 5 у них взрослые голоса): страница рассказчика
+ * перед «Эпизодом N», показывается тем же заходом; потом — в «Летописи» вместе с эпизодом.
+ */
+export const InterludeSchema = z.object({
+  title: line(PAGE_LIMITS.title, 'название перерыва'),
+  /** Надзаголовок вместо «Эпизод N» («Прошли годы»). */
+  kicker: line(PAGE_LIMITS.title, 'надзаголовок перерыва'),
+  text: line(PAGE_LIMITS.interlude, 'текст перерыва'),
 });
 
 /** Летопись главы (§5.3): запись хрониста после финала главы (на экране «Глава пройдена»), потом — в «Летописи». */
@@ -114,6 +126,8 @@ export const ChapterSchema = z.object({
   /** Тема фона и музыки (CHAPTER_THEMES). Нет — по id слота (chapterTheme), иначе луг. */
   theme: z.enum(CHAPTER_THEMES).optional(),
   stages: z.array(StageSchema).min(1),
+  /** Перерыв во времени перед эпизодом (необязательно). */
+  interlude: InterludeSchema.optional(),
   episode: EpisodeSchema.optional(),
   legend: LegendSchema.optional(),
   chronicle: ChapterChronicleSchema.optional(),
@@ -125,6 +139,7 @@ export type FindingDef = z.infer<typeof FindingSchema>;
 export type FindingKind = (typeof FINDING_KINDS)[number];
 export type EpisodeDef = z.infer<typeof EpisodeSchema>;
 export type LegendDef = z.infer<typeof LegendSchema>;
+export type InterludeDef = z.infer<typeof InterludeSchema>;
 export type ChapterChronicleDef = z.infer<typeof ChapterChronicleSchema>;
 
 /** Этап с положением в кампании (вычисляется при сборке контента). */

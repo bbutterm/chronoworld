@@ -1,6 +1,7 @@
 /**
  * Озвучка реплик и страниц рассказчика. Клипы заранее сгенерированы (scripts/voice-gen.ts, ElevenLabs) и лежат в
  * assets/voice/ru/<voiceKey(текст)>.mp3: экран просто просит «озвучь этот текст» — есть клип, он звучит, нет — тишина.
+ * У личных сцен героев две версии: молодая (ключ.mp3) и взрослая (ключ-a.mp3, после главы 4 — setVoiceGrown).
  * Звучит только русская озвучка и только при русском интерфейсе (английской пока нет). Громкость — «Озвучка» в
  * настройках (audioSettings.voice), канал и приглушение музыки — audio.ts.
  */
@@ -21,6 +22,15 @@ export function hasVoice(text: string | undefined): boolean {
 }
 
 let queue = 0;
+/** Герои выросли (core heroesGrown): у текста есть взрослая версия клипа (ключ-a, личные сцены) — звучит она. */
+let grown = false;
+export function setVoiceGrown(on: boolean): void {
+  grown = on;
+}
+const clipOf = (text: string) => {
+  const key = voiceKey(text);
+  return grown && CLIPS.has(`${key}-a`) ? `${key}-a` : key;
+};
 
 /**
  * Озвучить тексты по очереди (страница: цитата, текст, комментарий героя); прежняя озвучка обрывается.
@@ -28,7 +38,7 @@ let queue = 0;
  */
 export async function speak(...texts: (string | undefined)[]): Promise<number | null> {
   const id = ++queue;
-  const keys = texts.filter((t): t is string => hasVoice(t)).map(voiceKey);
+  const keys = texts.filter((t): t is string => hasVoice(t)).map(clipOf);
   if (!keys.length) {
     stopVoiceFile();
     return null;

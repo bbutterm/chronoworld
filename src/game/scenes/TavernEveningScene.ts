@@ -10,6 +10,7 @@ import {
   findEvening,
   finishEvening,
   finishPersonalScene,
+  heroesGrown,
   heroTemplate,
   isChoice,
   lineVisible,
@@ -46,7 +47,7 @@ import { minimumTouchSize, onViewChange, view, worldPoint } from '../viewport';
 import { setTgBack } from '../telegram';
 import { eveningChoiceBounds, eveningCreditPreview, eveningDialogueLayout, eveningModalLayout, eveningPreviewRowHeight, eveningSectionLayout } from '../compactEveningLayout';
 import { tr } from '../locale';
-import { hush, speak } from '../voice';
+import { hush, setVoiceGrown, speak } from '../voice';
 
 export const TAVERN_EVENING = 'TavernEvening';
 /** Имя слоя плашки вечера (e2e и скриншоты). Не 'dialogue' — дымовые прогоны листают только сюжетные сцены. */
@@ -353,6 +354,7 @@ export class TavernEveningScene extends Phaser.Scene {
       table.focus(l.speaker);
       full = tr(l.text);
       if (lineChimes(l.text)) sfx('bell_chime', { delay: 0.2 });
+      setVoiceGrown(heroesGrown(session.save, GAME.content));
       void speak(l.text);
       shown = 0;
       body.setText('');

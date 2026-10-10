@@ -36,6 +36,10 @@ interface Clip {
   key: string;
   text: string;
   role: string;
+  /** Имя файла без .mp3: ключ, у взрослой версии личной сцены — ключ-a (src/game/voice.ts, ADULT). */
+  file: string;
+  /** Взрослый голос героя (ages[]): главы с fromChapter и взрослые версии личных сцен. */
+  adult?: boolean;
   /** Откуда текст (для отчёта): сцена, страница, вечер. */
   from: string;
   prev?: string;
@@ -67,7 +71,7 @@ const add = (text: string | undefined, role: string, from: string, prev?: string
   if (!text?.trim()) return;
   const key = voiceKey(text);
   if (clips.some((c) => c.key === key)) return;
-  clips.push({ key, text: voiceText(text), role, from, ...(prev ? { prev } : {}), ...(next ? { next } : {}) });
+  clips.push({ key, file: key, text: voiceText(text), role, from, ...(prev ? { prev } : {}), ...(next ? { next } : {}) });
 };
 const roleOf = (speaker: string): string => {
   const r = cast.speakers[speaker];
@@ -124,6 +128,7 @@ if (chapterId === 'bonds') {
 const campaignFile = readdirSync(join(root, 'data/campaign')).find((f) => json(`data/campaign/${f}`).id === chapterId);
 if (campaignFile) {
   const c = json(`data/campaign/${campaignFile}`);
+  add(c.interlude?.text, 'narrator', 'interlude');
   add(c.episode?.quote, 'narrator', 'episode:quote');
   add(c.episode?.text, 'narrator', 'episode');
   add(c.legend?.text, 'narrator', 'legend');
@@ -134,6 +139,12 @@ if (campaignFile) {
     if (st.finding.comment) add(st.finding.comment.text, roleOf(st.finding.comment.speaker), `finding:${st.id}:comment`);
   }
 }
+
+/**
+ * Личные сцены открываются в таверне в любой момент: у героев, которые взрослеют (ages[]), их две версии — молодая
+ * (ключ.mp3, до «Годов дорог») и взрослая (ключ-a.mp3, после главы 4). Какую играть, решает src/game/voice.ts.
+ */
+if (chapterId === 'bonds') for (const c of [...clips]) if (cast.voices[c.role]?.ages?.length) clips.push({ ...c, file: `${c.key}-a`, adult: true });
 
 // ---------- озвучка ----------
 
@@ -151,7 +162,7 @@ type Index = Record<string, { text: string; role: string; voice: string; model: 
 const index: Index = existsSync(indexPath) ? JSON.parse(readFileSync(indexPath, 'utf8')) : {};
 const redo = new Set((opt('redo') ?? '').split(',').filter(Boolean));
 const roles = new Set((opt('roles') ?? '').split(',').filter(Boolean));
-const todo = clips.filter((c) => (!roles.size || roles.has(c.role)) && (flag('all') || redo.has(c.key) || !existsSync(join(outDir, `${c.key}.mp3`))));
+const todo = clips.filter((c) => (!roles.size || roles.has(c.role)) && (flag('all') || redo.has(c.file) || !existsSync(join(outDir, `${c.file}.mp3`))));
 const chars = todo.reduce((n, c) => n + c.text.length, 0);
 const byRole = new Map<string, number>();
 for (const c of clips) byRole.set(c.role, (byRole.get(c.role) ?? 0) + c.text.length);
@@ -166,17 +177,18 @@ if (!key) {
 }
 mkdirSync(outDir, { recursive: true });
 
+/** Личные сцены (bonds) открываются в таверне в любой момент — их озвучивают взрослые голоса (решение владельца). */
 const chapterNum = Number(/^chapter(\d+)$/.exec(chapterId)?.[1] ?? 0);
-/** Голос роли для этой главы: взрослая версия с ages[].fromChapter (личные сцены bonds — молодой голос). */
-function voiceOf(role: string): VoiceDef {
+/** Голос роли для этой главы: взрослая версия с ages[].fromChapter; у взрослой версии личной сцены — самая взрослая. */
+function voiceOf(role: string, adult = false): VoiceDef {
   const v = cast.voices[role];
   if (!v) throw new Error(`Нет голоса «${role}» в cast.voices`);
-  const age = [...(v.ages ?? [])].sort((a, b) => b.fromChapter - a.fromChapter).find((a) => chapterNum >= a.fromChapter);
+  const age = [...(v.ages ?? [])].sort((a, b) => b.fromChapter - a.fromChapter).find((a) => adult || chapterNum >= a.fromChapter);
   return age ? { ...v, voice: age.voice, label: age.label, settings: age.settings } : v;
 }
 
 async function tts(c: Clip): Promise<{ audio: Buffer; cost: number }> {
-  const v = voiceOf(c.role);
+  const v = voiceOf(c.role, c.adult);
   const body = {
     text: speakable(stressed(direction[c.text] ?? c.text)),
     model_id: model,
@@ -204,10 +216,10 @@ async function tts(c: Clip): Promise<{ audio: Buffer; cost: number }> {
 let spent = 0;
 for (const [i, c] of todo.entries()) {
   const { audio, cost } = await tts(c);
-  writeFileSync(join(outDir, `${c.key}.mp3`), audio);
+  writeFileSync(join(outDir, `${c.file}.mp3`), audio);
   spent += cost;
-  index[c.key] = { text: c.text, role: c.role, voice: voiceOf(c.role).voice, model, chars: cost, from: `${chapterId}/${c.from}` };
+  index[c.file] = { text: c.text, role: c.role, voice: voiceOf(c.role, c.adult).voice, model, chars: cost, from: `${chapterId}/${c.from}` };
   writeFileSync(indexPath, `${JSON.stringify(index, null, 1)}\n`);
-  console.log(`[${i + 1}/${todo.length}] ${c.role.padEnd(9)} ${c.key} ${cost} симв. — ${c.text.slice(0, 60)}`);
+  console.log(`[${i + 1}/${todo.length}] ${c.role.padEnd(9)} ${c.file} ${cost} симв. — ${c.text.slice(0, 60)}`);
 }
 console.log(`Готово: ${todo.length} клипов, списано ${spent} символов.`);

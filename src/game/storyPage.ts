@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { FINDING_KIND_NAMES, type ChapterChronicleDef, type EpisodeDef, type FindingDef, type FindingKind, type IntroPages, type LegendDef } from '../core';
+import { FINDING_KIND_NAMES, type ChapterChronicleDef, type EpisodeDef, type FindingDef, type FindingKind, type InterludeDef, type IntroPages, type LegendDef } from '../core';
 import { sfx } from './audio';
 import { haptic } from './haptics';
 import { setThemeBackground, themeOfChapter } from './backdrops';
@@ -363,9 +363,10 @@ export function findingIcon(scene: Phaser.Scene, x: number, y: number, size: num
 
 // ---------- готовые страницы ----------
 
-/** «Эпизод N» и легенда главы. */
+/** Перерыв во времени, «Эпизод N» и легенда главы. */
 export function introPages(p: IntroPages): StoryPage[] {
   const out: StoryPage[] = [];
+  if (p.interlude) out.push(interludePage(p.chapterId, p.interlude));
   if (p.episode) out.push(episodePage(p.number, p.chapterId, p.episode));
   if (p.legend) out.push(legendPage(p.chapterId, p.legend));
   return out;
@@ -379,6 +380,15 @@ export const episodePage = (n: number, chapterId: string, e: EpisodeDef): StoryP
   text: e.text,
   chapterId,
   look: 'episode',
+});
+
+/** Перерыв во времени: книга рассказчика («Прошли годы»). */
+export const interludePage = (chapterId: string, i: InterludeDef): StoryPage => ({
+  kicker: i.kicker,
+  title: i.title,
+  text: i.text,
+  chapterId,
+  look: 'book',
 });
 
 export const legendPage = (chapterId: string, l: LegendDef): StoryPage => ({

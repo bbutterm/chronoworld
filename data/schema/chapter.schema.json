@@ -257,6 +257,31 @@
         ]
       }
     },
+    "interlude": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "kicker": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 900
+        }
+      },
+      "required": [
+        "title",
+        "kicker",
+        "text"
+      ]
+    },
     "episode": {
       "type": "object",
       "properties": {
