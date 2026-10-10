@@ -134,15 +134,16 @@ describe('RPG-выучка: реальные альтернативы, без н
   });
 
   it('спутник сохраняет id при повышении; автоматический корм не забирает его или обученную копию', () => {
+    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный, поэтому копия одна (было две).
     const original = addHeroCard(rich(), 'iris', 'green');
     const copy1 = addHeroCard(original.save, 'iris', 'green');
-    const copy2 = addHeroCard(copy1.save, 'iris', 'green');
-    expect(fodderBlocker(copy2.save, original.hero.id, ctx)).toMatch(/спутник/);
-    const plan = ascendPlan(copy2.save, original.hero.id, ctx)!;
+    expect(fodderBlocker(copy1.save, original.hero.id, ctx)).toMatch(/спутник/);
+    const plan = ascendPlan(copy1.save, original.hero.id, ctx)!;
     expect(plan.complete).toBe(true);
-    const ascended = ascendHero(copy2.save, original.hero.id, plan.fodder, ctx);
+    expect(plan.fodder).toEqual([copy1.hero.id]);
+    const ascended = ascendHero(copy1.save, original.hero.id, plan.fodder, ctx);
     expect(ascended.save.heroes.find((h) => h.templateId === 'iris')).toMatchObject({ id: original.hero.id, rarity: 'blue', companion: true });
-    const trained = levelUpHero(copy2.save, copy1.hero.id, ctx, 2).save;
+    const trained = levelUpHero(copy1.save, copy1.hero.id, ctx, 2).save;
     expect(fodderBlocker(trained, copy1.hero.id, ctx)).toMatch(/обучен/);
     expect(ascendPlan(trained, original.hero.id, ctx)?.complete).toBe(false);
     const reset = resetHeroLevel(trained, copy1.hero.id, ctx).save;
@@ -163,7 +164,8 @@ describe('RPG-выучка: реальные альтернативы, без н
   it('новая копия не наследует id и отношения уже использованной копии после перезапуска', () => {
     const one = addHeroCard(rich(), 'alan', 'green');
     const two = addHeroCard(one.save, 'alan', 'green');
-    const ascended = ascendHero(two.save, 'h1', [one.hero.id, two.hero.id], ctx).save;
+    // Пересмотр 10.10: зелёный → синий — одна копия в корм; вторая остаётся в коллекции.
+    const ascended = ascendHero(two.save, 'h1', [one.hero.id], ctx).save;
     const back = deserialize(serialize(ascended));
     const next = addHeroCard(back, 'alan', 'green');
     expect(next.hero.id).toBe('h6');

@@ -130,7 +130,9 @@ export function cardSlots(count: number, centerY: number, width = 1080): CardSlo
 }
 
 /** Метка под картой в итоге: новый герой — «Новый» (золото), копия — маленькое «+1 копия». */
-export function resultTag(r: Pick<SummonResult, 'isNew'> | { kind: 'new' | 'copy' }): { text: string; kind: 'new' | 'copy' } {
+export function resultTag(r: Pick<SummonResult, 'isNew'> | { kind: 'new' | 'copy' | 'loot' }): { text: string; kind: 'new' | 'copy' | 'loot' } {
+  // Награда (не герой): метки нет — название и количество уже на самой карте.
+  if ('kind' in r && r.kind === 'loot') return { text: '', kind: 'loot' };
   const fresh = 'kind' in r ? r.kind === 'new' : r.isNew;
   return fresh ? { text: 'Новый', kind: 'new' } : { text: '+1 копия', kind: 'copy' };
 }
@@ -141,13 +143,15 @@ export function resultTag(r: Pick<SummonResult, 'isNew'> | { kind: 'new' | 'copy
  * big — крупный показ (×1): «копия · теперь ×N»; в сетке ×10 — короче («копия ×N»), чтобы не наезжать на соседей.
  * NB-12 / LT-15: N — сколько карт героя стало с этой картой (четыре Брана при трёх — ×4, ×5, ×6, ×7), а не итог серии у всех.
  */
-export function copyTags(results: readonly Pick<SummonResult, 'templateId'>[], heroesNow: readonly { templateId: string }[], big: boolean): { text: string; kind: 'new' | 'copy'; total: number }[] {
+export function copyTags(results: readonly ({ kind?: 'hero'; templateId: string } | { kind: 'loot' })[], heroesNow: readonly { templateId: string }[], big: boolean): { text: string; kind: 'new' | 'copy' | 'loot'; total: number }[] {
   const total = new Map<string, number>();
   for (const h of heroesNow) total.set(h.templateId, (total.get(h.templateId) ?? 0) + 1);
+  const heroes = results.filter((r): r is { templateId: string } => r.kind !== 'loot');
   const inBatch = new Map<string, number>();
-  for (const r of results) inBatch.set(r.templateId, (inBatch.get(r.templateId) ?? 0) + 1);
+  for (const r of heroes) inBatch.set(r.templateId, (inBatch.get(r.templateId) ?? 0) + 1);
   const seen = new Map<string, number>();
   return results.map((r) => {
+    if (r.kind === 'loot') return { text: '', kind: 'loot' as const, total: 0 };
     const n = total.get(r.templateId) ?? 0;
     const before = n - (inBatch.get(r.templateId) ?? 0) + (seen.get(r.templateId) ?? 0);
     seen.set(r.templateId, (seen.get(r.templateId) ?? 0) + 1);
@@ -158,9 +162,11 @@ export function copyTags(results: readonly Pick<SummonResult, 'templateId'>[], h
 }
 
 /** Лучшая карта серии (момент и нарастание): самая редкая, при равенстве — новая, затем последняя на столе. */
-export function bestResult<T extends Pick<SummonResult, 'rarity' | 'isNew'>>(results: readonly T[]): T | undefined {
+export function bestResult<T extends Pick<SummonResult, 'rarity' | 'isNew'> & { kind?: 'hero' | 'loot' }>(results: readonly T[]): T | undefined {
   let best: T | undefined;
+  // Награды (не герои) в «лучшую карту» не идут: момент и нарастание — только у героя.
   for (const r of results) {
+    if (r.kind === 'loot') continue;
     if (!best) best = r;
     else {
       const d = rarityIndex(r.rarity) - rarityIndex(best.rarity);
@@ -171,7 +177,8 @@ export function bestResult<T extends Pick<SummonResult, 'rarity' | 'isNew'>>(res
 }
 
 /** Итог серии одной строкой: «Фиолетовых 1 · синих 3 · зелёных 6 · новых 4 · копий 6» (NB-12: «копии», не «дубли»). */
-export function summaryLine(results: readonly Pick<SummonResult, 'rarity' | 'isNew'>[]): string {
+export function summaryLine(all: readonly (Pick<SummonResult, 'rarity' | 'isNew'> & { kind?: 'hero' | 'loot' })[]): string {
+  const results = all.filter((r) => r.kind !== 'loot');
   const counts = new Map<CardRarity, number>();
   for (const r of results) counts.set(r.rarity, (counts.get(r.rarity) ?? 0) + 1);
   const parts = [...counts.entries()].sort((a, b) => rarityIndex(b[0]) - rarityIndex(a[0])).map(([r, n]) => `${RARITY_PLURAL[r]} ${n}`);
@@ -179,6 +186,7 @@ export function summaryLine(results: readonly Pick<SummonResult, 'rarity' | 'isN
   const dups = results.length - fresh;
   if (fresh) parts.push(`новых ${fresh}`);
   if (dups) parts.push(`копий ${dups}`);
+  if (all.length > results.length) parts.push(`наград ${all.length - results.length}`);
   const s = parts.join(' · ');
   return s.charAt(0).toUpperCase() + s.slice(1);
 }

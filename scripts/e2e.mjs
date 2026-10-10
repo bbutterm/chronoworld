@@ -681,8 +681,9 @@ async function main() {
       const s = JSON.parse(localStorage.getItem('chronoworld.save.v1'));
       return { rare: s.heroes.filter((h) => h.rarity !== 'green').length, firstTenDone: s.summon.firstTenDone, gems: s.currency.gems, scrolls: s.currency.scrolls };
     });
-    // ×10 платится свитками подарка (их хватает), гемы целы.
-    if (saved.rare < 1 || !saved.firstTenDone || saved.scrolls !== scrollsAfterGift - 10 || saved.gems !== 270) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
+    // ×10 платится свитками подарка (их хватает), гемы не тратятся; Таверна с наградами (10.10) может добавить
+    // алмазы (10–30 за вытягивание), поэтому их не меньше 270.
+    if (saved.rare < 1 || !saved.firstTenDone || saved.scrolls !== scrollsAfterGift - 10 || saved.gems < 270) problems.push(`Таверна: сохранение после ×10 ${JSON.stringify(saved)}`);
     else log('Таверна: подарок, ×10 с гарантированной синей, итог — ок');
 
     // 6а. Башня (BUG-182): вернулись из боя этажа (данные сцены { fight }) — касание второго пути развилки переключает

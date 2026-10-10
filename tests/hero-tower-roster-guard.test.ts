@@ -23,7 +23,10 @@ function withTowerCopy(): SaveState {
 
 describe('участники Башни сохраняют экземпляры до завершения забега', () => {
   it('не отдаёт живого участника в корм после смены общего отряда', () => {
-    const save = withTowerCopy();
+    // Пересмотр 10.10: фиолетовый → золотой — 2 любые фиолетовые. Чтобы на слоты годились только копии Зары (h39 и
+    // участник Башни h102), фиолетовые других героев закреплены.
+    const tower = withTowerCopy();
+    const save: SaveState = { ...tower, heroes: tower.heroes.map((h) => (h.rarity === 'purple' && h.templateId !== 'zara' ? { ...h, locked: true } : h)) };
     const before = serialize(save);
     expect(save.squad).not.toContain('h102');
     expect(towerRunSquad(save, ctx).squad[0]?.id).toBe('h102');

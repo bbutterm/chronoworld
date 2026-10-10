@@ -113,9 +113,11 @@ describe('P10 T1-07: совет после поражения', () => {
 
   it('вознесение только запасных не подменяет помощь отряду и не убирает метки в списке героев', () => {
     const save = fresh();
+    // Пересмотр 10.10: зелёный → синий — 1 любой зелёный, так что зелёные запасные стали бы кормом для героев отряда;
+    // запасные — три синие Ирис (синий → фиолетовый — только такие же копии, 30 000 золота).
     const bench: SaveState = {
-      ...save, resources: { gold: 5000, heroExp: 0 },
-      heroes: [...save.heroes, ...[1, 2, 3].map((i) => ({ id: `reserve${i}`, templateId: 'iris', rarity: 'green' as const, level: 1 }))],
+      ...save, resources: { gold: 30_000, heroExp: 0 },
+      heroes: [...save.heroes, ...[1, 2, 3].map((i) => ({ id: `reserve${i}`, templateId: 'iris', rarity: 'blue' as const, level: 1 }))],
     };
     expect(ascendReady(bench, ctx).map((h) => h.id)).toEqual(['reserve1', 'reserve2', 'reserve3']);
     expect(defeatAdvice(bench, ctx)).toMatchObject({ action: 'Squad' });
@@ -124,9 +126,10 @@ describe('P10 T1-07: совет после поражения', () => {
 
   it('копии под замком или в отряде и нехватка золота не дают ложного совета вознесения', () => {
     const save = fresh();
+    // Пересмотр 10.10: зелёный → синий — одна зелёная копия (было две такие же).
     const copies: SaveState = {
       ...save, resources: { gold: 5000, heroExp: 0 },
-      heroes: [...save.heroes, ...[1, 2].map((i) => ({ id: `copy${i}`, templateId: 'alan', rarity: 'green' as const, level: 1 }))],
+      heroes: [...save.heroes, { id: 'copy1', templateId: 'alan', rarity: 'green' as const, level: 1 }],
     };
     expect(defeatAdvice(copies, ctx).text).toContain('вознесению');
     const locked = { ...copies, heroes: copies.heroes.map((h) => h.id === 'copy1' ? { ...h, locked: true } : h) };
@@ -144,7 +147,9 @@ describe('P10 T1-07: совет после поражения', () => {
     expect(squadAtLevelCap({ ...partial, squad: [null, null, null, null, null] }, ctx)).toBe(false);
   });
 
-  it('золотой → красный: одна копия не закрывает одновременно слоты «та же» и «любая»', () => {
+  // Пересмотр 10.10: золотой → красный — 2 такие же фиолетовые (было 1 своя + 2 любые): одна копия не закрывает два
+  // слота, фиолетовая другого героя не подходит.
+  it('золотой → красный: одна копия не закрывает два слота «та же»; копия другого героя не подходит', () => {
     const save = fresh();
     const targetId = save.heroes[0].id;
     const two: SaveState = {
@@ -158,12 +163,13 @@ describe('P10 T1-07: совет после поражения', () => {
     expect(ascendPlan(two, targetId, ctx)).toMatchObject({ complete: false, missing: 1 });
     expect(ascendReady(two, ctx).some((h) => h.id === targetId)).toBe(false);
     expect(defeatAdvice(two, ctx).text).not.toContain('готов к вознесению');
-    const three: SaveState = { ...two, heroes: [...two.heroes, { id: 'any2', templateId: 'bran', rarity: 'purple', level: 1 }] };
+    // Вторая своя копия вместо чужой (иначе три свободные фиолетовые — уже корм «любой» фиолетовый → золотой для копии в отряде).
+    const three: SaveState = { ...two, heroes: [...two.heroes.filter((h) => h.id !== 'any1'), { id: 'same2', templateId: 'alan', rarity: 'purple', level: 1 }] };
     expect(ascendPlan(three, targetId, ctx)).toMatchObject({ complete: true, missing: 0 });
     expect(ascendReady(three, ctx).some((h) => h.id === targetId)).toBe(true);
     expect(defeatAdvice(three, ctx).text).toContain('готов к вознесению');
-    const locked = { ...three, heroes: three.heroes.map((h) => h.id === 'any2' ? { ...h, locked: true } : h) };
-    const assigned = { ...three, squad: three.squad.map((id, i) => i === 1 ? 'any2' : id) };
+    const locked = { ...three, heroes: three.heroes.map((h) => h.id === 'same2' ? { ...h, locked: true } : h) };
+    const assigned = { ...three, squad: three.squad.map((id, i) => i === 1 ? 'same2' : id) };
     for (const blocked of [locked, assigned]) {
       expect(ascendReady(blocked, ctx).some((h) => h.id === targetId)).toBe(false);
       expect(defeatAdvice(blocked, ctx).text).not.toContain('готов к вознесению');

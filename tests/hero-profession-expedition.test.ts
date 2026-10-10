@@ -16,9 +16,9 @@ function ready(chosen: boolean): { save: SaveState; copyIds: string[] } {
     resources: { gold: 10_000_000, heroExp: 10_000_000 },
     campaign: { cleared: ctx.content.stages.slice(0, ctx.content.stages.findIndex((s) => s.id === 'ch1_s8') + 1).map((s) => s.id) },
   };
+  // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный (было 2 такие же).
   const first = addHeroCard(save, 'alan', 'green');
-  const second = addHeroCard(first.save, 'alan', 'green');
-  save = ascendHero(second.save, 'h1', [first.hero.id, second.hero.id], ctx).save;
+  save = ascendHero(first.save, 'h1', [first.hero.id], ctx).save;
   const third = addHeroCard(save, 'alan', 'blue');
   const fourth = addHeroCard(third.save, 'alan', 'blue');
   save = ascendHero(fourth.save, 'h1', [third.hero.id, fourth.hero.id], ctx, { deferBranch: true }).save;
@@ -76,7 +76,9 @@ describe('профессия героя не меняется до получе�
   it('«Вознести всех» пропускает занятую цель и продолжает другие доступные повышения', () => {
     const initial = ready(true);
     let save = initial.save;
-    for (let i = 0; i < 3; i++) save = addHeroCard(save, 'iris', 'green').save;
+    // Пересмотр 10.10: лишние зелёные Ирис ушли бы в слот «любой» зелёным Брану и Вике из отряда, а синяя Ирис после
+    // фиолетового забрала бы копии Алана в слоты «любой» — берём 3 фиолетовые Ирис: золотой из своих копий.
+    for (let i = 0; i < 3; i++) save = addHeroCard(save, 'iris', 'purple').save;
     save = startExpedition(save, 'ant_hell', 1, T0, ctx, ['h1']);
     const result = ascendAll(save, ctx);
     expect(result.done.map((s) => s.templateId)).toEqual(['iris']);

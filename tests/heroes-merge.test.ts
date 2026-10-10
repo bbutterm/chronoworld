@@ -59,38 +59,52 @@ function withCards(cards: [string, CardRarity, number?, string?][], goldAmount =
 }
 
 describe('вознесение: одна дорожка, копии того же героя', () => {
-  // Решение владельца (пакет V3): пирамида «3 одинаковые = следующая редкость» — герой + 2 копии той же редкости до золотого.
-  it('правила data/cards.json: 2 зелёные / 2 синие + ветка / 2 фиолетовые / 1 своя + 2 любые фиолетовые', () => {
+  // Решение владельца (пакет V3): пирамида «3 одинаковые = следующая редкость». Пересмотр 10.10: зелёный → синий —
+  // герой + 1 любой зелёный; синий → фиолетовый — 3 одинаковых синих (30 000 золота); фиолетовый → золотой — герой +
+  // 2 любых фиолетовых; золотой → красный — герой + 2 таких же фиолетовых.
+  it('правила data/cards.json: 1 любой зелёный / 2 синие + ветка / 2 любые фиолетовые / 2 свои фиолетовые', () => {
     expect(ctx.cards.merge.map((m) => [m.from, m.to, m.fodder.map((f) => `${f.count}×${f.kind}:${f.rarity}`).join('+'), !!m.branch])).toEqual([
-      ['green', 'blue', '2×same:green', false],
+      ['green', 'blue', '1×any:green', false],
       ['blue', 'purple', '2×same:blue', true],
-      ['purple', 'gold', '2×same:purple', false],
-      ['gold', 'red', '1×same:purple+2×any:purple', false],
+      ['purple', 'gold', '2×any:purple', false],
+      ['gold', 'red', '2×same:purple', false],
     ]);
+    expect(ctx.cards.merge.map((m) => m.gold)).toEqual([500, 30_000, 20_000, 60_000]);
   });
 
-  it('зелёный → синий: +2 зелёные копии; золото; уровень цели сохраняется; вложенное в корм возвращается', () => {
-    // h4 — цель, h5/h6 — корм (одна прокачана до 5 и в экипировке).
-    let s = withCards([['iris', 'green', 12], ['iris', 'green', 5], ['iris', 'green']]);
+  it('зелёный → синий: +1 зелёная копия любого героя; золото; уровень цели сохраняется; вложенное в корм возвращается', () => {
+    // h4 — цель, h5 — корм (прокачана до 5 и в экипировке). Пересмотр 10.10: нужна одна зелёная копия (было две такие же).
+    let s = withCards([['iris', 'green', 12], ['iris', 'green', 5]]);
     s = { ...s, inventory: { items: [{ id: 'it1', itemId: 'knife', equippedBy: 'h5' }] } };
     const req = ascendRequirement(s, 'h4', ctx)!;
     expect(req).toMatchObject({ from: 'green', to: 'blue', gold: gold('green'), branch: false, blockers: [] });
-    expect(req.fodder).toEqual([{ kind: 'same', rarity: 'green', count: 2, candidates: ['h6'] }]);
+    // Обученная копия — не кандидат; Алан, Бран и Вика — в отряде.
+    expect(req.fodder).toEqual([{ kind: 'any', rarity: 'green', count: 1, candidates: [] }]);
     expect(autoFodder(s, 'h4', ctx)).toBeNull();
     expect(canAscend(s, 'h4', ctx)).toBe(false);
-    expect(codeOf(() => ascendHero(s, 'h4', ['h5', 'h6'], ctx))).toBe('fodder_busy');
+    expect(codeOf(() => ascendHero(s, 'h4', ['h5'], ctx))).toBe('fodder_busy');
     const reset = resetHeroLevel(s, 'h5', ctx);
     expect(reset.refund).toEqual(levelRangeCost(1, 5, ctx));
     s = reset.save;
     expect(canAscend(s, 'h4', ctx)).toBe(true);
-    const r = ascendHero(s, 'h4', ['h5', 'h6'], ctx);
+    // Корма ровно столько, сколько слотов.
+    expect(codeOf(() => ascendHero(s, 'h4', [], ctx))).toBe('bad_fodder');
+    const r = ascendHero(s, 'h4', ['h5'], ctx);
     expect(r.save.heroes.find((h) => h.id === 'h4')).toMatchObject({ rarity: 'blue', level: 12 });
-    expect(r.save.heroes.some((h) => h.id === 'h5' || h.id === 'h6')).toBe(false);
+    expect(r.save.heroes.some((h) => h.id === 'h5')).toBe(false);
     expect(r.refund).toEqual({ exp: 0, gold: 0 });
     expect(r.save.resources).toEqual({ gold: 1_000_000 - gold('green') + reset.refund.gold, heroExp: reset.refund.exp });
     expect(r.save.inventory.items[0].equippedBy).toBeNull();
     expect(r.events).toEqual([{ type: 'ascended', heroId: 'h4', from: 'green', to: 'blue', job: 'swordman', jobChanged: false }]);
-    expect(r.consumed.sort()).toEqual(['h5', 'h6']);
+    expect(r.consumed).toEqual(['h5']);
+    // «Любой»: подходит зелёная копия другого героя (первая Кай h6 — спутник, корм — вторая h7), но не синяя.
+    const other = withCards([['iris', 'green'], ['lira', 'blue'], ['kai', 'green'], ['kai', 'green']]);
+    expect(ascendRequirement(other, 'h4', ctx)!.fodder[0].candidates).toEqual(['h7']);
+    expect(codeOf(() => ascendHero(other, 'h4', ['h5'], ctx))).toBe('bad_fodder');
+    expect(codeOf(() => ascendHero(other, 'h4', ['h6'], ctx))).toBe('fodder_busy');
+    const o = ascendHero(other, 'h4', ['h7'], ctx);
+    expect(o.save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('blue');
+    expect(o.save.heroes.filter((h) => h.templateId === 'kai').map((h) => h.id)).toEqual(['h6']);
   });
 
   it('RN-02: догоняющие уровни сюжетного героя (grantedLevel) при отдаче в корм не возвращаются', () => {
@@ -99,10 +113,11 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(gift.hero).toMatchObject({ level: 8, grantedLevel: 8 });
     // Дар подкачали до 10 — вернётся только оплаченное 8 → 10.
     s = { ...gift.save, heroes: gift.save.heroes.map((h) => (h.id === gift.hero.id ? { ...h, level: 10 } : h)) };
-    expect(codeOf(() => ascendHero(s, 'h4', ['h5', gift.hero.id], ctx))).toBe('fodder_busy');
+    // Пересмотр 10.10: зелёный → синий — одна копия в корм (дар).
+    expect(codeOf(() => ascendHero(s, 'h4', [gift.hero.id], ctx))).toBe('fodder_busy');
     const reset = resetHeroLevel(s, gift.hero.id, ctx);
     expect(reset.refund).toEqual(levelRangeCost(8, 10, ctx));
-    const r = ascendHero(reset.save, 'h4', ['h5', gift.hero.id], ctx);
+    const r = ascendHero(reset.save, 'h4', [gift.hero.id], ctx);
     expect(r.refund).toEqual({ exp: 0, gold: 0 });
   });
 
@@ -116,14 +131,16 @@ describe('вознесение: одна дорожка, копии того ж�
   });
 
   it('сюжетный герой — как все: копия Алана — корм, цель (Алан из отряда) не тратится', () => {
-    const s = resetHeroLevel(withCards([['alan', 'green'], ['alan', 'green', 3]]), 'h5', ctx).save;
+    // Пересмотр 10.10: зелёный → синий — одна копия в корм, поэтому копия Алана одна.
+    const s = resetHeroLevel(withCards([['alan', 'green', 3]]), 'h4', ctx).save;
     // Копии в отряде нет — корм; h1 (Алан в отряде) — цель.
     expect(fodderBlocker(s, 'h4', ctx)).toBeNull();
     expect(fodderBlocker(s, 'h1', ctx)).toMatch(/в отряде/);
+    expect(autoFodder(s, 'h1', ctx)).toEqual(['h4']);
     const r = ascendHero(s, 'h1', autoFodder(s, 'h1', ctx)!, ctx);
     expect(r.save.heroes.filter((h) => h.templateId === 'alan').map((h) => [h.id, h.rarity])).toEqual([['h1', 'blue']]);
     // Нельзя отдать себя в корм.
-    expect(codeOf(() => ascendHero(s, 'h4', ['h4', 'h5'], ctx))).toBe('bad_fodder');
+    expect(codeOf(() => ascendHero(s, 'h4', ['h4'], ctx))).toBe('bad_fodder');
   });
 
   it('синий → фиолетовый: 2 синие копии + выбор ветки (branch_required, чужая ветка — bad_branch); навыки ветки — сразу', () => {
@@ -147,7 +164,7 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(r.events.filter((e) => e.type === 'skillUnlocked').map((e) => (e.type === 'skillUnlocked' ? e.level : 0))).toEqual([1, 10, 30]);
   });
 
-  it('фиолетовый → золотой: 2 фиолетовые копии любой ветки или без ветки; ветка цели сохраняется', () => {
+  it('фиолетовый → золотой: 2 фиолетовые копии любых героев, любой ветки или без ветки; ветка цели сохраняется', () => {
     const s = withCards([['teo', 'purple', 60, 'monk'], ['teo', 'purple', 1, 'priest'], ['teo', 'purple']]);
     expect(ascendRequirement(s, 'h4', ctx)!.fodder[0].candidates.sort()).toEqual(['h5', 'h6']);
     expect(codeOf(() => ascendHero(s, 'h4', ['h6'], ctx))).toBe('bad_fodder');
@@ -156,54 +173,79 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(r.events).toEqual([{ type: 'ascended', heroId: 'h4', from: 'purple', to: 'gold', job: 'monk', jobChanged: false }]);
     // Вознесением ветку не сменить (смена — changeBranch), а ниже фиолетового она не ставится.
     expect(ascendHero(s, 'h4', ['h5', 'h6'], ctx, { branch: 'priest' }).save.heroes.find((h) => h.id === 'h4')!.branch).toBe('monk');
-    const g = withCards([['teo', 'green'], ['teo', 'green'], ['teo', 'green']]);
-    expect(ascendHero(g, 'h4', ['h5', 'h6'], ctx, { branch: 'priest' }).save.heroes.find((h) => h.id === 'h4')!.branch).toBeUndefined();
+    // Пересмотр 10.10: зелёный → синий — одна копия в корм.
+    const g = withCards([['teo', 'green'], ['teo', 'green']]);
+    expect(ascendHero(g, 'h4', ['h5'], ctx, { branch: 'priest' }).save.heroes.find((h) => h.id === 'h4')!.branch).toBeUndefined();
+    // Пересмотр 10.10: слоты «любой» (было 2 такие же) — «Авто» берёт сначала копии других героев, а не вторую Тео;
+    // первые Грета и Кай — спутники, в корм идут дополнительные копии.
+    const mix = withCards([['teo', 'purple', 60, 'monk'], ['teo', 'purple'], ['greta', 'purple'], ['greta', 'purple'], ['kai', 'purple'], ['kai', 'purple']]);
+    expect(ascendRequirement(mix, 'h4', ctx)!.fodder).toEqual([{ kind: 'any', rarity: 'purple', count: 2, candidates: ['h9', 'h7', 'h5'] }]);
+    const pick = autoFodder(mix, 'h4', ctx)!;
+    expect(pick.sort()).toEqual(['h7', 'h9']);
+    const m = ascendHero(mix, 'h4', pick, ctx);
+    expect(m.save.heroes.find((h) => h.id === 'h4')).toMatchObject({ rarity: 'gold', branch: 'monk' });
+    expect(m.save.heroes.filter((h) => ['h5', 'h6', 'h8'].includes(h.id))).toHaveLength(3);
   });
 
-  it('золотой → красный: 1 своя фиолетовая + 2 фиолетовые любых героев («любая» — сначала другие герои)', () => {
-    // Первые Грета и Кай — спутники, в корм подходят дополнительные копии.
-    const s = withCards([['otto', 'gold', 80, 'blacksmith'], ['otto', 'purple'], ['greta', 'purple'], ['kai', 'purple'], ['otto', 'purple'], ['greta', 'purple'], ['kai', 'purple']]);
+  it('«Авто» в слоте «любой» не съедает последнюю копию другого героя — только лишнюю', () => {
+    // Пересмотр 10.10: у зелёного → синего слот «любой зелёный». h4 — единственная Ирис: первая копия героя — спутник,
+    // в корм не идёт ни через «Авто», ни вручную. h5 — Тео (цель).
+    const lone = withCards([['iris', 'green'], ['teo', 'green']]);
+    expect(autoFodder(lone, 'h5', ctx)).toBeNull();
+    expect(codeOf(() => ascendHero(lone, 'h5', ['h4'], ctx))).toBe('fodder_busy');
+    // Вторая Ирис — лишняя: «Авто» берёт её, лучшая копия остаётся.
+    const spare = withCards([['iris', 'green'], ['teo', 'green'], ['iris', 'green']]);
+    const pick = autoFodder(spare, 'h5', ctx)!;
+    expect(pick).toHaveLength(1);
+    expect(spare.heroes.find((h) => h.id === pick[0])!.templateId).toBe('iris');
+    const left = ascendHero(spare, 'h5', pick, ctx).save.heroes.filter((h) => h.templateId === 'iris');
+    expect(left).toHaveLength(1);
+  });
+
+  it('золотой → красный: 2 свои фиолетовые копии; копии других героев не подходят', () => {
+    // Пересмотр 10.10: было 1 своя + 2 любые фиолетовые, стало 2 такие же фиолетовые.
+    // Первая Грета — спутник, вторая (h8) — свободная фиолетовая другого героя.
+    const s = withCards([['otto', 'gold', 80, 'blacksmith'], ['otto', 'purple'], ['otto', 'purple'], ['greta', 'purple'], ['greta', 'purple']]);
     const req = ascendRequirement(s, 'h4', ctx)!;
-    expect(req.fodder.map((f) => [f.kind, f.rarity, f.count])).toEqual([
-      ['same', 'purple', 1],
-      ['any', 'purple', 2],
-    ]);
+    expect(req.fodder).toEqual([{ kind: 'same', rarity: 'purple', count: 2, candidates: ['h6', 'h5'] }]);
     const pick = autoFodder(s, 'h4', ctx)!;
-    expect(pick).toHaveLength(3);
-    // «Та же» — копия Отто; «любые» — Грета и Кай (не вторая копия Отто).
-    expect(pick.filter((id) => s.heroes.find((h) => h.id === id)!.templateId === 'otto')).toHaveLength(1);
+    expect(pick.sort()).toEqual(['h5', 'h6']);
+    expect(codeOf(() => ascendHero(s, 'h4', ['h5', 'h8'], ctx))).toBe('bad_fodder');
     const r = ascendHero(s, 'h4', pick, ctx);
     expect(r.save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('red');
-    expect(r.save.heroes.find((h) => h.id === 'h6')?.companion).toBe(true);
     expect(r.save.heroes.find((h) => h.id === 'h7')?.companion).toBe(true);
-    // Не хватает «той же» — любые три фиолетовые не подходят.
-    const noSame = withCards([['otto', 'gold', 80, 'alchemist'], ['greta', 'purple'], ['kai', 'purple'], ['lira', 'purple']]);
+    expect(r.save.heroes.some((h) => h.id === 'h8')).toBe(true);
+    // Не хватает «той же» — любые фиолетовые не подходят.
+    const noSame = withCards([['otto', 'gold', 80, 'alchemist'], ['otto', 'purple'], ['greta', 'purple'], ['greta', 'purple'], ['lira', 'purple'], ['lira', 'purple']]);
     expect(autoFodder(noSame, 'h4', ctx)).toBeNull();
-    expect(codeOf(() => ascendHero(noSame, 'h4', ['h5', 'h6', 'h7'], ctx))).toBe('bad_fodder');
+    expect(codeOf(() => ascendHero(noSame, 'h4', ['h5', 'h7'], ctx))).toBe('bad_fodder');
     expect(codeOf(() => ascendHero(r.save, 'h4', [], ctx))).toBe('max_rarity');
   });
 
   it('корм ровно нужной редкости; занятые экземпляры (замок, отряд, пресет, экспедиция) — fodder_busy', () => {
+    // Пересмотр 10.10: зелёный → синий — одна зелёная копия в корм (было две).
     const s = withCards([['zara', 'green'], ['zara', 'blue'], ['zara', 'green'], ['zara', 'green']]);
-    // Синяя копия в зелёный слот — нельзя.
-    expect(codeOf(() => ascendHero(s, 'h4', ['h5', 'h6'], ctx))).toBe('bad_fodder');
+    // Синяя копия в зелёный слот — нельзя; лишний корм — тоже.
+    expect(codeOf(() => ascendHero(s, 'h4', ['h5'], ctx))).toBe('bad_fodder');
+    expect(codeOf(() => ascendHero(s, 'h4', ['h6', 'h7'], ctx))).toBe('bad_fodder');
     const locked: SaveState = { ...s, heroes: s.heroes.map((h) => (h.id === 'h6' ? { ...h, locked: true } : h)) };
-    expect(codeOf(() => ascendHero(locked, 'h4', ['h6', 'h7'], ctx))).toBe('fodder_busy');
+    expect(codeOf(() => ascendHero(locked, 'h4', ['h6'], ctx))).toBe('fodder_busy');
     const inSquad: SaveState = { ...s, squad: ['h6', null, null, null, null] };
-    expect(codeOf(() => ascendHero(inSquad, 'h4', ['h6', 'h7'], ctx))).toBe('fodder_busy');
+    expect(codeOf(() => ascendHero(inSquad, 'h4', ['h6'], ctx))).toBe('fodder_busy');
     const inPreset: SaveState = { ...s, presets: [{ id: 'p1', name: 'x', squad: ['h7', null, null, null, null] }] };
-    expect(codeOf(() => ascendHero(inPreset, 'h4', ['h6', 'h7'], ctx))).toBe('fodder_busy');
+    expect(codeOf(() => ascendHero(inPreset, 'h4', ['h7'], ctx))).toBe('fodder_busy');
     const away: SaveState = { ...s, bounties: { active: [{ location: 'ant_hell', hours: 1, heroIds: ['h7'], power: 1, startedAt: 0, endsAt: 1, rewards: { gold: 0, jobExp: 0, gems: 0, heroCards: { blue: 0, purple: 0 }, scrolls: 0, items: [] } }] } };
     expect(fodderBlocker(away, 'h7', ctx)).toMatch(/в экспедиции/);
-    expect(codeOf(() => ascendHero({ ...s, resources: { gold: 0, heroExp: 0 } }, 'h4', ['h6', 'h7'], ctx))).toBe('not_enough_gold');
+    expect(codeOf(() => ascendHero({ ...s, resources: { gold: 0, heroExp: 0 } }, 'h4', ['h6'], ctx))).toBe('not_enough_gold');
     expect(codeOf(() => ascendHero(s, 'ghost', [], ctx))).toBe('unknown_hero');
   });
 
-  it('«Авто» с цепочкой: 3 зелёные копии сливаются в синюю, чтобы закрыть слот синей копии', () => {
-    // Мэйлин синяя (цель) + синяя копия + 3 зелёные копии: на второй синий слот — цепочка.
-    const raw = withCards([['meilin', 'blue', 30], ['meilin', 'blue'], ['meilin', 'green'], ['meilin', 'green'], ['meilin', 'green', 4]]);
+  it('«Авто» с цепочкой: 2 зелёные копии сливаются в синюю, чтобы закрыть слот синей копии', () => {
+    // Мэйлин синяя (цель) + синяя копия + 2 зелёные копии: на второй синий слот — цепочка.
+    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный, поэтому зелёных копий 2 (было 3).
+    const raw = withCards([['meilin', 'blue', 30], ['meilin', 'blue'], ['meilin', 'green'], ['meilin', 'green', 4]]);
     expect(autoChain(raw, 'h4', ctx)).toEqual([]); // обученная копия не тратится автоматически
-    const s = resetHeroLevel(raw, 'h8', ctx).save;
+    const s = resetHeroLevel(raw, 'h7', ctx).save;
     expect(ascendPlan(s, 'h4', ctx)).toMatchObject({ complete: false, missing: 1 });
     const steps = autoChain(s, 'h4', ctx);
     expect(steps).toHaveLength(1);

@@ -1,7 +1,8 @@
 /**
- * «Вознести всех» (экран «Герои»): ascendAll — по кругу возносит всех, кому хватает свободных копий того же героя и
- * золота; ветка на фиолетовом откладывается («Выберите ветку!»); отряд и замок в корм не идут; чужие герои — только в
- * слоты «любой» (золотой → красный) и только лишние копии: лучший экземпляр каждого героя остаётся (BUG-168).
+ * «Вознести всех» (экран «Герои»): ascendAll — по кругу возносит всех, кому хватает свободных копий и золота; ветка на
+ * фиолетовом откладывается («Выберите ветку!»); отряд и замок в корм не идут; чужие герои — только в слоты «любой»
+ * (после пересмотра 10.10: зелёный → синий и фиолетовый → золотой) и только лишние копии: лучший экземпляр каждого
+ * героя остаётся (BUG-168).
  */
 import { describe, expect, it } from 'vitest';
 import { addHeroCard, ascendAll, keeperIds, ascendAllSummary, ascendHero, HeroError, needsBranch, newGame, resetHeroLevel, type CardRarity, type SaveState } from '../src/core';
@@ -26,10 +27,13 @@ describe('ascendAll', () => {
     expect(r.save).toBe(s);
   });
 
-  it('цепочка: 6 зелёных Ирис → 2 синие → с третьей синей — фиолетовая без ветки', () => {
-    const raw = withCards([['iris', 'green', 10], ['iris', 'green'], ['iris', 'green'], ['iris', 'green', 5], ['iris', 'green'], ['iris', 'green'], ['iris', 'blue', 20]]);
+  it('цепочка: 4 зелёные Ирис → 2 синие → с третьей синей — фиолетовая без ветки', () => {
+    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный (было 2 такие же), поэтому зелёных Ирис 4, а не 6.
+    const raw = withCards([['iris', 'green', 10], ['iris', 'green'], ['iris', 'green', 5], ['iris', 'green'], ['iris', 'blue', 20]]);
     // Обученные копии защищены: прежде чем использовать, явно возвращаем ресурсы.
-    const s = resetHeroLevel(resetHeroLevel(raw, 'h7', ctx).save, 'h10', ctx).save;
+    const trained = resetHeroLevel(resetHeroLevel(raw, 'h6', ctx).save, 'h8', ctx).save;
+    // Зелёные герои отряда иначе забрали бы лишние зелёные Ирис в слот «любой» — здесь проверяется цепочка одного героя.
+    const s: SaveState = { ...trained, heroes: trained.heroes.map((h) => (['h1', 'h2', 'h3'].includes(h.id) ? { ...h, rarity: 'blue' as const } : h)) };
     const r = ascendAll(s, ctx);
     const iris = r.save.heroes.filter((h) => h.templateId === 'iris');
     // Первая Ирис остаётся тем же спутником, даже когда новая копия сильнее.
@@ -52,14 +56,20 @@ describe('ascendAll', () => {
     expect(ascendAll(s, ctx)).toEqual(r);
   });
 
-  it('герой в отряде — цель, не корм; закреплённые и чужие не едятся', () => {
-    let s = withCards([['alan', 'green'], ['alan', 'green'], ['iris', 'green'], ['iris', 'green']]);
-    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h7' ? { ...h, locked: true } : h)) };
+  it('герой в отряде — цель, не корм; закреплённые и лучшие экземпляры чужих не едятся', () => {
+    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный; Ирис h5 — спутник (лучший экземпляр), h6 закреплена.
+    let s = withCards([['alan', 'green'], ['iris', 'green'], ['iris', 'green']]);
+    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h6' ? { ...h, locked: true } : h)) };
     const r = ascendAll(s, ctx);
-    expect(r.done.map((d) => d.heroId)).toEqual(['h1']);
+    expect(r.done.map((d) => [d.heroId, d.consumed])).toEqual([['h1', ['h4']]]);
     expect(r.save.heroes.find((h) => h.id === 'h1')!.rarity).toBe('blue');
-    // Ирис: h6 + закреплённая h7 — вторую копию взять неоткуда.
+    // Бран и Вика (отряд) — не корм; Ирис: спутник h5 + закреплённая h6 — обе на месте.
+    expect(r.save.heroes.filter((h) => h.id === 'h2' || h.id === 'h3').map((h) => h.rarity)).toEqual(['green', 'green']);
     expect(r.save.heroes.filter((h) => h.templateId === 'iris')).toHaveLength(2);
+    // Слот «любой» зелёного: без своей копии лишняя зелёная Ирис уходит в корм герою отряда, спутник-Ирис остаётся.
+    const any = ascendAll(withCards([['iris', 'green'], ['iris', 'green']]), ctx);
+    expect(any.done.map((d) => [d.heroId, d.from, d.to, d.consumed])).toEqual([['h1', 'green', 'blue', ['h5']]]);
+    expect(any.save.heroes.filter((h) => h.templateId === 'iris').map((h) => h.id)).toEqual(['h4']);
   });
 
   it('не хватает золота — останавливается', () => {
@@ -69,32 +79,41 @@ describe('ascendAll', () => {
     expect(r.save.resources.gold).toBe(0);
   });
 
-  it('золотой → красный: слоты «любой» закрываются лишними фиолетовыми копиями других героев (BUG-168)', () => {
-    // h1 Алан (в отряде) — золотой; h4 — фиолетовая копия Алана; Ирис h5/h6 и Отто h7/h8 — по две фиолетовые
-    // (h5 и h7 сильнее — лучшие экземпляры своих героев, их не едим).
-    let s = withCards([['alan', 'purple', 1], ['iris', 'purple', 40], ['iris', 'purple', 1], ['otto', 'purple', 40], ['otto', 'purple', 1]]);
-    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold', level: 80, branch: 'knight' } : h)) };
-    expect([...keeperIds(s)].filter((id) => ['h5', 'h6', 'h7', 'h8'].includes(id)).sort()).toEqual(['h5', 'h7']);
+  // Пересмотр 10.10: слоты «любой» — у фиолетового → золотого (2 любые фиолетовые), золотой → красный — 2 такие же
+  // фиолетовые. Прежние сценарии BUG-168 перенесены на фиолетовый → золотой.
+  it('фиолетовый → золотой: слоты «любой» закрываются лишними фиолетовыми копиями других героев (BUG-168)', () => {
+    // h1 Алан (в отряде) — фиолетовый; Ирис h4/h5 и Отто h6/h7 — по две фиолетовые
+    // (h4 и h6 — первые копии, спутники и лучшие экземпляры своих героев, их не едим).
+    let s = withCards([['iris', 'purple', 40], ['iris', 'purple', 1], ['otto', 'purple', 40], ['otto', 'purple', 1]]);
+    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'purple', level: 60, branch: 'knight' } : h)) };
+    expect([...keeperIds(s)].filter((id) => ['h4', 'h5', 'h6', 'h7'].includes(id)).sort()).toEqual(['h4', 'h6']);
     const r = ascendAll(s, ctx);
-    expect(r.done.map((d) => [d.heroId, d.from, d.to])).toEqual([['h1', 'gold', 'red']]);
-    expect(r.done[0].consumed.sort()).toEqual(['h4', 'h6', 'h8']);
-    expect(r.save.heroes.find((h) => h.id === 'h1')!.rarity).toBe('red');
+    expect(r.done.map((d) => [d.heroId, d.from, d.to])).toEqual([['h1', 'purple', 'gold']]);
+    expect(r.done[0].consumed.sort()).toEqual(['h5', 'h7']);
+    expect(r.save.heroes.find((h) => h.id === 'h1')!.rarity).toBe('gold');
     // Лучшие Ирис и Отто на месте.
-    expect(r.save.heroes.filter((h) => h.templateId === 'iris' || h.templateId === 'otto').map((h) => h.id).sort()).toEqual(['h5', 'h7']);
+    expect(r.save.heroes.filter((h) => h.templateId === 'iris' || h.templateId === 'otto').map((h) => h.id).sort()).toEqual(['h4', 'h6']);
   });
 
-  it('золотой → красный: единственный (лучший) экземпляр другого героя в корм не идёт — вознесения нет', () => {
-    let s = withCards([['alan', 'purple'], ['iris', 'purple'], ['otto', 'purple'], ['kai', 'purple']]);
-    s = { ...s, heroes: s.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold', level: 80, branch: 'knight' } : h)) };
+  it('фиолетовый → золотой: единственный (лучший) экземпляр другого героя в корм не идёт — вознесения нет', () => {
+    const toPurple = (x: SaveState): SaveState => ({ ...x, heroes: x.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'purple' as const, level: 60, branch: 'knight' } : h)) });
+    const s = toPurple(withCards([['iris', 'purple'], ['otto', 'purple'], ['kai', 'purple']]));
     const r = ascendAll(s, ctx);
     expect(r.done).toEqual([]);
     expect(r.save).toBe(s);
-    // Лишняя копия того же героя закрывает и слот «любой»: две фиолетовые копии Алана + одна лишняя Ирис.
-    const s2 = withCards([['alan', 'purple'], ['alan', 'purple'], ['iris', 'purple', 30], ['iris', 'purple']]);
-    const gold2 = { ...s2, heroes: s2.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold' as const, level: 80, branch: 'knight' } : h)) };
-    const r2 = ascendAll(gold2, ctx);
-    expect(r2.done.map((d) => [d.heroId, d.to])).toEqual([['h1', 'red']]);
-    expect(r2.done[0].consumed.sort()).toEqual(['h4', 'h5', 'h7']);
+    // Сначала лишняя копия того же героя, затем лишняя копия другого: фиолетовая копия Алана + одна лишняя Ирис.
+    const r2 = ascendAll(toPurple(withCards([['alan', 'purple'], ['iris', 'purple', 30], ['iris', 'purple']])), ctx);
+    expect(r2.done.map((d) => [d.heroId, d.to])).toEqual([['h1', 'gold']]);
+    expect(r2.done[0].consumed.sort()).toEqual(['h4', 'h6']);
+  });
+
+  it('золотой → красный: только 2 такие же фиолетовые копии; копии других героев не подходят', () => {
+    const toGold = (x: SaveState): SaveState => ({ ...x, heroes: x.heroes.map((h) => (h.id === 'h1' ? { ...h, rarity: 'gold' as const, level: 80, branch: 'knight' } : h)) });
+    const r = ascendAll(toGold(withCards([['alan', 'purple'], ['alan', 'purple']])), ctx);
+    expect(r.done.map((d) => [d.heroId, d.from, d.to, d.consumed.sort()])).toEqual([['h1', 'gold', 'red', ['h4', 'h5']]]);
+    // Одна своя + лишние фиолетовые другого героя — вознесения нет.
+    const s = toGold(withCards([['alan', 'purple'], ['iris', 'purple'], ['iris', 'purple'], ['iris', 'purple']]));
+    expect(ascendAll(s, ctx).done.filter((d) => d.heroId === 'h1')).toEqual([]);
   });
 
   it('ascendHero без deferBranch по-прежнему требует ветку', () => {

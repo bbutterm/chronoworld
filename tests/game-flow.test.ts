@@ -63,9 +63,14 @@ describe('помощники экранов', () => {
     const rich = { ...save, resources: { gold: 10_000, heroExp: 10_000 } };
     expect(levelUpReady(rich, ctx).map((h) => h.id)).toEqual(['h1', 'h2', 'h3']);
     expect(ascendReady(rich, ctx)).toEqual([]);
-    // Две зелёные копии Брана (не в отряде) — Брана (h2) можно вознести; сами копии — нет (им не хватает корма).
-    const copies = { ...rich, heroes: [...rich.heroes, { id: 'h4', templateId: 'bran', rarity: 'green' as const, level: 1 }, { id: 'h5', templateId: 'bran', rarity: 'green' as const, level: 1 }] };
-    expect(ascendReady(copies, ctx).map((h) => h.id)).toEqual(['h2']);
+    // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный. Одна зелёная копия Брана (не в отряде) — корм для любого
+    // зелёного героя отряда; сама копия — нет (герои отряда в корм не идут).
+    const copies = { ...rich, heroes: [...rich.heroes, { id: 'h4', templateId: 'bran', rarity: 'green' as const, level: 1 }] };
+    expect(ascendReady(copies, ctx).map((h) => h.id)).toEqual(['h1', 'h2', 'h3']);
+    // Синий → фиолетовый — 2 такие же синие и 30 000 золота: синие копии Брана годятся только Брану, и только при золоте.
+    const blues = { ...rich, heroes: [...rich.heroes.map((h) => ({ ...h, rarity: 'blue' as const })), { id: 'h4', templateId: 'bran', rarity: 'blue' as const, level: 1 }, { id: 'h5', templateId: 'bran', rarity: 'blue' as const, level: 1 }] };
+    expect(ascendReady(blues, ctx)).toEqual([]);
+    expect(ascendReady({ ...blues, resources: { gold: 30_000, heroExp: 0 } }, ctx).map((h) => h.id)).toEqual(['h2']);
   });
 
   it('бой этапа из сохранения воспроизводим: тот же save → тот же исход', () => {

@@ -123,7 +123,8 @@ describe('Таверна: раскладка и итог', () => {
   });
 
   it('ratesLines: проценты по-русски', () => {
-    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 83%', 'blue — 15%', 'purple — 2%']);
+    // 10.10: шансы героев 30 / 12 / 0,5% (синий 5 → 12% — пересмотр 10.10; остальное — награды); дробная часть — через запятую.
+    expect(ratesLines(ctx.summon.rates, (r) => r)).toEqual(['green — 30%', 'blue — 12%', 'purple — 0,5%']);
   });
 });
 

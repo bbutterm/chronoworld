@@ -9,7 +9,7 @@ import { claimAllExpeditions, claimExpedition, type ExpeditionContext } from '..
 import type { MetaContext, MetaRewards } from '../meta/config';
 import { ascendHero, type AscendOptions } from '../heroes/merge';
 import { levelUpHero, type LevelCost } from '../heroes/level';
-import { summon, type SummonPay, type SummonResult } from '../heroes/summon';
+import { summon, type SummonPay, type SummonDraw } from '../heroes/summon';
 import type { GameContext, ProgressEvent } from '../progression/types';
 import type { SaveState } from '../save/schema';
 import { climbTower, type TowerContext, type TowerOutcome } from '../tower/tower';
@@ -101,7 +101,7 @@ export function actAscend(save: SaveState, day: string, heroId: string, fodderId
 }
 
 /** Таверна: summon (×1/×10, гемы/свитки/бесплатно) + summon (по числу карточек) и summons. Ошибки — HeroError. */
-export function actSummon(save: SaveState, day: string, count: number, pay: SummonPay, ctx: GameContext): { save: SaveState; results: SummonResult[]; events: ProgressEvent[] } {
+export function actSummon(save: SaveState, day: string, count: number, pay: SummonPay, ctx: GameContext & { equipment?: EquipmentConfig }): { save: SaveState; results: SummonDraw[]; events: ProgressEvent[] } {
   const out = summon(save, ctx, { count, pay, day });
   return { ...out, save: syncAchievementCounters(trackAchievement(recordActivity(out.save, day, 'summon', out.results.length), 'summons', out.results.length, 'add')) };
 }
