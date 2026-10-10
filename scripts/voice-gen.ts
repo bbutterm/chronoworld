@@ -23,6 +23,8 @@ interface VoiceDef {
   voice: string;
   label: string;
   settings: Record<string, number | boolean>;
+  /** Герои взрослеют (решение владельца): с главы fromChapter — другой голос (взрослая версия того же героя). */
+  ages?: { fromChapter: number; voice: string; label: string; settings: Record<string, number | boolean> }[];
 }
 interface Cast {
   model: string;
@@ -164,9 +166,17 @@ if (!key) {
 }
 mkdirSync(outDir, { recursive: true });
 
+const chapterNum = Number(/^chapter(\d+)$/.exec(chapterId)?.[1] ?? 0);
+/** Голос роли для этой главы: взрослая версия с ages[].fromChapter (личные сцены bonds — молодой голос). */
+function voiceOf(role: string): VoiceDef {
+  const v = cast.voices[role];
+  if (!v) throw new Error(`Нет голоса «${role}» в cast.voices`);
+  const age = [...(v.ages ?? [])].sort((a, b) => b.fromChapter - a.fromChapter).find((a) => chapterNum >= a.fromChapter);
+  return age ? { ...v, voice: age.voice, label: age.label, settings: age.settings } : v;
+}
+
 async function tts(c: Clip): Promise<{ audio: Buffer; cost: number }> {
-  const v = cast.voices[c.role];
-  if (!v) throw new Error(`Нет голоса «${c.role}» в cast.voices`);
+  const v = voiceOf(c.role);
   const body = {
     text: speakable(stressed(direction[c.text] ?? c.text)),
     model_id: model,
@@ -196,7 +206,7 @@ for (const [i, c] of todo.entries()) {
   const { audio, cost } = await tts(c);
   writeFileSync(join(outDir, `${c.key}.mp3`), audio);
   spent += cost;
-  index[c.key] = { text: c.text, role: c.role, voice: cast.voices[c.role].voice, model, chars: cost, from: `${chapterId}/${c.from}` };
+  index[c.key] = { text: c.text, role: c.role, voice: voiceOf(c.role).voice, model, chars: cost, from: `${chapterId}/${c.from}` };
   writeFileSync(indexPath, `${JSON.stringify(index, null, 1)}\n`);
   console.log(`[${i + 1}/${todo.length}] ${c.role.padEnd(9)} ${c.key} ${cost} симв. — ${c.text.slice(0, 60)}`);
 }

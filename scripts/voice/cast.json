@@ -1,5 +1,5 @@
 {
- "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора). Вика, Бран и Серый капюшон — свои голоса из Voice Design (аккаунт владельца); остальные — библиотека. Пометки эмоций — scripts/voice/direction, ударения — scripts/voice/stress.json. Герои глав 2–10 (Дорн, Зара, Мэйлин, Кай, Лира, Ирис, Тео, Отто) — свои голоса Voice Design; design (seed, описание) — чтобы пересоздать голос тем же (слоты на Starter: 10, голоса можно удалять после озвучки). Эпизодические и боссы — библиотека.",
+ "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора). Вика, Бран и Серый капюшон — свои голоса из Voice Design (аккаунт владельца); остальные — библиотека. Пометки эмоций — scripts/voice/direction, ударения — scripts/voice/stress.json. Герои глав 2–10 (Дорн, Зара, Мэйлин, Кай, Лира, Ирис, Тео, Отто) — свои голоса Voice Design; design (seed, описание) — чтобы пересоздать голос тем же (слоты на Starter: 10, голоса можно удалять после озвучки). Эпизодические и боссы — библиотека. Взросление (решение владельца 10.10): главы 1–4 — молодые голоса, с главы 5 — взрослые (ages): Вика, Бран, Дорн — Remix своих голосов (тот же тембр), Алан и Грета — новые голоса Voice Design (их молодые — библиотечные, Remix невозможен). Голоса, чьи реплики уже озвучены (Мэйлин, Кай, Лира, Зара, Ирис, Тео, Отто, Серый капюшон), удалены из аккаунта ради слотов; пересоздать — по design.",
  "model": "eleven_v4",
  "format": "mp3_44100_64",
  "voices": {
@@ -42,7 +42,19 @@
     "similarity_boost": 0.8,
     "style": 0.4,
     "use_speaker_boost": true
-   }
+   },
+   "ages": [
+    {
+     "fromChapter": 5,
+     "voice": "D6vtKm1CLiqY1APjAWK0",
+     "label": "Chronoworld Алан взрослый (Voice Design)",
+     "settings": {
+      "stability": 0.3,
+      "similarity_boost": 0.8,
+      "use_speaker_boost": true
+     }
+    }
+   ]
   },
   "bran": {
    "voice": "8laJWHvsvf5KcUWcHWWZ",
@@ -51,7 +63,19 @@
     "stability": 0.35,
     "similarity_boost": 0.8,
     "use_speaker_boost": true
-   }
+   },
+   "ages": [
+    {
+     "fromChapter": 5,
+     "voice": "q7JUzcMhLn6JgJjEtcN4",
+     "label": "Chronoworld Бран взрослый (Remix молодого голоса)",
+     "settings": {
+      "stability": 0.35,
+      "similarity_boost": 0.8,
+      "use_speaker_boost": true
+     }
+    }
+   ]
   },
   "vika": {
    "voice": "FuL7liD72Uod1to0xCVx",
@@ -60,7 +84,19 @@
     "stability": 0.25,
     "similarity_boost": 0.8,
     "use_speaker_boost": true
-   }
+   },
+   "ages": [
+    {
+     "fromChapter": 5,
+     "voice": "ExHQN7vFigaQ7UBqUt5S",
+     "label": "Chronoworld Вика взрослый (Remix молодого голоса)",
+     "settings": {
+      "stability": 0.25,
+      "similarity_boost": 0.8,
+      "use_speaker_boost": true
+     }
+    }
+   ]
   },
   "greta": {
    "voice": "dVRDrbP5ULGXB94se4KZ",
@@ -70,7 +106,19 @@
     "similarity_boost": 0.8,
     "style": 0.45,
     "use_speaker_boost": true
-   }
+   },
+   "ages": [
+    {
+     "fromChapter": 5,
+     "voice": "1mzvHDyghaSCyjFAszPO",
+     "label": "Chronoworld Грета взрослый (Voice Design)",
+     "settings": {
+      "stability": 0.35,
+      "similarity_boost": 0.8,
+      "use_speaker_boost": true
+     }
+    }
+   ]
   },
   "herald": {
    "voice": "DdFgum7xgn361E6iwo3i",
@@ -104,7 +152,19 @@
     "seed": 2101,
     "description": "Native Russian speaker, no accent. A gruff, laconic young man around 26, former street thug from a desert city, now a loyal fighter paying off old debts. Low, slightly husky, tired voice, few words, dry humor, kind underneath. Natural and real, not an announcer.",
     "model": "eleven_ttv_v3"
-   }
+   },
+   "ages": [
+    {
+     "fromChapter": 5,
+     "voice": "8qXAnGS4OZi8BO8eSzez",
+     "label": "Chronoworld Дорн взрослый (Remix молодого голоса)",
+     "settings": {
+      "stability": 0.3,
+      "similarity_boost": 0.8,
+      "use_speaker_boost": true
+     }
+    }
+   ]
   },
   "zara": {
    "voice": "JEA35KVSzLnzyA3ImeOz",

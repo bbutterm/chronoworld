@@ -3082,7 +3082,7 @@
  "11a1bc0197d0f6": {
   "text": "«Лиса на востоке» — так сказал Осирис. А в Пайоне лисы. Значит, нам туда.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_intro"
@@ -3090,7 +3090,7 @@
  "1f5c1e2a9a8ba7": {
   "text": "Лес, ночь, лисы-оборотни. Я бы предпочёл пустыню, там хоть видно, кто кусается.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_intro"
@@ -3098,7 +3098,7 @@
  "1f396ccdc261ac": {
   "text": "Колокольчик звенит тихо и часто. Будто плачет кто-то очень старый.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/ch5_intro"
@@ -3106,7 +3106,7 @@
  "0c1d6e1de962d3": {
   "text": "Тогда найдём, кто плачет. Отряд, фонари зажечь — идём в чащу!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/ch5_intro"
@@ -3122,7 +3122,7 @@
  "0fca1f809a5d8f": {
   "text": "Нас никто не звал! Мы ищем пропавших. И того, кто рисует чёрные знаки.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/ch5_s1_after"
@@ -3146,7 +3146,7 @@
  "15bb283722ae62": {
   "text": "Отца найдём все вместе. Одной искать страшно, а всем отрядом — почти прогулка.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s1_after"
@@ -3162,7 +3162,7 @@
  "00c9b7ea3c1e7b": {
   "text": "Мэйлин, а лисы здесь всегда такие злые?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/ch5_s11_after"
@@ -3178,7 +3178,7 @@
  "07e3614c2c0972": {
   "text": "Хранительница есть, а её лисы кидаются на людей. Либо она не видит, либо не хочет видеть.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter5/ch5_s11_after"
@@ -3186,7 +3186,7 @@
  "16190dda0a5b2d": {
   "text": "Колокольчик звенит тише, когда её называют. Будто ему её жалко.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/ch5_s11_after"
@@ -3194,7 +3194,7 @@
  "0f03102834a250": {
   "text": "Тогда спросим её саму. Вежливо. Силой — только если она начнёт первой.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_s11_after"
@@ -3210,7 +3210,7 @@
  "1dc32f476283bc": {
   "text": "Смешно. Мёртвые не разговаривают, это не… Мама?",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter5/ch5_s3_before"
@@ -3218,7 +3218,7 @@
  "0860212d48a043": {
   "text": "Она говорит: «Долг прощён, Бранушка. Иди ко мне». Она умерла должницей. Я всё посчитал…",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 15,
   "from": "chapter5/ch5_s3_before"
@@ -3226,7 +3226,7 @@
  "16649517b79406": {
   "text": "Бран! Стой. Держись за меня. Слышишь? Это не она. Твоя мама не звала бы тебя в темноту.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter5/ch5_s3_before"
@@ -3234,7 +3234,7 @@
  "0b365b59366021": {
   "text": "…Да. Спасибо. Запиши на мой счёт, Алан. Первый раз я тебе должен. Не привыкай.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter5/ch5_s3_before"
@@ -3242,7 +3242,7 @@
  "1430fd159e0934": {
   "text": "А меня огни не зовут. Даже брат… Странно. Я думала, он позовёт первым.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s3_before"
@@ -3250,7 +3250,7 @@
  "172486122d28d1": {
   "text": "Девятихвостая убежала, а у неё на шее — чёрный знак. Как на Орк-лорде, как на Осирисе.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s5_after"
@@ -3258,7 +3258,7 @@
  "0160319d159207": {
   "text": "Лисы не злые. Их кто-то дёргает за ниточки, как марионеток.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/ch5_s5_after"
@@ -3274,7 +3274,7 @@
  "0ccb7e79705ab0": {
   "text": "Люди ушли сами. На голоса. Как я чуть не ушёл. Кукольник знает, за какие ниточки дёргать.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter5/ch5_s5_after"
@@ -3282,7 +3282,7 @@
  "1d8e4d1b003c56": {
   "text": "Звон ведёт к пещере под горой. Там кто-то поёт колыбельную — и от неё холодно.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter5/ch5_s5_after"
@@ -3298,7 +3298,7 @@
  "16c44ba53ccfa3": {
   "text": "Он и сейчас здесь. Прыгает у алтаря, а на талисмане поверх молитвы — чёрный знак.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_s13_before"
@@ -3306,7 +3306,7 @@
  "141390c7aac552": {
   "text": "Люди из деревни прошли мимо храма. Следы ровные, будто шли во сне. Он их не остановил.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s13_before"
@@ -3314,7 +3314,7 @@
  "0c826b1e229d43": {
   "text": "Его печати летят в тыл и сковывают. Фронт ломает старика первым, тыл бережёт лекаря.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s13_before"
@@ -3322,7 +3322,7 @@
  "0156bb120f60ac": {
   "text": "Снимем с него знак. Пусть хоть кто-то в этом лесу снова спит спокойно.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/ch5_s13_before"
@@ -3338,7 +3338,7 @@
  "08a7025ae9dd2b": {
   "text": "Он не охотится. Он сторожит. Кто-то спит там внутри, а волк следит, чтобы спящих не съели.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s8_before"
@@ -3354,7 +3354,7 @@
  "0484575a07c7ef": {
   "text": "В пещере лисы теснее. Лечить буду всех разом — только не разбегайтесь по углам.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s8_before"
@@ -3362,7 +3362,7 @@
  "0aa123af397397": {
   "text": "Строй плотнее. Никто не идёт на голоса один — держим друг друга за плечо.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_s8_before"
@@ -3378,7 +3378,7 @@
  "0d96a171bd8cd5": {
   "text": "В норе обгоревшие игрушки: шишки, перья, бусина. Кто-то сложил их в ровный ряд.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s15_after"
@@ -3386,7 +3386,7 @@
  "0e51a21b774e3c": {
   "text": "И у каждой норы — свежие цветы. Белые, лунные. Кто-то приходит сюда каждую ночь.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter5/ch5_s15_after"
@@ -3394,7 +3394,7 @@
  "1e8f726f21968b": {
   "text": "Серый таких и ищет: кто потерял, тот поверит любому обещанию. Мне вот обещали списать долг.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter5/ch5_s15_after"
@@ -3402,7 +3402,7 @@
  "072a5723c4db4f": {
   "text": "Злодея можно победить. А того, кто горюет, — только уговорить. Это хуже.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_s15_after"
@@ -3410,7 +3410,7 @@
  "17edcafe079144": {
   "text": "Я прочту над ними отходную. Отец Бенедикт так делал… Смотрите: руки не дрожат.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s16_after"
@@ -3418,7 +3418,7 @@
  "0bcd0e1360ce74": {
   "text": "Я позвоню в такт. Тихонько. Не «идите», а «спите». Колокольчик, кажется, помнит эту песню.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/ch5_s16_after"
@@ -3434,7 +3434,7 @@
  "0d514888ce4557": {
   "text": "Бран, ты чего тетрадь закрыл? Тут фонарей — считать не пересчитать.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/ch5_s16_after"
@@ -3442,7 +3442,7 @@
  "0743a82405b0b1": {
   "text": "Такое не считают, Дорн. Такое просто помнят.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter5/ch5_s16_after"
@@ -3450,7 +3450,7 @@
  "0e62270c075995": {
   "text": "Слышите колыбельную? Она зовёт по имени. Меня — бабушкиным голосом.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/ch5_s18_before"
@@ -3466,7 +3466,7 @@
  "032ef8f46746e2": {
   "text": "А я не слышу ничего. Совсем. Только ветер и вас.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/ch5_s18_before"
@@ -3474,7 +3474,7 @@
  "10bb057ed4baca": {
   "text": "Потому что тебе пока некого терять, Алан. Береги это. Такое быстро кончается.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_s18_before"
@@ -3482,7 +3482,7 @@
  "14009dcc5022a6": {
   "text": "Через мост идём цепочкой. Кто свернёт на голос — того тащим обратно всем отрядом.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/ch5_s18_before"
@@ -3490,7 +3490,7 @@
  "1f6aabba131055": {
   "text": "А я позвоню погромче. Пусть колыбельная споткнётся о мой колокольчик.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter5/ch5_s18_before"
@@ -3506,7 +3506,7 @@
  "0bf0f8e5ab109a": {
   "text": "Колокольчик звенит так же, как у саркофага. На её лбу — чёрный знак!",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/ch5_s10_before"
@@ -3522,7 +3522,7 @@
  "1193d182f2396f": {
   "text": "Она не злая. Она горюет. Сорвём знак — и лес очнётся вместе с ней.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_s10_before"
@@ -3538,7 +3538,7 @@
  "16f9ad013bb46e": {
   "text": "Бьём по знаку, а не насмерть! Отряд, в строй!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/ch5_s10_before"
@@ -3570,7 +3570,7 @@
  "1518a9f186dd1c": {
   "text": "Дойдёшь — расскажешь в «Двух колоколах» у Пронтеры. Отец за такую историю нальёт даром.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/ch5_outro"
@@ -3578,7 +3578,7 @@
  "0b835f6ad222bf": {
   "text": "Он тоже кого-то потерял. И ради этого — мертвецы по всему миру. Хоть бы кто-то умел горевать тихо.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter5/ch5_outro"
@@ -3586,7 +3586,7 @@
  "1073902cdcf9b7": {
   "text": "Значит, путь к морю. Через Пронтеру — к Излуду! Гаррет наверняка уже ждёт.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter5/ch5_outro"
@@ -3594,7 +3594,7 @@
  "070a8e205d8240": {
   "text": "Пайонский чай — это вода, в которой кто-то вспомнил о траве. Но горячий. Сойдёт.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter5/tav_ch5"
@@ -3602,7 +3602,7 @@
  "0d014df35ea896": {
   "text": "Мэйлин ушла на север за волком. Одна. Сказала, дойдёт. Я ей верю.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/tav_ch5"
@@ -3610,7 +3610,7 @@
  "0ba2cae6c2a049": {
   "text": "Всех кто-то звал из огней. А меня — никто. Это хорошо или плохо?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/tav_ch5"
@@ -3618,7 +3618,7 @@
  "1d14cc07ee7250": {
   "text": "Хорошо. Значит, твои по тебе не голодные. Бабушка так про гостей говорила.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter5/tav_ch5"
@@ -3626,7 +3626,7 @@
  "1a2e03bf7887b4": {
   "text": "Меня звали.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 2,
   "from": "chapter5/tav_ch5"
@@ -3634,7 +3634,7 @@
  "192d5d7f978831": {
   "text": "Мать. Голосом, который я забыл. «Долг прощён, иди ко мне». Я чуть не пошёл. Правда.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter5/tav_ch5"
@@ -3642,7 +3642,7 @@
  "0eed7f16c9d795": {
   "text": "Я держал. Ты лягался, как телёнок.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter5/tav_ch5"
@@ -3658,7 +3658,7 @@
  "08a8b1f5300ae2": {
   "text": "Держал! Первый раз в жизни не бежал, а держал. Непривычно. Руки болят.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/tav_ch5:reply"
@@ -3666,7 +3666,7 @@
  "0998e6f29a3f39": {
   "text": "Руки — это от моих копыт. Спасибо, Алан. Не привыкай.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/tav_ch5:reply"
@@ -3674,7 +3674,7 @@
  "00d136ea569ebe": {
   "text": "Гордилась бы тем, что я считаю чужие долги? …Может быть. Она тоже всё записывала.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter5/tav_ch5:reply"
@@ -3682,7 +3682,7 @@
  "05c09e5a7a6321": {
   "text": "Нельзя. Перестану считать — начну думать.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 6,
   "from": "chapter5/tav_ch5:reply"
@@ -3690,7 +3690,7 @@
  "04b57a57aa393a": {
   "text": "…Ладно. Один вечер. Тетрадь — Грете на хранение.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter5/tav_ch5:reply"
@@ -3698,7 +3698,7 @@
  "081d9d1446cd40": {
   "text": "Лунный цветок сказала про серого: он тоже кого-то потерял.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter5/tav_ch5"
@@ -3706,7 +3706,7 @@
  "19cc503531914c": {
   "text": "Все кого-то потеряли. Только одни ставят свечку, а другие — знак на чужих.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/tav_ch5"
@@ -3714,7 +3714,7 @@
  "1b506b8004bff2": {
   "text": "Завтра — Излуд, корабль и гроб столетней давности. Прекрасный план. Я в восторге.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter5/tav_ch5"
@@ -3722,7 +3722,7 @@
  "02e67bade46c3f": {
   "text": "Гроб? Сто лет? …Отец что-то рассказывал про сто лет. Не помню что. Спать.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter5/tav_ch5"
@@ -3770,7 +3770,7 @@
  "09f858a90da9f5": {
   "text": "Так прибирают, когда ещё ждут. Не когда уже простились.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter5/finding:ch5_s4:comment"
@@ -3786,7 +3786,7 @@
  "1caed6324241b5": {
   "text": "Он вёл счёт до конца. Даже себя записал. Я бы тоже записал.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/finding:ch5_s6:comment"
@@ -3818,7 +3818,7 @@
  "1d7a3a57d14e0e": {
   "text": "Бабушка тоже рассказывала про лисью свадьбу. Только у неё лисы ещё и приданое требовали.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter5/finding:ch5_s9:comment"
@@ -3834,7 +3834,7 @@
  "0ea748d013313c": {
   "text": "У маяка ржавеет старый водолазный колокол. Я в нём спускался, когда гильдия искала жемчуг. Выдержит.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter6/ch6_intro"
@@ -3842,7 +3842,7 @@
  "16bbe5717bc912": {
   "text": "А это зелье дыхания. Горькое, как болотная тина, так что пить залпом и не морщиться!",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_intro"
@@ -3850,7 +3850,7 @@
  "1132f47222bfda": {
   "text": "Колокольчик звенит в сторону моря. Глухо, будто из-под воды ему кто-то отвечает.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/ch6_intro"
@@ -3858,7 +3858,7 @@
  "07ddd7c9128d03": {
   "text": "Рыцари не боятся мокрых сапог. И мокрого всего остального тоже. Ныряем!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/ch6_intro"
@@ -3866,7 +3866,7 @@
  "01a09012248228": {
   "text": "Почему по всей отмели плавает варёная рыба? И пахнет… ухой?",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/ch6_s1_after"
@@ -3898,7 +3898,7 @@
  "159060a53a5ee9": {
   "text": "Спасибо! Будете у Пронтеры — «Два колокола», скажите, от Греты. Только камин пусть Кай не трогает.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/ch6_s1_after"
@@ -3914,7 +3914,7 @@
  "1b423f80bd4190": {
   "text": "Сворд-фиши плыли не на нас. Они удирали от корабля. Даже рыба знает, где плохое место.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_s11_after"
@@ -3922,7 +3922,7 @@
  "04b9df9a7b3af9": {
   "text": "На камнях свежие верёвки. Узлы морские, гильдейские. Кто-то спускался тут до нас. Недавно.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter6/ch6_s11_after"
@@ -3930,7 +3930,7 @@
  "0dc1e3999ef6b5": {
   "text": "И серая нитка на узле. Опять серый. Он всегда на шаг впереди.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter6/ch6_s11_after"
@@ -3938,7 +3938,7 @@
  "14cad4a1bc2345": {
   "text": "Значит, догоним! Шаг — это немного. Даже под водой.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter6/ch6_s11_after"
@@ -3946,7 +3946,7 @@
  "037cf2d6f970bc": {
   "text": "Снизу опять звон. Мой колокольчик спрашивает — и кто-то ему отвечает. Тем же голосом.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/ch6_s3_before"
@@ -3954,7 +3954,7 @@
  "1a38d26082852f": {
   "text": "Грета, а почему ваш трактир зовётся «Два колокола»? Над дверью ведь висел один.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/ch6_s3_before"
@@ -3962,7 +3962,7 @@
  "04b8029d03fcc9": {
   "text": "Отец не знает. Прапрадед назвал. Бабушка говорила: второй колокол «ушёл в море, и слава богам».",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_s3_before"
@@ -3970,7 +3970,7 @@
  "0fccba92540d8b": {
   "text": "Ушёл в море. Мы как раз в море. Люблю, когда семейные легенды сбываются прямо под ногами.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_s3_before"
@@ -3978,7 +3978,7 @@
  "0ff4a4f87078e0": {
   "text": "Риф живой — кораллы режут, как ножи. Держитесь за мной, я тут не впервые.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_s3_before"
@@ -3986,7 +3986,7 @@
  "00c9e5a50618a7": {
   "text": "Гидра сторожила пробоину в борту. Кто-то очень не хочет, чтобы в этот трюм заглядывали.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_s5_after"
@@ -3994,7 +3994,7 @@
  "1090e641ad5fb6": {
   "text": "На обшивке надпись: «Призрак Дрейка». Этот капитан пускал на дно суда Излуда ещё при моём деде.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter6/ch6_s5_after"
@@ -4002,7 +4002,7 @@
  "0e06cdeda81068": {
   "text": "Колокольчик дрожит. Внизу есть что-то такое же, как он. Только чёрное и очень старое.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/ch6_s5_after"
@@ -4010,7 +4010,7 @@
  "1174f201c4fb92": {
   "text": "Пузырь Лиры тает. Быстрее, пока мы ещё дышим, а не булькаем.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_s5_after"
@@ -4026,7 +4026,7 @@
  "1e18198bb3d973": {
   "text": "Ещё один вечный. Скажи, боцман, вечность у вас по контракту или по ошибке?",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_s13_before"
@@ -4042,7 +4042,7 @@
  "0e71a17c882e09": {
   "text": "Он свистит — и мертвецы звереют. Бейте боцмана, пока снова не набрал воздуха!",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/ch6_s13_before"
@@ -4050,7 +4050,7 @@
  "0c45c27e5e2910": {
   "text": "Держитесь ближе. Якорь у него тяжёлый. Кого оглушит — вытащу.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/ch6_s13_before"
@@ -4058,7 +4058,7 @@
  "186951e9b5cbc9": {
   "text": "Судовой журнал. Последняя запись сто лет назад: «Груз — гроб звонаря Хельмута из Пронтеры».",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter6/ch6_s7_after"
@@ -4066,7 +4066,7 @@
  "09c3cf2da2c03b": {
   "text": "«Плата — вечная жизнь. Никогда не отдавать. Гроб не открывать, что бы оттуда ни звало».",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter6/ch6_s7_after"
@@ -4074,7 +4074,7 @@
  "0a8ffad3d997e3": {
   "text": "Хельмут… Так звали брата моего прапрадеда. О нём в семье не говорят. Вообще.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter6/ch6_s7_after"
@@ -4082,7 +4082,7 @@
  "0513884ead5939": {
   "text": "Грета, ты побледнела. Сядь. Дыши. Это просто имя. Может, просто имя.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_s7_after"
@@ -4090,7 +4090,7 @@
  "1459b1199eaebd": {
   "text": "Колокольчик звенит так, будто зовёт домой. Нет, Вика. Это не просто имя.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter6/ch6_s7_after"
@@ -4098,7 +4098,7 @@
  "1bde6d499dc288": {
   "text": "Считаю. Орк-лорд, Осирис, лиса: знак гаснет — и уходит серый дым. И каждый раз мы «чуть-чуть опоздали».",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 16,
   "from": "chapter6/ch6_s15_after"
@@ -4106,7 +4106,7 @@
  "0651fe6a5b4608": {
   "text": "Так работает гильдия. Курьер делает грязную работу, а заказчик ждёт у выхода с мешком.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_s15_after"
@@ -4114,7 +4114,7 @@
  "01613d18b4f5ed": {
   "text": "Серый ждёт, пока мы погасим знак, а потом забирает отзвук? Выходит, мы ему… помогали?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter6/ch6_s15_after"
@@ -4122,7 +4122,7 @@
  "0dd2e6e41c4c22": {
   "text": "Свёл все знаки на карту. Одна линия, на север. Мы не опаздываем. Нас ведут.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_s15_after"
@@ -4130,7 +4130,7 @@
  "1a32290cb7c84c": {
   "text": "Раз ждут у выхода — пойдём не к выходу, а прямо к ним. Вперёд, но строем!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/ch6_s15_after"
@@ -4138,7 +4138,7 @@
  "00dfa914c8ee85": {
   "text": "Там, наверху, каюта капитана. Мой колокольчик и тот, чёрный, звенят в один голос. Как братья.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_s18_before"
@@ -4146,7 +4146,7 @@
  "1809c50fda5c7a": {
   "text": "Раньше я бы выбил дверь с разбегу. Сейчас — строй: Дорн и я впереди, тыл за нами.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter6/ch6_s18_before"
@@ -4154,7 +4154,7 @@
  "16542d0d2a6c39": {
   "text": "Разумно. На этом корабле всё, что выбивали с разбегу, давно лежит на дне.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_s18_before"
@@ -4162,7 +4162,7 @@
  "0d4b76f1355e11": {
   "text": "Грета, что бы там ни было — мы рядом. Семья — это не только прапрадеды.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_s18_before"
@@ -4178,7 +4178,7 @@
  "0b55eac9a9312c": {
   "text": "Где гроб? Колокольчик чует близнеца — чёрный колокольчик, брат моего!",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter6/ch6_s10_before"
@@ -4194,7 +4194,7 @@
  "0bdc699b002baf": {
   "text": "Вечная жизнь у тебя, видно, так себе: кожа да кости. Бьём, пока пушки не зарядил!",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/ch6_s10_before"
@@ -4202,7 +4202,7 @@
  "0dd7d9f96b5841": {
   "text": "Отряд, на абордаж! Этот корабль потонет второй раз!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter6/ch6_s10_before"
@@ -4210,7 +4210,7 @@
  "13fb76ce6150bd": {
   "text": "Гроб на месте. Старый, в цепях. А на крышке — рогатый знак. Серый был здесь раньше нас.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_outro"
@@ -4226,7 +4226,7 @@
  "108f288abfaa74": {
   "text": "Спи, Хельмут. Я звоню, чтобы ты спал. …Треснул и замолчал. Первый в семье, кто меня послушался.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/ch6_outro"
@@ -4242,7 +4242,7 @@
  "0dd389b7ae3d5e": {
   "text": "Серый дым ушёл сквозь палубу. На север, по нашей линии. Нас ведут — в Альдебаран.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/ch6_outro"
@@ -4250,7 +4250,7 @@
  "0dc6eb094dfe3e": {
   "text": "Значит, пойдём, куда ведут. Но придём раньше, чем он ждёт. Отряд, на север!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/ch6_outro"
@@ -4266,7 +4266,7 @@
  "11aea75b0260f5": {
   "text": "Отец. Сядь. Нет, не за стойку. Сюда. Я расскажу про колокольчики. Их было два.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/tav_ch6"
@@ -4274,7 +4274,7 @@
  "174f57ae8ab2e5": {
   "text": "Сто лет назад мастер Хельмут потерял дочь. Её звали Грета. Он отлил два колокольчика: позвать и уложить.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/tav_ch6"
@@ -4282,7 +4282,7 @@
  "1dc8439c88b580": {
   "text": "Позвал. Брат его остановил. Второй колокольчик брат повесил над дверью. Над нашей дверью.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/tav_ch6"
@@ -4306,7 +4306,7 @@
  "1ccb96004786b8": {
   "text": "Сто лет. Сошлось. Первое в этом походе, что сошлось.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter6/tav_ch6"
@@ -4314,7 +4314,7 @@
  "04ca8b24ab8a0d": {
   "text": "Я позвонила над его гробом. Тот колокольчик треснул и замолчал. Хельмут уснул.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/tav_ch6"
@@ -4322,7 +4322,7 @@
  "0d363c45ce7b92": {
   "text": "Отец, а вдруг я что-то сломала? Семейное, старое.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 5,
   "from": "chapter6/tav_ch6"
@@ -4338,7 +4338,7 @@
  "0fe17f67b52757": {
   "text": "Помнишь, в первый вечер меня позвали с вами? Я думала — за сковородку. А это было за семью.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/tav_ch6"
@@ -4354,7 +4354,7 @@
  "136bff7f5805f1": {
   "text": "Я обещал лезть вторым, сразу после Греты. Держу слово. Почти всегда.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/tav_ch6"
@@ -4370,7 +4370,7 @@
  "0097316aab49ca": {
   "text": "И ещё. Все знаки — на одной линии, на север. Мы не опаздываем. Нас ведут.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter6/tav_ch6"
@@ -4378,7 +4378,7 @@
  "1dd1f59898aff5": {
   "text": "Значит, придём раньше, чем ждут. Но сначала доедим. Бруно, добавки!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter6/tav_ch6"
@@ -4426,7 +4426,7 @@
  "02528ca3301cc5": {
   "text": "Звенит… Значит, он и там звонил. Упрямый. Это у нас семейное.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter6/finding:ch6_s7:comment"
@@ -4442,7 +4442,7 @@
  "0a88e4249297b7": {
   "text": "Я счетовод, а не гадалка. Но цифры не врут: нам сыпали крошки, а мы клевали.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter6/finding:ch6_s15:comment"
@@ -4458,7 +4458,7 @@
  "1f90b5301ef577": {
   "text": "Вот почему нас всех зовут Гретами. А я думала, прапрадеду было лень выдумывать.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/finding:ch6_s17:comment"
@@ -4474,7 +4474,7 @@
  "1ba15d4e102ea3": {
   "text": "Мой укладывает, этот зовёт. Сто лет спорят. Пора кому-то уступить — и это буду не я.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter6/finding:ch6_s10:comment"
@@ -4482,7 +4482,7 @@
  "13b2fa194d3aeb": {
   "text": "Дрейк сказал: на севере город часов, там записано, кто первым открыл ворота. Вот он. Каналы, мосты, тиканье.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 15,
   "from": "chapter7/ch7a_intro"
@@ -4490,7 +4490,7 @@
  "11f02d122afba9": {
   "text": "Колокольчик тянет к башне. А булочник у моста дважды продал мне одну и ту же булку. И дважды удивился.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_intro"
@@ -4498,7 +4498,7 @@
  "19a5ca581016c5": {
   "text": "Лодочник трижды спросил, кто я. Не со зла. Он правда не помнит, что спрашивал.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_intro"
@@ -4506,7 +4506,7 @@
  "0812837e441d50": {
   "text": "Им страшно, только они забыли почему. Смотрите: все то и дело оглядываются на башню.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_intro"
@@ -4514,7 +4514,7 @@
  "14496081dfd49d": {
   "text": "Тогда к башне! Найдём страницу, узнаем, кто открыл ворота, — и к ужину домой!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_intro"
@@ -4522,7 +4522,7 @@
  "058a5f32625d24": {
   "text": "Город, где записан каждый час. Наконец-то место, где мою тетрадь поймут.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_intro"
@@ -4538,7 +4538,7 @@
  "12080edba8d2e8": {
   "text": "Милая, ты говоришь это в третий раз. Мы в третий раз киваем. Давай я запишу тебе на ладони.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_s2_after"
@@ -4570,7 +4570,7 @@
  "0ca08d7cec82d3": {
   "text": "Тысяча лет записей и долги всего Мидгарда. Ладно, заведём — ради науки и бухгалтерии.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s2_after"
@@ -4586,7 +4586,7 @@
  "197bca6d31d95a": {
   "text": "А неделю назад кто-то зашёл, и клятва поехала назад. Угадал?",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_s11_after"
@@ -4602,7 +4602,7 @@
  "1d89e152d8c2fb": {
   "text": "Бабушка говорила: людей в сером в дом не пускать. Жаль, совы с ней не знакомы.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s11_after"
@@ -4610,7 +4610,7 @@
  "1d3ac5f6203cfe": {
   "text": "Он ставит знак — и страж забывает, что обещал. Здешний страж забыл, что надо записывать.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s11_after"
@@ -4618,7 +4618,7 @@
  "1540d64a6446c6": {
   "text": "Значит, будим башню, как всех до неё! Вперёд, к маятникам!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s11_after"
@@ -4626,7 +4626,7 @@
  "1de9508238cfb7": {
   "text": "Колокольный металл собора Гласт Хейма… Вот откуда звон. Хельмут купил обломок у кладоискателей.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_s12_after"
@@ -4642,7 +4642,7 @@
  "16eacdaaf75623": {
   "text": "Вот почему мумия легла, когда ты позвонила. Она не испугалась. Она сдала пост.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_s12_after"
@@ -4650,7 +4650,7 @@
  "0d44a51510d4cd": {
   "text": "А я вешала его над дверью, чтобы будить пьяных. Отец бы поседел. Бабушка — второй раз.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s12_after"
@@ -4658,7 +4658,7 @@
  "032a8a881a5951": {
   "text": "Итого: трактирный колокольчик — реликвия. Грета, поднимаю твою долю в добыче. На полмедяка.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 15,
   "from": "chapter7/ch7a_s12_after"
@@ -4674,7 +4674,7 @@
  "1e1dce29138edc": {
   "text": "Билеты у нас… в другом городе. Можно под залог Алана? Он тяжёлый, не потеряется.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_s13_before"
@@ -4690,7 +4690,7 @@
  "0c96f9a4203072": {
   "text": "Его совы бьют с потолка прямо по задним. Лекаря — в центр, под наши спины.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s13_before"
@@ -4698,7 +4698,7 @@
  "0ad48d685ae9a9": {
   "text": "Буду штопать из середины. Он прячется в крыльях — ждите, пока раскроется, и бейте разом.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/ch7a_s13_before"
@@ -4706,7 +4706,7 @@
  "0abd8937f77efe": {
   "text": "Слышал, барон? Мы шумные, но честные. Строй!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter7/ch7a_s13_before"
@@ -4714,7 +4714,7 @@
  "1f91cbd2231128": {
   "text": "Одо, башня записывает каждый час Мидгарда. Даже мои долги?",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter7/ch7a_s14_after"
@@ -4730,7 +4730,7 @@
  "19863ce45b8989": {
   "text": "…А можно этот том не заводить? Хотя бы мою страницу.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s14_after"
@@ -4738,7 +4738,7 @@
  "02b7378d204d39": {
   "text": "Эй. Кто-нибудь. Я застрял в шестерне. Не смейтесь. Она сама.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s14_after"
@@ -4746,7 +4746,7 @@
  "1c53c102ca6fbd": {
   "text": "Держись, Дорн, сейчас смажем. Вика, у тебя масло? Для ран? Сгодится и для Дорна.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s14_after"
@@ -4754,7 +4754,7 @@
  "0a6cfc8e249c9e": {
   "text": "Всё, свободен. Пять минут отдыха, всем воды. И башне, если она пьёт.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_s14_after"
@@ -4770,7 +4770,7 @@
  "12719de7007138": {
   "text": "Гость в сером на пиру в ночь падения. Гость в сером в архиве неделю назад. Почерк один.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s15_after"
@@ -4778,7 +4778,7 @@
  "1918668b509b84": {
   "text": "Следы ему не важны. Он даже волосы не прячет. Он забирает то, что кто-то помнит.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_s15_after"
@@ -4786,7 +4786,7 @@
  "0cb2a81feadc6a": {
   "text": "Он стирает не следы. Он стирает память. И, кажется, боится, что кто-то прочтёт одно имя.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/ch7a_s15_after"
@@ -4794,7 +4794,7 @@
  "1b55c3cae3ad39": {
   "text": "Двадцать лет назад отряд Гаррета шёл к замку на севере. Бран, это ведь был Гласт Хейм?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s15_after"
@@ -4802,7 +4802,7 @@
  "1d430bd13e97e5": {
   "text": "Капитан про это молчит. Найдём страницу — спросим сами. Вниз.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_s15_after"
@@ -4810,7 +4810,7 @@
  "0b4f7c8af1b477": {
   "text": "Постойте. Этих будильников мы уже били. И эту лестницу проходили. Мы тут уже были?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_s9_before"
@@ -4826,7 +4826,7 @@
  "0a538f95f10d32": {
   "text": "«Не волнуйтесь». Я дважды съела один и тот же сухарь, и он дважды был чёрствый.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s9_before"
@@ -4834,7 +4834,7 @@
  "19da5a899db8da": {
   "text": "В прошлый раз я, наверное, влетел первым. И, видно, ничего не вышло — раз мы опять здесь.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s9_before"
@@ -4842,7 +4842,7 @@
  "1f8f22da1ba992": {
   "text": "Тогда в этот раз — строем! Лекаря прикрыть, будильники — первыми, пока не зазвенели!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter7/ch7a_s9_before"
@@ -4858,7 +4858,7 @@
  "1ad2e3fd4c24e4": {
   "text": "Сам? Тот, кто клялся стеречь, впустил врага?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter7/ch7a_s17_after"
@@ -4874,7 +4874,7 @@
  "178bb0ac1bcfb0": {
   "text": "Первым сломался не страж, а хозяин. Знакомо. В гильдии тоже всё гнило сверху.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/ch7a_s17_after"
@@ -4882,7 +4882,7 @@
  "0ae3b84f15b7ab": {
   "text": "Смотритель застрял в этой ночи. У него каждый час — три тринадцать. Бедная машина.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s17_after"
@@ -4890,7 +4890,7 @@
  "03096cbda0a1f1": {
   "text": "Бедная, но с маятником в полтонны. Жалеть будем после боя, я запишу.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s17_after"
@@ -4898,7 +4898,7 @@
  "0ef6f3c87aaeb3": {
   "text": "Сердце механизма. Раньше я бы полез в шестерни первым, за славой. Сегодня — плечо к плечу.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/ch7a_s18_before"
@@ -4906,7 +4906,7 @@
  "0c3404c4332e05": {
   "text": "Порядок: старейшину, который латает, — первым. Потом сов. Часы пусть стучат, они медленные.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/ch7a_s18_before"
@@ -4914,7 +4914,7 @@
  "1cc4feb8395b7d": {
   "text": "Держитесь ближе. Пыль панков жжёт долго — вычищу, только не разбегайтесь.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_s18_before"
@@ -4922,7 +4922,7 @@
  "12c7698864b223": {
   "text": "Колокольчик дрожит, как перед мумией. Там, внизу, кто-то очень устал ждать.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter7/ch7a_s18_before"
@@ -4930,7 +4930,7 @@
  "156037ee039110": {
   "text": "До нуля на циферблате — два боя. Считаю медленно. Хочу успеть.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s18_before"
@@ -4962,7 +4962,7 @@
  "04d1894438426f": {
   "text": "Гости в сером у нас не ночуют. А у тебя на лбу — его рогатая подпись. Сейчас сотрём.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/ch7a_s10_before"
@@ -4970,7 +4970,7 @@
  "109428b70f9f03": {
   "text": "Бьёт стрелками по тылу и заводит пружину для щита. Пока заводит — бейте все, не дайте закончить!",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/ch7a_s10_before"
@@ -4978,7 +4978,7 @@
  "0cbed7d075d03a": {
   "text": "Грета звонит, мы держим строй. Заведём эту башню!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter7/ch7a_s10_before"
@@ -4986,7 +4986,7 @@
  "12aacb5802dcbe": {
   "text": "Я позвонила, и знак у него на лбу погас. Он сказал «пост принять» и замер. А часы пошли вперёд.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_outro"
@@ -5010,7 +5010,7 @@
  "0977902d7526c5": {
   "text": "Ансгар… Гаррет никогда не называл имени того, кого вынес. Ни разу. Даже когда пил за павших.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_outro"
@@ -5018,7 +5018,7 @@
  "0969d294d41fa6": {
   "text": "Ансгар?.. Так звали моего брата. Он умер в поветрие. Имя частое… наверное.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/ch7a_outro"
@@ -5026,7 +5026,7 @@
  "0996bfc2a61945": {
   "text": "Дорога одна — в Гласт Хейм. Но сначала к капитану. Пусть расскажет сам.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/ch7a_outro"
@@ -5050,7 +5050,7 @@
  "1623fb7ec040c7": {
   "text": "Одиннадцать пустых кружек. Кому?",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 5,
   "from": "chapter7/tav_ch7"
@@ -5066,7 +5066,7 @@
  "0187327902ed9f": {
   "text": "Капитан. В архиве Альдебарана — ваш отряд. «Вышли двое: капитан и оруженосец Ансгар».",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/tav_ch7"
@@ -5082,7 +5082,7 @@
  "0db5d298e529a5": {
   "text": "Моего брата звали Ансгар. Он умер в поветрие. …Это же просто имя. Правда, капитан?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/tav_ch7"
@@ -5114,7 +5114,7 @@
  "03fc0e0497b5ea": {
   "text": "…Есть, капитан.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 3,
   "from": "chapter7/tav_ch7:reply"
@@ -5122,7 +5122,7 @@
  "0f8b3273f30771": {
   "text": "Спасибо. Я тоже не хочу знать это за столом. Пусть будет чай.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/tav_ch7:reply"
@@ -5138,7 +5138,7 @@
  "18cc279b4d934c": {
   "text": "Записал. Самый крупный долг в тетради. Даже Алан столько не должен.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter7/tav_ch7:reply"
@@ -5154,7 +5154,7 @@
  "111ef81b3d4242": {
   "text": "Двенадцатую кружку не ставьте. Мы тут все живые.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 5,
   "from": "chapter7/tav_ch7"
@@ -5170,7 +5170,7 @@
  "1edbe8184f9822": {
   "text": "Приказ записан. Выполнять буду лично.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter7/tav_ch7"
@@ -5218,7 +5218,7 @@
  "15c0565deba786": {
   "text": "Мой колокольчик — оттуда. Бабушка говорила «соборный», а я думала — для красоты.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/finding:ch7_s12:comment"
@@ -5234,7 +5234,7 @@
  "16ef4caec7b7d8": {
   "text": "Замок цел, пыль цела. Так ходят только те, кого впустили сами.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter7/finding:ch7_s8:comment"
@@ -5250,7 +5250,7 @@
  "13f59afb934248": {
   "text": "«Сверено». Кто-то проверял, записан ли он. Значит, ему важно, что здесь помнят.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter7/finding:ch7_s15:comment"
@@ -5266,7 +5266,7 @@
  "1b517d6c3dba73": {
   "text": "Караул стоит и теперь… Значит, они до сих пор там. Все эти годы.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter7/finding:ch7_s17:comment"
@@ -5290,7 +5290,7 @@
  "0684232f41fd8b": {
   "text": "Капитан, страница из Альдебарана. Там имя того раненого: «оруженосец Ансгар».",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/ch8_intro"
@@ -5306,7 +5306,7 @@
  "08cda0344359e0": {
   "text": "Из приюта при соборе?.. Это мой брат. Он умер в поветрие, мне было одиннадцать. Так мне сказали.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter8/ch8_intro"
@@ -5314,7 +5314,7 @@
  "04d594fc673efe": {
   "text": "Вход через склеп. Рейдрики в пустых доспехах, жрецы поднимают мёртвых. Тыл, не зевать.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_intro"
@@ -5322,7 +5322,7 @@
  "1e1cbf76570c50": {
   "text": "На щитах рейдриков — герб стражи Пронтеры. Старый, такой уже лет двадцать не чеканят.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/ch8_s3_after"
@@ -5330,7 +5330,7 @@
  "0baf5617b9244b": {
   "text": "Двадцать лет… Это отряд Гаррета. Мы только что дрались с его людьми.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter8/ch8_s3_after"
@@ -5338,7 +5338,7 @@
  "0093657769f092": {
   "text": "Двуручник — и ни щита, ни напарника у спины. В Гласт Хейме так ходят только очень смелые.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/ch8_s3_after"
@@ -5346,7 +5346,7 @@
  "1bf019182d4ddf": {
   "text": "На стене оружейной — список отряда. Двенадцать имён, десять вычеркнуты. Целы двое: Гаррет и Ансгар.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter8/ch8_s4_after"
@@ -5354,7 +5354,7 @@
  "108d7b56395090": {
   "text": "Почерк у всех черт один. Кто-то приходил сюда и вычёркивал по одному. Долго. Годами.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/ch8_s4_after"
@@ -5362,7 +5362,7 @@
  "14050fec890cdb": {
   "text": "На пыли свежие следы. Серый капюшон прошёл здесь пару дней назад, и рейдрики его не тронули.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_s4_after"
@@ -5370,7 +5370,7 @@
  "08b2f11640275d": {
   "text": "Своих они рубят, а серого пропускают. Будто он им свой.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/ch8_s4_after"
@@ -5378,7 +5378,7 @@
  "08ba530d9db34a": {
   "text": "На колокольне — треснувший колокол с рогатым знаком. И мой колокольчик ему ответил. Тихонько, как родне.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter8/ch8_s6_after"
@@ -5386,7 +5386,7 @@
  "084687374034c1": {
   "text": "Край скола свежий. Кто-то отбил кусок — как раз на один маленький колокольчик. Считать я умею.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_s6_after"
@@ -5394,7 +5394,7 @@
  "00b06d3d4b9e27": {
   "text": "В Альдебаране не врали: колокольный металл собора. Сто лет прошло, а они друг друга узнали.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s6_after"
@@ -5402,7 +5402,7 @@
  "1728229936955d": {
   "text": "Выходит, он здесь родился. Вернулся домой. Надеюсь, ненадолго — он нам ещё нужен.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/ch8_s6_after"
@@ -5410,7 +5410,7 @@
  "051e85e5dab4fd": {
   "text": "Сундук с зубами! Кто бы знал, что в этом замке даже мебель кусается.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s9_after"
@@ -5418,7 +5418,7 @@
  "1201420b4d494a": {
   "text": "А внутри — позолота. Её я, пожалуй, возьму. За моральный ущерб.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter8/ch8_s9_after"
@@ -5426,7 +5426,7 @@
  "0a4ea08b7d2d65": {
   "text": "Жетоны — в «Два колокола», отец сделает для них полку. Там не спрашивают, где твой щит.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s9_after"
@@ -5442,7 +5442,7 @@
  "166fff2edf24d3": {
   "text": "Это его рыцарь. Лейтенант, наверное. Он до сих пор ждёт приказа отступить.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s10_before"
@@ -5458,7 +5458,7 @@
  "11efb0cb7dd98c": {
   "text": "Он бьёт по всему переднему ряду разом. Лечите фронт заранее, а жрецов за ним — первыми.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_s10_before"
@@ -5466,7 +5466,7 @@
  "0cc355170acd59": {
   "text": "Капитан вас не бросил. Он вынес раненого. Мы передадим ему ваш жетон, сэр. Но мост — наш.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter8/ch8_s10_before"
@@ -5474,7 +5474,7 @@
  "097ec5ceb4f120": {
   "text": "Слышите, жрецы поют? Эту колыбельную пели у нас в приюте. Отец Бенедикт пел её каждую ночь.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_s13_before"
@@ -5482,7 +5482,7 @@
  "0b07b533322bdf": {
   "text": "Приютская песня в склепе. Тут кто-то очень скучает по дому.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter8/ch8_s13_before"
@@ -5490,7 +5490,7 @@
  "061bc487ddd580": {
   "text": "Отец Бенедикт пропал в поветрие, десять лет назад. Похоронил сорок детей — и исчез. Мы решили, что умер.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter8/ch8_s13_before"
@@ -5498,7 +5498,7 @@
  "1a6554b92a58dc": {
   "text": "Тут, знаешь, и умершие не очень-то лежат на месте. А уж пропавшие…",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s13_before"
@@ -5506,7 +5506,7 @@
  "025b7eb2e5b45e": {
   "text": "Вика, держись у меня за спиной. Тени бьют по тем, кто стоит сзади один.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s13_before"
@@ -5514,7 +5514,7 @@
  "1d0f18aa3a7fac": {
   "text": "На скамьях капеллы вырезаны имена. Сорок имён… и моё. Так делали в приюте, чтобы никто не потерялся.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 15,
   "from": "chapter8/ch8_s14_after"
@@ -5522,7 +5522,7 @@
  "12b7f2954b9802": {
   "text": "Одно вырезано глубже, другим ножом. «Тиль, сын Ансгара». Тиль — мой племянник. Ему было четыре.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 15,
   "from": "chapter8/ch8_s14_after"
@@ -5530,7 +5530,7 @@
  "06d59e1bc5923c": {
   "text": "Оруженосец Гаррета, брат Вики, отец Тиля. Один человек. Первый раз в жизни хочу ошибиться в счёте.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter8/ch8_s14_after"
@@ -5538,7 +5538,7 @@
  "0f76587591c905": {
   "text": "Колокольчик молчит. Совсем. Мне это не нравится больше, чем любой звон.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/ch8_s14_after"
@@ -5546,7 +5546,7 @@
  "133292a83fdf83": {
   "text": "Вика, мы рядом. Кто бы там ни звал тебя по имени — отвечать будем все вместе.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter8/ch8_s14_after"
@@ -5562,7 +5562,7 @@
  "0d5a1a32fb68b9": {
   "text": "Отец Бенедикт?! Это вы… Вы же умерли!",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/ch8_s15_before"
@@ -5586,7 +5586,7 @@
  "0424f62dd8146e": {
   "text": "Он колдует издалека. Прикроем тыл — и не дадим ему поднять свиту!",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter8/ch8_s15_before"
@@ -5594,7 +5594,7 @@
  "04114e71eb29a2": {
   "text": "Вы учили нас отпускать. Теперь моя очередь учить. Отряд, в строй!",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s15_before"
@@ -5618,7 +5618,7 @@
  "01d6d4bbedc3bc": {
   "text": "Жив?.. Десять лет я носила цветы на пустую могилу. …Я прощаю вас, отец. Спите. Теперь по-настоящему.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 16,
   "from": "chapter8/ch8_s15_after"
@@ -5626,7 +5626,7 @@
  "06cc9243d50993": {
   "text": "Колокольчик звенит — тихо, будто поёт колыбельную. Ту самую, из приюта.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/ch8_s15_after"
@@ -5634,7 +5634,7 @@
  "0eefec1ec14685": {
   "text": "Похоронил сына — и пошёл за тем, кто обещал вернуть. Я в Пайоне чуть не пошёл за мамой. Понимаю. Страшно.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 16,
   "from": "chapter8/ch8_s15_after"
@@ -5642,7 +5642,7 @@
  "07d1172d65d9f2": {
   "text": "У жрецов — пустые ящики из-под чёрного песка. Такие я нёс под Пронтерой. Их сносили сюда. Все.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_s16_after"
@@ -5650,7 +5650,7 @@
  "094ba82e23938f": {
   "text": "Пахнет серым дымом. А наверху, на галерее, кто-то стоит. С фонарём.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter8/ch8_s16_after"
@@ -5658,7 +5658,7 @@
  "04ea886183ac07": {
   "text": "Он прикрыл огонь ладонью. «Спи, огонёк» — так брат гасил мне свечу. Ансгар! Это ты!",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter8/ch8_s16_after"
@@ -5674,7 +5674,7 @@
  "135fc012615f2d": {
   "text": "На руке у тебя рогатый знак! Он держит тебя, как держал их всех! Ансгар, стой!",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/ch8_s16_after"
@@ -5682,7 +5682,7 @@
  "078dd14ae79a0c": {
   "text": "Ушёл. Вика, он жив — это главное. Догоним. Только не одна — все вместе.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/ch8_s16_after"
@@ -5690,7 +5690,7 @@
  "01726ee6f1408c": {
   "text": "Слышите шаги? Мёртвые рыцари меняют караул. По уставу, минута в минуту. Сотни лет.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/ch8_s17_before"
@@ -5698,7 +5698,7 @@
  "0f2969beb8be14": {
   "text": "Все посты заняты. Кроме одного — у северных ворот. Там пусто.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s17_before"
@@ -5714,7 +5714,7 @@
  "01712f2a1ac80a": {
   "text": "Капитан! Вы же сказали — дальше ворот ни шагу.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/ch8_s17_before"
@@ -5730,7 +5730,7 @@
  "07666c9119a33d": {
   "text": "Караул злится на пустой пост и бьёт всех, кто рядом. Держим строй, не дробимся.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter8/ch8_s17_before"
@@ -5762,7 +5762,7 @@
  "0089c1ea4c69e7": {
   "text": "Он зовёт метеоры и цепи. Не стойте кучей, тыл — держись подальше!",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/ch8_s18_before"
@@ -5770,7 +5770,7 @@
  "077a470cc6d8be": {
   "text": "Если он начнёт вспоминать ту ночь ещё раз, я его сковородкой. Для верности.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/ch8_s18_before"
@@ -5778,7 +5778,7 @@
  "1a4d62eb5b9000": {
   "text": "Щиты вперёд, лекари в центр. Держим строй — и уходим вместе, если придётся. Вперёд!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_s18_before"
@@ -5810,7 +5810,7 @@
  "01ca49ee0082d4": {
   "text": "Его держит знак, капитан. Не только выбор. А знаки мы гасили у каждого стража. Погасим и этот.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 15,
   "from": "chapter8/ch8_outro"
@@ -5826,7 +5826,7 @@
  "139bec59a48ea8": {
   "text": "Рогатый в лесу, врата мёртвых, брат Вики… Запишу на новую страницу. Старая кончилась.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/ch8_outro"
@@ -5842,7 +5842,7 @@
  "0393faf0db323c": {
   "text": "Отец Бенедикт умер. Сказал, что солгал мне. Брат жив. Брат — это он. Серый.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/tav_ch8"
@@ -5850,7 +5850,7 @@
  "1540c313c66044": {
   "text": "Сорок имён на скамьях. Моё. И «Тиль, сын Ансгара». У меня был племянник, а я не знала.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter8/tav_ch8"
@@ -5858,7 +5858,7 @@
  "104dc59035017f": {
   "text": "Вика… Хочешь, дам тебе сковородку? Просто подержать. Помогает.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter8/tav_ch8"
@@ -5866,7 +5866,7 @@
  "029d8a5512886e": {
   "text": "…Давай. Тяжёлая. Правда помогает.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/tav_ch8"
@@ -5898,7 +5898,7 @@
  "1651558eef290e": {
   "text": "Спасибо, что в тот вечер не дали спросить. За столом я бы это не пережила.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter8/tav_ch8"
@@ -5906,7 +5906,7 @@
  "0c01f6a4d3a11e": {
   "text": "Долг капитана закрыт. Вычёркиваю. …Лучше бы он остался должен.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter8/tav_ch8"
@@ -5922,7 +5922,7 @@
  "1d4467d5cfc9c1": {
   "text": "Пустите. Если придёт — пустите. Пожалуйста.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter8/tav_ch8"
@@ -5938,7 +5938,7 @@
  "1fc6a2c78ad794": {
   "text": "Знак на руке — это поводок. Я поводки знаю. Их рвут. Больно, но рвут.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter8/tav_ch8"
@@ -5946,7 +5946,7 @@
  "0703ac657b2764": {
   "text": "Сегодня свечу не гашу. Пусть горит. Вдруг кто-то ищет дорогу.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/tav_ch8"
@@ -5994,7 +5994,7 @@
  "02a22c9ae8aa65": {
   "text": "Кто-то вёл этот счёт двадцать лет. Аккуратный почерк. Недобрый.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter8/finding:ch8_s4:comment"
@@ -6010,7 +6010,7 @@
  "1a691f1eb9822e": {
   "text": "Бабушка говорила: колокольчик старше трактира. Выходит, он старше и бабушки.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter8/finding:ch8_s6:comment"
@@ -6026,7 +6026,7 @@
  "1d49c3900f0163": {
   "text": "Это моя скамья. Третья слева. Я думала, её давно сожгли.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter8/finding:ch8_s14:comment"
@@ -6058,7 +6058,7 @@
  "0f4b75cc839016": {
   "text": "Капитан… Ансгар — тот, кого вы вынесли. Выходит, отступать было зря?",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_intro"
@@ -6074,7 +6074,7 @@
  "1db08b3ea139bc": {
   "text": "«Ключ — у рогатого в лесу». Рогатый у нас один, и лес один: Лабиринтный, в двух часах от Пронтеры.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter9/ch9_intro"
@@ -6082,7 +6082,7 @@
  "0a8c6aac5254bc": {
   "text": "В двух часах от «Двух колоколов». Отец ходит туда за хворостом. По краю. Теперь я понимаю, почему по краю.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter9/ch9_intro"
@@ -6090,7 +6090,7 @@
  "07709ed9f1dac8": {
   "text": "Ансгар идёт туда же. Или уже прошёл. Пойдёмте. Хоть раз я хочу успеть.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_intro"
@@ -6098,7 +6098,7 @@
  "084f98c2934aec": {
   "text": "Пень с дуплом. Третий раз. Считаю шаги: триста налево, триста направо — и мы опять здесь.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter9/ch9_s2_after"
@@ -6106,7 +6106,7 @@
  "0e490baaa9935b": {
   "text": "Может, пни тут просто одинаковые. Лес же.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter9/ch9_s2_after"
@@ -6114,7 +6114,7 @@
  "1c7a4fa07583c8": {
   "text": "У этого на боку вырезано «Здесь был Алан». Алан вырезал это десять минут назад.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/ch9_s2_after"
@@ -6122,7 +6122,7 @@
  "1e9431be1656d2": {
   "text": "Я же говорил — пригодится! Метка работает. …Правда, показывает, что мы ходим кругами.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/ch9_s2_after"
@@ -6130,7 +6130,7 @@
  "1e281038b40281": {
   "text": "Колокольчик тянет вглубь, а не к выходу. Как пёс, который учуял хозяина. Злого хозяина.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_s2_after"
@@ -6154,7 +6154,7 @@
  "0873f0db6a2800": {
   "text": "Тридцать лет… Дайте руку. Вот бинт, вот сухари. Ешьте медленно.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_s4_after"
@@ -6170,7 +6170,7 @@
  "06d9757f52ee59": {
   "text": "Не торговаться? Дедушка, я выросла за стойкой трактира. Это как не дышать.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter9/ch9_s4_after"
@@ -6178,7 +6178,7 @@
  "133791b0261505": {
   "text": "Грета, если что — держу тебя за рукав. Запишу как страховку. Бесплатную, что подозрительно.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter9/ch9_s4_after"
@@ -6202,7 +6202,7 @@
  "09ab138a5a99d6": {
   "text": "Знакомая бухгалтерия. Меня в Морроке так же «освободили»: от денег и от выбора.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/ch9_s6_after"
@@ -6210,7 +6210,7 @@
  "148f36ab4a6a10": {
   "text": "Мы выведем вас. Без бумаги. Просто за руку.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter9/ch9_s6_after"
@@ -6226,7 +6226,7 @@
  "14a4bb15eaad1f": {
   "text": "Из дупла шепчут: «Сковорода с медным дном — за один волосок». Хорошая цена. Подозрительно хорошая.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/ch9_s8_after"
@@ -6234,7 +6234,7 @@
  "06900fc9af300d": {
   "text": "Мне — чернила, которые никогда не кончаются. За одну строчку в чужой книге. Нет уж.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter9/ch9_s8_after"
@@ -6242,7 +6242,7 @@
  "0a3ec3e31da82d": {
   "text": "А мне — закрыть долг гильдии. Одна подпись. …Подписью я свой долг и получил. Хватит.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter9/ch9_s8_after"
@@ -6250,7 +6250,7 @@
  "10481c772bbbb1": {
   "text": "Слышали? Дорн отказался первым! Отряд, за ним — мимо дупел, уши не развешивать!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter9/ch9_s8_after"
@@ -6282,7 +6282,7 @@
  "07c4208c32b525": {
   "text": "У него книга толще моей тетради. Впервые завидую врагу.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter9/ch9_s10_before"
@@ -6290,7 +6290,7 @@
  "12686edacc2efb": {
   "text": "Он бьёт печатями по тылу. Прикройте лекаря и не стойте кучей.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_s10_before"
@@ -6298,7 +6298,7 @@
  "0ae7153d447bb8": {
   "text": "Я в тылу, за меня не бойтесь. Бейте, пока он листает свою книгу.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_s10_before"
@@ -6306,7 +6306,7 @@
  "1f500bb27ac4a5": {
   "text": "Отряд, строем! Подписываемся только под победой!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter9/ch9_s10_before"
@@ -6314,7 +6314,7 @@
  "0d5b089682da2e": {
   "text": "Тот меч на пне — мой. Я выстругал его в семь лет. Он сгорел вместе с сараем. Откуда он здесь?",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter9/ch9_s11_after"
@@ -6330,7 +6330,7 @@
  "1b6ce4e62ebccc": {
   "text": "Без урока? Щит, который не заработан, — просто крышка. Под ней прячутся, а не стоят.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter9/ch9_s11_after"
@@ -6346,7 +6346,7 @@
  "03a51b3e5a3ed6": {
   "text": "Запишу: Алан отказался от бесплатного. Впервые в жизни. Проверю потом, не заболел ли.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter9/ch9_s11_after"
@@ -6354,7 +6354,7 @@
  "1f2806eaca19e4": {
   "text": "В кольце камней кто-то стоит. Серый плащ, рука на камне… Ансгар.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_s14_after"
@@ -6378,7 +6378,7 @@
  "1a2bc2aa611f9e": {
   "text": "Нет. Колокольчик не продаётся, не меняется и в долг не даётся. Бабушкино правило.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter9/ch9_s14_after"
@@ -6394,7 +6394,7 @@
  "07d5ef870eef52": {
   "text": "Ансгар! …Ушёл в туман. Как в Гласт Хейме. Но я видела: у него дрожала рука. Он не уверен.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter9/ch9_s14_after"
@@ -6402,7 +6402,7 @@
  "00cd724695b531": {
   "text": "Договор на коже: «Я, Ан…, открою врата с этой стороны. Взамен — жена и сын». Дальше можно не читать.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter9/ch9_s15_after"
@@ -6418,7 +6418,7 @@
  "075bebdc5a96c9": {
   "text": "Он подписал ради Тиля и Миры. Я его не оправдываю. Но я десять лет носила цветы брату — и понимаю.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 15,
   "from": "chapter9/ch9_s15_after"
@@ -6426,7 +6426,7 @@
  "076039b08a005a": {
   "text": "Бумага тут, а подписи нет — стёрта. Значит, согласие уже отдано. Кому-то дальше.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/ch9_s15_after"
@@ -6434,7 +6434,7 @@
  "02731b88b3fca6": {
   "text": "Тогда к Бафомету. Пусть скажет, кому отдал ключ.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter9/ch9_s15_after"
@@ -6442,7 +6442,7 @@
  "079cad053c46a8": {
   "text": "Кости вдоль тропы. Сотни. И каждый держит в руке бумажку. Торговались.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/ch9_s16_after"
@@ -6458,7 +6458,7 @@
  "111ddb649b9488": {
   "text": "Сделка, где выгода только одной стороне, — это кража. Я считал. Ваша сторона всегда одна.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter9/ch9_s16_after"
@@ -6474,7 +6474,7 @@
  "178a5d82b51642": {
   "text": "Хочу. Поэтому верну его сама. Без сделки.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter9/ch9_s16_after"
@@ -6482,7 +6482,7 @@
  "182fae49f02146": {
   "text": "Слышал, рогатый? Здесь никто не продаётся. Даже со скидкой.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 6,
   "from": "chapter9/ch9_s16_after"
@@ -6506,7 +6506,7 @@
  "18cdadb0f223f3": {
   "text": "Сто лет спустя? Скидка за давность. И за то, что она меня не знает. И за доставку.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter9/ch9_s18_before"
@@ -6522,7 +6522,7 @@
  "0695970250b2b1": {
   "text": "Всё уценивают. Минус пять за ваш тон — и мы с вами никогда не договоримся. Бейте его!",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter9/ch9_s18_before"
@@ -6530,7 +6530,7 @@
  "1863f27ecc2b55": {
   "text": "Он бьёт косой по фронту и прячется за торгом, как за щитом. Свиту — первой, щит — ломать сразу.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter9/ch9_s18_before"
@@ -6554,7 +6554,7 @@
  "133ec253fcffad": {
   "text": "Врата открыты, войско идёт, брат Вики — по ту сторону. Страница кончилась на середине фразы.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter9/ch9_outro"
@@ -6578,7 +6578,7 @@
  "01a45d4a171d63": {
   "text": "Вместе. И домой — тоже вместе. Все.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter9/ch9_outro"
@@ -6594,7 +6594,7 @@
  "121a63929e33de": {
   "text": "Бафомет предлагал мне ферму и мать без долгов. Я посчитал. Сделка не сошлась.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter9/tav_ch9"
@@ -6602,7 +6602,7 @@
  "1453ca3f6802a4": {
   "text": "Вспомнил, что ты сказал в Пайоне: она бы гордилась. Этого хватило, чтобы отказать.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter9/tav_ch9"
@@ -6610,7 +6610,7 @@
  "06f5f2eb25f056": {
   "text": "В Пайоне я держал Брана. А у Бафомета он держал себя сам. Я видел.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/tav_ch9"
@@ -6618,7 +6618,7 @@
  "0664539dc0fbd0": {
   "text": "Мне — закрыть долг одной подписью. Подписью я его и получил.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter9/tav_ch9"
@@ -6626,7 +6626,7 @@
  "1950a024dbbbab": {
   "text": "Ты в каналах сказал «поделим». Поделённый долг легче, чем закрытый чужой рукой.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/tav_ch9"
@@ -6634,7 +6634,7 @@
  "0bc891dda4503a": {
   "text": "Ты сказал: правильно бросил. Я и сейчас бросил. Хорошая привычка.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter9/tav_ch9"
@@ -6642,7 +6642,7 @@
  "0b27bc63cf3892": {
   "text": "А я с ним торговалась. Он предлагал мне ту, первую Грету. Я сбила цену до нуля.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter9/tav_ch9"
@@ -6650,7 +6650,7 @@
  "1c7c99366e7528": {
   "text": "И сказала: колокольчик не товар. Как ты в Морроке. Он аж рога почесал.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter9/tav_ch9"
@@ -6658,7 +6658,7 @@
  "121c18bd64c20f": {
   "text": "Мне — щит без урока. Щит, который не заработан, — просто крышка. От кастрюли.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/tav_ch9"
@@ -6666,7 +6666,7 @@
  "03badfb653d395": {
   "text": "Эй! Моя кастрюля — сковородка. Не путай.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 4,
   "from": "chapter9/tav_ch9"
@@ -6674,7 +6674,7 @@
  "1797966b915ff6": {
   "text": "Мне — брата. Без знака. За одну подпись. Я верну его сама. Без сделки.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/tav_ch9"
@@ -6738,7 +6738,7 @@
  "08faf9acb252ca": {
   "text": "Двадцать раз «не ходить» — и все двадцать раз ходил. Узнаю почерк должника.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/finding:ch9_s2:comment"
@@ -6754,7 +6754,7 @@
  "18c91ca5c747a5": {
   "text": "Он спрашивал себя каждый день. И каждый день честно отвечал.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/finding:ch9_s6:comment"
@@ -6770,7 +6770,7 @@
  "0d9575082400f1": {
   "text": "Мой. Не трогайте. Это не подарок — это витрина. Он показывает товар.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter9/finding:ch9_s9:comment"
@@ -6786,7 +6786,7 @@
  "0989b81f24f9cc": {
   "text": "Ан… Ансгар. Жена и сын — Мира и Тиль. Сходится. Лучше бы не сходилось.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter9/finding:ch9_s15:comment"
@@ -6794,7 +6794,7 @@
  "1b131b96d20cf4": {
   "text": "Колокольчик тянет прямо в эти ворота. За ними — туман и тишина. Даже он звенит шёпотом.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_intro"
@@ -6802,7 +6802,7 @@
  "00a711e5f5d08b": {
   "text": "Нифльхейм. Мир мёртвых. Отсюда ещё никто не возвращался своими ногами.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_intro"
@@ -6818,7 +6818,7 @@
  "100d4402b1ac41": {
   "text": "Не ждать? Капитан, вы же сами учили: своих не бросают. Мы вас просто оттащим.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_intro"
@@ -6826,7 +6826,7 @@
  "1d58e115b3c000": {
   "text": "Бинты, святая вода, тёплые носки. Мёртвые мёртвыми, а простужаться не будем.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter10/ch10_intro"
@@ -6834,7 +6834,7 @@
  "17e12cfcf837a3": {
   "text": "Бафомет сказал: согласие отдано мёртвым. Как ни считай — врата открыты. Значит, нас тут ждут. Как вежливо.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/ch10_intro"
@@ -6842,7 +6842,7 @@
  "18fcfe28e43011": {
   "text": "Тебя слышно от самой Пронтеры. Как ты тут вообще жив?",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/ch10_s1_after"
@@ -6850,7 +6850,7 @@
  "0b12b7d7d8f208": {
   "text": "Ты храбрый. Или очень громкий. Спой нам до реки — в этом тумане не помешает свет.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter10/ch10_s1_after"
@@ -6858,7 +6858,7 @@
  "059d87a77f40fb": {
   "text": "Такой голос — и без кружки в руке? В «Двух колоколах» так поют только после третьей.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter10/ch10_s1_after"
@@ -6866,7 +6866,7 @@
  "0686cb40d25759": {
   "text": "Перевозчик хотел монету. Я заплатил песней Тео. Сдачи не дал, но и не утопил.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s3_after"
@@ -6874,7 +6874,7 @@
  "01cd3476889f9e": {
   "text": "Спасибо, Тео. Пока ты пел, мёртвые ни разу к нам не подошли.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter10/ch10_s3_after"
@@ -6882,7 +6882,7 @@
  "10b175b154903a": {
   "text": "Деревня призраков… Там у окна женщина. Она машет мне. Она похожа на меня. Мама?",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s4_before"
@@ -6890,7 +6890,7 @@
  "0e09ccfc4d7846": {
   "text": "Вика. Помнишь, что было с Браном в Пайоне? Держись за меня.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter10/ch10_s4_before"
@@ -6898,7 +6898,7 @@
  "0faafe505075a7": {
   "text": "Нет, я сама. Мама не звала бы меня в туман. Она бы велела уходить. И я уйду — вперёд.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s4_before"
@@ -6906,7 +6906,7 @@
  "04a39032c79f1e": {
   "text": "Вот это я запишу не в долги, а в подвиги. Отдельная страница, Вика. Первая.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_s4_before"
@@ -6914,7 +6914,7 @@
  "1b27c44a079f63": {
   "text": "Призраки лезут со всех сторон. Держим круг, тыл в середину!",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter10/ch10_s4_before"
@@ -6922,7 +6922,7 @@
  "1e9ff8a4a1eb6f": {
   "text": "Мертвецы шепчут одно и то же: «Нас позвали. Владыка ведёт к солнцу».",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s6_after"
@@ -6930,7 +6930,7 @@
  "12e32425523511": {
   "text": "Они не злые. Они устали. Сто лет тумана — я бы тоже пошла за любым, кто пообещал солнце.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s6_after"
@@ -6938,7 +6938,7 @@
  "1f872e2a8a6dd1": {
   "text": "Солнце для мёртвых — пожар для живых. Мы видели в Пайоне, куда ведёт такая колыбельная.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_s6_after"
@@ -6946,7 +6946,7 @@
  "1c51008ecabdf2": {
   "text": "Запишу: «Владыка мёртвых. Должен всем, кого разбудил». Длинный будет счёт.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_s6_after"
@@ -6954,7 +6954,7 @@
  "0d6a1dc10f8b78": {
   "text": "Тогда идём и предъявим. Грету — в середину, беречь пуще меня.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s6_after"
@@ -6962,7 +6962,7 @@
  "00cf2c869d24eb": {
   "text": "Камни без имён. Мёртвые тут забывают, как их звали. Дайте уголь.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s7_after"
@@ -6970,7 +6970,7 @@
  "0111c6f6e1a645": {
   "text": "Мама — первой. Потом сосед-сапожник. Учитель счёта. Двое с южных ворот. Я помню.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/ch10_s7_after"
@@ -6978,7 +6978,7 @@
  "1d3ffa892bd34f": {
   "text": "Бран… ты молчишь уже целый ряд. Даже не шутишь.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/ch10_s7_after"
@@ -6986,7 +6986,7 @@
  "1e3b67c5511c60": {
   "text": "Шутки потом. Учёт — сейчас. Кто-то же должен вести книгу, раз уж я здесь с тетрадью.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s7_after"
@@ -6994,7 +6994,7 @@
  "0714e749b5aae6": {
   "text": "Впиши и мою бабушку. Марта из «Двух колоколов». Она не простит, если её забудут.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter10/ch10_s7_after"
@@ -7010,7 +7010,7 @@
  "0c967aa9b60d01": {
   "text": "Капитан, стойте! Там обрыв. Там только туман.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/ch10_s8_after"
@@ -7026,7 +7026,7 @@
  "040923414a04da": {
   "text": "Вы отступили и спасли человека. Вы сами учили: иногда надо шагнуть назад. Шагните. Сейчас.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s8_after"
@@ -7050,7 +7050,7 @@
  "134d67629764a1": {
   "text": "Сколько? Предупреждаю: считаю быстро, торгуюсь больно.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter10/ch10_s9_before"
@@ -7074,7 +7074,7 @@
  "1f5d1b0b9901e1": {
   "text": "Страж прячется за щитом и морозит всех разом. Сначала лекаря за его спиной, потом ломаем щит.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/ch10_s9_before"
@@ -7082,7 +7082,7 @@
  "11df079e93506f": {
   "text": "Слышал, страж? Сдачи не будет. Строй, отряд!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter10/ch10_s9_before"
@@ -7090,7 +7090,7 @@
  "1380b37ed174b0": {
   "text": "Стены цитадели. Алан, держи. Вырвал страницу с твоими долгами. Все списаны.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_s12_before"
@@ -7098,7 +7098,7 @@
  "1e2c8b76dde789": {
   "text": "Бран… ты заболел? Ты же говорил, что однажды предъявишь!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s12_before"
@@ -7106,7 +7106,7 @@
  "1252dc3ba58b6d": {
   "text": "На случай, если не вернёмся. Не хочу, чтобы ты умер должником. Я знаю, каково это — после.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s12_before"
@@ -7114,7 +7114,7 @@
  "1f6a6447bb87ec": {
   "text": "А я никому больше не должен. Ни гильдии, ни капюшонам. И всё равно я здесь. Сам так решил.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s12_before"
@@ -7122,7 +7122,7 @@
  "0939bb1c14f9b5": {
   "text": "Тогда никто не умирает. Это приказ трактирщицы. За мной — к цитадели!",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/ch10_s12_before"
@@ -7130,7 +7130,7 @@
  "0e38b230100dd9": {
   "text": "На стене — серый капюшон. Стоит и смотрит на нас. Без фонаря.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter10/ch10_s13_after"
@@ -7138,7 +7138,7 @@
  "02d41c43d3713f": {
   "text": "Ансгар! Я не судить пришла. Я пришла забрать тебя домой. Спускайся.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_s13_after"
@@ -7170,7 +7170,7 @@
  "11c5274082f873": {
   "text": "Ушёл внутрь, к мёртвым. Ящик — на юг, к Морроку. Два долга на одной странице.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_s13_after"
@@ -7194,7 +7194,7 @@
  "0144759c74d332": {
   "text": "Кто это? Голос будто со всех сторон сразу. И ни капли злости.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s14_after"
@@ -7210,7 +7210,7 @@
  "05a0d9387f90aa": {
   "text": "Решим, когда дойдём. Вместе. Не раньше.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 6,
   "from": "chapter10/ch10_s14_after"
@@ -7218,7 +7218,7 @@
  "0a3543ee7a166b": {
   "text": "Караульня у врат. На столе книга смен рыцарей Гласт Хейма. Сотни лет, имя за именем.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 12,
   "from": "chapter10/ch10_s16_after"
@@ -7234,7 +7234,7 @@
  "121b107278bcbd": {
   "text": "У меня с собой устав из Альдебарана. «Пост у северных ворот не оставлять». Тот же, что здесь.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/ch10_s16_after"
@@ -7242,7 +7242,7 @@
  "1f5eac764f8a9d": {
   "text": "Под пустой строкой подпись: «кап. Гаррет, принял бы, если б дошёл». Капитан, это вы писали?",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s16_after"
@@ -7258,7 +7258,7 @@
  "1ae4b549a9f476": {
   "text": "За дверью топот. Владыка строит войско. Сотни. Тысячи.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/ch10_s17_before"
@@ -7274,7 +7274,7 @@
  "1de9a02025562b": {
   "text": "Нет.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 2,
   "from": "chapter10/ch10_s17_before"
@@ -7290,7 +7290,7 @@
  "0674e4a8336fd4": {
   "text": "Вы сами дали приказ раньше: «Живыми назад. Все». Отменять его я вам не разрешаю.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_s17_before"
@@ -7298,7 +7298,7 @@
  "0b76db23943057": {
   "text": "Вместе вошли — вместе и выйдем. Отряд, в строй.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/ch10_s17_before"
@@ -7322,7 +7322,7 @@
  "1c2463a7adf9ab": {
   "text": "Им не солнце нужно. Им положено спать. Я знаю песню, которая им это напомнит.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/ch10_s18_before"
@@ -7330,7 +7330,7 @@
  "10e53e6131e942": {
   "text": "Коса — по переднему ряду, войско — за спиной. Как в гильдии: сперва шестёрок, потом хозяина.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s18_before"
@@ -7338,7 +7338,7 @@
  "0a7f46445b280e": {
   "text": "Грета звонит — мы держим строй. Никто не бежит вперёд. Даже я. Это последний бой!",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/ch10_s18_before"
@@ -7346,7 +7346,7 @@
  "0279ab14b39af5": {
   "text": "Колокольчик звенит сменой караула. Мёртвые ложатся. Владыка закрыл глаза. И мальчик у стены — тоже.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/ch10_outro"
@@ -7362,7 +7362,7 @@
  "055cbe18347fd5": {
   "text": "Не надо. Врата закрываются изнутри — я знаю. Мы найдём другой способ. Ансгар, пожалуйста.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/ch10_outro"
@@ -7386,7 +7386,7 @@
  "138f488c73fd99": {
   "text": "Отпускаю. Спи спокойно на посту, брат. Я буду приходить к северным воротам — как ты ко мне.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/ch10_outro"
@@ -7402,7 +7402,7 @@
  "16379e5bc1739e": {
   "text": "Рыцарь Пронтеры. Щит тяжелее, чем я думал. И я, кажется, впервые никуда не бегу.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/tav_ch10"
@@ -7410,7 +7410,7 @@
  "030f29640f230c": {
   "text": "Долги Алана я вычеркнул у стен цитадели. На случай, если не вернёмся. Вернулись. Думаю, что делать.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/tav_ch10"
@@ -7418,7 +7418,7 @@
  "0fabd38326f12e": {
   "text": "Он остался. Сам. Знак треснул, и минуту он снова был моим братом. Это мало. И много.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/tav_ch10"
@@ -7426,7 +7426,7 @@
  "0bad42a0157a3b": {
   "text": "Колокольчик звенит тихо. Будто кто-то далеко говорит: «Пост принят».",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 7,
   "from": "chapter10/tav_ch10"
@@ -7450,7 +7450,7 @@
  "15617bbc06ca0a": {
   "text": "Есть, капитан. Рядом, а не впереди. Я запомнил.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/tav_ch10:reply"
@@ -7466,7 +7466,7 @@
  "0937b05ab0b658": {
   "text": "Спасибо. Я буду приходить к воротам — как он ко мне. Начну сегодня.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 11,
   "from": "chapter10/tav_ch10:reply"
@@ -7482,7 +7482,7 @@
  "04b70979a89669": {
   "text": "Сковородку тоже беру. Мёртвые уважают кухню.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 5,
   "from": "chapter10/tav_ch10:reply"
@@ -7498,7 +7498,7 @@
  "1eb6e61e97ceb6": {
   "text": "Из Моррока гонец. Мостовая треснула, из трещины красный свет. Сет пропал. Кажется, мне опять домой.",
   "role": "dorn",
-  "voice": "JTRj18uyiqhsxwkOG3Kq",
+  "voice": "8qXAnGS4OZi8BO8eSzez",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/tav_ch10"
@@ -7506,7 +7506,7 @@
  "19f80db304ee12": {
   "text": "Значит, тетрадь не закрываю. Алан, твоя графа снова открыта. Поздравляю.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/tav_ch10"
@@ -7514,7 +7514,7 @@
  "04a5de64f7a4c8": {
   "text": "Под утро изнутри постучали. Три раза. Капитан сказал: «Смена принята». Я не заплакал. Почти.",
   "role": "alan",
-  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "voice": "D6vtKm1CLiqY1APjAWK0",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/tav_ch10"
@@ -7522,7 +7522,7 @@
  "01d1f1cd5f9f96": {
   "text": "Под утро изнутри постучали. Три раза, как он стучал в окно приюта. Спи на посту, брат. Я здесь.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 13,
   "from": "chapter10/tav_ch10"
@@ -7530,7 +7530,7 @@
  "061da67b68a644": {
   "text": "В полночь я позвонила. Изнутри постучали три раза. Похоже, и там есть трактир. Откроем филиал.",
   "role": "greta",
-  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "voice": "1mzvHDyghaSCyjFAszPO",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/tav_ch10"
@@ -7594,7 +7594,7 @@
  "09c5f7efd82534": {
   "text": "Тут на целую лавку. Не беру. Даже я не беру.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 8,
   "from": "chapter10/finding:ch10_s3:comment"
@@ -7610,7 +7610,7 @@
  "0a30920c72ce9c": {
   "text": "Мама первая. Она всегда говорила: сначала запиши своих, потом чужих.",
   "role": "bran",
-  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "voice": "q7JUzcMhLn6JgJjEtcN4",
   "model": "eleven_v4",
   "chars": 10,
   "from": "chapter10/finding:ch10_s7:comment"
@@ -7626,7 +7626,7 @@
  "0997929982a2eb": {
   "text": "Тиль нарисовал меня с бинтом. Мне было одиннадцать. Брат носил это с собой десять лет.",
   "role": "vika",
-  "voice": "FuL7liD72Uod1to0xCVx",
+  "voice": "ExHQN7vFigaQ7UBqUt5S",
   "model": "eleven_v4",
   "chars": 14,
   "from": "chapter10/finding:ch10_s13:comment"
