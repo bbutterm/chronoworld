@@ -103,6 +103,22 @@ for (const ev of json('data/story/tavern.json').evenings as { id: string; after:
   }
   flush();
 }
+// Личные сцены героев в таверне (tavern.json → heroes: сцена, задание, связь) — «глава» bonds.
+if (chapterId === 'bonds') {
+  const walk = (x: unknown, from: string, run: Line[]) => {
+    if (Array.isArray(x)) for (const v of x) walk(v, from, run);
+    else if (x && typeof x === 'object') {
+      const o = x as Record<string, unknown>;
+      if (typeof o.speaker === 'string' && typeof o.text === 'string') run.push({ speaker: o.speaker, text: o.text });
+      else for (const v of Object.values(o)) walk(v, from, run);
+    }
+  };
+  for (const [hero, def] of Object.entries(json('data/story/tavern.json').heroes as Record<string, unknown>)) {
+    const run: Line[] = [];
+    walk(def, hero, run);
+    addLines(run, `bond:${hero}`);
+  }
+}
 const campaignFile = readdirSync(join(root, 'data/campaign')).find((f) => json(`data/campaign/${f}`).id === chapterId);
 if (campaignFile) {
   const c = json(`data/campaign/${campaignFile}`);

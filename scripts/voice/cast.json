@@ -1,5 +1,5 @@
 {
- "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора). Вика, Бран и Серый капюшон — свои голоса из Voice Design (аккаунт владельца); остальные — библиотека. Пометки эмоций — scripts/voice/direction, ударения — scripts/voice/stress.json.",
+ "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора). Вика, Бран и Серый капюшон — свои голоса из Voice Design (аккаунт владельца); остальные — библиотека. Пометки эмоций — scripts/voice/direction, ударения — scripts/voice/stress.json. Герои глав 2–10 (Дорн, Зара, Мэйлин, Кай, Лира, Ирис, Тео, Отто) — свои голоса Voice Design; design (seed, описание) — чтобы пересоздать голос тем же (слоты на Starter: 10, голоса можно удалять после озвучки). Эпизодические и боссы — библиотека.",
  "model": "eleven_v4",
  "format": "mp3_44100_64",
  "voices": {
@@ -91,6 +91,326 @@
     "style": 0.6,
     "use_speaker_boost": true
    }
+  },
+  "dorn": {
+   "voice": "JTRj18uyiqhsxwkOG3Kq",
+   "label": "Chronoworld dorn — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2101,
+    "description": "Native Russian speaker, no accent. A gruff, laconic young man around 26, former street thug from a desert city, now a loyal fighter paying off old debts. Low, slightly husky, tired voice, few words, dry humor, kind underneath. Natural and real, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "zara": {
+   "voice": "JEA35KVSzLnzyA3ImeOz",
+   "label": "Chronoworld zara — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2102,
+    "description": "Native Russian speaker, no accent. A sly young woman around 20, a desert thief with poisoned knives. Smooth, low-ish, playful and teasing voice with a smirk, quick and confident, a little dangerous. Natural, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "meilin": {
+   "voice": "cneqfcVaqSucq7mQDPLr",
+   "label": "Chronoworld meilin — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2103,
+    "description": "Native Russian speaker, no accent. A calm young woman around 20, an archer from a forest town in the east. Soft, clear, focused voice, polite and composed, a hint of warmth and quiet humor. Natural, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "kai": {
+   "voice": "VH3JZzzB2OxbCvszkMzj",
+   "label": "Chronoworld kai — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2104,
+    "description": "Native Russian speaker, no accent. A hot-headed young man around 19, a fire and lightning mage who acts first and thinks later. Bright, energetic, cocky voice, fast talker, laughs easily. Natural, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "lira": {
+   "voice": "IuyYlCphOQ0XHlQmd9ON",
+   "label": "Chronoworld lira — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2105,
+    "description": "Native Russian speaker, no accent. A cool, composed young woman around 20, an ice mage who protects her friends. Gentle, clear, slightly cool and precise voice with quiet kindness and dry wit. Natural, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "iris": {
+   "voice": "mIF8TV4f3iegfB3iNxGe",
+   "label": "Chronoworld iris — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2106,
+    "description": "Native Russian speaker, no accent. A disciplined young woman around 20, a swordswoman with a huge two-handed sword. Firm, confident, crisp voice, direct and a bit stern, rare warm smile. Natural, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "teo": {
+   "voice": "1i3gaNrClaOuWryuGIVX",
+   "label": "Chronoworld teo — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2107,
+    "description": "Native Russian speaker, no accent. A sunny young man around 19, a battle acolyte of the church who prefers fists to prayers. Warm, upbeat, earnest voice, friendly and a little naive. Natural, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "otto": {
+   "voice": "QAmoBxp2cNePqqq18p9u",
+   "label": "Chronoworld otto — свой голос (Voice Design)",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   },
+   "design": {
+    "seed": 2108,
+    "description": "Native Russian speaker, no accent. A chatty young man around 24, a merchant carter with a heavy cart, always bargaining. Cheerful, lively, slightly raspy voice, quick jokes, salesman energy. Natural, not an announcer.",
+    "model": "eleven_ttv_v3"
+   }
+  },
+  "archivist": {
+   "voice": "ogi2DyUAKJb7CEdqqvlU",
+   "label": "Stanislav — архивариус Одо",
+   "settings": {
+    "stability": 0.45,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "prisoner": {
+   "voice": "MWyJiWDobXN8FX3CJTdE",
+   "label": "Oleg — Янек",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "sergeant": {
+   "voice": "TUQNWEvVPBLzMBSVDPUA",
+   "label": "Alex Bell — сержант Бертольд",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "shaman": {
+   "voice": "2Zst4rvX5S2nMbiauLDN",
+   "label": "Arty Grumson — шаман Угра",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.92
+   }
+  },
+  "orc_hero": {
+   "voice": "mOTbMAOniC3yoEvgo4bi",
+   "label": "Evelon — герой орков",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "orc_lord": {
+   "voice": "dWNEQ4rqRY6thcusuDyq",
+   "label": "Fuad — Орк-лорд",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.9
+   }
+  },
+  "osiris": {
+   "voice": "kuR1PV7xDOsP38QMSEvD",
+   "label": "Arcad — Осирис",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.88
+   }
+  },
+  "drake": {
+   "voice": "RLRdvNFwJJct2XZOgfzy",
+   "label": "Mishka Yaponcik — капитан Дрейк",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "bosun": {
+   "voice": "qZDd4AcHEOAzq8caZvM4",
+   "label": "Paul Letuchka — боцман-призрак",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "kafra": {
+   "voice": "8pYiWLBihr54ecI85RXM",
+   "label": "Taya — Кафра",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "baron": {
+   "voice": "iYMRkaJMA0qIuY9moBHL",
+   "label": "Arthur — Совиный барон",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "keeper": {
+   "voice": "NkBkAMqIBNjZUjXKAA7r",
+   "label": "Vladimir — смотритель башни",
+   "settings": {
+    "stability": 0.45,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.92
+   }
+  },
+  "knight": {
+   "voice": "XuEV9VY3VUASYgJVNBh0",
+   "label": "Sergey — Рыцарь бездны",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.9
+   }
+  },
+  "warden": {
+   "voice": "e5A3tSm7sjA7Sbiz2Qac",
+   "label": "Maksim — страж моста Гьёлль",
+   "settings": {
+    "stability": 0.45,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.88
+   }
+  },
+  "hel": {
+   "voice": "TPIitICAZ8CqlGZ81AKm",
+   "label": "Elen Kuragina — Хель",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.9
+   }
+  },
+  "dead_lord": {
+   "voice": "FdDRUc9rNHCcx1AeKuej",
+   "label": "Nikolai Nechaev — Владыка мёртвых",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.88
+   }
+  },
+  "lord": {
+   "voice": "BSHXGMo79997FXiMWBpt",
+   "label": "Andrey — Тёмный лорд",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.9
+   }
+  },
+  "priest": {
+   "voice": "pvY1pikBdoI4SB62vEVo",
+   "label": "Andrei — Верховный жрец",
+   "settings": {
+    "stability": 0.45,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "baphomet": {
+   "voice": "SkGOoi8yfK3ONMNKMKj0",
+   "label": "Maxim — Бафомет",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.88
+   }
+  },
+  "scribe": {
+   "voice": "rQOBu7YxCDxGiFdTm28w",
+   "label": "Artem Lebedev — писарь Бафомета",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "flower": {
+   "voice": "foZmP0ldhGob3fHgegm1",
+   "label": "Sweetie Fox — Лунный цветок",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "bug": {
+   "voice": "hU3rD0Yk7DoiYULTX1pD",
+   "label": "Dmitry — Золотой жук-вор",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
   }
  },
  "speakers": {
@@ -106,6 +426,49 @@
   "Алан": "alan",
   "Бран": "bran",
   "Вика": "vika",
-  "Грета": "greta"
+  "Грета": "greta",
+  "hero5": "dorn",
+  "dorn": "dorn",
+  "hero_dorn": "dorn",
+  "zara": "zara",
+  "hero_zara": "zara",
+  "meilin": "meilin",
+  "hero_meilin": "meilin",
+  "kai": "kai",
+  "hero_kai": "kai",
+  "lira": "lira",
+  "hero_lira": "lira",
+  "iris": "iris",
+  "hero_iris": "iris",
+  "teo": "teo",
+  "hero_teo": "teo",
+  "otto": "otto",
+  "hero_otto": "otto",
+  "ansgar": "herald",
+  "Гаррет": "garret",
+  "Дорн": "dorn",
+  "Мэйлин": "meilin",
+  "archivist": "archivist",
+  "prisoner": "prisoner",
+  "sergeant": "sergeant",
+  "shaman": "shaman",
+  "orc_hero": "orc_hero",
+  "orc_lord": "orc_lord",
+  "osiris": "osiris",
+  "drake": "drake",
+  "bosun": "bosun",
+  "kafra": "kafra",
+  "baron": "baron",
+  "keeper": "keeper",
+  "knight": "knight",
+  "warden": "warden",
+  "hel": "hel",
+  "dead_lord": "dead_lord",
+  "lord": "lord",
+  "priest": "priest",
+  "baphomet": "baphomet",
+  "scribe": "scribe",
+  "flower": "flower",
+  "bug": "bug"
  }
 }
