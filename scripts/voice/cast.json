@@ -1,17 +1,98 @@
 {
- "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора).",
+ "$comment": "Голоса озвучки (scripts/voice-gen.ts). voice — id голоса ElevenLabs (библиотека, носители русского); speakers — id спикеров из data/story и имена из комментариев находок. narrator — рассказчик страниц (эпизод, легенда, летопись, находки, вопрос выбора). Бран и Серый капюшон — свои голоса из Voice Design (аккаунт владельца); остальные — библиотека. Пометки эмоций — scripts/voice/direction, ударения — scripts/voice/stress.json.",
  "model": "eleven_v4",
  "format": "mp3_44100_64",
  "voices": {
-  "narrator": { "voice": "pM78bgjPVk0JXtaEnFoj", "label": "Nester Surovy — мудрый рассказчик", "settings": { "stability": 0.55, "similarity_boost": 0.8, "style": 0.15, "use_speaker_boost": true, "speed": 0.95 } },
-  "garret": { "voice": "6A9D8WSMm4rFsg2DWFeE", "label": "Egor Gadzhiyev — капитан", "settings": { "stability": 0.45, "similarity_boost": 0.8, "style": 0.3, "use_speaker_boost": true } },
-  "bruno": { "voice": "txnCCHHGKmYIwrn7HfHQ", "label": "Alexandr Vlasov — трактирщик", "settings": { "stability": 0.4, "similarity_boost": 0.8, "style": 0.35, "use_speaker_boost": true } },
-  "alan": { "voice": "u3pPktIMgx1Kt5EJ391v", "label": "Dimitri — Алан", "settings": { "stability": 0.35, "similarity_boost": 0.8, "style": 0.4, "use_speaker_boost": true } },
-  "bran": { "voice": "RvcToHi9ENVDatbeYNJe", "label": "Mikhail — Бран", "settings": { "stability": 0.45, "similarity_boost": 0.8, "style": 0.3, "use_speaker_boost": true } },
-  "vika": { "voice": "t6lBrEl93uCiLR1Lgm8v", "label": "Alisa — Вика", "settings": { "stability": 0.45, "similarity_boost": 0.8, "style": 0.3, "use_speaker_boost": true } },
-  "greta": { "voice": "dVRDrbP5ULGXB94se4KZ", "label": "Alina — Грета", "settings": { "stability": 0.35, "similarity_boost": 0.8, "style": 0.45, "use_speaker_boost": true } },
-  "herald": { "voice": "FdDRUc9rNHCcx1AeKuej", "label": "Nikolai Nechaev — Серый капюшон", "settings": { "stability": 0.5, "similarity_boost": 0.8, "style": 0.35, "use_speaker_boost": true, "speed": 0.92 } },
-  "mastering": { "voice": "mOTbMAOniC3yoEvgo4bi", "label": "Evelon — Мастеринг", "settings": { "stability": 0.3, "similarity_boost": 0.75, "style": 0.6, "use_speaker_boost": true } }
+  "narrator": {
+   "voice": "pM78bgjPVk0JXtaEnFoj",
+   "label": "Nester Surovy — мудрый рассказчик",
+   "settings": {
+    "stability": 0.55,
+    "similarity_boost": 0.8,
+    "style": 0.15,
+    "use_speaker_boost": true,
+    "speed": 0.95
+   }
+  },
+  "garret": {
+   "voice": "6A9D8WSMm4rFsg2DWFeE",
+   "label": "Egor Gadzhiyev — капитан",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "style": 0.3,
+    "use_speaker_boost": true
+   }
+  },
+  "bruno": {
+   "voice": "txnCCHHGKmYIwrn7HfHQ",
+   "label": "Alexandr Vlasov — трактирщик",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "style": 0.35,
+    "use_speaker_boost": true
+   }
+  },
+  "alan": {
+   "voice": "u3pPktIMgx1Kt5EJ391v",
+   "label": "Dimitri — Алан",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "style": 0.4,
+    "use_speaker_boost": true
+   }
+  },
+  "bran": {
+   "voice": "8laJWHvsvf5KcUWcHWWZ",
+   "label": "Chronoworld Бран — свой голос (Voice Design, вариант 3)",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true
+   }
+  },
+  "vika": {
+   "voice": "t6lBrEl93uCiLR1Lgm8v",
+   "label": "Alisa — Вика",
+   "settings": {
+    "stability": 0.45,
+    "similarity_boost": 0.8,
+    "style": 0.3,
+    "use_speaker_boost": true
+   }
+  },
+  "greta": {
+   "voice": "dVRDrbP5ULGXB94se4KZ",
+   "label": "Alina — Грета",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "style": 0.45,
+    "use_speaker_boost": true
+   }
+  },
+  "herald": {
+   "voice": "DdFgum7xgn361E6iwo3i",
+   "label": "Chronoworld Серый капюшон — свой голос (Voice Design, вариант A)",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": true,
+    "speed": 0.95
+   }
+  },
+  "mastering": {
+   "voice": "mOTbMAOniC3yoEvgo4bi",
+   "label": "Evelon — Мастеринг",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.75,
+    "style": 0.6,
+    "use_speaker_boost": true
+   }
+  }
  },
  "speakers": {
   "garret": "garret",

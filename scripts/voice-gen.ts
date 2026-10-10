@@ -7,6 +7,10 @@
  *   npm run voice:gen -- chapter1 --plan                          — только список и сколько символов уйдёт
  *   npm run voice:gen -- chapter1 --redo <ключ,ключ>              — перегенерировать выбранные клипы
  *   npm run voice:gen -- chapter1 --model eleven_v4               — другая модель
+ *   npm run voice:gen -- chapter1 --roles alan,bran [--all]       — только эти голоса; --all — переозвучить и готовые
+ *
+ * Перед синтезом текст проходит режиссёрскую разметку (scripts/voice/direction/<глава>.json: реплика → она же с
+ * пометками подачи [whispers], [excited]…) и словарь ударений (scripts/voice/stress.json). На экране — исходный текст.
  *
  * Сведения о клипах (текст, голос, модель, символы) — assets/voice/ru/index.json (в сборку не попадает, для
  * перегенерации и проверки распознаванием: tools/voice_qa.py). Ключ API — только из окружения, в файлы не пишется.
@@ -115,13 +119,21 @@ if (campaignFile) {
 
 // ---------- озвучка ----------
 
+const directionPath = join(root, `scripts/voice/direction/${chapterId}.json`);
+const direction: Record<string, string> = existsSync(directionPath) ? JSON.parse(readFileSync(directionPath, 'utf8')) : {};
+const stressRules = Object.entries(JSON.parse(readFileSync(join(root, 'scripts/voice/stress.json'), 'utf8')) as Record<string, string>).filter(([k]) => !k.startsWith('$'));
+/** Ударения из словаря: начало слова (любой регистр первой буквы) → со знаком ударения. */
+const stressed = (s: string) =>
+  stressRules.reduce((t, [stem, mark]) => t.replace(new RegExp(`(?<![а-яё])${stem}`, 'giu'), (w) => (w[0] === w[0].toUpperCase() ? mark[0].toUpperCase() + mark.slice(1) : mark)), s);
+
 /** КРИК ЗАГЛАВНЫМИ модель читает по буквам — слова длиннее трёх букв в обычный регистр (восклицание остаётся). */
 const speakable = (s: string) => s.replace(/[А-ЯЁ]{4,}(?:-[А-ЯЁ]+)*/g, (w) => (/-/.test(w) ? w : w.charAt(0) + w.slice(1).toLowerCase()));
 
 type Index = Record<string, { text: string; role: string; voice: string; model: string; chars: number; from: string }>;
 const index: Index = existsSync(indexPath) ? JSON.parse(readFileSync(indexPath, 'utf8')) : {};
 const redo = new Set((opt('redo') ?? '').split(',').filter(Boolean));
-const todo = clips.filter((c) => redo.has(c.key) || !existsSync(join(outDir, `${c.key}.mp3`)));
+const roles = new Set((opt('roles') ?? '').split(',').filter(Boolean));
+const todo = clips.filter((c) => (!roles.size || roles.has(c.role)) && (flag('all') || redo.has(c.key) || !existsSync(join(outDir, `${c.key}.mp3`))));
 const chars = todo.reduce((n, c) => n + c.text.length, 0);
 const byRole = new Map<string, number>();
 for (const c of clips) byRole.set(c.role, (byRole.get(c.role) ?? 0) + c.text.length);
@@ -140,12 +152,12 @@ async function tts(c: Clip): Promise<{ audio: Buffer; cost: number }> {
   const v = cast.voices[c.role];
   if (!v) throw new Error(`Нет голоса «${c.role}» в cast.voices`);
   const body = {
-    text: speakable(c.text),
+    text: speakable(stressed(direction[c.text] ?? c.text)),
     model_id: model,
     // style понимает только multilingual v2; v4 / v3 / turbo отвечают на него ошибкой или молча игнорируют.
     voice_settings: model === 'eleven_multilingual_v2' ? v.settings : Object.fromEntries(Object.entries(v.settings).filter(([k]) => k !== 'style')),
-    ...(c.prev ? { previous_text: speakable(c.prev) } : {}),
-    ...(c.next ? { next_text: speakable(c.next) } : {}),
+    ...(c.prev ? { previous_text: speakable(stressed(c.prev)) } : {}),
+    ...(c.next ? { next_text: speakable(stressed(c.next)) } : {}),
   };
   for (let attempt = 0; ; attempt++) {
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${v.voice}?output_format=${cast.format}`, {
