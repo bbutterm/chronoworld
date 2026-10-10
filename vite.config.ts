@@ -6,6 +6,7 @@ import { defineConfig } from 'vitest/config';
 import { ASSETS_DIR, bootFiles, collectUsedAssets } from './scripts/lib/used-assets.ts';
 import { SKIN_REPLACED } from './src/pipeline/bootAssets.ts';
 import { trimEffectsJson } from './scripts/lib/trim-effects.ts';
+import { buildBootSheets, type SheetSlot } from './scripts/lib/boot-sheets.ts';
 import { SPRITE_RUNTIME_KEYS } from './src/pipeline/sprites.ts';
 import { compileGameContentFromDisk } from './scripts/lib/compiled-content.ts';
 
@@ -34,6 +35,8 @@ interface Built {
   /** PNG → байты WebP-копии (только свежие: sha1 PNG совпал с assets-webp/index.json). */
   webp: Map<string, Buffer>;
   packs: Record<'png' | 'webp', { fileName: string; source: Buffer; files: Record<string, [number, number, string]> }>;
+  /** Значки, склеенные в листы (scripts/lib/boot-sheets.ts): путь в assets/ → [лист, x, y, w, h]. */
+  sheets: Record<string, SheetSlot>;
 }
 
 const MIME: Record<string, string> = { png: 'image/png', webp: 'image/webp', jpg: 'image/jpeg', jpeg: 'image/jpeg', xml: 'text/xml' };
@@ -64,21 +67,30 @@ function buildAssets(root: string, warn: (m: string) => void): Built {
   }
   if (stale) warn(`WebP-копии устарели у ${stale} PNG — они уйдут в игру как PNG; обновить: npm run assets:webp`);
   const boot = bootFiles(root, SKIN_REPLACED).filter((f) => files.includes(f));
+  // Мелкие значки 24×24 (~200 штук) — не отдельными картинками, а несколькими листами PNG с палитрой: экран загрузки
+  // декодирует 4 картинки вместо 200 и нарезает их на те же текстуры (BootScene). Без потерь, байт меньше, чем у WebP по одному.
+  const { sheets: sheetPngs, slots } = buildBootSheets(new Map(boot.filter((f) => f.endsWith('.png')).map((f) => [f, readFileSync(join(root, ASSETS_DIR, f))])));
   const pack = (variant: 'png' | 'webp') => {
     const parts: Buffer[] = [];
     const map: Record<string, [number, number, string]> = {};
     let offset = 0;
     for (const file of boot) {
+      if (slots[file]) continue;
       const w = variant === 'webp' ? webp.get(file) : undefined;
       const data = w ?? readFileSync(join(root, ASSETS_DIR, file));
       map[file] = [offset, data.length, w ? MIME.webp : (MIME[file.split('.').pop()!.toLowerCase()] ?? 'application/octet-stream')];
       parts.push(data);
       offset += data.length;
     }
+    for (const [name, data] of sheetPngs) {
+      map[name] = [offset, data.length, MIME.png];
+      parts.push(data);
+      offset += data.length;
+    }
     const source = Buffer.concat(parts);
     return { fileName: `assets/boot-${variant}-${sha1(source).slice(0, 10)}.bin`, source, files: map };
   };
-  return { files, webp, packs: { png: pack('png'), webp: pack('webp') } };
+  return { files, webp, packs: { png: pack('png'), webp: pack('webp') }, sheets: slots };
 }
 
 const VIRTUAL_PACK = 'virtual:asset-pack';
@@ -107,10 +119,15 @@ function assetPackPlugin(): Plugin {
       if (id !== `\0${VIRTUAL_PACK}`) return null;
       if (!build) return 'export const PACKS = null;\nexport const WEBP = [];\n';
       built ??= buildAssets(root, (m) => this.warn(m));
-      const packs = Object.fromEntries(
-        Object.entries(built.packs).map(([k, p]) => [k, { url: p.fileName, bytes: p.source.length, files: p.files }]),
+      // Раскладка листов значков одна на оба варианта пакета.
+      const packs = Object.entries(built.packs).map(
+        ([k, p]) => `${k}: { url: ${JSON.stringify(p.fileName)}, bytes: ${p.source.length}, sheets, files: ${JSON.stringify(p.files)} }`,
       );
-      return `export const PACKS = ${JSON.stringify(packs)};\nexport const WEBP = ${JSON.stringify([...built.webp.keys()])};\n`;
+      return (
+        `const sheets = ${JSON.stringify(built.sheets)};\n` +
+        `export const PACKS = { ${packs.join(', ')} };\n` +
+        `export const WEBP = ${JSON.stringify([...built.webp.keys()])};\n`
+      );
     },
     // Пакет загрузки (WebP-вариант — его берут почти все браузеры) качается параллельно с JS, а не после него:
     // загрузчик BootScene потом получает его из кэша предзагрузки (тот же URL и режим запроса — XHR, same-origin).

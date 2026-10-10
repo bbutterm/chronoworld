@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { buildPlaceholders, queueAssets, setupLoadedAssets } from '../assets';
-import { assetUrl, bootPack, packPath, revokePack, unpack } from '../assetUrl';
+import { assetUrl, bootPack, packPath, revokePack, sheetLoader, sheetPiece, sheetSlot, unpack, type SheetSlot } from '../assetUrl';
 import { buildSkin } from '../skin';
 import { CONTENT, GAME, LORE } from '../content';
 import { heroSprite } from '../flow';
@@ -22,6 +22,35 @@ function spriteRoles(): Record<string, string> {
   return roles;
 }
 
+/** Картинка загрузчика Phaser в режиме HTMLImageElement (ImageFile): что нужно, чтобы отдать ей готовый canvas. */
+type SheetFile = Phaser.Loader.File & { useImageElementLoad?: boolean; load(): void };
+
+/**
+ * Значок из листа пакета (scripts/lib/boot-sheets.ts) вместо своей картинки: тот же файл загрузчика и тот же ключ, но
+ * данные — canvas, вырезанный из листа (один декод на лист вместо ~200 картинок по blob:-адресам). Дальше всё как
+ * у картинки: ImageFile.onProcessImage → текстура под ключом значка, события filecomplete. Лист не загрузился —
+ * значок грузится своим файлом, как раньше.
+ */
+function fromSheet(file: SheetFile, slot: SheetSlot, sheetImage: (sheet: string) => Promise<HTMLImageElement | null>): void {
+  const own = file.load;
+  const path = file.url as string;
+  file.load = () => {
+    file.state = Phaser.Loader.FILE_LOADING;
+    void sheetImage(slot[0]).then((img) => {
+      const piece = img && sheetPiece(img, slot);
+      if (!piece) {
+        file.load = own;
+        file.url = assetUrl(path);
+        own.call(file);
+        return;
+      }
+      file.data = piece;
+      file.state = Phaser.Loader.FILE_LOADED;
+      file.loader.nextFile(file, true);
+    });
+  };
+}
+
 /** Ключ пакета загрузки в загрузчике (прод-сборка, vite.config.ts). */
 const PACK_KEY = '__boot_pack';
 
@@ -40,6 +69,8 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
+    // Метки фаз для npm run perf:load (scripts/perf-load.mjs печатает все cw:*): пакет пришёл → create → скин → переход.
+    performance.mark('cw:boot-preload');
     this.failed = 0;
     // Лента, орнамент и полоса с фаской — как HTML-заставка (index.html), она сменяется этим кадром без скачка.
     const { setProgress: drawProgress, label, hint } = drawBoot(this);
@@ -110,14 +141,19 @@ export class BootScene extends Phaser.Scene {
     this.load.binary(PACK_KEY, pack.url);
     // Картинки из пакета — сразу в <img> по blob:-адресу, без второго XHR и второго Blob внутри Phaser.
     this.load.imageLoadType = 'HTMLImageElement';
-    // Файл из пакета — по blob:-адресу, прочие — WebP-копия, если есть (assetUrl).
+    // Файл из пакета — по blob:-адресу, прочие — WebP-копия, если есть (assetUrl). Значок из листа — вырезается из него.
+    let sheetImage: ((sheet: string) => Promise<HTMLImageElement | null>) | null = null;
     this.load.on('addfile', (key: string, _t: string, _l: unknown, file: Phaser.Loader.File) => {
       if (key === PACK_KEY || typeof file.url !== 'string') return;
-      file.url = this.packUrls?.get(packPath(file.url)) ?? assetUrl(file.url);
+      const slot = sheetImage ? sheetSlot(pack, file.url) : undefined;
+      if (slot && sheetImage && (file as SheetFile).useImageElementLoad) fromSheet(file as SheetFile, slot, sheetImage);
+      else file.url = this.packUrls?.get(packPath(file.url)) ?? assetUrl(file.url);
     });
     this.load.once(`filecomplete-binary-${PACK_KEY}`, (_key: string, _type: string, data: ArrayBuffer) => {
+      performance.mark('cw:boot-pack');
       this.cache.binary.remove(PACK_KEY);
       this.packUrls = unpack(pack, data);
+      sheetImage = sheetLoader(this.packUrls);
       rest();
       queueAll();
     });
@@ -130,10 +166,12 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    performance.mark('cw:boot-create');
     if (this.packUrls) revokePack(this.packUrls);
     this.packUrls = null;
     setupLoadedAssets(this);
     buildSkin(this);
+    performance.mark('cw:boot-skin');
     buildPlaceholders(this);
     setupSprites(this, spriteRoles());
     // Звук (issue #26): шины громкости, заглушки, музыка экранов по старту сцен.
@@ -149,6 +187,7 @@ export class BootScene extends Phaser.Scene {
     const go = () => {
       if (started) return;
       started = true;
+      performance.mark('cw:boot-done');
       // Игра открывается на странице «Кампания» (как в AFK Arena): карта, сундук и «В бой». Новичку там же — вступление
       // главы; перезагрузка на «Глава пройдена» (или на финале перед ним) — кампания доиграет финал из очереди.
       this.scene.start('Campaign');

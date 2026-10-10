@@ -7,6 +7,8 @@ declare module 'virtual:asset-pack' {
     url: string;
     bytes: number;
     files: Record<string, [number, number, string]>;
+    /** Значки, склеенные в листы (scripts/lib/boot-sheets.ts): путь в assets/ → [лист — ключ в files, x, y, w, h]. */
+    sheets?: Record<string, [string, number, number, number, number]>;
   }
   /** Два варианта пакета: только PNG и с WebP там, где он есть (выбирается по поддержке WebP). null — dev. */
   export const PACKS: { png: AssetPack; webp: AssetPack } | null;
