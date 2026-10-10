@@ -7,7 +7,7 @@ import {
   finishCampaignScene, finishEvening, finishPersonalScene, heroCopyUpgradeOptions, heroFocusOptions,
   heroPower, heroResetInfo, heroRole, heroSlots, huntStatus, insertCard, levelUpInfo,
   newEvenings, newGame, ownedCards, queuedScenes, rarityIndex,
-  replayAllowance, resetHeroLevel, salvageItems, salvagePlan, setAutobattlerSquad,
+  replayAllowance, replayAllowed, resetHeroLevel, salvageItems, salvagePlan, setAutobattlerSquad,
   setHeroFocus, setSquad, startAutobattlerRun, sweepHunt, towerUnlocked,
   trainAutobattlerRun, upgradeHeroFromCopy, type FullContext, type HeroState, type SaveState,
 } from '../../src/core';
@@ -247,9 +247,12 @@ export class NightPlayer extends BalancePlayer {
     this.levelSquad();
   }
 
-  /** Лимитированные награды повторов: лучший ещё безопасно проходимый этап. */
+  /**
+   * Лимитированные награды повторов: лучший ещё безопасно проходимый этап. В выпущенных данных повторов нет
+   * (progression.campaign.replay: false → бюджет 0): шаг только забирает награды и готовит отряд.
+   */
   farmReplays(): void {
-    const remaining = replayAllowance(this.save, this.day, this.ctx).remaining;
+    const remaining = replayAllowed(this.ctx) ? replayAllowance(this.save, this.day, this.ctx).remaining : 0;
     const targets = this.ctx.content.stages.filter((s) => this.save.campaign.cleared.includes(s.id)).sort((a, b) => b.rewards.jobExp + b.rewards.gold - a.rewards.jobExp - a.rewards.gold).slice(0, 3);
     for (let i = 0; i < remaining; i++) {
       let won = false;

@@ -133,3 +133,19 @@ export function withQuestsDone(save: SaveState, day: string, ctx: FeatureContext
   }
   return s;
 }
+
+// ---------- Повторы этапов кампании ----------
+
+/**
+ * Контекст с разрешёнными повторами пройденных этапов (прежнее поведение: доля награды 0.5, 6 наград в день).
+ * Выпущенные данные повторы запрещают (data/progression.json → campaign.replay: false, решение владельца 10.10.2026),
+ * а код повторов остаётся для контекстов с replay ≠ false — его тесты идут через эту обёртку. С data/kitchen.json без
+ * sources.replay повторы продуктов не дают; kitchenReplay — вернуть источник (тесты Кухни).
+ */
+export function withReplay<C extends GameContext>(ctx: C, opts: { multiplier?: number; dailyWins?: number; kitchenReplay?: { chance: number; count: number } } = {}): C {
+  const campaign = { ...ctx.progression.campaign, replay: true, replayRewardMultiplier: opts.multiplier ?? 0.5, replayDailyWins: opts.dailyWins ?? 6 };
+  const out = { ...ctx, progression: { ...ctx.progression, campaign } } as C;
+  const kitchen = (ctx as { kitchen?: { sources: Record<string, unknown> } }).kitchen;
+  if (opts.kitchenReplay && kitchen) (out as { kitchen?: unknown }).kitchen = { ...kitchen, sources: { ...kitchen.sources, replay: opts.kitchenReplay } };
+  return out;
+}

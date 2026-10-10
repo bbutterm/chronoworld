@@ -7,6 +7,7 @@ import {
 } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 import { ownRecommendedLevel, powerCheck, stageLevelsFor, stageNeeds } from '../src/game/flow';
+import { withReplay } from './helpers';
 
 const ctx = loadFullContext();
 const sceneId = 'ch3o_s15_after';
@@ -97,15 +98,19 @@ const choose = (option = 'block') => chooseCampaignOption(ready(), sceneId, opti
     expect(a.save.campaignChoices).toEqual(save.campaignChoices);
     expect(a.events).toEqual([]);
   });
-  it('победа и skip повтора выдают только обычные награды', () => {
+  it('победа выдаёт обычные награды; skip повтора (replay: true) — обычные награды повтора, без следов решения', () => {
     const save = choose();
     save.heroes = save.heroes.map((h) => ({ ...h, rarity: 'red' as const, level: 100, branch: ctx.content.heroes[h.templateId].branches?.[0]?.job }));
     const a = actPlayStage(save, save.daily.day, stageId, 7, ctx);
     expect(a.result.winner).toBe('A');
     expect(a.events.filter((e) => e.type === 'rewards')).toEqual([{ type: 'rewards', gold: stage.rewards.gold, heroExp: stage.rewards.jobExp }]);
     expect(a.save.campaignChoices).toEqual(save.campaignChoices);
-    const repeated = actSkipStage(a.save, save.daily.day, stageId, 7, ctx);
-    expect(repeated.events.filter((e) => e.type === 'rewards')).toEqual([{ type: 'rewards', gold: Math.floor(stage.rewards.gold * ctx.progression.campaign.replayRewardMultiplier), heroExp: Math.floor(stage.rewards.jobExp * ctx.progression.campaign.replayRewardMultiplier) }]);
+    // Выпущенные данные повторы запрещают; путь повтора проверяем на явно разрешённых повторах.
+    expect(() => actSkipStage(a.save, save.daily.day, stageId, 7, ctx)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    const rctx = withReplay(ctx);
+    const m = rctx.progression.campaign.replayRewardMultiplier!;
+    const repeated = actSkipStage(a.save, save.daily.day, stageId, 7, rctx);
+    expect(repeated.events.filter((e) => e.type === 'rewards')).toEqual([{ type: 'rewards', gold: Math.floor(stage.rewards.gold * m), heroExp: Math.floor(stage.rewards.jobExp * m) }]);
     expect(repeated.save.campaignChoices).toEqual(save.campaignChoices);
   });
 });

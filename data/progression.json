@@ -19,8 +19,7 @@
   },
   "campaign": {
     "enemyStatGrowthPerStage": 0.08,
-    "replayRewardMultiplier": 0.5,
-    "replayDailyWins": 6
+    "replay": false
   },
   "offline": {
     "capHours": 12,

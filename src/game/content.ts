@@ -35,7 +35,9 @@ export const GAME: FullContext = buildGameContext({
   chapters: toFiles(import.meta.glob('../../data/campaign/*.json', { eager: true, import: 'default' })),
   heroes: toFiles(import.meta.glob('../../data/heroes/*.json', { eager: true, import: 'default' })),
   items: toFiles(import.meta.glob('../../data/items/*.json', { eager: true, import: 'default' })),
-  progression: progressionJson,
+  // Повторов пройденных этапов нет (campaign.replay: false). Песочница адвансов (VITE_ADVANCE_LAB) проходит все этапы
+  // заранее — там бои на пройденных этапах нужны для просмотра форм, поэтому повторы в ней включены.
+  progression: import.meta.env?.VITE_ADVANCE_LAB === '1' ? { ...progressionJson, campaign: { ...progressionJson.campaign, replay: true } } : progressionJson,
   cards: cardsJson,
   summon: summonJson,
   quests: questsJson,

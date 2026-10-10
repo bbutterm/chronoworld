@@ -216,7 +216,6 @@
       "required": [
         "expedition",
         "hunt",
-        "replay",
         "chest"
       ]
     },

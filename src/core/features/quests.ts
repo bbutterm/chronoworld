@@ -11,8 +11,10 @@ import { FEATURE_IDS } from '../unlocks/schema';
 /**
  * Виды событий, которые обёртки actions.ts записывают в daily.quests (recordActivity).
  * expedition_claim — добыча экспедиций (actClaimExpedition / actClaimAllExpeditions, по числу экспедиций).
+ * battle_win — победа в бою кампании или Башни (оба режима забега). Пройденные этапы больше не сражаются
+ * (progression.campaign.replay: false), и игрок у «стены» кампании добирает победы в Башне.
  */
-export const RECORDED_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'summon', 'hero_level_up', 'hero_ascend', 'tower_attempt', 'expedition_claim'] as const;
+export const RECORDED_KINDS = ['stage_win', 'stage_attempt', 'offline_claim', 'fast_rewards', 'summon', 'hero_level_up', 'hero_ascend', 'tower_attempt', 'expedition_claim', 'battle_win'] as const;
 export type RecordedKind = (typeof RECORDED_KINDS)[number];
 
 /**

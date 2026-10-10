@@ -36,13 +36,13 @@ function levelUps(events: readonly { type: string }[]): number {
 
 function recordBattle<O extends StageOutcome>(out: O, day: string): O {
   let s = recordActivity(out.save, day, 'stage_attempt');
-  if (out.result.winner === 'A') s = recordActivity(s, day, 'stage_win');
+  if (out.result.winner === 'A') s = recordActivity(recordActivity(s, day, 'stage_win'), day, 'battle_win');
   s = syncAchievementCounters(trackAchievement(s, 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
 }
 
 /**
- * playStage + stage_attempt, stage_win (при победе).
+ * playStage + stage_attempt, stage_win и battle_win (при победе).
  * K6: при ctx.equipment бой идёт с экипировкой героев, при победе — выпадение предметов (drops).
  * now (мс, необязательно) — время боя: при первой победе в кампании с него начинает копиться сундук (P9, T1-15).
  */
@@ -129,17 +129,23 @@ export function actUnequip(save: SaveState, itemInstanceId: string): SaveState {
   return unequip(save, itemInstanceId);
 }
 
-/** climbTower (K4) + tower_attempt (за каждый штурм, и победу, и поражение). */
+/** Попытка Башни: tower_attempt всегда, battle_win — при победе (задание «победы в боях»). */
+function recordTower(save: SaveState, day: string, win: boolean): SaveState {
+  const s = recordActivity(save, day, 'tower_attempt');
+  return win ? recordActivity(s, day, 'battle_win') : s;
+}
+
+/** climbTower (K4) + tower_attempt (за каждый штурм, и победу, и поражение), battle_win при победе. */
 export function actClimbTower(save: SaveState, day: string, seed: number, ctx: TowerContext): TowerOutcome {
   const out = climbTower(save, seed, ctx);
-  const s = syncAchievementCounters(trackAchievement(recordActivity(out.save, day, 'tower_attempt'), 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
+  const s = syncAchievementCounters(trackAchievement(recordTower(out.save, day, out.result.winner === 'A'), 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
 }
 
-/** Забег Башни (рогалик): fightTowerFloor + tower_attempt (за каждый бой забега) + battles_won + максимумы (рекорд этажа). */
+/** Забег Башни (рогалик): fightTowerFloor + tower_attempt (за каждый бой забега), battle_win при победе + battles_won + максимумы (рекорд этажа). */
 export function actTowerFight(save: SaveState, day: string, ctx: TowerContext, control?: PlayerControl): TowerFightOutcome {
   const out = fightTowerFloor(save, day, ctx, control);
-  const s = syncAchievementCounters(trackAchievement(recordActivity(out.save, day, 'tower_attempt'), 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
+  const s = syncAchievementCounters(trackAchievement(recordTower(out.save, day, out.result.winner === 'A'), 'battles_won', out.result.winner === 'A' ? 1 : 0, 'add'));
   return { ...out, save: s };
 }
 

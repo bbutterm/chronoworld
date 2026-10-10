@@ -32,6 +32,7 @@ import {
   type SaveState,
 } from '../src/core';
 import { loadFullContext, readRawGameData } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const ctx = loadFullContext();
 if (!ctx.kitchen) throw new Error('нет data/kitchen.json');
@@ -174,28 +175,41 @@ describe('Кухня: источники продуктов', () => {
     expect(huntIngredientCount(99, cfg)).toBe(cfg.sources.hunt.max);
   });
 
-  it('повтор этапа с наградой — иногда продукт; первое прохождение — никогда', () => {
+  // Выпущенные данные повторы этапов запрещают (campaign.replay: false), и источника sources.replay в data/kitchen.json нет.
+  // Код источника остаётся для контекстов с разрешёнными повторами — проверяем его на явном replay: true.
+  it('выпущенные данные: повтор этапа не сражается и продуктов не даёт; источника replay нет', () => {
+    expect(cfg.sources.replay).toBeUndefined();
+    const s = openSave({ kitchen: undefined });
+    expect(() => playStage(s, 'ch1_s1', 1, ctx, undefined, D1)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    // Разрешённые повторы без sources.replay — бой есть, продуктов нет.
+    const out = playStage(s, 'ch1_s1', 1, withReplay(ctx), undefined, D1);
+    expect(out.ingredients).toBeUndefined();
+  });
+
+  it('replay: true и sources.replay — повтор с наградой иногда даёт продукт; первое прохождение — никогда', () => {
+    const src = { chance: 0.5, count: 1 };
+    const rctx = withReplay(ctx, { kitchenReplay: src });
     const s = openSave({ kitchen: undefined });
     let got = 0;
     let wins = 0;
     for (let seed = 1; seed <= 40; seed++) {
-      const out = playStage(s, 'ch1_s1', seed, ctx, undefined, D1);
+      const out = playStage(s, 'ch1_s1', seed, rctx, undefined, D1);
       if (out.result.winner !== 'A') continue;
       wins++;
       if (out.ingredients) {
         got++;
-        expect(total(out.save.kitchen!.pantry)).toBe(cfg.sources.replay.count);
+        expect(total(out.save.kitchen!.pantry)).toBe(src.count);
       }
     }
     expect(wins).toBeGreaterThan(30);
     expect(got / wins).toBeGreaterThan(0.2);
     expect(got / wins).toBeLessThan(0.8);
     const fresh = newGame(ctx, 1, D1);
-    const first = playStage(fresh, 'ch1_s1', 1, ctx, undefined, D1);
+    const first = playStage(fresh, 'ch1_s1', 1, rctx, undefined, D1);
     expect(first.result.winner).toBe('A');
     expect(first.ingredients).toBeUndefined();
     // Без дня повтор — тренировка без добычи и без продуктов.
-    expect(playStage(s, 'ch1_s1', 3, ctx).ingredients).toBeUndefined();
+    expect(playStage(s, 'ch1_s1', 3, rctx).ingredients).toBeUndefined();
   });
 
   it('сундук простоя: изредка продукт за полный тик, тот же сбор — тот же итог', () => {
@@ -207,7 +221,7 @@ describe('Кухня: источники продуктов', () => {
       expect(b.ingredients).toEqual(a.ingredients);
       sum += total(a.ingredients);
     }
-    // 24 тика × 20 сохранений × шанс: ожидание около 24.
+    // 24 тика × 20 сохранений × шанс (0.08 — после отмены повторов этапов): ожидание около 38.
     const expected = 24 * 20 * cfg.sources.chest.chancePerTick;
     expect(sum).toBeGreaterThan(expected * 0.4);
     expect(sum).toBeLessThan(expected * 1.8);

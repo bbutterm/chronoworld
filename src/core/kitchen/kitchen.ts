@@ -1,8 +1,9 @@
 /**
  * Кухня в Таверне (docs/design/kitchen.md): кладовая продуктов, блюдо дня и его прибавка отряду.
- * - Продукты копятся из экспедиций, охоты, повторов кампании и сундука простоя (броски от seed источника) и
+ * - Продукты копятся из экспедиций, охоты и сундука простоя (броски от seed источника; повторы этапов — только при
+ *   progression.campaign.replay ≠ false и sources.replay) и
  *   покупаются за золото (лимит в день). Копятся и до открытия Кухни — к открытию кладовая не пуста.
- * - Раз в день (день передаёт UI, как у повторов кампании) готовится одно блюдо; оно действует до смены дня. День не
+ * - Раз в день (день передаёт UI, как у заданий дня) готовится одно блюдо; оно действует до смены дня. День не
  *   новее дня последнего блюда (часы назад) — готовить нельзя: второго блюда переводом часов не получить.
  * - Прибавка — к статам отряда в боях кампании, Башни и охоты (withMeal; Арена нормализована и её не видит) и к опыту
  *   героев за этапы кампании.
@@ -160,13 +161,14 @@ export function grantHuntIngredients(save: SaveState, tier: number, seed: number
   return n > 0 ? give(save, rollIngredients(rngOf('hunt', seed), n, cfg)) : none(save);
 }
 
-/** Победный повтор этапа с наградой: с шансом sources.replay.chance — count продуктов. seed — seed боя. */
+/** Победный повтор этапа с наградой (только при разрешённых повторах): с шансом sources.replay.chance — count продуктов. Нет sources.replay — ничего. seed — seed боя. */
 export function grantReplayIngredients(save: SaveState, seed: number, ctx: object): IngredientGrant {
   const cfg = cfgOf(ctx);
-  if (!cfg) return none(save);
+  const src = cfg?.sources.replay;
+  if (!cfg || !src) return none(save);
   const rng = rngOf('replay', seed);
-  if (rng.next() >= cfg.sources.replay.chance) return none(save);
-  return give(save, rollIngredients(rng, cfg.sources.replay.count, cfg));
+  if (rng.next() >= src.chance) return none(save);
+  return give(save, rollIngredients(rng, src.count, cfg));
 }
 
 /** Сбор сундука: по броску на каждый полный тик (шанс sources.chest.chancePerTick). seed — seed сундука до сбора. */

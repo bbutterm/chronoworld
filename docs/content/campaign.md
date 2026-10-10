@@ -6,7 +6,7 @@
 data/campaign/<глава>.json   глава: этапы по порядку
 data/units/mob_*.json        монстры и боссы (kind monster / boss)
 data/skills/mob_*.json       ульты монстров
-data/progression.json        campaign.enemyStatGrowthPerStage, campaign.replayRewardMultiplier, offline.capHours
+data/progression.json        campaign.enemyStatGrowthPerStage, campaign.replay (false — без повторов), offline.capHours
 ```
 
 ## Формат главы
@@ -247,7 +247,8 @@ seed'ах, и если 3 попытки подряд проиграны — **з
 
 - Первый этап кампании открыт сразу; каждый следующий открывается, когда пройден предыдущий (по `globalIndex`, в том числе через границу глав).
 - Победа при первом прохождении — награда целиком, этап отмечается пройденным, открывается следующий.
-- Повтор пройденного этапа — награда × `replayRewardMultiplier` (с округлением вниз).
+- Пройденный этап больше не сражается (`campaign.replay: false`, решение владельца 10.10.2026): `GameRuleError('stage_cleared')`,
+  экран этапа — только просмотр. При `replay ≠ false` (тесты) повтор — награда × `replayRewardMultiplier` (вниз).
 - Поражение — ничего, кроме счётчика боёв.
 
 ## Рост силы врагов

@@ -5,6 +5,7 @@ import {
   playStage, sanitizeSave, serialize, syncOfflineClock, type SaveState,
 } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
 const ctx = loadFullContext();
 const DAY = '2026-10-07';
@@ -31,7 +32,9 @@ describe('трофеи заработанного сундука после пр
     expect(offlineLoot(after, now + 100 * HOUR, ctx)).toEqual(loot);
     expect(offlineLoot(deserialize(serialize(after)), now, ctx)).toEqual(loot);
     // A replay grants its own rewards without advancing the chest or its random stream.
-    const replay = win(after, 'ch1_s1', now + HOUR);
+    // Выпущенные данные повторы запрещают; при явном replay: true повтор не трогает сундук.
+    expect(() => win(after, 'ch1_s1', now + HOUR)).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
+    const replay = win(after, 'ch1_s1', now + HOUR, withReplay(ctx));
     expect(replay.offline).toEqual(after.offline);
     expect(offlineLoot(replay, now + HOUR, ctx)).toEqual(loot);
   });

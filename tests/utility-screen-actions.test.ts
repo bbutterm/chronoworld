@@ -53,7 +53,13 @@ describe('старое нажатие не выдаёт награду втор�
 
   it('задания и пороги после claimAll не записываются повторно', () => {
     let save = actClaimOffline(late(), NOW, DAY, GAME).save;
-    for (let i = 0; i < 5; i++) save = actPlayStage(save, DAY, 'ch1_s1', 900 + i, GAME, NOW).save;
+    // Пройденные этапы больше не сражаются (stage_cleared): пять боёв дня — попытки на текущем открытом этапе.
+    const open = GAME.content.stages.find((st) => !save.campaign.cleared.includes(st.id))!;
+    for (let i = 0; i < 5; i++) {
+      const out = actPlayStage(save, DAY, open.id, 900 + i, GAME, NOW);
+      save = out.save;
+      if (out.result.winner === 'A') break;
+    }
     state.save = save;
     const quest = questStatus(save, GAME, DAY).quests.find((q) => q.done && !q.claimed)!;
     expect(quest).toBeDefined();

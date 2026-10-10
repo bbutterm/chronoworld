@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, mealExp, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus, replayAllowance } from '../../core';
+import { autoFormation, enemySquad, mealExp, replayAllowed, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
-import { shortfallHint, stageNeeds, stageNo, stageSeed, type StageNeeds } from '../flow';
+import { currentStage, shortfallHint, stageNeeds, stageNo, type StageNeeds } from '../flow';
 import { GAME_W } from '../layout';
 import { COMBAT as COMBAT_CFG } from '../../core';
 import { CONTENT_TOP, cta, powerCompare, screen, updatePowerCompare } from '../screen';
@@ -12,7 +12,7 @@ import { monsterTeaser, roleName } from '../loreView';
 import { ctaShine } from '../decor';
 import { markHint, pickPrepHint } from '../hints';
 import { startStageBattle } from '../dialogue';
-import { squadDefs, type ResultData } from './BattleScene';
+import { squadDefs } from './BattleScene';
 import { mealTag } from '../kitchenEntry';
 import { FormationEditor } from '../squadEditor';
 import { bump } from '../juice';
@@ -66,6 +66,8 @@ export class StageScene extends Phaser.Scene {
   private stageId!: string;
   private editor!: FormationEditor;
   private fightBtns: ButtonView[] = [];
+  /** Кнопки низа без условия «есть отряд» (пройденный этап: «К текущему этапу»). */
+  private footerBtns: ButtonView[] = [];
   private autoHint: Phaser.GameObjects.Container | null = null;
   private power: Phaser.GameObjects.Container | null = null;
   private shortText: Phaser.GameObjects.Text | null = null;
@@ -90,6 +92,7 @@ export class StageScene extends Phaser.Scene {
     this.tacticText = null;
     this.choosingSquad = false;
     this.fightBtns = [];
+    this.footerBtns = [];
     const stage = getStage(GAME, this.stageId);
     // «Назад» — в главу этого этапа, а не в текущую главу игрока.
     const chapter = Math.max(0, CONTENT.chapters.findIndex((c) => c.id === stage.chapter));
@@ -98,15 +101,12 @@ export class StageScene extends Phaser.Scene {
     this.body = new ScrollArea(this, CONTENT_TOP, this.fightY - 120);
     this.body.content.setName('stageBody');
 
-    // --- Награда: один ряд чипов (повтор — уже с множителем повтора) ---
+    // --- Награда: один ряд чипов. Пройденный этап (как в AFK Arena) — только просмотр: «Пройдено» вместо наград ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';
-    const replay = replayAllowance(session.save, today(), GAME);
-    const k = first ? 1 : replay.remaining > 0 ? GAME.progression.campaign.replayRewardMultiplier : 0;
-    const drop = first || replay.remaining > 0 ? stageCardDrop(stage, first, GAME) : undefined;
-    rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(Math.floor(stage.rewards.gold * k), mealExp(Math.floor(stage.rewards.jobExp * k), session.save, today(), GAME), drop), { size: 's' }).setName('stageRewards');
-    if (!first) {
-      if (!replay.remaining) text(this, GAME_W / 2, L.rewardY, 'Тренировка · без добычи', T.caption, COLOR.textSecondary).setName('stagePractice');
-      text(this, GAME_W / 2, L.rewardY + 48, replay.remaining > 0 ? `Добыча за повторы: ещё ${replay.remaining} из ${replay.limit} побед сегодня` : `Сегодня получены все ${replay.limit} наград за повторы`, T.caption, COLOR.textSecondary).setName('stageReplayBudget');
+    if (first) {
+      rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(stage.rewards.gold, mealExp(stage.rewards.jobExp, session.save, today(), GAME), stageCardDrop(stage, true, GAME)), { size: 's' }).setName('stageRewards');
+    } else {
+      tag(this, GAME_W / 2, L.rewardY, 'Пройдено', 'positive', { solid: true }).setName('stageCleared');
     }
 
     // --- Поле (отряд против противника) и список героев ---
@@ -155,22 +155,30 @@ export class StageScene extends Phaser.Scene {
     this.enemyTaps(resolveStageEnemies(stage, session.save.campaignChoices).map((e) => e?.unit ?? null));
     this.editor.addToBody(this.children.list.filter(o => !beforeBody.has(o)));
 
-    if (first) {
+    // Песочница адвансов (повторы включены) сражается и на пройденных этапах — одной кнопкой «В бой», без бюджета наград.
+    if (first || replayAllowed(GAME)) {
       const fight = cta(this, GAME_W / 2, this.fightY, 'В бой', () => this.fight(), { w: 640 });
       ctaShine(this, fight.container, 640, 140);
       this.fightBtns = [fight];
     } else {
-      // K7: пройденный этап можно повторить с просмотром боя или сразу получить итог.
-      const skip = button(this, GAME_W / 2 - 260, this.fightY, 460, BTN.cta, '', 'Быстрый бой', () => this.skipBattle(), T.body, { variant: 'secondary' });
-      const again = cta(this, GAME_W / 2 + 250, this.fightY, replay.remaining > 0 ? 'Повторить' : 'Тренировка', () => this.fight(), { w: 480, h: BTN.cta });
-      this.fightBtns = [skip, again];
+      // Пройденный этап не сражается (progression.campaign.replay: false): одна вторичная кнопка — к текущему этапу.
+      const cur = currentStage(session.save, GAME);
+      const toCurrent = cur && cur.id !== this.stageId && stageStatus(session.save, cur.id, GAME) === 'open' ? cur : undefined;
+      const go = button(this, GAME_W / 2, this.fightY, 640, BTN.cta, '', toCurrent ? 'К текущему этапу' : 'К кампании', () => {
+        if (toCurrent) this.scene.start('Stage', { stageId: toCurrent.id });
+        else this.scene.start('Campaign', { chapter });
+      }, T.body, { variant: 'secondary' });
+      go.container.setName('stageToCurrent');
+      this.fightBtns = [];
+      this.footerBtns = [go];
     }
     this.onSquadChange();
     // R: подсказка новичку — первый бой. После отряда: hintPointer обходит все кнопки, слоты и карточки сцены.
     // Обучение: после Таверны сильнейшие герои вне отряда — сначала «Авто» (prep_auto), иначе «В бой».
     const ids = (sq: readonly (string | null)[]) => JSON.stringify(sq.filter(Boolean).sort());
     const benchStronger = ids(autoFormation(session.save, GAME)) !== ids(session.save.squad);
-    const hint = pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone });
+    // Пройденный этап — только просмотр: подсказок подготовки к бою там нет.
+    const hint = first ? pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone }) : null;
     if (hint === 'prep_auto') {
       this.body.offset = Math.max(0, L.rosterHeadY - (this.fightY - 280));
       this.autoHint = tutorialHint(this, hint, autoX, L.rosterHeadY - this.body.offset, 'above', { w: 220, h: BTN.m });
@@ -188,7 +196,7 @@ export class StageScene extends Phaser.Scene {
     let footerY = this.fightY;
     onViewChange(this, () => {
       const delta = this.fightY - footerY;
-      for (const b of this.fightBtns) b.container.setY(this.fightY);
+      for (const b of [...this.fightBtns, ...this.footerBtns]) b.container.setY(this.fightY);
       if (fightHint?.scene) fightHint.y += delta;
       footerY = this.fightY;
       this.editor.setBodyBounds(CONTENT_TOP, this.fightY - 120);
@@ -290,24 +298,5 @@ export class StageScene extends Phaser.Scene {
     markHint('stage_fight');
     // Сюжет перед первым боем этапа (и вступление главы) — потом бой.
     startStageBattle(this, this.stageId);
-  }
-
-  /** K7: бой считается без проигрывания — сразу экран итогов. */
-  private skipBattle(): void {
-    const save = session.save;
-    if (!save.squad.some(Boolean)) {
-      toast(this, 'Поставьте в отряд хотя бы одного героя');
-      return;
-    }
-    try {
-      const outcome = actSkipStage(save, today(), this.stageId, stageSeed(save), GAME);
-      const defs = squadDefs(save);
-      for (const u of enemySquad(this.stageId, GAME, outcome.save.campaignChoices)) if (u) defs[u.id] = u;
-      commit(outcome.save);
-      markHint('stage_fight');
-      this.scene.start('Result', { result: outcome.result, defs, stage: { stageId: this.stageId, outcome, skipped: true } } satisfies ResultData);
-    } catch (e) {
-      toast(this, e instanceof Error ? e.message : String(e), C.error);
-    }
   }
 }

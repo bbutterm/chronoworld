@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { actPlayStage, actSkipStage, deserialize, newGame, playStage, repeatStage, replayAllowance, serialize, skipStage, type SaveState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
+import { withReplay } from './helpers';
 
-const base = loadFullContext();
+// Выпущенные данные повторы запрещают (campaign.replay: false; tests/campaign-no-replay.test.ts). Код дневного бюджета
+// повторов остаётся для контекстов с replay ≠ false — проверяем его на явно разрешённых повторах (как было до 10.10).
+const base = withReplay(loadFullContext());
 const ctx = {
   ...base,
   cards: { ...base.cards, heroCards: { ...base.cards.heroCards, replay: { blue: 1, purple: 1 } } },
