@@ -13,7 +13,7 @@ import { button, ellipsize, iconOf, plate, pressable, ScrollArea, SURFACE, tag, 
 import { hintDone } from '../hints';
 import { C, COLOR, hexNum, M, R, S, T, TOUCH, TOUCH_COMFORT, Z } from '../theme';
 import { cardIcon, drawHeroCard, heroCardIcon, heroCardSize, LINES, rarityColor, rarityName, ROLES } from '../heroCard';
-import { collectionCount, collectionHeroes, groupCopies, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
+import { collectionCount, collectionHeroes, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
 import { heroStoryNew, toastOpenedStories } from '../heroStoryView';
 import { lockLabel } from '../unlockBanner';
 import { openBranchPicker } from '../branchPicker';
@@ -152,8 +152,8 @@ export class HeroesScene extends Phaser.Scene {
       this.area.setBounds(listTop, contentBottom() + 10);
       ascendAllButton?.setY(contentBottom() - TOUCH_COMFORT / 2 - S.xs);
     });
-    // Копии одного героя — одной плиткой (лучший экземпляр) с «+N»; все экземпляры — на карточке и в корме вознесения.
-    const groups = groupCopies(collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)), save.squad);
+    // Каждая копия — своей плиткой (решение владельца 10.10): копии сливаются только по «Вознести», не в списке.
+    const groups = collectionHeroes(save, f, heroesUi.sort, GAME, (h) => heroPower(h, gctx)).map((hero) => ({ hero, copies: 1 }));
     const heroes = groups.map((g) => g.hero);
     heroesUi.order = heroes.map((h) => h.id);
     const picks = pendingPicks(save);
