@@ -60,3 +60,50 @@ export function revokePack(urls: Map<string, string>): void {
 }
 
 export const packPath = clean;
+
+/** Место значка в листе пакета: [лист — путь в пакете, x, y, w, h] (scripts/lib/boot-sheets.ts). */
+export type SheetSlot = [sheet: string, x: number, y: number, w: number, h: number];
+
+/** Значок склеен в лист пакета загрузки — где он там лежит (или undefined: обычный файл). */
+export function sheetSlot(pack: AssetPack, path: string): SheetSlot | undefined {
+  return pack.sheets?.[clean(path)];
+}
+
+/**
+ * Листы значков из пакета: одна картинка на лист, декодируется один раз (а не картинка на каждый значок).
+ * null — лист не загрузился (значки тогда грузятся отдельными файлами).
+ */
+export function sheetLoader(urls: ReadonlyMap<string, string>): (sheet: string) => Promise<HTMLImageElement | null> {
+  const images = new Map<string, Promise<HTMLImageElement | null>>();
+  return (sheet) => {
+    let p = images.get(sheet);
+    if (!p) {
+      const url = urls.get(sheet);
+      p = url
+        ? new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => void img.decode().then(() => resolve(img), () => resolve(img));
+            img.onerror = () => resolve(null);
+            img.src = url;
+          })
+        : Promise.resolve(null);
+      images.set(sheet, p);
+    }
+    return p;
+  };
+}
+
+/**
+ * Значок из листа — отдельный canvas его размера (Phaser делает из него текстуру под ключом значка, как из картинки).
+ * Пиксели те же: в листах только непрозрачные и полностью прозрачные пиксели, canvas их не меняет.
+ */
+export function sheetPiece(img: HTMLImageElement, [, x, y, w, h]: SheetSlot): HTMLCanvasElement | null {
+  if (x + w > img.width || y + h > img.height) return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+  return canvas;
+}

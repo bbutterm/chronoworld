@@ -106,7 +106,12 @@ game.events.once(Phaser.Core.Events.READY, () => {
 });
 
 // U: пауза, когда игру не видно (вкладка скрыта, окно без фокуса, Mini App свёрнут), и ограничение FPS.
-const lifecycle = installLifecycle(game.loop as unknown as LoopLike, fps.cap);
+// Экран загрузки — только полоса и надписи: пока он на экране, кадров не больше BOOT_FPS. Каждый кадр Phaser
+// (шаг сцены + отрисовка) занимает главный поток, а он нужен загрузчику: ~320 картинок пакета, их декодирование
+// и текстуры. На CPU ×4 загрузка пакета шла ~4 с при 60 FPS (docs/qa/load-2026-10-10.md). После экрана загрузки —
+// ограничение из настроек.
+const BOOT_FPS = 10;
+const lifecycle = installLifecycle(game.loop as unknown as LoopLike, Math.min(fps.cap, BOOT_FPS));
 
 // T3-01: телефон повёрнут — поверх игры заглушка «Поверните телефон» (index.html), игра стоит на паузе, пока её не видно.
 const landscape = window.matchMedia(LANDSCAPE_PHONE);
@@ -117,6 +122,8 @@ landscape.addEventListener('change', onOrientation);
 game.events.once(Phaser.Core.Events.READY, () =>
   game.scene.getScene('Boot')?.sys.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
     booted = true;
+    // Не из середины шага Phaser (выключение сцены идёт внутри него): ограничитель перезапускает цикл.
+    window.setTimeout(() => lifecycle.setFpsCap(fps.cap), 0);
     onOrientation();
   }),
 );
