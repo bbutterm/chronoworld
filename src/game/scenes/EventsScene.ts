@@ -196,7 +196,11 @@ export class EventsScene extends Phaser.Scene {
     let height = 0;
     const parts = collect(this.children, () => {
       let y = 0;
-      if (this.tab === 'login') this.banner(login.name, login.days[login.days.length - 1], { label: `День ${login.loginDays} из ${login.days.length}`, tone: 'neutral' }, y);
+      if (this.tab === 'login') {
+        // Цикл «Ежедневный вход» после календаря: неделя цикла и день недели.
+        const label = login.cycle ? `Неделя ${login.cycle.week}, день ${login.cycle.today} из ${login.days.length}` : `День ${login.loginDays} из ${login.days.length}`;
+        this.banner(login.name, login.days[login.days.length - 1], { label, tone: 'neutral' }, y);
+      }
       else {
         const final = nb.milestones[nb.milestones.length - 1];
         const when = !nb.active ? { label: 'Последний шанс', tone: 'warning' as Tone } : { label: nb.daysLeft === 0 ? 'Последний день' : daysText(nb.daysLeft), tone: 'neutral' as Tone };
@@ -246,8 +250,8 @@ export class EventsScene extends Phaser.Scene {
   private loginTab(st: LoginStatus, top: number): number {
     const rows: Phaser.GameObjects.GameObject[][] = [[], []];
     for (const d of st.days) {
-      const pos = loginTilePos(d.day, top);
-      rows[d.day <= EV_L.cols ? 0 : 1].push(...collect(this.children, () => this.dayTile(d, st, pos.x, pos.y, pos.w)));
+      const pos = loginTilePos(d.slot, top);
+      rows[d.slot <= EV_L.cols ? 0 : 1].push(...collect(this.children, () => this.dayTile(d, st, pos.x, pos.y, pos.w)));
     }
     staggerIn(this, 'Events:login', rows);
     return top + Math.ceil(st.days.length / EV_L.cols) * (EV_L.tileH + S.s);

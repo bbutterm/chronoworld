@@ -142,14 +142,17 @@ describe('«Вход 7 дней»', () => {
     expect(loginStatus(r.save, D1, ctx).claimable).toBe(0);
     expectCode(() => claimLogin(r.save, D1, 1, ctx), 'login_claimed');
     expectCode(() => claimLogin(r.save, D1, 2, ctx), 'login_locked');
-    expectCode(() => claimLogin(r.save, D1, 99, ctx), 'unknown_login_day');
+    // День 99 теперь существует (цикл «Ежедневный вход», daily-loop-2026-10-10) — но ещё не наступил.
+    expectCode(() => claimLogin(r.save, D1, 99, ctx), 'login_locked');
+    expectCode(() => claimLogin(r.save, D1, 0, ctx), 'unknown_login_day');
+    expectCode(() => claimLogin(r.save, D1, 1.5, ctx), 'unknown_login_day');
     // Следующий день: claimLogin сам засчитывает вход.
     const r2 = claimLogin(r.save, day(1), 2, ctx);
     expect(r2.save.currency.gems).toBe(r.save.currency.gems + (ctx.events.login.days[1].rewards.gems ?? 0));
     expect(saveProblems(r2.save, ctx)).toEqual([]);
   });
 
-  it('день 7 — «Контракт героя» (фиолетовый на выбор, pendingPicks); после всех дней календарь закончен', () => {
+  it('день 7 — «Контракт героя» (фиолетовый на выбор, pendingPicks); после всех дней — цикл «Ежедневный вход»', () => {
     let s = fresh();
     for (let i = 1; i < 7; i++) s = touchEvents(s, day(i * 2), ctx); // заходит через день — всё равно 7 дней входа
     expect(loginStatus(s, day(12), ctx).claimable).toBe(7);
@@ -161,10 +164,95 @@ describe('«Вход 7 дней»', () => {
     const picked = claimHeroPick(s, 0, 'meilin', 'hunter', ctx);
     expect(picked.save.heroes.at(-1)).toMatchObject({ templateId: 'meilin', rarity: 'purple', branch: 'hunter', level: 1, isNew: true });
     expect(picked.save.summon.discovered).toContain('meilin');
+    // Календарь пройден — вход продолжается неделями цикла (daily-loop-2026-10-10): значок события не пропадает.
     const st = loginStatus(s, day(12), ctx);
-    expect(st.done).toBe(true);
-    expect(eventsBadges(s, day(12), ctx).loginVisible).toBe(false);
+    expect(st.done).toBe(false);
+    expect(st.name).toBe(ctx.events.login.cycle!.name);
+    expect(st.cycle).toEqual({ week: 1, today: 0 });
+    expect(st.days.map((d) => d.day)).toEqual([8, 9, 10, 11, 12, 13, 14]);
+    expect(st.claimable).toBe(0);
+    expect(eventsBadges(s, day(12), ctx).loginVisible).toBe(true);
     expect(saveProblems(s, ctx)).toEqual([]);
+  });
+
+  it('без login.cycle календарь заканчивается, как раньше', () => {
+    const noCycle = { ...ctx, events: { ...ctx.events, login: { name: ctx.events.login.name, days: ctx.events.login.days } } };
+    let s = fresh();
+    for (let i = 1; i < 9; i++) s = touchEvents(s, day(i), noCycle);
+    for (let n = 1; n <= 7; n++) s = claimLogin(s, day(8), n, noCycle).save;
+    expect(loginStatus(s, day(8), noCycle)).toMatchObject({ done: true, claimable: 0 });
+    expect(loginStatus(s, day(8), noCycle).cycle).toBeUndefined();
+    expectCode(() => claimLogin(s, day(8), 8, noCycle), 'unknown_login_day');
+    expect(eventsBadges(s, day(8), noCycle).loginVisible).toBe(false);
+  });
+});
+
+describe('«Ежедневный вход» — цикл после календаря', () => {
+  const cycle = ctx.events.login.cycle!;
+  /** Вошёл n разных дней подряд (D1…D1+n−1). */
+  const loggedIn = (n: number): SaveState => {
+    let s = fresh();
+    for (let i = 1; i < n; i++) s = touchEvents(s, day(i), ctx);
+    return s;
+  };
+  const claimBase = (s: SaveState, d: string) => {
+    for (let n = 1; n <= ctx.events.login.days.length; n++) s = claimLogin(s, d, n, ctx).save;
+    return s;
+  };
+
+  it('цикл есть: 7 дней, гемы и свитки за неделю в бюджете (≤ 80 гемов и ≤ 3 свитков)', () => {
+    expect(cycle.days).toHaveLength(7);
+    const gems = cycle.days.reduce((a, d) => a + (d.rewards.gems ?? 0), 0);
+    const scrolls = cycle.days.reduce((a, d) => a + (d.rewards.scrolls ?? 0), 0);
+    expect(gems).toBeGreaterThan(0);
+    expect(gems).toBeLessThanOrEqual(80);
+    expect(scrolls).toBeLessThanOrEqual(3);
+    // Без героев и контрактов: цикл не ломает экономику карточек.
+    expect(cycle.days.every((d) => !d.rewards.heroPicks && !d.rewards.heroes && !d.rewards.heroCards)).toBe(true);
+  });
+
+  it('пока календарь не забран, цикла не видно и его дни не забрать', () => {
+    const s = loggedIn(9);
+    const st = loginStatus(s, day(8), ctx);
+    expect(st.cycle).toBeUndefined();
+    expect(st.claimable).toBe(7);
+    expectCode(() => claimLogin(s, day(8), 8, ctx), 'login_locked');
+  });
+
+  it('день 8 — первый день цикла; день недели цикла по счёту входов; награда как в cycle.days', () => {
+    let s = claimBase(loggedIn(9), day(8));
+    const st = loginStatus(s, day(8), ctx);
+    expect(st.cycle).toEqual({ week: 1, today: 2 });
+    expect(st.days.filter((d) => d.ready).map((d) => d.day)).toEqual([8, 9]);
+    expect(st.days.map((d) => d.slot)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    const before = s.resources.gold;
+    s = claimLogin(s, day(8), 8, ctx).save;
+    expect(s.resources.gold).toBe(before + (cycle.days[0].rewards.gold ?? 0));
+    expectCode(() => claimLogin(s, day(8), 8, ctx), 'login_claimed');
+    expectCode(() => claimLogin(s, day(8), 10, ctx), 'login_locked');
+    expect(saveProblems(s, ctx)).toEqual([]);
+  });
+
+  it('неделя сменилась — незабранные дни прошлой недели сгорают, loginClaimed не растёт', () => {
+    let s = claimBase(loggedIn(15), day(14)); // 15 дней входа: неделя 2 цикла, её первый день — 15
+    let st = loginStatus(s, day(14), ctx);
+    expect(st.cycle).toEqual({ week: 2, today: 1 });
+    expect(st.days[0].day).toBe(15);
+    expectCode(() => claimLogin(s, day(14), 9, ctx), 'login_expired');
+    s = claimLogin(s, day(14), 15, ctx).save;
+    // Ещё 7 дней: неделя 3, прошлые номера цикла убраны при получении.
+    for (let i = 15; i < 22; i++) s = touchEvents(s, day(i), ctx);
+    st = loginStatus(s, day(21), ctx);
+    expect(st.cycle).toEqual({ week: 3, today: 1 });
+    s = claimLogin(s, day(21), 22, ctx).save;
+    expect(s.events!.loginClaimed).toEqual([1, 2, 3, 4, 5, 6, 7, 22]);
+    expect(saveProblems(s, ctx)).toEqual([]);
+  });
+
+  it('сохранение с днями цикла читается (v7, только существующие поля)', () => {
+    const s = claimLogin(claimBase(loggedIn(8), day(7)), day(7), 8, ctx).save;
+    expect(s.version).toBe(SAVE_VERSION);
+    expect(deserialize(serialize(s)).events).toEqual(s.events);
   });
 });
 

@@ -166,9 +166,10 @@ export function actClaimActivity(
   return recordLevelUps(claimActivity(save, day, milestone, ctx), day);
 }
 
-/** K9. claimExpedition (опыт — в пул, карты — случайным героям, предметы — в инвентарь). */
+/** K9. claimExpedition (опыт — в пул, карты — случайным героям, предметы — в инвентарь) + expedition_claim. */
 export function actClaimExpedition(save: SaveState, day: string, locationId: string, now: number, ctx: ExpeditionContext): ReturnType<typeof claimExpedition> {
-  return recordLevelUps(claimExpedition(save, locationId, now, ctx), day);
+  const out = recordLevelUps(claimExpedition(save, locationId, now, ctx), day);
+  return { ...out, save: recordActivity(out.save, day, 'expedition_claim') };
 }
 
 /** K10. claimAchievement (jobExp — в пул, карты героя — случайным героям). */
@@ -181,9 +182,10 @@ export function actClaimAllQuests(save: SaveState, day: string, ctx: FeatureCont
   return recordLevelUps(claimAllQuests(save, day, ctx), day);
 }
 
-/** «Забрать всё» экспедиций: claimAllExpeditions (все вернувшиеся к now). */
+/** «Забрать всё» экспедиций: claimAllExpeditions (все вернувшиеся к now) + expedition_claim по числу экспедиций. */
 export function actClaimAllExpeditions(save: SaveState, day: string, now: number, ctx: ExpeditionContext): ReturnType<typeof claimAllExpeditions> {
-  return recordLevelUps(claimAllExpeditions(save, now, ctx), day);
+  const out = recordLevelUps(claimAllExpeditions(save, now, ctx), day);
+  return out.claimed.length ? { ...out, save: recordActivity(out.save, day, 'expedition_claim', out.claimed.length) } : out;
 }
 
 /** «Забрать всё» достижений: claimAllAchievements. */

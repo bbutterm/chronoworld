@@ -1,5 +1,6 @@
 import { buildContent, COMBAT, rarityForLevel, type CardRarity, type CombatConfig, type Content, type GameContext, type HeroState } from '../src/core';
 import type { Unit } from '../src/core';
+import { featureStage, recordActivity, rollDay, type FeatureContext, type QuestDef, type SaveState } from '../src/core';
 
 // ---------- Карточки героев (docs/design/heroes.md) ----------
 
@@ -112,4 +113,22 @@ export function unit(side: 'A' | 'B', slot: number, x: number, y: number, patch:
     bh: { name: 'Держит линию' },
     ...patch,
   };
+}
+
+// ---------- Задания дня (docs/design/daily-loop-2026-10-10.md) ----------
+
+/**
+ * Сохранение, где выполнены задания quests на день day: функции заданий (unlock) открыты — их этапы пройдены,
+ * записываемые виды — recordActivity, производные (Охота, Лавка, Арена) — их суточное состояние на day.
+ */
+export function withQuestsDone(save: SaveState, day: string, ctx: FeatureContext, quests: readonly QuestDef[] = ctx.features.quests.quests): SaveState {
+  const stages = quests.flatMap((q) => (q.unlock ? [featureStage(q.unlock, ctx)] : [])).filter((x): x is string => !!x);
+  let s: SaveState = rollDay({ ...save, campaign: { ...save.campaign, cleared: [...new Set([...save.campaign.cleared, ...stages])] } }, day);
+  for (const q of quests) {
+    if (q.event === 'hunt_attempt') s = { ...s, hunt: { day, used: q.target, best: { ...(s.hunt?.best ?? {}) } } };
+    else if (q.event === 'shop_buy') s = { ...s, shop: { day, refreshes: 0, slots: [], boughtToday: { test: q.target } } };
+    else if (q.event === 'arena_wins') s = { ...s, autobattler: { seq: 0, bestWins: q.target, completed: 1, rewardDay: day, rewardWins: q.target } };
+    else s = recordActivity(s, day, q.event, q.target);
+  }
+  return s;
 }

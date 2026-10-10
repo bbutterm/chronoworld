@@ -8,7 +8,6 @@ import {
   claimAllQuests,
   newGame,
   questStatus,
-  recordActivity,
   trackAchievement,
   withFeatures,
   withMeta,
@@ -16,6 +15,7 @@ import {
 } from '../src/core';
 import { towerBadgeCount } from '../src/game/flow';
 import { loadGameContext } from '../scripts/lib/content-node';
+import { withQuestsDone } from './helpers';
 
 const root = join(import.meta.dirname, '..');
 const read = (f: string) => JSON.parse(readFileSync(join(root, f), 'utf8'));
@@ -27,8 +27,7 @@ const D1 = '2026-09-26';
 
 describe('«Забрать всё» заданий и достижений', () => {
   it('claimAllQuests: все выполненные задания, затем все пороги, до которых добрали очки', () => {
-    let s = newGame(ctx, 0, D1);
-    for (const q of ctx.features.quests.quests) s = recordActivity(s, D1, q.event, q.target);
+    const s = withQuestsDone(newGame(ctx, 0, D1), D1, ctx);
     const r = claimAllQuests(s, D1, ctx);
     expect(r.quests).toEqual(ctx.features.quests.quests.map((q) => q.id));
     const max = ctx.features.quests.quests.reduce((n, q) => n + q.points, 0);
@@ -50,7 +49,7 @@ describe('«Забрать всё» заданий и достижений', () 
 
   it('claimAllQuests: невыполненные задания не трогает', () => {
     const q = ctx.features.quests.quests[0];
-    const s = recordActivity(newGame(ctx, 0, D1), D1, q.event, q.target);
+    const s = withQuestsDone(newGame(ctx, 0, D1), D1, ctx, [q]);
     const r = claimAllQuests(s, D1, ctx);
     expect(r.quests).toEqual(ctx.features.quests.quests.filter((x) => x.event === q.event && x.target <= q.target).map((x) => x.id));
   });

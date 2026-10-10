@@ -672,7 +672,7 @@ export function untilReset(now: Date): string {
 }
 
 /** Куда вести игрока, чтобы выполнить задание. */
-export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | 'Heroes' | 'Tower' {
+export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | 'Heroes' | 'Tower' | 'Expeditions' | 'Hunt' | 'Shop' | 'Autobattler' {
   switch (event) {
     case 'stage_win':
     case 'stage_attempt':
@@ -687,6 +687,14 @@ export function questDestination(event: ActivityKind): 'Campaign' | 'Tavern' | '
       return 'Heroes';
     case 'tower_attempt':
       return 'Tower';
+    case 'expedition_claim':
+      return 'Expeditions';
+    case 'hunt_attempt':
+      return 'Hunt';
+    case 'shop_buy':
+      return 'Shop';
+    case 'arena_wins':
+      return 'Autobattler';
   }
 }
 

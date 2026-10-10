@@ -7,6 +7,7 @@ export type FeatureErrorCode =
   | 'no_income'
   | 'unknown_quest'
   | 'quest_not_done'
+  | 'quest_locked'
   | 'quest_already_claimed'
   | 'unknown_milestone'
   | 'not_enough_activity'

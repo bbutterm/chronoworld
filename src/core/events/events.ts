@@ -29,6 +29,7 @@ export function validateEventsConfig(cfg: EventsConfig, ctx: GameContext, proble
     for (const t of r.heroes ?? []) if (!ctx.content.heroes[t]) problems.push(`data/events.json: ${where}: карточки героя «${t}» нет в data/heroes`);
   };
   cfg.login.days.forEach((d, i) => check(`login.days[${i}]`, d.rewards));
+  cfg.login.cycle?.days.forEach((d, i) => check(`login.cycle.days[${i}]`, d.rewards));
   cfg.newbie.milestones.forEach((m, i) => check(`newbie.milestones[${i}]`, m.rewards));
   cfg.mail.letters.forEach((l) => {
     check(`mail.letters ${l.id}`, l.rewards);
@@ -91,8 +92,10 @@ export function touchEvents(save: SaveState, day: string, ctx: EventsContext): S
 // ---------- «Вход 7 дней» ----------
 
 export interface LoginDayView {
-  /** Номер дня 1…N. */
+  /** Номер дня входа 1…N (для claimLogin); в цикле «Ежедневный вход» — сквозной (8, 9, …). */
   day: number;
+  /** Место плитки 1…7 на экране: в календаре — тот же day, в цикле — день недели цикла. */
+  slot: number;
   rewards: RewardBundle;
   label?: string;
   /** День входа уже наступил (игрок открывал игру столько разных дней). */
@@ -104,45 +107,91 @@ export interface LoginDayView {
 
 export interface LoginStatus {
   name: string;
-  /** Засчитано дней входа (не больше числа дней календаря). */
+  /**
+   * Засчитано дней входа: в календаре — не больше числа его дней, в цикле — сквозное число (как day плиток, для
+   * подписи «Завтра»).
+   */
   loginDays: number;
   days: LoginDayView[];
   /** Сколько дней можно забрать сейчас (красный кружок). */
   claimable: number;
-  /** Все награды получены — календарь закончен. */
+  /** Все награды получены — календарь закончен (с циклом «Ежедневный вход» — никогда). */
   done: boolean;
+  /** Идёт цикл «Ежедневный вход»: week — номер недели цикла (1…), today — день недели сегодня (1…длина цикла). */
+  cycle?: { week: number; today: number };
+}
+
+/** Неделя цикла (0…) и её первый сквозной день входа для дня входа n (n > дней календаря). */
+function cycleWeek(n: number, base: number, len: number): { index: number; start: number } {
+  const index = Math.floor((n - base - 1) / len);
+  return { index, start: base + 1 + index * len };
 }
 
 export function loginStatus(save: SaveState, day: string, ctx: EventsContext): LoginStatus {
   const ev = stateOf(save, day);
   const cfg = ctx.events.login;
-  const days = cfg.days.map((d, i): LoginDayView => {
-    const n = i + 1;
+  const view = (n: number, slot: number, d: (typeof cfg.days)[number]): LoginDayView => {
     const reached = n <= ev.loginDays;
     const claimed = ev.loginClaimed.includes(n);
-    return { day: n, rewards: d.rewards, ...(d.label ? { label: d.label } : {}), reached, claimed, ready: reached && !claimed };
-  });
+    return { day: n, slot, rewards: d.rewards, ...(d.label ? { label: d.label } : {}), reached, claimed, ready: reached && !claimed };
+  };
+  const base = cfg.days.map((d, i) => view(i + 1, i + 1, d));
+  const baseDone = base.every((d) => d.claimed);
+  if (!baseDone || !cfg.cycle) {
+    return {
+      name: cfg.name,
+      loginDays: Math.min(ev.loginDays, cfg.days.length),
+      days: base,
+      claimable: base.filter((d) => d.ready).length,
+      done: baseDone,
+    };
+  }
+  const len = cfg.cycle.days.length;
+  // Неделя цикла — та, в которую попадает сегодняшний день входа (до первого дня цикла — первая неделя).
+  const w = cycleWeek(Math.max(ev.loginDays, cfg.days.length + 1), cfg.days.length, len);
+  const days = cfg.cycle.days.map((d, i) => view(w.start + i, i + 1, d));
   return {
-    name: cfg.name,
-    loginDays: Math.min(ev.loginDays, cfg.days.length),
+    name: cfg.cycle.name,
+    loginDays: ev.loginDays,
     days,
     claimable: days.filter((d) => d.ready).length,
-    done: days.every((d) => d.claimed),
+    done: false,
+    cycle: { week: w.index + 1, today: Math.max(0, Math.min(len, ev.loginDays - w.start + 1)) },
   };
 }
 
+/** Награда дня входа n: день календаря или день цикла (undefined — такого дня нет). */
+function loginDayDef(n: number, ctx: EventsContext): EventsConfig['login']['days'][number] | undefined {
+  const cfg = ctx.events.login;
+  if (!Number.isInteger(n) || n < 1) return undefined;
+  if (n <= cfg.days.length) return cfg.days[n - 1];
+  if (!cfg.cycle) return undefined;
+  return cfg.cycle.days[(n - cfg.days.length - 1) % cfg.cycle.days.length];
+}
+
 /**
- * Забрать награду дня входа n (1…N). Сначала touchEvents(day). Порядок не важен — любой наступивший день.
- * EventError: unknown_login_day, login_locked, login_claimed.
+ * Забрать награду дня входа n. Сначала touchEvents(day). Календарь (1…N) — любой наступивший день в любом порядке.
+ * Цикл «Ежедневный вход» (n > N) — только после всего календаря и только дни текущей недели цикла; при получении
+ * номера прошлых недель цикла убираются из loginClaimed (сохранение не растёт).
+ * EventError: unknown_login_day, login_locked, login_claimed, login_expired.
  */
 export function claimLogin(save: SaveState, day: string, n: number, ctx: EventsContext): { save: SaveState; rewards: RewardBundle; events: EventRewardEvent[] } {
   const s = touchEvents(save, day, ctx);
   const ev = s.events!;
-  const def = ctx.events.login.days[n - 1];
-  if (!def || !Number.isInteger(n)) throw new EventError('unknown_login_day', `Нет дня входа ${n}`);
+  const def = loginDayDef(n, ctx);
+  if (!def) throw new EventError('unknown_login_day', `Нет дня входа ${n}`);
   if (ev.loginClaimed.includes(n)) throw new EventError('login_claimed', `Награда дня ${n} уже получена`);
   if (n > ev.loginDays) throw new EventError('login_locked', `День ${n} ещё не наступил: заходите в игру каждый день (сейчас дней входа: ${ev.loginDays})`);
-  const out = grantRewards({ ...s, events: { ...ev, loginClaimed: [...ev.loginClaimed, n].sort((a, b) => a - b) } }, def.rewards, ctx, `login_${n}`);
+  let claimed = [...ev.loginClaimed, n];
+  const base = ctx.events.login.days.length;
+  if (n > base) {
+    const st = loginStatus(s, day, ctx);
+    if (!st.cycle) throw new EventError('login_locked', 'Сначала заберите все награды календаря входа');
+    if (!st.days.some((d) => d.day === n)) throw new EventError('login_expired', `Награда дня ${n} сгорела: неделя ежедневного входа уже сменилась`);
+    const start = st.days[0].day;
+    claimed = claimed.filter((x) => x <= base || x >= start);
+  }
+  const out = grantRewards({ ...s, events: { ...ev, loginClaimed: claimed.sort((a, b) => a - b) } }, def.rewards, ctx, `login_${n}`);
   return { save: syncAchievementCounters(out.save), rewards: def.rewards, events: out.events };
 }
 
