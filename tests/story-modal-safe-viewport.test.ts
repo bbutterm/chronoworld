@@ -10,7 +10,7 @@ vi.mock('phaser', () => ({ default: {
   Scenes: { Events: { PRE_UPDATE: 'preupdate', SHUTDOWN: 'shutdown' } }, BlendModes: { ADD: 1 },
   Math: { Clamp: (v: number, a: number, b: number) => Math.max(a, Math.min(b, v)), Vector2: class { constructor(public x: number, public y: number) {} } },
 } }));
-vi.mock('../src/game/audio', () => ({ sfx: vi.fn() }));
+vi.mock('../src/game/audio', () => ({ sfx: vi.fn(), playVoiceFile: vi.fn(async () => null), stopVoiceFile: vi.fn() }));
 vi.mock('../src/game/haptics', () => ({ haptic: vi.fn() }));
 vi.mock('../src/game/session', () => ({ session: { get save() { return h.save; } }, commit: (s: SaveState) => { h.save = s; h.commits(s); } }));
 vi.mock('../src/game/viewport', async (original) => ({ ...await original<typeof import('../src/game/viewport')>(), view: () => h.current, minimumFontSize: () => Math.ceil(12 * h.current.worldW / h.current.cssW), minimumTouchSize: () => Math.ceil(44 * h.current.worldW / h.current.cssW) }));

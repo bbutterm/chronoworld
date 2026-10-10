@@ -46,6 +46,7 @@ import { minimumTouchSize, onViewChange, view, worldPoint } from '../viewport';
 import { setTgBack } from '../telegram';
 import { eveningChoiceBounds, eveningCreditPreview, eveningDialogueLayout, eveningModalLayout, eveningPreviewRowHeight, eveningSectionLayout } from '../compactEveningLayout';
 import { tr } from '../locale';
+import { hush, speak } from '../voice';
 
 export const TAVERN_EVENING = 'TavernEvening';
 /** Имя слоя плашки вечера (e2e и скриншоты). Не 'dialogue' — дымовые прогоны листают только сюжетные сцены. */
@@ -169,6 +170,8 @@ export class TavernEveningScene extends Phaser.Scene {
       if (!closeTopModal(this)) this.leave();
     });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, offBack);
+    // Ушли с вечера (назад, конец, переход) — озвучка не звучит над другим экраном.
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, hush);
   }
 
   private ambience(): void {
@@ -318,6 +321,7 @@ export class TavernEveningScene extends Phaser.Scene {
     const end = () => {
       if (closed) return;
       closed = true;
+      hush();
       typer?.remove();
       layer.destroy();
       intro.destroy();
@@ -349,6 +353,7 @@ export class TavernEveningScene extends Phaser.Scene {
       table.focus(l.speaker);
       full = tr(l.text);
       if (lineChimes(l.text)) sfx('bell_chime', { delay: 0.2 });
+      void speak(l.text);
       shown = 0;
       body.setText('');
       bodyArea.offset = 0;
@@ -394,6 +399,7 @@ export class TavernEveningScene extends Phaser.Scene {
       faceOf = undefined;
       placeName(false);
       full = tr(c.prompt);
+      void speak(c.prompt);
       shown = full.length;
       body.setText(full);
       bodyArea.offset = 0;

@@ -41,7 +41,7 @@ const h = vi.hoisted(() => {
 vi.mock('phaser', () => ({ default: { BlendModes: { ADD: 1 }, Scenes: { Events: { SHUTDOWN: 'shutdown' } }, GameObjects: { Events: { DESTROY: 'destroy' } } } }));
 vi.mock('../src/game/content', async () => ({ GAME: (await import('../scripts/lib/content-node')).loadFullContext() }));
 vi.mock('../src/game/session', () => ({ session: { get save() { return h.save; } }, commit: (save: SaveState) => { h.save = save; h.commits.push(save); } }));
-vi.mock('../src/game/audio', () => ({ sfx: () => {} }));
+vi.mock('../src/game/audio', () => ({ sfx: () => {}, playVoiceFile: async () => null, stopVoiceFile: () => {} }));
 vi.mock('../src/game/illust', () => ({ illustKey: (id: string) => id, loadIllust: async () => false }));
 vi.mock('../src/game/skin', () => ({ SKIN: { cream: '#fff' } }));
 vi.mock('../src/game/portraitFrame', () => ({ framedPortrait: () => new h.Node() }));

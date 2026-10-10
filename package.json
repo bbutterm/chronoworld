@@ -28,7 +28,8 @@
     "playthrough": "tsx scripts/playthrough.ts",
     "backend:check": "node scripts/backend-check.mjs",
     "backend:sql": "node scripts/backend-sql.mjs",
-    "i18n:extract": "tsx scripts/i18n-extract.ts"
+    "i18n:extract": "tsx scripts/i18n-extract.ts",
+    "voice:gen": "tsx scripts/voice-gen.ts"
   },
   "dependencies": {
     "phaser": "^3.90.0",

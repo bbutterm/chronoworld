@@ -208,7 +208,10 @@ export class AudioEngine {
   private readonly gemPitch = new PitchStreak();
   readonly mute = new MuteReasons();
   private readonly master: GainNode;
-  private readonly bus: { music: GainNode; duck: GainNode; sfx: GainNode; battle: GainNode; ui: GainNode };
+  private readonly bus: { music: GainNode; duck: GainNode; sfx: GainNode; battle: GainNode; ui: GainNode; voice: GainNode };
+  /** Озвучка, которая звучит сейчас (одна реплика за раз), и номер просьбы — поздний ответ загрузки не перебивает новую. */
+  private voiceSrc: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
+  private voiceAsk = 0;
   private musicTrack: Track | null = null;
   private ambTrack: Track | null = null;
   /** Какую музыку просили последней (файл ещё грузится — не перебивать более поздней просьбой). */
@@ -230,12 +233,13 @@ export class AudioEngine {
     this.master = ctx.createGain();
     this.master.connect(out);
     const g = () => ctx.createGain();
-    this.bus = { music: g(), duck: g(), sfx: g(), battle: g(), ui: g() };
+    this.bus = { music: g(), duck: g(), sfx: g(), battle: g(), ui: g(), voice: g() };
     this.bus.duck.connect(this.bus.music);
     this.bus.music.connect(this.master);
     this.bus.sfx.connect(this.master);
     this.bus.battle.connect(this.master);
     this.bus.ui.connect(this.master);
+    this.bus.voice.connect(this.master);
     this.session = applyAudioSession(audioSessionType(audioSettings));
     this.applyVolumes();
   }
@@ -273,6 +277,7 @@ export class AudioEngine {
     this.set(this.bus.sfx.gain, categoryVolume('sfx', s));
     this.set(this.bus.battle.gain, categoryVolume('battle', s));
     this.set(this.bus.ui.gain, categoryVolume('ui', s));
+    this.set(this.bus.voice.gain, s.muted ? 0 : s.voice);
   }
 
   /**
@@ -443,6 +448,53 @@ export class AudioEngine {
     src.start(at);
     src.onended = () => g.disconnect();
     if (duck) this.duck(at, buf.duration / rate);
+  }
+
+  /**
+   * Реплика озвучки (voice.ts): прежняя обрывается, музыка приглушается на время реплики. Буфер не кэшируется —
+   * минуты речи в памяти ни к чему, файл маленький и лежит в кэше браузера. Возвращает длительность (с) или null —
+   * файл не загрузился, озвучка выключена или за время загрузки попросили другую реплику.
+   */
+  async voice(key: string, url: string): Promise<number | null> {
+    const ask = ++this.voiceAsk;
+    this.stopVoice(false);
+    if (audioSettings.muted || audioSettings.voice <= 0) return null;
+    const buf = await this.load(`voice:${key}`, [url]);
+    this.buffers.delete(`voice:${key}`);
+    if (!buf || ask !== this.voiceAsk) return null;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const gain = this.ctx.createGain();
+    src.connect(gain).connect(this.bus.voice);
+    const at = this.ctx.currentTime + 0.05;
+    src.start(at);
+    const cur = { src, gain };
+    this.voiceSrc = cur;
+    src.onended = () => {
+      gain.disconnect();
+      if (this.voiceSrc === cur) this.voiceSrc = null;
+    };
+    this.duck(at, buf.duration);
+    return buf.duration;
+  }
+
+  /** Оборвать озвучку (листание, «Пропустить», закрытие); музыка возвращается плавно. */
+  stopVoice(cancelPending = true): void {
+    if (cancelPending) this.voiceAsk++;
+    const cur = this.voiceSrc;
+    if (!cur) return;
+    this.voiceSrc = null;
+    const t = this.ctx.currentTime;
+    cur.gain.gain.setTargetAtTime(0, t, 0.03);
+    try {
+      cur.src.stop(t + 0.15);
+    } catch {
+      // Уже остановлен.
+    }
+    const p = this.bus.duck.gain;
+    this.duckUntil = t;
+    p.cancelScheduledValues(t);
+    p.setTargetAtTime(1, t, 0.3);
   }
 
   /** Приглушить музыку на время стингера и плавно вернуть. */
@@ -802,6 +854,24 @@ export function sfxFile(name: string, rule: SoundRule, o: { rate?: number; gain?
     return engine?.playFile(name, rule, o) ?? false;
   } catch {
     return false;
+  }
+}
+
+/** Реплика озвучки по URL (voice.ts): длительность в секундах или null (нет звука, не загрузилась, перебили). */
+export function playVoiceFile(key: string, url: string): Promise<number | null> {
+  try {
+    return engine?.voice(key, url).catch(() => null) ?? Promise.resolve(null);
+  } catch {
+    return Promise.resolve(null);
+  }
+}
+
+/** Оборвать озвучку. */
+export function stopVoiceFile(): void {
+  try {
+    engine?.stopVoice();
+  } catch {
+    // Звук не должен ломать игру.
   }
 }
 

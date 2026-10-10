@@ -447,3 +447,10 @@ heroes?: [id героя], heroCards?: {blue?, purple?}, heroPicks?: [{rarity}]}`
 
 Любой новый или изменённый текст для игрока (data/ или src/) → `npm run i18n:extract` → заполнить пустые переводы в
 `locales/en/*.json` (глоссарий `locales/en/_glossary.md`) → `npm run check`. Подробно — `docs/AGENTS.md`, раздел 15.
+
+## 15. Озвучить главу
+
+1. Новые спикеры главы — голос в `scripts/voice/cast.json` (voices + speakers).
+2. `npm run voice:gen -- chapterN --plan` — сколько клипов и символов; затем без `--plan` с `ELEVENLABS_API_KEY` в окружении.
+3. `python3 tools/voice_qa.py --from chapterN` — проверка распознаванием; брак — `--redo <ключи>`.
+4. `npm run check` и коммит `assets/voice/ru/*.mp3` + `index.json`. Подробно — `docs/AGENTS.md`, раздел 16.

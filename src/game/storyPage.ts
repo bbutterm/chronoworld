@@ -9,6 +9,7 @@ import { SKIN, SKIN_TINT } from './skin';
 import { registerModal } from './screen';
 import { BTN, button, mixHex, plate, ScrollArea, SURFACE, text, type PlateSpec } from './ui';
 import { C, COLOR, FAMILY, M, R, S, T, TINT } from './theme';
+import { hush, speak } from './voice';
 
 /**
  * Страницы «между этапами» (docs/design/lore-route.md §5): «Эпизод N» и легенда перед главой, летопись главы после
@@ -103,11 +104,13 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
   const close = () => {
     if (closed) return;
     closed = true;
+    hush();
     layer.destroy();
     onDone();
   };
   registerModal(layer, close);
   layer.once(Phaser.GameObjects.Events.DESTROY, () => {
+    if (!closed) hush();
     closed = true;
     if (lockedArea) lockedArea.locked = wasLocked;
   });
@@ -163,6 +166,8 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
       scene.tweens.add({ targets: page, alpha: 1, duration: M.base });
       sfx(i === 0 ? 'ui_open' : 'ui_tab');
       if (i === 0) haptic('soft');
+      // Рассказчик читает цитату и текст страницы, герой — свой комментарий к находке (что озвучено).
+      void speak(p.quote, p.text, p.comment?.text);
     }
   };
   show(0);
