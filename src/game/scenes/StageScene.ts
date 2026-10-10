@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { actSkipStage, autoFormation, enemySquad, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus, replayAllowance } from '../../core';
+import { actSkipStage, autoFormation, enemySquad, mealExp, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus, replayAllowance } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { shortfallHint, stageNeeds, stageNo, stageSeed, type StageNeeds } from '../flow';
@@ -13,6 +13,7 @@ import { ctaShine } from '../decor';
 import { markHint, pickPrepHint } from '../hints';
 import { startStageBattle } from '../dialogue';
 import { squadDefs, type ResultData } from './BattleScene';
+import { mealTag } from '../kitchenEntry';
 import { FormationEditor } from '../squadEditor';
 import { bump } from '../juice';
 import { C, COLOR, FAMILY, S, T } from '../theme';
@@ -102,7 +103,7 @@ export class StageScene extends Phaser.Scene {
     const replay = replayAllowance(session.save, today(), GAME);
     const k = first ? 1 : replay.remaining > 0 ? GAME.progression.campaign.replayRewardMultiplier : 0;
     const drop = first || replay.remaining > 0 ? stageCardDrop(stage, first, GAME) : undefined;
-    rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(Math.floor(stage.rewards.gold * k), Math.floor(stage.rewards.jobExp * k), drop), { size: 's' }).setName('stageRewards');
+    rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(Math.floor(stage.rewards.gold * k), mealExp(Math.floor(stage.rewards.jobExp * k), session.save, today(), GAME), drop), { size: 's' }).setName('stageRewards');
     if (!first) {
       if (!replay.remaining) text(this, GAME_W / 2, L.rewardY, 'Тренировка · без добычи', T.caption, COLOR.textSecondary).setName('stagePractice');
       text(this, GAME_W / 2, L.rewardY + 48, replay.remaining > 0 ? `Добыча за повторы: ещё ${replay.remaining} из ${replay.limit} побед сегодня` : `Сегодня получены все ${replay.limit} наград за повторы`, T.caption, COLOR.textSecondary).setName('stageReplayBudget');
@@ -130,7 +131,10 @@ export class StageScene extends Phaser.Scene {
     const pz = this.add.zone(284, L.powerY + 16, 480, 96).setName('stagePowerZone');
     pressable(this, pz, 480, 96, () => this.openScout());
     const info = infoButton(this, GAME_W - 76, L.powerY, () => this.openScout()).setName('stageScoutInfo');
-    if (stage.boss) tag(this, info.x - 48 - S.xs, L.powerY, 'БОСС', 'negative', { solid: true, align: 'right' }).setName('stageBoss');
+    const boss = stage.boss ? tag(this, info.x - 48 - S.xs, L.powerY, 'БОСС', 'negative', { solid: true, align: 'right' }).setName('stageBoss') : null;
+    // Блюдо дня (Кухня) — тег левее «БОСС» и «i»; не влезает рядом с мощью — строкой ниже, справа.
+    const meal = mealTag(this, (boss ? boss.x - boss.width / 2 : info.x - 48) - S.xs, L.powerY);
+    if (meal && this.power && meal.x - meal.width / 2 < 56 + this.power.width + S.xs) meal.setPosition(GAME_W - S.l - meal.width / 2, L.shortY + S.s);
 
     // Угроза видна без открытия разведки; спокойная строка не перекрывает сюжет и обучение.
     this.threatText = text(this, GAME_W / 2, L.threat.titleY, '', T.caption, COLOR.title, { fontStyle: 'bold' }).setName('stageThreat');

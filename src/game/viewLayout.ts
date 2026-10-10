@@ -7,7 +7,7 @@ export const MAX_DPR = 2;
 
 /** Проверенные экраны с переменной высотой. Остальные сохраняют полное поле, пока их раскладка не адаптирована. */
 export function supportsAdaptiveLayout(scene: string): boolean {
-  return scene === 'Campaign' || scene === 'Adventure' || scene === 'Hero' || scene === 'Ascend' || scene === 'Heroes' || scene === 'HeroPick' || scene === 'Stage' || scene === 'Squad' || scene === 'Battle' || scene === 'Result' || scene === 'ChapterDone' || scene === 'Home' || scene === 'Tavern' || scene === 'Expeditions' || scene === 'Hunt' || scene === 'Tower' || scene === 'Autobattler' || scene === 'Mail' || scene === 'Quests' || scene === 'Achievements' || scene === 'Shop' || scene === 'Events' || scene === 'Friends' || scene === 'Inventory' || scene === 'Chronicle' || scene === 'TavernEvening';
+  return scene === 'Campaign' || scene === 'Adventure' || scene === 'Hero' || scene === 'Ascend' || scene === 'Heroes' || scene === 'HeroPick' || scene === 'Stage' || scene === 'Squad' || scene === 'Battle' || scene === 'Result' || scene === 'ChapterDone' || scene === 'Home' || scene === 'Tavern' || scene === 'Expeditions' || scene === 'Hunt' || scene === 'Tower' || scene === 'Autobattler' || scene === 'Mail' || scene === 'Quests' || scene === 'Achievements' || scene === 'Shop' || scene === 'Kitchen' || scene === 'Events' || scene === 'Friends' || scene === 'Inventory' || scene === 'Chronicle' || scene === 'TavernEvening';
 }
 
 export interface Insets {

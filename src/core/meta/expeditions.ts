@@ -12,6 +12,7 @@
  * отправки. Время (now, мс) передаёт UI; ни Date, ни Math.random здесь нет.
  */
 import { lootSeed } from '../equipment/chest';
+import { grantExpeditionIngredients, mergePantry, type Pantry } from '../kitchen/kitchen';
 import { addItems, withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
 import type { FeatureContext } from '../features/config';
@@ -350,6 +351,8 @@ export interface ExpeditionClaim {
   events: MetaEvent[];
   /** Рассказ: события в пути, выборы и исходы (нерешённые — вариантом по умолчанию). Пусто — событий не было. */
   story: ExpeditionStoryLine[];
+  /** Продукты Кухни (kitchen.ts grantExpeditionIngredients). Нет поля — ничего. */
+  ingredients?: Pantry;
 }
 
 /**
@@ -388,8 +391,10 @@ export function claimExpedition(save: SaveState, locationId: string, now: number
   const known = ctx.equipment?.items;
   const items = known ? r.items.filter((id) => known[id]) : [];
   const got = addItems(next, items);
-  next = syncAchievementCounters(trackAchievement(got.save, 'bounties_done', 1, 'add'));
-  return { save: next, rewards: { ...r, items }, added: got.added, events, story };
+  // Кухня: продукты с дороги (бросок от seed экспедиции).
+  const food = grantExpeditionIngredients(got.save, expeditionSeed(save, e.location, e.startedAt), ctx);
+  next = syncAchievementCounters(trackAchievement(food.save, 'bounties_done', 1, 'add'));
+  return { save: next, rewards: { ...r, items }, added: got.added, events, story, ...(Object.keys(food.gained).length ? { ingredients: food.gained } : {}) };
 }
 
 /** Сложить добычу нескольких экспедиций. */
@@ -424,6 +429,7 @@ export function claimAllExpeditions(
   const claimed: string[] = [];
   const story: ExpeditionStoryLine[] = [];
   const stories: { location: string; story: ExpeditionStoryLine[] }[] = [];
+  let ingredients: Pantry = {};
   const rank = (id: string) => {
     const i = ctx.meta.expeditions.locations.findIndex((l) => l.id === id);
     return i < 0 ? Infinity : i;
@@ -438,8 +444,9 @@ export function claimAllExpeditions(
     claimed.push(e.location);
     story.push(...r.story);
     if (r.story.length) stories.push({ location: e.location, story: r.story });
+    if (r.ingredients) ingredients = mergePantry(ingredients, r.ingredients);
   }
-  return { save: next, rewards: sumExpeditionRewards(all), added, events, claimed, story, stories };
+  return { save: next, rewards: sumExpeditionRewards(all), added, events, claimed, story, stories, ...(Object.keys(ingredients).length ? { ingredients } : {}) };
 }
 
 /**

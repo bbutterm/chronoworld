@@ -36,3 +36,4 @@ export * from './shop';
 export * from './codes';
 export * from './lore';
 export * from './tavern';
+export * from './kitchen';

@@ -3,6 +3,8 @@ import {
   eventsBadges,
   fastRewardsPreview,
   fastRewardsStatus,
+  kitchenReady,
+  type KitchenContext,
   featureUnlocked,
   letterClaimable,
   mailStatus,
@@ -48,6 +50,8 @@ export function cityBadge(save: SaveState, day: string): number {
   n += ev.login + ev.newbie;
   n += mailCount(save);
   n += pendingPicks(save).length;
+  // Кухня: сегодня не готовили, а на блюдо продуктов хватает — одна точка.
+  if (kitchenReady(save, day, GAME as KitchenContext)) n += 1;
   return n;
 }
 

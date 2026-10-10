@@ -16,6 +16,7 @@ import { grantBlessedOre } from '../equipment/refine';
 import { bankOffline, lastClearedStage } from './offline';
 import { rememberChapterSquad, withBondLinks } from '../tavern/tavern';
 import { assertDay } from '../features/daily';
+import { grantReplayIngredients, mealExp, withMeal, type Pantry } from '../kitchen/kitchen';
 
 export type StageStatus = 'locked' | 'open' | 'cleared';
 
@@ -84,6 +85,8 @@ export interface StageOutcome {
   events: ProgressEvent[];
   /** Повтор: награда ограничена общим суточным бюджетом; тренировка всегда доступна. */
   replay?: { rewarded: boolean; used: number; limit: number };
+  /** Продукты Кухни, полученные за бой (победный повтор с наградой — с шансом). Нет поля — ничего. */
+  ingredients?: Pantry;
 }
 
 /** Число победных повторов с добычей за день. Первые прохождения бюджет не расходуют. */
@@ -107,8 +110,9 @@ export function replayAllowance(save: SaveState, day: string | undefined, ctx: G
 /**
  * Отряд игрока для боя: save.squad → buildUnit (null — пустой слот). GameRuleError: unknown_hero, empty_squad,
  * duplicate_card (две копии одной карточки в отряде). heroIds — герои отряда по порядку слотов.
+ * day — день боя: блюдо Кухни, приготовленное в этот день, прибавляет статы (kitchen.ts withMeal); нет дня — без блюда.
  */
-export function squadUnits(save: SaveState, ctx: GameContext): { squad: (UnitDef | null)[]; heroIds: string[] } {
+export function squadUnits(save: SaveState, ctx: GameContext, day?: string): { squad: (UnitDef | null)[]; heroIds: string[] } {
   const heroIds: string[] = [];
   const squad = save.squad.map((heroId) => {
     if (heroId === null) return null;
@@ -120,7 +124,8 @@ export function squadUnits(save: SaveState, ctx: GameContext): { squad: (UnitDef
   if (heroIds.length === 0) throw new GameRuleError('empty_squad', 'В отряде нет героев');
   if (duplicateCardsInSquad(save, save.squad).length) throw new GameRuleError('duplicate_card', 'В отряде может быть только одна копия каждой карточки');
   // Связки близости (вечера в таверне): +% к стату обоим героям пары в отряде.
-  return { squad: withBondLinks(squad, save, ctx), heroIds };
+  // Блюдо дня (Кухня): +% к статам всему отряду, только в день, когда приготовлено.
+  return { squad: withMeal(withBondLinks(squad, save, ctx), save, day, ctx), heroIds };
 }
 
 /**
@@ -146,7 +151,7 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   ctx = withGear(ctx, save);
   const stage = getStage(ctx, stageId);
   if (stageStatus(save, stageId, ctx) === 'locked') throw new GameRuleError('stage_locked', `Этап ${stage.name} ещё закрыт`);
-  const { squad } = squadUnits(save, ctx);
+  const { squad } = squadUnits(save, ctx, day);
   const firstTime = !save.campaign.cleared.includes(stage.id);
   const allowance = firstTime ? undefined : replayAllowance(save, day, ctx);
 
@@ -159,7 +164,8 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
   const rewarded = firstTime || allowance!.remaining > 0;
   const mult = firstTime ? 1 : rewarded ? ctx.progression.campaign.replayRewardMultiplier : 0;
   const gold = Math.floor(stage.rewards.gold * mult);
-  const heroExp = Math.floor(stage.rewards.jobExp * mult);
+  // Блюдо дня с прибавкой опыта (Молочная каша) — +% к опыту героев за этап.
+  const heroExp = mealExp(Math.floor(stage.rewards.jobExp * mult), save, day, ctx);
 
   // P11 (T4-10): этап новее последнего пройденного меняет ставку сундука — накопленное до сих пор
   // фиксируется по старой ставке (offline.banked), дальше копится по новой.
@@ -186,6 +192,13 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
     const cards = grantHeroCards(next, stageHeroCards(stage, firstTime, seed, ctx), ctx);
     next = cards.save;
     events.push(...cards.events);
+  }
+  // Кухня: победный повтор с наградой — с шансом продукт (бросок от seed боя).
+  let ingredients: Pantry | undefined;
+  if (!firstTime && rewarded) {
+    const k = grantReplayIngredients(next, seed, ctx);
+    next = k.save;
+    if (Object.keys(k.gained).length) ingredients = k.gained;
   }
   if (firstTime && stage.boss) {
     const ore = grantBlessedOre(next, seed, ctx as { equipment?: EquipmentConfig });
@@ -228,5 +241,11 @@ export function playStage(save: SaveState, stageId: string, seed: number, ctx: G
     next = w.save;
     events.push(...w.events);
   }
-  return { save: next, result, events, ...(allowance ? { replay: { rewarded, used: allowance.used + (rewarded ? 1 : 0), limit: allowance.limit } } : {}) };
+  return {
+    save: next,
+    result,
+    events,
+    ...(allowance ? { replay: { rewarded, used: allowance.used + (rewarded ? 1 : 0), limit: allowance.limit } } : {}),
+    ...(ingredients ? { ingredients } : {}),
+  };
 }

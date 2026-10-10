@@ -502,6 +502,55 @@ const ICONS: Record<string, (ctx: Ctx) => void> = {
     c.closePath();
     c.stroke();
   },
+  // Кухня (data/kitchen.json → icon): котелок, мясо на кости, яблоко, морковь, горшочек мёда, кувшин молока.
+  pot: (c) => {
+    c.beginPath();
+    c.moveTo(10, 28); c.lineTo(54, 28);
+    c.moveTo(14, 28); c.bezierCurveTo(14, 50, 22, 54, 32, 54); c.bezierCurveTo(42, 54, 50, 50, 50, 28);
+    c.moveTo(14, 32); c.lineTo(8, 32); c.moveTo(50, 32); c.lineTo(56, 32);
+    c.moveTo(24, 20); c.bezierCurveTo(20, 16, 28, 12, 24, 8);
+    c.moveTo(36, 20); c.bezierCurveTo(32, 16, 40, 12, 36, 8);
+    c.stroke();
+  },
+  meat: (c) => {
+    c.beginPath();
+    c.ellipse(26, 30, 17, 14, -0.6, 0, Math.PI * 2);
+    c.moveTo(37, 40); c.lineTo(48, 51);
+    c.stroke();
+    c.beginPath(); c.arc(51, 49, 4, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(46, 54, 4, 0, Math.PI * 2); c.stroke();
+  },
+  apple: (c) => {
+    c.beginPath();
+    c.moveTo(32, 20); c.bezierCurveTo(20, 12, 8, 22, 12, 38); c.bezierCurveTo(15, 50, 24, 58, 32, 52);
+    c.bezierCurveTo(40, 58, 49, 50, 52, 38); c.bezierCurveTo(56, 22, 44, 12, 32, 20);
+    c.moveTo(32, 20); c.lineTo(34, 8);
+    c.moveTo(34, 12); c.bezierCurveTo(40, 6, 48, 8, 48, 12); c.bezierCurveTo(42, 16, 38, 14, 34, 12);
+    c.stroke();
+  },
+  carrot: (c) => {
+    c.beginPath();
+    c.moveTo(40, 18); c.lineTo(14, 54); c.lineTo(48, 26); c.closePath();
+    c.moveTo(28, 38); c.lineTo(34, 40); c.moveTo(22, 46); c.lineTo(27, 47);
+    c.moveTo(44, 22); c.lineTo(50, 8); c.moveTo(44, 22); c.lineTo(58, 16); c.moveTo(44, 22); c.lineTo(56, 26);
+    c.stroke();
+  },
+  honey: (c) => {
+    c.beginPath();
+    c.moveTo(20, 20); c.lineTo(44, 20);
+    c.moveTo(18, 14); c.lineTo(46, 14); c.lineTo(46, 20); c.lineTo(18, 20); c.closePath();
+    c.moveTo(20, 20); c.bezierCurveTo(8, 30, 10, 54, 32, 54); c.bezierCurveTo(54, 54, 56, 30, 44, 20);
+    c.moveTo(18, 34); c.bezierCurveTo(24, 40, 28, 30, 32, 38); c.bezierCurveTo(36, 44, 40, 32, 46, 36);
+    c.stroke();
+  },
+  milk: (c) => {
+    c.beginPath();
+    c.moveTo(22, 8); c.lineTo(38, 8); c.lineTo(36, 18);
+    c.bezierCurveTo(46, 24, 46, 34, 46, 54); c.lineTo(14, 54); c.bezierCurveTo(14, 34, 14, 24, 24, 18); c.closePath();
+    c.moveTo(46, 28); c.bezierCurveTo(56, 28, 56, 44, 46, 44);
+    c.moveTo(15, 36); c.lineTo(45, 36);
+    c.stroke();
+  },
 };
 
 export type SkinIcon = keyof typeof ICONS;
