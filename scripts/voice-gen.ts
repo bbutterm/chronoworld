@@ -124,6 +124,7 @@ if (chapterId === 'bonds') {
 const campaignFile = readdirSync(join(root, 'data/campaign')).find((f) => json(`data/campaign/${f}`).id === chapterId);
 if (campaignFile) {
   const c = json(`data/campaign/${campaignFile}`);
+  add(c.interlude?.text, 'narrator', 'interlude');
   add(c.episode?.quote, 'narrator', 'episode:quote');
   add(c.episode?.text, 'narrator', 'episode');
   add(c.legend?.text, 'narrator', 'legend');
@@ -166,8 +167,9 @@ if (!key) {
 }
 mkdirSync(outDir, { recursive: true });
 
-const chapterNum = Number(/^chapter(\d+)$/.exec(chapterId)?.[1] ?? 0);
-/** Голос роли для этой главы: взрослая версия с ages[].fromChapter (личные сцены bonds — молодой голос). */
+/** Личные сцены (bonds) открываются в таверне в любой момент — их озвучивают взрослые голоса (решение владельца). */
+const chapterNum = chapterId === 'bonds' ? Infinity : Number(/^chapter(\d+)$/.exec(chapterId)?.[1] ?? 0);
+/** Голос роли для этой главы: взрослая версия с ages[].fromChapter (личные сцены bonds — взрослый голос). */
 function voiceOf(role: string): VoiceDef {
   const v = cast.voices[role];
   if (!v) throw new Error(`Нет голоса «${role}» в cast.voices`);

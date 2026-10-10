@@ -4,7 +4,7 @@
  * и этапа finding); здесь — когда их показать и что уже видено. Чистые функции от сохранения и контента.
  */
 import { stageStatus } from '../campaign/campaign';
-import type { ChapterChronicleDef, ChapterDef, EpisodeDef, FindingDef, LegendDef } from '../campaign/schema';
+import type { ChapterChronicleDef, ChapterDef, EpisodeDef, FindingDef, InterludeDef, LegendDef } from '../campaign/schema';
 import type { GameContext } from '../progression/types';
 import type { SaveState } from '../save/schema';
 import type { Content } from '../types';
@@ -21,6 +21,8 @@ export interface IntroPages {
   chapterId: string;
   /** Номер главы с 1 («Эпизод N»). */
   number: number;
+  /** Перерыв во времени — первой страницей, до эпизода. */
+  interlude?: InterludeDef;
   episode?: EpisodeDef;
   legend?: LegendDef;
 }
@@ -31,11 +33,11 @@ const chapterOf = (chapterId: string, content: Pick<Content, 'chapters'>): { cha
   return chapter ? { chapter, number: chapter.order } : undefined;
 };
 
-/** Эпизод и легенда главы (для «Летописи» — без условий показа); у главы их нет — undefined. */
+/** Перерыв, эпизод и легенда главы (для «Летописи» — без условий показа); у главы их нет — undefined. */
 export function introPages(chapterId: string, content: Pick<Content, 'chapters'>): IntroPages | undefined {
   const c = chapterOf(chapterId, content);
-  if (!c || (!c.chapter.episode && !c.chapter.legend)) return undefined;
-  return { chapterId, number: c.number, ...(c.chapter.episode ? { episode: c.chapter.episode } : {}), ...(c.chapter.legend ? { legend: c.chapter.legend } : {}) };
+  if (!c || (!c.chapter.interlude && !c.chapter.episode && !c.chapter.legend)) return undefined;
+  return { chapterId, number: c.number, ...(c.chapter.interlude ? { interlude: c.chapter.interlude } : {}), ...(c.chapter.episode ? { episode: c.chapter.episode } : {}), ...(c.chapter.legend ? { legend: c.chapter.legend } : {}) };
 }
 
 /**
