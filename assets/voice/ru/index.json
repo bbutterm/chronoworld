@@ -726,5 +726,181 @@
   "model": "eleven_v4",
   "chars": 9,
   "from": "chapter1/finding:ch1_s16:comment"
+ },
+ "03f077b4ac411c": {
+  "text": "Стоять. Люк королевский. Указ читали? Стоки чистить от жуков — всем, кто держит оружие и не боится крыс.",
+  "role": "sergeant",
+  "voice": "TUQNWEvVPBLzMBSVDPUA",
+  "model": "eleven_v4",
+  "chars": 14,
+  "from": "chapter2/ch2c_intro"
+ },
+ "0dccf6ea535d11": {
+  "text": "Это мои, Бертольд. Новички. Следы серого с Лунной поляны ведут не в лес, а сюда, под мостовую.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 13,
+  "from": "chapter2/ch2c_intro"
+ },
+ "11d02c3fc2ece2": {
+  "text": "Серого не видал. Видал своих: шестеро ветеранов ушли вниз неделю назад. Обещали к ужину.",
+  "role": "sergeant",
+  "voice": "TUQNWEvVPBLzMBSVDPUA",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter2/ch2c_intro"
+ },
+ "19cde866d8beaf": {
+  "text": "Мы их найдём! И жуков вычистим. Я пойду первым — у меня факел!",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter2/ch2c_intro"
+ },
+ "0f9d8a7deccf47": {
+  "text": "Колокольчик тянет вниз, как пёс на поводке. Серый там. И пахнет тут… ну, стоками.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter2/ch2c_intro"
+ },
+ "0c40367bb25967": {
+  "text": "Живыми назад. Все. Это приказ, а не пожелание.",
+  "role": "garret",
+  "voice": "6A9D8WSMm4rFsg2DWFeE",
+  "model": "eleven_v4",
+  "chars": 7,
+  "from": "chapter2/ch2c_intro"
+ },
+ "169459cdf177ef": {
+  "text": "Жуки мелкие, но шустрые. Бьют исподтишка и тащат всё, что блестит. Пряжки прячьте.",
+  "role": "sergeant",
+  "voice": "TUQNWEvVPBLzMBSVDPUA",
+  "model": "eleven_v4",
+  "chars": 12,
+  "from": "chapter2/ch2c_s1_before"
+ },
+ "051b5b0fbc50f6": {
+  "text": "Кто плюётся из-за спин — того первым. Мелочь сама полезет на строй, её не минуешь.",
+  "role": "sergeant",
+  "voice": "TUQNWEvVPBLzMBSVDPUA",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter2/ch2c_s1_before"
+ },
+ "0bd4273006a2bf": {
+  "text": "Пряжку снял, кошелёк зашил. Монету за щеку — нет, Грета, это была шутка, а не совет.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter2/ch2c_s1_before"
+ },
+ "008d05de7689e0": {
+  "text": "Жаль. Хороший тайник. Бабушка так прятала сдачу от отца.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter2/ch2c_s1_before"
+ },
+ "069b0edc6d84c0": {
+  "text": "Держимся вместе. Тут эхо — кто крикнет, того услышат все. И жуки тоже.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter2/ch2c_s1_before"
+ },
+ "08f7a4ea82b6db": {
+  "text": "Смотрите, у жука в жвалах ложка! Серебряная, с двумя колокольчиками на ручке.",
+  "role": "alan",
+  "voice": "u3pPktIMgx1Kt5EJ391v",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter2/ch2c_s11_after"
+ },
+ "13628d0bc1f78d": {
+  "text": "Это наша! Отец её полгода ищет. Давай сюда — сама отнесу. Со скидкой за находку.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter2/ch2c_s11_after"
+ },
+ "1b6cf201c90c2b": {
+  "text": "А колокольчик опять тянет вниз. Ему не нравится запах — не сток, а что-то сухое и тёплое.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 10,
+  "from": "chapter2/ch2c_s11_after"
+ },
+ "19e1ce4eee6b57": {
+  "text": "Сухое и тёплое под землёй — редкость. Записываю: запах подозрительный, ложка — Бруно.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 12,
+  "from": "chapter2/ch2c_s11_after"
+ },
+ "0799d5bdec9820": {
+  "text": "Идём за колокольчиком. Только, пожалуйста, не бегом.",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter2/ch2c_s11_after"
+ },
+ "0a06df7ca022a3": {
+  "text": "Тележка. В канализации. Как ты сюда въехал?",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 8,
+  "from": "chapter2/ch2c_s2_after"
+ },
+ "0a4497b75f97dd": {
+  "text": "Продай колесо. Нет? Тогда приходи в «Два колокола» у Пронтеры, скажи — от Греты. Отцу нужен возчик.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter2/ch2c_s2_after"
+ },
+ "0775a29981d2af": {
+  "text": "Гвозди взяли, а колёса оставили. Жуки в товаре не смыслят.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 6,
+  "from": "chapter2/ch2c_s2_after"
+ },
+ "198fdf0023a2cf": {
+  "text": "На кладке знак. Рогатый, как на колокольчике Греты. Краска ещё липнет к пальцам.",
+  "role": "bran",
+  "voice": "8laJWHvsvf5KcUWcHWWZ",
+  "model": "eleven_v4",
+  "chars": 11,
+  "from": "chapter2/ch2c_s13_after"
+ },
+ "08291a11dea6c6": {
+  "text": "А там, вдали… фонарь. Кто-то ходит по каналу с фонарём. Стража?",
+  "role": "vika",
+  "voice": "FuL7liD72Uod1to0xCVx",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter2/ch2c_s13_after"
+ },
+ "0113b59dec12b0": {
+  "text": "Стража тут шлемы теряет, а не гуляет. Колокольчик звенит на фонарь. Это серый.",
+  "role": "greta",
+  "voice": "dVRDrbP5ULGXB94se4KZ",
+  "model": "eleven_v4",
+  "chars": 9,
+  "from": "chapter2/ch2c_s13_after"
  }
 }
