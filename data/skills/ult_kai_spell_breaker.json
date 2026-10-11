@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_kai_spell_breaker",
   "name": "Разрыв чар",
-  "description": "Рвёт чары цели: ×2,8 и срывает каст. Сбивает заряд босса.",
+  "description": "Рвёт чары цели: ×3,1 и срывает каст. Сбивает заряд босса.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -12,7 +12,7 @@
   "effects": [
     {
       "type": "damage",
-      "k": 2.8
+      "k": 3.1
     },
     {
       "type": "status",

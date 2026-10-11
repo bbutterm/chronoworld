@@ -277,6 +277,30 @@ export function autoFormation(save: SaveState, ctx: FeatureContext & { equipment
   return squad;
 }
 
+/**
+ * Кандидаты autoFormationForStage: обмены двух слотов расстановки только внутри своей группы — ближние (танк,
+ * ближний бой) между собой, дальние и лекари между собой. Маг или жрица в первом ряду ради случайной победы игроку
+ * непонятны — такие кандидаты не рассматриваются. Пустой слот относится к своему ряду (combat.json slots.front):
+ * в пустой передний слот переходит только ближний, в пустой задний — только дальний или лекарь.
+ */
+export function stageSwapCandidates(save: SaveState, base: readonly (string | null)[], ctx: GameContext): (string | null)[][] {
+  const frontSlots = new Set(ctx.combat.slots.front);
+  const front = (slot: number) => {
+    const id = base[slot];
+    const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
+    return hero ? formationRank(hero, ctx) <= 1 : frontSlots.has(slot);
+  };
+  const candidates: (string | null)[][] = [];
+  for (let i = 0; i < base.length; i++)
+    for (let j = i + 1; j < base.length; j++) {
+      if ((base[i] === null && base[j] === null) || front(i) !== front(j)) continue;
+      const swapped = [...base];
+      [swapped[i], swapped[j]] = [swapped[j], swapped[i]];
+      candidates.push(swapped);
+    }
+  return candidates;
+}
+
 /** Seeds of the stage check: fixed, never the seed of the player's next battle (no peeking at the real outcome). */
 export const STAGE_FORMATION_SEEDS = [9001, 9002, 9003, 9004] as const;
 /** Second pass for the best swap only; the swap must win at least STAGE_CONFIRM_MARGIN more of all 12 battles. */
@@ -290,34 +314,20 @@ export interface StageFormationOptions extends AutoFormationOptions {
 
 /**
  * «Авто» под конкретный этап. Состав — тот же, что у autoFormation; расстановка проверяется боями ядра:
- * кандидаты — обмены двух слотов autoFormation внутри своей группы (ближние между собой, дальние между собой),
- * каждый — STAGE_FORMATION_SEEDS.length боёв simulateBattle без лога против врагов этапа. Лучший обмен
- * перепроверяется ещё на 8 seed и берётся, только если из 12 боёв выигрывает хотя бы на 3 больше autoFormation;
+ * кандидаты — stageSwapCandidates (обмены двух слотов autoFormation внутри своей группы), каждый —
+ * STAGE_FORMATION_SEEDS.length боёв simulateBattle без лога против врагов этапа. Лучший обмен перепроверяется ещё на 8 seed и берётся, только если из 12 боёв выигрывает хотя бы на 3 больше autoFormation;
  * иначе (и если autoFormation и так выигрывает все 4) — autoFormation, расстановка не прыгает.
  * Так прыгуны (Сворд-фиш на ch6_s1) не застают отряд, где страж стоит не там: перехват дотягивается до тыла.
- * Детерминированно; чистая функция, save не меняет. До ~50 коротких боёв — для кнопки «Авто» на экране этапа.
+ * Пример (tests/auto-formation-sustain.test.ts): отряд аудита alan/zara/iris/meilin/lira-sage на ch6_s1 — «Авто»
+ * ставит Зару во второй слот и проигрывает почти всегда, под этап Ирис и Зара меняются местами.
+ * Детерминированно; чистая функция, save не меняет. До ~56 коротких боёв (70–330 мс в node): вызывать не на нажатие,
+ * а заранее (при открытии экрана этапа или после первой отрисовки) и запоминать по (отряд, состав, этап, день).
  */
 export function autoFormationForStage(save: SaveState, stageId: string, ctx: FeatureContext & { equipment?: EquipmentConfig }, options: StageFormationOptions = {}): (string | null)[] {
   const base = autoFormation(save, ctx, options);
   const filled = base.filter((id) => id !== null).length;
   if (filled < 2 || !ctx.content.stages.some((stage) => stage.id === stageId)) return base;
-  // Обмены только внутри своей группы: ближние (танк, ближний бой) между собой, дальние и лекари между собой.
-  // Маг или жрица в первом ряду ради случайной победы игроку непонятны — такие кандидаты не рассматриваются.
-  const front = (id: string | null) => {
-    const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
-    return hero ? formationRank(hero, ctx) <= 1 : undefined;
-  };
-  const candidates: (string | null)[][] = [];
-  for (let i = 0; i < SQUAD_SIZE; i++)
-    for (let j = i + 1; j < SQUAD_SIZE; j++) {
-      const a = front(base[i]);
-      const b = front(base[j]);
-      if (a !== b && a !== undefined && b !== undefined) continue;
-      if (a === undefined && b === undefined) continue;
-      const swapped = [...base];
-      [swapped[i], swapped[j]] = [swapped[j], swapped[i]];
-      candidates.push(swapped);
-    }
+  const candidates = stageSwapCandidates(save, base, ctx);
   if (candidates.length === 0) return base;
   const gear = withGear(ctx, save);
   const enemies = enemySquad(stageId, ctx, save.campaignChoices);

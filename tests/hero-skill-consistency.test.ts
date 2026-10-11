@@ -116,7 +116,8 @@ describe('Асура: форма, уровень открытия и реаль�
     expect(selectTargets(a, teo.target, [a], enemies, new Rng(1), ctx.combat)).toEqual([lowHp]);
     expect(selectTargets(a, vika.target, [a], enemies, new Rng(1), ctx.combat)).toEqual([close]);
     expect(teo).toMatchObject({ range: 'ranged', cooldown: 25, castTime: 1.5, effects: [{ type: 'dash' }, { type: 'damage', k: 3.5 }] });
-    expect(vika).toMatchObject({ range: 'melee', castTime: 0, effects: [{ type: 'damage', k: 5 }] });
+    // Аудит 11.10 (balance-combat 7): одиночная ульта Асуры ×5 → ×5,5 и оглушение 1 с — сбивает заряд босса.
+    expect(vika).toMatchObject({ range: 'melee', castTime: 0, effects: [{ type: 'damage', k: 5.5 }, { type: 'status', status: { stun: true, turns: 1 } }] });
     expect(vika.cooldown).toBeUndefined();
   });
 
@@ -157,7 +158,7 @@ describe('Асура: форма, уровень открытия и реаль�
     expect(vf[0]).toMatch(/^Ульта: срабатывает на полной энергии/);
     expect(vf.some((f) => f.startsWith('Перезарядка:'))).toBe(false);
     expect(vf).toContain('Цель: ближайший враг · ближний бой');
-    expect(vf).toContain(`Урон: ${Math.round(5 * power * 100)}% АТК`);
+    expect(vf).toContain(`Урон: ${Math.round(5.5 * power * 100)}% АТК`);
     expect(teo.description + vika.description!).not.toMatch(/×|\d/);
   });
 });

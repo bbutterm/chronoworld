@@ -1,7 +1,7 @@
 {
   "id": "ro_high_wizard_mystical_amplification",
   "name": "Мистическое усиление",
-  "description": "На 3 с повышает атаку на 65%, усиливая последующие заклинания. Школа RO: Mystical Amplification.",
+  "description": "На 3 с повышает атаку на 65%, усиливая последующие заклинания.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

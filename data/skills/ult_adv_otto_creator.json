@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_otto_creator",
   "name": "Рецепт Отто",
-  "description": "На полной энергии. Всем союзникам, включая себя: лечение 1.05 × АТК; ЗАЩ +20% на 3 хода статуса; щит 8% макс. ОЗ цели.",
+  "description": "Рецепт для всего отряда: лечение ×1,05, +20% защиты на 3 с и щит 8% ОЗ.",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_vika_champion",
   "name": "Несокрушимость Вики",
-  "description": "На полной энергии. На себя: лечение 1.1 × АТК; щит 25% макс. ОЗ цели; ЗАЩ +30% на 3 хода статуса.",
+  "description": "Вика стоит несокрушимо: лечение себя ×1,1, щит 25% ОЗ и +30% защиты на 3 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

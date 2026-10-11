@@ -1,7 +1,7 @@
 {
   "id": "ro_gypsy_marionette_control",
   "name": "Танец марионеток",
-  "description": "Ускоряет весь отряд и передаёт союзникам по 10 энергии. Школа RO: Marionette Control · Gypsy.",
+  "description": "Ускоряет весь отряд и передаёт союзникам по 10 энергии.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

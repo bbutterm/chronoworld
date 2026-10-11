@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_teo_champion",
   "name": "Ритм Тео",
-  "description": "На полной энергии. Ближайшему врагу: урон 2.5 × АТК; АТК -20% на 3 хода статуса.",
+  "description": "Серия по ближайшему врагу: ×2,5 и −20% атаки цели на 3 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

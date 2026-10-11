@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { loadFullContext } from '../scripts/lib/content-node';
 import {
   arrangeSquad, autoFormation, autoFormationForStage, duplicateCardsInSquad, enemySquad, formationRank, heroPower, heroRole, heroSustain,
-  newGame, reserveSustain, setSquad, simulateBattle, squadUnits,
+  newGame, reserveSustain, setSquad, simulateBattle, squadUnits, stageSwapCandidates,
   type FormationCandidate, type HeroState, type SaveState,
 } from '../src/core';
 import { cardHero } from './helpers';
@@ -221,6 +221,36 @@ describe('automatic formation for a stage (autoFormationForStage)', () => {
     expect(winsOver(save, plain, 'ch6_s3', seeds)).toBeLessThanOrEqual(4);
     expect(winsOver(save, staged, 'ch6_s3', seeds)).toBeGreaterThanOrEqual(12);
     expect(autoFormationForStage(save, 'ch6_s3', ctx)).toEqual(staged);
+  });
+
+  it('swaps Iris and Zara against the ch6_s1 swordfish for the audit roster (audit 11.10, balance-progress 1)', () => {
+    // Отряд модели b14-2 (день 11): Алан и Ирис — фиолетовые рыцари, Зара, Мэйлин, Лира-мудрец — золотые. Без вещей
+    // и кухни тот же разрыв, что в аудите, получается на ур. 60: «Авто» ставит Зару во второй слот и проигрывает.
+    const save = roster([
+      hero('alan', 'alan/knight', 60, 'purple'), hero('zara', 'zara/assassin', 60, 'gold'), hero('iris', 'iris/knight', 60, 'purple'),
+      hero('meilin', 'meilin/hunter', 60, 'gold'), hero('lira', 'lira/sage', 60, 'gold'),
+    ]);
+    const plain = autoFormation(save, ctx);
+    const staged = autoFormationForStage(save, 'ch6_s1', ctx);
+    expect(plain.slice(0, 3)).toEqual(['alan', 'zara', 'iris']);
+    expect(staged).toEqual(['alan', 'iris', 'zara', ...plain.slice(3)]);
+    expect(winsOver(save, plain, 'ch6_s1', seeds)).toBeLessThanOrEqual(4);
+    expect(winsOver(save, staged, 'ch6_s1', seeds)).toBeGreaterThanOrEqual(12);
+  });
+
+  it('never moves a ranged hero or a healer into an empty front slot, nor a melee hero into an empty back slot', () => {
+    const save = roster([hero('alan', 'alan/knight', 60, 'gold'), hero('bran', 'bran/hunter', 60, 'gold'), hero('kai', 'kai/wizard', 60, 'gold'), hero('vika', 'vika/priest', 60, 'gold')]);
+    const front = new Set(ctx.combat.slots.front);
+    const isFront = (id: string) => formationRank(save.heroes.find((h) => h.id === id)!, ctx) <= 1;
+    for (const base of [autoFormation(save, ctx), ['alan', null, 'bran', 'kai', 'vika'], ['alan', 'bran', null, 'kai', 'vika']]) {
+      const candidates = stageSwapCandidates(save, base, ctx);
+      expect(candidates.length).toBeGreaterThan(0);
+      for (const squad of candidates)
+        squad.forEach((id, slot) => {
+          // Расстановка из base: передние слоты — ближние, задние — дальние; пустые слоты не меняют ряд героя.
+          if (id !== null && base[slot] === null) expect(isFront(id), `${base.join(',')} → ${squad.join(',')}`).toBe(front.has(slot));
+        });
+    }
   });
 
   it('keeps the plain auto formation when it already wins, and for unknown stages', () => {

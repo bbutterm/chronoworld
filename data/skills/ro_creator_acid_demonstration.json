@@ -1,7 +1,7 @@
 {
   "id": "ro_creator_acid_demonstration",
   "name": "Кислотный взрыв",
-  "description": "Наносит урон, разъедает защиту цели и оставляет кислотные раны. Школа RO: Acid Demonstration.",
+  "description": "Наносит урон, разъедает защиту цели и оставляет кислотные раны.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

@@ -1,7 +1,7 @@
 {
   "id": "ro_whitesmith_cart_termination",
   "name": "Удар телегой",
-  "description": "Тяжёлый удар телегой оглушает цель на 3 с. Школа RO: Cart Termination.",
+  "description": "Тяжёлый удар телегой оглушает цель на 3 с.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

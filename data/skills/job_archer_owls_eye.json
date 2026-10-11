@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_archer_owls_eye",
   "name": "Совиный глаз",
-  "description": "В начале боя: +15% атаки себе на 5 с.",
+  "description": "В начале боя: +15% атаки себе на 12 с.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {
@@ -15,7 +15,7 @@
       "status": {
         "id": "owls_eye",
         "name": "Совиный глаз",
-        "turns": 5,
+        "turns": 12,
         "stats": {
           "atk": 0.15
         }

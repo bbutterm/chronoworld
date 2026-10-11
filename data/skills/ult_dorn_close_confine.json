@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_dorn_close_confine",
   "name": "Мёртвая хватка",
-  "description": "Хватает врага и не отпускает: ×1,2 и оглушение 3 с. Сбивает заряд босса.",
+  "description": "Хватает врага и не отпускает: ×1,8 и оглушение 3 с. Сбивает заряд босса.",
   "icon": "icon_ult_assassin",
   "range": "melee",
   "target": {
@@ -12,7 +12,7 @@
   "effects": [
     {
       "type": "damage",
-      "k": 1.2
+      "k": 1.8
     },
     {
       "type": "status",

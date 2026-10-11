@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_iris_paladin",
   "name": "Опора Ирис",
-  "description": "На полной энергии. На себя: щит 30% макс. ОЗ цели; АТК +30% на 3 хода статуса.",
+  "description": "Ирис становится опорой строя: щит 30% ОЗ и +30% атаки себе на 3 с.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

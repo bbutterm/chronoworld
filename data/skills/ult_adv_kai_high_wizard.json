@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_kai_high_wizard",
   "name": "Равновесие Кая",
-  "description": "На полной энергии. Всем врагам: урон 1.7 × АТК; СКР -25% на 2 хода статуса.",
+  "description": "Удар по всем врагам: ×1,7 и −25% скорости на 2 с.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

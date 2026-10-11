@@ -1,7 +1,7 @@
 {
   "id": "ro_paladin_pressure",
   "name": "Божий суд",
-  "description": "Игнорирует защиту цели и отнимает у неё 35 энергии ульты. Школа RO: Pressure.",
+  "description": "Игнорирует защиту цели и отнимает у неё 35 энергии ульты.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

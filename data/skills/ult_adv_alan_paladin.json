@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_alan_paladin",
   "name": "Клятва Алана",
-  "description": "На полной энергии. Всем союзникам, включая себя: щит 23% макс. ОЗ цели; ЗАЩ +20% на 3 хода статуса.",
+  "description": "Клятва всему отряду: щит 23% ОЗ и +20% защиты на 3 с.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

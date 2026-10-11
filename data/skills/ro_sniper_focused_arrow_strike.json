@@ -1,7 +1,7 @@
 {
   "id": "ro_sniper_focused_arrow_strike",
   "name": "Пронизывающий залп",
-  "description": "Пронизывает трёх ближайших врагов. Школа RO: Focused Arrow Strike.",
+  "description": "Пронизывает трёх ближайших врагов.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
