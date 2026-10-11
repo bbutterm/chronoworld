@@ -7,7 +7,7 @@
  "Жареное мясо": "Roast Meat",
  "Мясо с медовой корочкой — любимое блюдо наёмников.": "Meat with a honey crust — the mercenaries' favorite.",
  "Яблочный сок": "Apple Juice",
- "Свежий сок из пронтерских яблок бодрит до самого вечера.": "Fresh juice from Prontera apples keeps you going till evening.",
+ "Свежий сок из пронтерских яблок: отряд держится в бою дольше.": "Fresh juice from Prontera apples: the squad lasts longer in battle.",
  "Морковный сок": "Carrot Juice",
  "Густой сок с молоком: крепкие кости, крепкая броня.": "Thick juice with milk: strong bones, strong armor.",
  "Медовый пирог": "Honey Pie",
@@ -15,5 +15,5 @@
  "Молочная каша": "Milk Porridge",
  "Тёплая каша перед дорогой: в бою герои учатся быстрее.": "Warm porridge before the road: heroes learn faster in battle.",
  "Пир": "Feast",
- "Пир на весь отряд: мясо, яблоки, мёд и молоко.": "A feast for the whole squad: meat, apples, honey and milk."
+ "Пир на весь отряд перед битвой с боссом: мясо, яблоки, мёд и молоко.": "A feast for the whole squad before a boss fight: meat, apples, honey and milk."
 }

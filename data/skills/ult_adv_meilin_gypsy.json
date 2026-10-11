@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_meilin_gypsy",
   "name": "Искры Мэйлин",
-  "description": "На полной энергии. Всем врагам: урон 1.3 × АТК; урон 0.3 × АТК каждый ход статуса на 3 хода статуса.",
+  "description": "Искры по всем врагам: ×1,3 и ожог (×0,3 в секунду, 3 с).",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_paladin_consecration",
   "name": "Освящённый доспех",
-  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): На себя: щит 12% макс. ОЗ цели.",
+  "description": "В начале боя: щит 18% ОЗ себе.",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {
@@ -12,7 +12,7 @@
   "effects": [
     {
       "type": "shield",
-      "pctMaxHp": 0.12
+      "pctMaxHp": 0.18
     }
   ],
   "castTime": 0,

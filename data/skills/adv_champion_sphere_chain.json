@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_champion_sphere_chain",
   "name": "Цепь духовных сфер",
-  "description": "Авторский навык (не оригинальный RO). Ближайшему врагу: урон 1.55 × АТК; оглушение на 1 хода статуса.",
+  "description": "Цепь духовных сфер в ближайшего врага (×1,55) и оглушение на 1 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

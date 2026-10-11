@@ -338,7 +338,7 @@ export class ExpeditionsScene extends Phaser.Scene {
     const a = this.area;
     const loc = v.location;
     const party = v.party!;
-    a.add(powerCompare(this, COL_X, top + ROW.state, party.power, party.need, { align: 'left' }));
+    a.add(powerCompare(this, COL_X, top + ROW.state, party.power, party.need, { align: 'left', requirement: true }));
     if (party.ok) this.faces(party.heroIds, top + ROW.squad, COL_W - 250 - S.s);
     else {
       const why = this.shortHint(loc.id);

@@ -1,6 +1,6 @@
 {
   "$schema": "schema/kitchen.schema.json",
-  "$comment": "Кухня в Таверне (docs/design/kitchen.md, ядро src/core/kitchen): продукты RO копятся из источников sources (броски от seed источника) и покупаются за золото (shop: лимит в день, цена × (1 + chapterGrowth × (глава − 1))). Раз в день готовится одно блюдо recipes: прибавка buff в процентах (atk/hp/def — к отряду в боях кампании, Башни и охоты, не на Арене; exp — к опыту героев за этапы кампании) до смены дня. id продуктов и блюд лежат в сохранениях — не переименовывать. Открытие — data/unlocks.json (kitchen). Баланс — docs/design/kitchen.md, «Модель игрока и баланс»; рецепт — docs/CONTENT_RECIPES.md, «Блюдо Кухни».",
+  "$comment": "Кухня в Таверне (docs/design/kitchen.md, ядро src/core/kitchen): продукты RO копятся из источников sources (броски от seed источника) и покупаются за золото (shop: лимит в день, цена × (1 + chapterGrowth × (глава − 1))); в кладовой не больше pantryCap штук каждого продукта (лишнее не начисляется). Раз в день готовится одно блюдо recipes: прибавка buff в процентах (atk/hp/def — к отряду в боях кампании, Башни и охоты, не на Арене; exp — к опыту героев за этапы кампании) до смены дня. goodFor — когда блюдо советовать (boss — впереди босс, level — не хватает опыта на уровень), dish — картинка блюда из иконок продуктов RO. Пир и Медовый пирог стоят мёда и молока (редкие продукты) — их берегут к боссу; в обычный день совет — блюдо попроще. id продуктов и блюд лежат в сохранениях — не переименовывать. Открытие — data/unlocks.json (kitchen). Баланс — docs/design/kitchen.md, «Модель игрока и баланс»; рецепт — docs/CONTENT_RECIPES.md, «Блюдо Кухни».",
   "ingredients": [
     { "id": "meat", "name": "Мясо", "icon": "meat", "price": 1200, "weight": 3 },
     { "id": "apple", "name": "Яблоко", "icon": "apple", "price": 800, "weight": 3 },
@@ -15,15 +15,17 @@
       "description": "Мясо с медовой корочкой — любимое блюдо наёмников.",
       "icon": "meat",
       "cost": { "meat": 3, "honey": 1 },
-      "buff": { "atk": 5 }
+      "buff": { "atk": 7 },
+      "dish": { "base": "plate", "items": ["meat"], "cooked": true, "hot": true }
     },
     {
       "id": "apple_juice",
       "name": "Яблочный сок",
-      "description": "Свежий сок из пронтерских яблок бодрит до самого вечера.",
+      "description": "Свежий сок из пронтерских яблок: отряд держится в бою дольше.",
       "icon": "apple",
-      "cost": { "apple": 3, "honey": 1 },
-      "buff": { "hp": 5 }
+      "cost": { "apple": 3 },
+      "buff": { "hp": 10 },
+      "dish": { "base": "glass", "items": ["apple"] }
     },
     {
       "id": "carrot_juice",
@@ -31,37 +33,45 @@
       "description": "Густой сок с молоком: крепкие кости, крепкая броня.",
       "icon": "carrot",
       "cost": { "carrot": 3, "milk": 1 },
-      "buff": { "def": 6 }
+      "buff": { "def": 15 },
+      "dish": { "base": "glass", "items": ["carrot"] }
     },
     {
       "id": "honey_pie",
       "name": "Медовый пирог",
       "description": "Пирог по рецепту хозяйки «Двух колоколов».",
       "icon": "honey",
-      "cost": { "honey": 2, "milk": 2, "apple": 1 },
-      "buff": { "atk": 2, "hp": 2, "def": 2 }
+      "cost": { "honey": 2, "apple": 2, "milk": 1 },
+      "buff": { "atk": 4, "hp": 4, "def": 4 },
+      "goodFor": ["boss"],
+      "dish": { "base": "pie", "items": ["apple"], "hot": true }
     },
     {
       "id": "milk_porridge",
       "name": "Молочная каша",
       "description": "Тёплая каша перед дорогой: в бою герои учатся быстрее.",
       "icon": "milk",
-      "cost": { "milk": 3, "honey": 1 },
-      "buff": { "exp": 10 }
+      "cost": { "milk": 2, "carrot": 2 },
+      "buff": { "exp": 20 },
+      "goodFor": ["level"],
+      "dish": { "base": "bowl", "items": ["milk"], "hot": true }
     },
     {
       "id": "feast",
       "name": "Пир",
-      "description": "Пир на весь отряд: мясо, яблоки, мёд и молоко.",
+      "description": "Пир на весь отряд перед битвой с боссом: мясо, яблоки, мёд и молоко.",
       "icon": "pot",
-      "cost": { "meat": 4, "apple": 2, "honey": 2, "milk": 2 },
-      "buff": { "atk": 4, "hp": 4 }
+      "cost": { "meat": 4, "apple": 2, "honey": 3, "milk": 3 },
+      "buff": { "atk": 7, "hp": 7 },
+      "goodFor": ["boss"],
+      "dish": { "base": "plate", "items": ["meat", "honey", "apple"], "cooked": true, "hot": true }
     }
   ],
   "sources": {
-    "expedition": { "min": 2, "max": 4 },
-    "hunt": { "min": 1, "max": 3, "tiersPerExtra": 3 },
-    "chest": { "chancePerTick": 0.08 }
+    "expedition": { "min": 0, "max": 1 },
+    "hunt": { "min": 1, "max": 2, "tiersPerExtra": 3 },
+    "chest": { "chancePerTick": 0.06 }
   },
-  "shop": { "dailyLimit": 5, "chapterGrowth": 1.0 }
+  "shop": { "dailyLimit": 5, "chapterGrowth": 1.0 },
+  "pantryCap": 20
 }

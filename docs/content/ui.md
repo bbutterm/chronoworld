@@ -180,7 +180,7 @@
 
 **`npm run ui:lint`** (`scripts/ui-lint.ts`) — храповик дизайн-системы по `src/game/scenes/*.ts` и `src/game/*.ts`.
 Считает по файлам: инструкции («нажмите», «коснитесь», «чтобы» в строках), литералы цветов (`'#rrggbb'` в строках и
-`0xRRGGBB` в коде; кроме `theme.ts` и `skin.ts`), числовые размеры шрифта (`fontSize: 32`, 5-й аргумент `text()`,
+`0xRRGGBB` в коде; кроме `theme.ts`, `skin.ts` и пиксельных блюд `kitchenDishArt.ts`), числовые размеры шрифта (`fontSize: 32`, 5-й аргумент `text()`,
 9-й аргумент `button()`), главные кнопки (`'ui_btn_primary'`, `variant: 'primary'`, `cta(`), вызовы `toast(`.
 Комментарии не считаются. Базовая линия — `scripts/ui-lint-baseline.json`; `tests/ui-lint.test.ts` (в `npm run check`)
 падает, если хоть один счётчик в каком-то файле вырос.

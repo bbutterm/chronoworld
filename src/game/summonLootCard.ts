@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import type { SummonLoot } from '../core';
+import type { CardRarity, Rarity, SummonLoot } from '../core';
+import { GAME } from './content';
 import { backTexture, frameTexture, heroCardSize } from './heroCard';
 import { compactNumber } from './frame';
 import { oreIcon, roIconImage } from './itemIcons';
@@ -63,9 +64,27 @@ function gearName(scene: Phaser.Scene, name: string, size: number, maxW: number,
   return ellipsize(t, maxW);
 }
 
+/** Рамка вещи по её редкости — как в сумке и на «Снаряжении» (RARITY_COLORS: обычная кремовая, редкая синяя, эпик фиолетовый). */
+const ITEM_FRAME: Record<Rarity, CardRarity | 'none'> = { common: 'none', rare: 'blue', epic: 'purple' };
+
 /**
- * Лицо карты-награды Таверны (вещь, опыт, золото, алмазы, руда) — в стиле карты героя (drawHeroCard): та же рубашка и
- * рамка по look, крупная иконка, внизу тёмная полоса с названием и количеством. data `w`, `h` — как у карты героя.
+ * Рамка и рубашка карты-награды (ui-heroes 3). Зелёный, синий и фиолетовый в Таверне — редкости героев: фиолетовая
+ * руда или зелёная обычная вещь говорили неправду о редкости. Вещь — цветом своей редкости, как в сумке (обычная —
+ * нейтральная); золото, опыт, алмазы и руда — нейтральная рамка. Ядро (loot.look) не трогаем: только вид.
+ */
+export function lootFrameLook(loot: Pick<SummonLoot, 'loot' | 'itemId'>, rarityOf: (itemId: string) => Rarity | undefined = itemRarity): CardRarity | 'none' {
+  if (loot.loot !== 'gear' || !loot.itemId) return 'none';
+  const r = rarityOf(loot.itemId);
+  return r ? ITEM_FRAME[r] : 'none';
+}
+
+function itemRarity(itemId: string): Rarity | undefined {
+  return GAME.equipment?.items[itemId]?.rarity;
+}
+
+/**
+ * Лицо карты-награды Таверны (вещь, опыт, золото, алмазы, руда) — в стиле карты героя (drawHeroCard): рубашка и
+ * рамка по lootFrameLook (вещь — цвет её редкости, валюта — нейтральная), крупная иконка, внизу тёмная полоса с названием и количеством. data `w`, `h` — как у карты героя.
  * У вещи числа нет — её имя занимает полосу целиком (в две-три строки, полоса растёт вверх к иконке).
  */
 export function summonLootFace(scene: Phaser.Scene, x: number, y: number, maxW: number, maxH: number, loot: SummonLoot): Phaser.GameObjects.Container {
@@ -74,7 +93,9 @@ export function summonLootFace(scene: Phaser.Scene, x: number, y: number, maxW: 
   const s = w / 300;
   const box = scene.add.container(x, y).setName(`lootCard_${loot.loot}`).setData({ w, h });
   const inset = 12 * s;
-  box.add(scene.add.image(0, 0, backTexture(scene, loot.look)).setDisplaySize(w - inset * 2, h - inset * 2));
+  const look = lootFrameLook(loot);
+  box.setData('look', look);
+  box.add(scene.add.image(0, 0, backTexture(scene, look)).setDisplaySize(w - inset * 2, h - inset * 2));
   const small = Math.max(FS.caption, Math.round(30 * s));
   const textW = w - inset * 2 - 4 * s;
   const bottom = h / 2 - inset;
@@ -98,7 +119,7 @@ export function summonLootFace(scene: Phaser.Scene, x: number, y: number, maxW: 
           : rewardIcon(scene, 0, iy, loot.loot === 'heroExp' ? 'exp' : loot.loot, size);
   if (ico) box.add(ico);
   box.add(scene.add.rectangle(0, bandY, w - inset * 2, bandH, TINT.cardBand, 0.62));
-  box.add(scene.add.image(0, 0, frameTexture(scene, loot.look, w, h)));
+  box.add(scene.add.image(0, 0, frameTexture(scene, look, w, h)));
   if (gear) {
     box.add(gear.setPosition(0, bandY));
     return box;

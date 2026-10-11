@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { itemCell, oreIcon } from '../itemIcons';
 import { GAME } from '../content';
 import { autoNextStage, decimal, defeatAdvice, describeEvents, equipBestSquad, formatNumber, keyEventsFirst, levelUpReady, nextOpenStage, squadGearUpgrades, stageNeeds, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
-import { collectFinding, featureUnlocked, pendingFinding, replayAllowed, stageFinding, type BattleResult, type Side } from '../../core';
+import { collectFinding, enemySquad, featureUnlocked, pendingFinding, replayAllowed, stageFinding, type BattleResult, type Side } from '../../core';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from '../layout';
 import { commit, session, today } from '../session';
 import { findingIcon, findingPage, showPages } from '../storyPage';
@@ -12,9 +12,10 @@ import { BTN, button, clampLines, ellipsize, groupNum, plate, pressable, rewardR
 import { markHint, pickResultHint } from '../hints';
 import { AUTO_DELAY_MS, autoAdvance, setAutoAdvance } from '../state';
 import { COLOR, COLOR_N, E, M, R, S, T, TINT } from '../theme';
-import type { ResultData } from './BattleScene';
-import { tacticalSuccess } from '../tactics';
-import { bottomSheet, cta, portrait, powerCompare, unitFigure, unitTint } from '../screen';
+import { squadDefs, type ResultData } from './BattleScene';
+import { encounterThreat, tacticalSuccess } from '../tactics';
+import { DEFEAT_POWER_OK, defeatTip } from '../defeatTip';
+import { bottomSheet, cta, portrait, powerCompare, sceneBack, unitFigure, unitTint } from '../screen';
 import { countUp, juiceOn, moment } from '../juice';
 import { playStory, startStageBattle } from '../dialogue';
 import { chapterLastStage } from '../storyView';
@@ -107,6 +108,15 @@ export class ResultScene extends Phaser.Scene {
       this.bodyArea = null;
       this.footerNodes = [];
       this.headerNodes = [];
+    });
+    // ux 4: системная «назад» (Telegram, Android) ведёт к родителю итогов, а не закрывает игру: этап → Кампания,
+    // Башня → Башня, тестовый бой → Город. Сюжет и «Глава пройдена» не теряются: очередь сцен и метка в сохранении,
+    // Кампания покажет их сама. Пока итоги проявляются (кнопок ещё нет) — ничего.
+    sceneBack(this, () => {
+      if (!this.ready) return;
+      if (tower) this.scene.start('Tower');
+      else if (stage) this.scene.start('Campaign');
+      else this.scene.start('Home');
     });
     // Фон — поле только что сыгранного боя (глава этапа / ярус башни).
     addThemeBackground(this, 'battle', themeOfBattle({ stageId: stage?.stageId, towerFloor: tower?.floor }), win ? 0.75 : 0.6);
@@ -485,13 +495,23 @@ export class ResultScene extends Phaser.Scene {
     layer.add(meta);
     reveal.step([meta]);
 
-    // Почему: мощь отряда против рекомендуемой (этап) — «⚔ 1 224  Не хватает 300».
+    // Почему: мощь отряда против рекомендуемой (этап) — «⚔ 1 224  Не хватает 300». Галки «мощи хватает» на поражении
+    // нет (powerCompare defeat): при мощи не ниже ориентира — число и строка «решают состав и расстановка».
     let y = L.metaY + 130;
+    let powerOk: { own: number; need: number } | null = null;
     if (stage) {
       const needs = stageNeeds(session.save, stage.stageId, GAME, today());
-      const pc = powerCompare(this, GAME_W / 2, y, needs.own, needs.power, { align: 'center' });
+      const pc = powerCompare(this, GAME_W / 2, y, needs.own, needs.power, { align: 'center', defeat: true });
       layer.add(pc);
       reveal.step([pc]);
+      if (needs.own >= needs.power) {
+        powerOk = { own: needs.own, need: needs.power };
+        // Строка целиком (до двух строк): на 460×1000 и 360×740 одной строкой она обрезалась многоточием.
+        const note = clampLines(text(this, GAME_W / 2, y + 48, DEFEAT_POWER_OK, T.caption, COLOR.textSecondary, { wordWrap: { width: L.contentW - 64 } }), 2).setOrigin(0.5, 0).setName('defeatPowerNote');
+        layer.add(note);
+        reveal.step([note]);
+        y += note.height + 12;
+      }
       y += 150;
     }
 
@@ -499,7 +519,9 @@ export class ResultScene extends Phaser.Scene {
     const head = text(this, GAME_W / 2, y, 'Следующая попытка', T.heading, COLOR.title, { fontStyle: 'bold' });
     layer.add(head);
     reveal.step([head]);
-    const tip = defeatAdvice(session.save, GAME, { result: r, defs: data.defs });
+    const advice0 = defeatAdvice(session.save, GAME, { result: r, defs: data.defs });
+    const threat = powerOk && stage ? encounterThreat(enemySquad(stage.stageId, GAME, session.save.campaignChoices), Object.values(squadDefs(session.save)), GAME) : null;
+    const tip = powerOk ? defeatTip(advice0, powerOk.own, powerOk.need, threat) : advice0;
     const gearReady = squadGearUpgrades(session.save, GAME).length > 0;
     const tiles = defeatShortcuts(tip.action, featureUnlocked(session.save, 'tavern', GAME), gearReady);
     const tw = 312;

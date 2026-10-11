@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_sniper_pinning_volley",
   "name": "Сковывающий залп",
-  "description": "Авторский навык (не оригинальный RO). Врагам заднего ряда (если пуст — переднего): урон 1.05 × АТК; СКР -22% на 2 хода статуса.",
+  "description": "Залп по заднему ряду врага (×1,05; пуст — по переднему) и −22% скорости целям на 2 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

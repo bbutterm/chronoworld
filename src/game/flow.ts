@@ -67,6 +67,10 @@ import {
   type Slot,
   type StageInfo,
   type TowerEvent,
+  featureUnlocked,
+  kitchenReady,
+  offlineFullInMs,
+  type KitchenContext,
 } from '../core';
 import { genderedSpriteId } from '../pipeline/sprites';
 import { badgeSeen } from './badgeSeen';
@@ -330,6 +334,33 @@ export function defeatAdvice(save: SaveState, ctx: GearContext & GameContext, ba
     return { text: 'Отряд на пределе уровней и редкости. Попробуйте другую расстановку и сочетание навыков («Отряд»).', action: 'Squad' };
   }
   return { text: 'Прокачайте героев: заберите сундук и быстрые награды в кампании, затем «Улучшить».', action: 'Campaign' };
+}
+
+/** Куда ведёт совет стены (касание строки): экран игры или никуда (только подождать). */
+export type WallAction = 'Heroes' | 'Kitchen' | 'Adventure' | 'Campaign' | null;
+
+/**
+ * Аудит 11.10 (ux 1): «стена» — мощи отряда меньше рекомендуемой для этапа. Игра говорит, что делать сейчас, по порядку
+ * пользы: уровни из запаса опыта → вещи получше → вознесение → блюдо дня → сундук (полон — забрать; нет — через
+ * сколько он наполнится, а пока Башня и Охота). Мощи хватает — null (стены нет, говорить нечего). Без новых полей
+ * сохранения: всё из текущего состояния; now и day передаёт экран (ядро детерминировано).
+ */
+export function wallAdvice(save: SaveState, stageId: string, ctx: GearContext & GameContext, now: number, day: string): { text: string; action: WallAction } | null {
+  const needs = stageNeeds(save, stageId, ctx, day);
+  if (needs.own >= needs.power) return null;
+  const inSquad = (h: HeroState) => save.squad.includes(h.id);
+  if (levelUpReady(save, ctx).some(inSquad)) return { text: 'Опыта хватает на уровни: «Герои» → герой → «Улучшить».', action: 'Heroes' };
+  if (squadGearUpgrades(save, ctx).length) return { text: 'В сумке есть вещи получше: «Герои» → «Надеть лучшее».', action: 'Heroes' };
+  if (ascendReady(save, ctx).some(inSquad)) return { text: 'Герой отряда готов к вознесению: «Герои» → «Вознести».', action: 'Heroes' };
+  if (kitchenReady(save, day, ctx as unknown as KitchenContext)) return { text: 'Блюдо дня не готово: Кухня в «Городе» усилит отряд на сегодня.', action: 'Kitchen' };
+  const fullIn = offlineFullInMs(save, now, ctx);
+  if (fullIn !== null && fullIn <= 0) return { text: 'Сундук полон: заберите добычу в «Кампании» — опыт на новые уровни.', action: 'Campaign' };
+  const meanwhile = featureUnlocked(save, 'tower', ctx);
+  if (fullIn !== null) {
+    const wait = `Сундук наполнится через ${durationText(fullIn / 60_000)} — вернитесь за опытом.`;
+    return meanwhile ? { text: `${wait} А пока — Башня и Охота.`, action: 'Adventure' } : { text: wait, action: null };
+  }
+  return { text: 'Мощи мало: копите опыт и возвращайтесь — сундук кампании копит его без вас.', action: null };
 }
 
 /** RR-02. Все герои отряда — на пределе уровня своей редкости (опыт уже не поднимет никому уровень). */

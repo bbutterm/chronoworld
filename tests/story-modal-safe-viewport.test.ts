@@ -32,7 +32,7 @@ class Node extends EventEmitter {
   setName(n: string) { this.name = n; return this; }
   setDepth() { return this; } setInteractive() { return this; } disableInteractive() { return this; }
   setOrigin(x = 0.5) { this.originX = x; return this; } setShadow() { return this; } setMask() { return this; }
-  setVisible(v: boolean) { this.visible = v; return this; } setTint() { return this; } setBlendMode() { return this; }
+  setVisible(v: boolean) { this.visible = v; return this; } setTint() { return this; } setBlendMode() { return this; } setFlipY() { return this; }
   setScale(v: number) { this.scaleX = this.scaleY = v; return this; } setAlpha(v: number) { this.alpha = v; return this; }
   setPosition(x: number, y: number) { this.x = x; this.y = y; return this; }
   setY(y: number) { this.y = y; return this; } setSize(w: number, height: number) { this.width = w; this.height = height; return this; }
@@ -57,7 +57,7 @@ function setup() {
   const scene = {
     add: { container: make, rectangle: make, image: make, circle: make, graphics: () => make() }, make: { graphics: () => make() },
     children: { get list() { return nodes.filter(o => o.scene && !o.parentContainer); } },
-    input: new EventEmitter(), events: new EventEmitter(), sys: { game: undefined, isActive: () => true }, textures: { exists: () => false },
+    input: new EventEmitter(), events: new EventEmitter(), sys: { game: undefined, isActive: () => true }, textures: { exists: () => false, createCanvas: () => null },
     cameras: { main: { getWorldPoint: (x: number, y: number) => ({ x, y }) } },
     tweens: { add: vi.fn((o: { targets: Node | Node[] }) => { for (const n of [o.targets].flat()) n.alpha = n.scaleX = n.scaleY = 1; }) },
   };
@@ -156,6 +156,22 @@ describe('сюжетные окна: безопасная высота, Back и 
     expect(q.named('pagesNext').y + 72).toBeLessThanOrEqual(h.current.safeBottom);
     layer.destroy(); expect(done).not.toHaveBeenCalled(); expect(lock.locked).toBe(false);
     expect(q.scene.events.listenerCount('ui-view-changed')).toBe(0);
+  });
+  it('«Пропустить» есть до последней страницы; на последней и единственной закрывает одна главная кнопка (ui-core 10)', () => {
+    const q = setup(); let now = 0;
+    vi.spyOn(performance, 'now').mockImplementation(() => now);
+    const done = vi.fn();
+    showPages(q.sc, pages, done)!;
+    expect(q.named('pagesSkip').visible).toBe(true);
+    expect(q.named('pagesNext').list[0].text).toBe('Далее ›');
+    now = 400; q.tap('pagesNext');
+    expect(q.named('pagesSkip').visible).toBe(false);
+    expect(q.named('pagesNext').list[0].text).toBe('Закрыть');
+    now = 800; q.tap('pagesNext'); expect(done).toHaveBeenCalledOnce();
+    const one = setup(), done1 = vi.fn();
+    showPages(one.sc, pages.slice(0, 1), done1, { doneLabel: 'В путь' })!;
+    expect(one.named('pagesSkip').visible).toBe(false);
+    expect(one.named('pagesNext').list[0].text).toBe('В путь');
   });
   it('пустые страницы не создают окно и не берут блокировку', () => {
     const q = setup(), lock = { locked: false } as ScrollArea, done = vi.fn();

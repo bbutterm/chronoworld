@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_stalker_siphon",
   "name": "Украденный темп",
-  "description": "Авторский навык (не оригинальный RO). В начале хода (шанс 25%): Ближайшему врагу: энергия -6.",
+  "description": "Иногда перед своим действием (шанс 25%): отнимает 6 энергии ульты у ближайшего врага.",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {

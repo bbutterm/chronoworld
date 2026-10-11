@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_clown_field_song",
   "name": "Песня полевого лагеря",
-  "description": "Авторский навык (не оригинальный RO). Всем союзникам, включая себя: лечение 0.45 × АТК; СКР +12% на 2 хода статуса.",
+  "description": "Песня для всего отряда: лечит всех (×0,45) и даёт +12% скорости на 2 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

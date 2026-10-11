@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_teo_high_priest",
   "name": "Литания Тео",
-  "description": "На полной энергии. Всем союзникам, включая себя: лечение 1.15 × АТК; энергия +15; СКР +12% на 3 хода статуса.",
+  "description": "Литания для всего отряда: лечение ×1,15, +15 энергии и +12% скорости на 3 с.",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {

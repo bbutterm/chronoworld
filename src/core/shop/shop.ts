@@ -7,9 +7,11 @@
 import type { z } from 'zod';
 import { addItems } from '../equipment/equipment';
 import { itemPools, lootSeed } from '../equipment/chest';
+import { chapterItemPools } from '../equipment/chapterPools';
 import { progressChapter } from '../equipment/gates';
 import type { EquipmentConfig } from '../equipment/load';
 import { addHeroExp } from '../heroes/level';
+import { heroExpAbundant } from '../heroes/expNeed';
 import { addHeroCard } from '../heroes/roster';
 import { summonPool } from '../heroes/config';
 import type { GameContext } from '../progression/types';
@@ -66,15 +68,17 @@ export function validateShop(cfg: ShopConfig, content: Content, equipment: Equip
   const pools = equipment ? itemPools(equipment.items) : undefined;
   for (const g of cfg.goods) {
     if (g.fromStage && stages.size && !stages.has(g.fromStage)) problems.push(`data/shop.json: товар ${g.id} — этап ${g.fromStage} не найден в data/campaign`);
+    if (g.untilStage && stages.size && !stages.has(g.untilStage)) problems.push(`data/shop.json: товар ${g.id} — этап ${g.untilStage} не найден в data/campaign`);
     if (g.kind === 'item' && pools && g.rarity && pools[g.rarity].length === 0) problems.push(`data/shop.json: товар ${g.id} — нет предметов редкости ${g.rarity} (drop ≠ false)`);
   }
   cfg.slots.forEach((s, i) => {
-    // Слот должен быть заполнен у любого игрока: хотя бы один товар без условий (не карта героя и без fromStage).
+    // Слот должен быть заполнен у любого игрока: хотя бы один товар без условий (без fromStage/untilStage, не карта
+    // героя и не опыт — опыт прячется, когда его в запасе с избытком).
     const always = s.some((id) => {
       const g = cfg.goods.find((x) => x.id === id);
-      return g && !g.fromStage && g.kind !== 'heroCard';
+      return g && !g.fromStage && !g.untilStage && g.kind !== 'heroCard' && g.kind !== 'heroExp';
     });
-    if (!always) problems.push(`data/shop.json: слот ${i + 1} — нужен хотя бы один товар без fromStage и не карта героя (иначе слот бывает пустым)`);
+    if (!always) problems.push(`data/shop.json: слот ${i + 1} — нужен хотя бы один товар без fromStage/untilStage, не карта героя и не опыт (иначе слот бывает пустым)`);
   });
 }
 
@@ -113,9 +117,14 @@ export function shopSeed(save: Pick<SaveState, 'createdAt'>, day: string, refres
   return lootSeed('shop', save.createdAt, day, refresh);
 }
 
-/** Товар доступен игроку сейчас: fromStage пройден, есть предметы редкости / герои для карты. */
-function available(g: ShopGood, save: SaveState, ctx: ShopContext, pools: ReturnType<typeof itemPools>): boolean {
+/**
+ * Товар доступен игроку сейчас: fromStage пройден, untilStage ещё нет, есть предметы редкости своей главы / герои
+ * для карты; опыт — только пока его не с избытком (иначе это обмен золота, которого и так не хватает, на лишний опыт).
+ */
+function available(g: ShopGood, save: SaveState, ctx: ShopContext, pools: ReturnType<typeof itemPools>, expAbundant: boolean): boolean {
   if (g.fromStage && !save.campaign.cleared.includes(g.fromStage)) return false;
+  if (g.untilStage && save.campaign.cleared.includes(g.untilStage)) return false;
+  if (g.kind === 'heroExp') return !expAbundant;
   if (g.kind === 'item') return !!g.rarity && pools[g.rarity].length > 0;
   if (g.kind === 'heroCard') return summonPool(ctx, g.cardRarity!).length > 0;
   return true;
@@ -129,14 +138,16 @@ function available(g: ShopGood, save: SaveState, ctx: ShopContext, pools: Return
 export function rollShop(save: SaveState, day: string, refresh: number, ctx: ShopContext): ShopSlot[] {
   assertDay(day);
   const rng = new Rng(shopSeed(save, day, refresh));
-  // Предметы — только открытые в главе игрока (minChapter): эпик в Лавке главы 1 не появится, слот возьмёт другой товар.
-  const pools = itemPools(ctx.equipment.items, progressChapter(save, ctx));
+  // Предметы — те же, что падают в кампании главы игрока (minChapter, itemsFromChapter правила главы): эпик в Лавке
+  // главы 1 не появится, нож главы 1 в главе 8 — тоже; нет вещей редкости — слот возьмёт другой товар.
+  const pools = chapterItemPools(save, ctx);
+  const expAbundant = heroExpAbundant(save, ctx);
   const mult = shopMultiplier(save, ctx);
   const out: ShopSlot[] = [];
   for (const slot of ctx.shop.slots) {
     const x = rng.next();
     const y = rng.next();
-    const goods = slot.map((id) => ctx.shop.goods.find((g) => g.id === id)!).filter((g) => g && available(g, save, ctx, pools));
+    const goods = slot.map((id) => ctx.shop.goods.find((g) => g.id === id)!).filter((g) => g && available(g, save, ctx, pools, expAbundant));
     const total = goods.reduce((s, g) => s + g.weight, 0);
     if (!goods.length || total <= 0) continue;
     let r = x * total;

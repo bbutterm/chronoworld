@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "job_sage_free_cast",
   "name": "Свободное чтение",
-  "description": "В начале боя: +20% скорости себе на 4 с.",
+  "description": "В начале боя: +20% скорости себе на 12 с.",
   "range": "ranged",
   "trigger": "battleStart",
   "target": {
@@ -15,7 +15,7 @@
       "status": {
         "id": "free_cast",
         "name": "Свободное чтение",
-        "turns": 4,
+        "turns": 12,
         "stats": {
           "spd": 0.2
         }

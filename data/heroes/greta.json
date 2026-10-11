@@ -152,7 +152,7 @@
         },
         {
           "level": 30,
-          "skill": "job_merchant_frying_pan"
+          "skill": "job_alchemist_acid_terror"
         },
         {
           "level": 50,
@@ -197,6 +197,10 @@
           {
             "level": 30,
             "skill": "job_merchant_frying_pan"
+          },
+          {
+            "level": 30,
+            "skill": "job_alchemist_acid_terror"
           },
           {
             "level": 50,

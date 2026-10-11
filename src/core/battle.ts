@@ -159,6 +159,14 @@ export function stat(u: Unit, key: StatMod): number {
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
 /**
+ * Дальность активного навыка или ульты в руках бойца. Дальний боец (обычная атака дальняя) в ближний бой не входит,
+ * и такой приём ближнего боя у него не сработал бы никогда: он летит как дальний (создатель с унаследованными приёмами
+ * торговца — Маммонит, Удар сковородой, Тележка). Обычная атака и её запасной навык (fallback) — как в данных.
+ */
+const rangeOf = (u: Unit, skill: SkillDef): 'melee' | 'ranged' =>
+  skill.range === 'melee' && u.range === Infinity && (skill === u.ult || u.actives.includes(skill)) ? 'ranged' : skill.range;
+
+/**
  * Дистанция удара ближнего бойца по цели: его дальность + «радиус тела» цели и свой (боссы крупнее).
  * Симметрична: крупный боец не подпускает мелкого вплотную, к его телу (T2-05: герой не встаёт в спрайт босса).
  */
@@ -625,7 +633,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   const launch = (u: Unit, skill: SkillDef, targets: Unit[], area?: Area) => {
     // Удар по кругу падает сразу в конце каста (круг на земле уже показал, куда).
     // Сбивающий каст навык (Развеивание) — тоже сразу: иначе каст врага успевает кончиться, пока летит снаряд.
-    const projectile = !area && !(on && interrupts(skill)) && projectileSeconds > 0 && skill.range === 'ranged' && skill.target.side === 'enemy' && !skill.effects.some((e) => e.type === 'dash');
+    const projectile = !area && !(on && interrupts(skill)) && projectileSeconds > 0 && rangeOf(u, skill) === 'ranged' && skill.target.side === 'enemy' && !skill.effects.some((e) => e.type === 'dash');
     if (!projectile) {
       useSkill(u, skill, targets, area);
       return;
@@ -1767,7 +1775,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
   /** Приземление после рывка назад (diveBack): до него ближний удар не наносится (с профилями; без них — как раньше). */
   const landsAt = new Map<Unit, number>();
   const skillReady = (u: Unit, skill: SkillDef) =>
-    !u.moving && (skill.range === 'ranged' || (!!u.engage?.alive && withinReach(u, u.engage, 0.5) && !(t + 1e-9 < (landsAt.get(u) ?? 0))));
+    !u.moving && (rangeOf(u, skill) === 'ranged' || (!!u.engage?.alive && withinReach(u, u.engage, 0.5) && !(t + 1e-9 < (landsAt.get(u) ?? 0))));
 
   /** true — юнит походил; false — не может сейчас (бежит или не дошёл), ждёт с полной шкалой. */
   const act = (u: Unit): boolean => {
@@ -1844,7 +1852,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (u.ult === s ? u.energy < cfg.energy.max || !ultUseful(u, s) : (u.readyAt[s.id] ?? 0) > t + 1e-9) return;
     // BUG-183: ближняя контрольная ульта по касанию во время заряда — сразу в заряжающего: далеко — рывком к нему
     // (как прыжок; из тыла врага вернётся), рядом — он становится целью сражения (площадь — вокруг него, не фронта).
-    if (s.range === 'melee' && s.target.side === 'enemy' && breaksCharge(s)) {
+    if (rangeOf(u, s) === 'melee' && s.target.side === 'enemy' && breaksCharge(s)) {
       const ch = chargingFoe(u);
       if (ch) {
         if (!withinReach(u, ch, 0.5)) applyEffect(u, { type: 'dash' }, ch, s);
@@ -1854,7 +1862,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
       }
     }
     // Дальняя ульта — и на ходу; ближняя — когда дошёл до цели.
-    const can = s.range === 'ranged' || skillReady(u, s);
+    const can = rangeOf(u, s) === 'ranged' || skillReady(u, s);
     if (!can) return;
     const targets = u.ult === s ? [] : activeTargets(u, s);
     if (u.ult !== s && targets.length === 0) return;
@@ -1967,7 +1975,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
    */
   const activeTargets = (u: Unit, skill: SkillDef): Unit[] => {
     const heal = healOnly(skill);
-    if (skill.range === 'melee') {
+    if (rangeOf(u, skill) === 'melee') {
       const e = u.engage;
       if (!e?.alive || !withinReach(u, e, 0.5)) return [];
       // Одиночный удар — по цели сражения; удар по площади (pick all, count > 1) — по селектору среди врагов
@@ -1998,7 +2006,7 @@ export function simulateBattle(content: Content, squadA: Squad, squadB: Squad, s
     if (u.bh.counter) holdSince.delete(u);
     report[u.uid].skills++;
     addEnergy(u, gain(u, 'perBasicAction'));
-    const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : skill.range === 'melee' ? 'melee' : 'ranged';
+    const kind = skill.effects.some((e) => e.type === 'heal') ? 'heal' : rangeOf(u, skill) === 'melee' ? 'melee' : 'ranged';
     emit({
       t,
       type: 'attack',

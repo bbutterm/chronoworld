@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_vika_high_priest",
   "name": "Покров Вики",
-  "description": "На полной энергии. Всем союзникам, включая себя: лечение 1.4 × АТК; щит 14% макс. ОЗ цели.",
+  "description": "Покров всему отряду: лечение ×1,4 и щит 14% ОЗ.",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {

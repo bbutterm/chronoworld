@@ -5,7 +5,7 @@ import { GAME_W, HEADER_H } from './layout';
 import { minimumFontSize, minimumTouchSize, view, worldPoint } from './viewport';
 import { C, COLOR, COLOR_N, E, FAMILY, familyFor, FS, leading, M, R, S, T, TINT, TOUCH, TOUCH_COMFORT } from './theme';
 import { BADGE } from './frame';
-import { arrowRect, HINT_GEOM, overlapArea, placeCallout, sceneObstacles, type CalloutPlan, type HintSide, type Rect, type SceneNode } from './hintLayout';
+import { arrowRect, HINT_GEOM, overlapArea, placeBand, placeCallout, sceneObstacles, type CalloutPlan, type HintSide, type Rect, type SceneNode } from './hintLayout';
 import { HINT_TEXT, hintNagged, markHint, noteHintVisit, type HintId } from './hints';
 import { barFrom, heartbeat, juiceOn } from './juice';
 import { roIconImage } from './itemIcons';
@@ -1418,7 +1418,8 @@ function drawHint(
   const t = text(scene, 0, 0, message, FS.body, C.title, { fontStyle: 'bold', stroke: C.stroke, strokeThickness: 4, wordWrap: { width: w - 200 } });
   const closeW = opts.skip ? 44 : 0;
   const tgt = { x, y, ...target };
-  const obstacles = sceneObstacles(scene.children.list as unknown as SceneNode[], tgt, { w, h });
+  // Списки с прокруткой: помеха — только видимая часть (плитки под маской за краем окна не мешают плашке).
+  const obstacles = sceneObstacles(clippedNodes(scene.children.list, null), tgt, { w, h });
   const controls = [...obstacles.controls, ...textRects(scene, opts.avoidText ?? []), ...(opts.avoid ?? [])];
   // Плашка в одну строку не везде помещается между кнопками (итоги: «Дальше» у правого края, слева — «Авто»):
   // тогда та же строка переносится уже — узкая плашка встаёт рядом с целью, ничего не закрывая. Сначала — не закрывая
@@ -1458,32 +1459,96 @@ function drawHint(
     c.add(arrow);
   };
   if (!plan) {
-    // Места для плашки нет — только рамка и стрелка (где она ничего не закрывает); без всплывающего текста.
-    t.destroy();
     const free = (['above', 'below'] as HintSide[]).find((sd) => {
       const a = arrowRect(tgt, sd);
       return a.y >= HEADER_H && a.y + a.h <= h && controls.every((r) => overlapArea(a, r) === 0);
     });
     if (free) arrowAt(free);
+    // Аудит 11.10 (ux 13): рядом с целью места нет (высокий экран владельца с отступами Telegram) — текст не теряем:
+    // плашка встаёт в ближайшую свободную полосу экрана (как реплики firstTips.ts), рамка и стрелка остаются у цели.
+    const band = hintBand(t, tgt, free ? arrowRect(tgt, free) : null, controls, obstacles.texts, closeW, h);
+    if (band) {
+      const bg = plate(scene, band.x + band.w / 2, band.y + band.h / 2, band.w, band.h, hintPlate());
+      t.setPosition(band.x + band.w / 2 - closeW / 2, band.y + band.h / 2);
+      c.add([bg, t]);
+      addSkip(scene, c, bg, band, opts.skip);
+      const overText = obstacles.texts.reduce((n, r) => n + overlapArea(band, r), 0);
+      c.setData('hintBox', band).setData('hintOverlap', 0).setData('hintOverText', overText).setData('hintSide', free ?? 'none').setData('hintMode', 'band');
+      return;
+    }
+    // Нигде нет места — только рамка и стрелка (где она ничего не закрывает).
+    t.destroy();
     c.setData('hintBox', { x, y, w: 0, h: 0 }).setData('hintOverlap', 0).setData('hintSide', free ?? 'none').setData('hintMode', 'ring');
     return;
   }
   arrowAt(plan.side);
   const b = plan.box;
-  const bg = plate(scene, b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, { fill: '#14120f', alpha: 0.94, border: COLOR.accent, borderW: 4, r: R.l });
+  const bg = plate(scene, b.x + b.w / 2, b.y + b.h / 2, b.w, b.h, hintPlate());
   t.setPosition(b.x + b.w / 2 - closeW / 2, b.y + b.h / 2);
   c.add([bg, t]);
-  if (opts.skip) {
-    const skip = opts.skip;
-    c.add(text(scene, b.x + b.w - 30, b.y + b.h / 2, '✕', FS.body, C.muted, { fontStyle: 'bold' }).setName('hintSkip'));
-    bg.setInteractive({ useHandCursor: true }).on('pointerup', () => {
-      skip();
-      c.destroy();
-    });
-  }
+  addSkip(scene, c, bg, b, opts.skip);
   // Для e2e и отладки: где оказалась плашка и что она закрыла (кнопки — всегда 0; данные — hintOverText).
   const overText = obstacles.texts.reduce((n, r) => n + overlapArea(b, r), 0);
   c.setData('hintBox', b).setData('hintOverlap', plan.overlap).setData('hintOverText', overText).setData('hintSide', plan.side).setData('hintMode', 'box');
+}
+
+/** Вид плашки подсказки: тёмная, с рамкой акцента (у цели и в запасной полосе — одинаково). */
+function hintPlate() {
+  return { fill: '#14120f', alpha: 0.94, border: COLOR.accent, borderW: 4, r: R.l };
+}
+
+/** «✕» в углу плашки: касание плашки пропускает шаг обучения. */
+function addSkip(scene: Phaser.Scene, c: Phaser.GameObjects.Container, bg: Phaser.GameObjects.GameObject, b: Rect, skip?: () => void): void {
+  if (!skip) return;
+  c.add(text(scene, b.x + b.w - 30, b.y + b.h / 2, '✕', FS.body, C.muted, { fontStyle: 'bold' }).setName('hintSkip'));
+  bg.setInteractive({ useHandCursor: true }).on('pointerup', () => {
+    skip();
+    c.destroy();
+  });
+}
+
+/**
+ * Запасное место плашки, когда рядом с целью тесно: свободная горизонтальная полоса экрана (placeBand), ближайшая к
+ * цели, — сначала мимо кнопок и данных, затем хотя бы мимо кнопок. Плашка не ложится на рамку и стрелку цели.
+ * null — свободной полосы нет нигде.
+ */
+function hintBand(t: Phaser.GameObjects.Text, tgt: Rect & { x: number; y: number }, arrow: Rect | null, controls: Rect[], texts: Rect[], closeW: number, bottom: number): Rect | null {
+  const ring: Rect = { x: tgt.x - tgt.w / 2 - 16, y: tgt.y - tgt.h / 2 - 16, w: tgt.w + 32, h: tgt.h + 32 };
+  const keep = [ring, ...(arrow ? [arrow] : [])];
+  const g = HINT_GEOM;
+  for (const avoid of [[...controls, ...texts, ...keep], [...controls, ...keep]]) {
+    for (const ww of [GAME_W - 200, 640, 520]) {
+      t.setWordWrapWidth(ww);
+      const bw = Math.min(GAME_W - 2 * g.margin, t.width + 60 + closeW);
+      const bh = t.height + 22;
+      const bx = Math.min(Math.max(tgt.x - bw / 2, g.margin), GAME_W - g.margin - bw);
+      // Предпочтение — над целью (стрелка смотрит на неё сверху), но место выбирает placeBand.
+      const p = placeBand(bh, { prefer: tgt.y - tgt.h / 2 - bh - g.arrowGap - g.arrowH, avoid, top: HEADER_H + 8, bottom, x: bx, w: bw });
+      if (p.overlap === 0) return { x: bx, y: p.y, w: bw, h: bh };
+    }
+  }
+  return null;
+}
+
+/**
+ * Узлы сцены для обхода помех с учётом масок прокрутки: у содержимого ScrollArea (данные 'clip' — видимая полоса)
+ * прямоугольник потомка обрезается по полосе; целиком за краем — пустой (это не помеха плашке).
+ */
+function clippedNodes(list: readonly Phaser.GameObjects.GameObject[], clip: readonly [number, number] | null): SceneNode[] {
+  return list.map((o) => {
+    const node = o as unknown as SceneNode & { list?: Phaser.GameObjects.GameObject[] };
+    const own = o.data ? (o.data.get('clip') as [number, number] | undefined) : undefined;
+    const c: readonly [number, number] | null = own ? (clip ? [Math.max(clip[0], own[0]), Math.min(clip[1], own[1])] : own) : clip;
+    if (!c && !node.list) return node;
+    const bounds = node.getBounds ? () => {
+      const b = node.getBounds!();
+      if (!c) return b;
+      const top = Math.max(b.y, c[0]);
+      const bot = Math.min(b.y + b.height, c[1]);
+      return bot > top ? { x: b.x, y: top, width: b.width, height: bot - top } : { x: b.x, y: b.y, width: 0, height: 0 };
+    } : undefined;
+    return { name: node.name, type: node.type, visible: node.visible, text: node.text, input: node.input, list: node.list ? clippedNodes(node.list, c) : undefined, getBounds: bounds };
+  });
 }
 
 /** Подсказки, уже показанные в этом визите экрана (от create до shutdown): одна подсказка за визит. */

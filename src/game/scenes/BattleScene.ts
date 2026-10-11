@@ -58,7 +58,7 @@ import { audioSettings, setAudioSettings } from '../audio';
 import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
 import { ease, Scheduler } from '../perf';
-import { unitTint } from '../screen';
+import { confirm, confirmOpen, sceneBack, unitTint } from '../screen';
 import { animatedFxKey, battleFxIds, castFxId, skillFx, type SkillFx as AtlasRoles } from '../animatedFx';
 import { holdAnimatedFx } from '../assets';
 import { FIRE_BOLT_MS, FIRE_BOLT_STEP, SkillFx, STAR_TEX, type CastRig, type FxPoint, type HitStyle } from '../skillFx';
@@ -245,6 +245,8 @@ const SPREAD_BOUNDS = COMBAT.field.bounds ?? { minX: 70, maxX: COMBAT.field.widt
 const FIELD_CX = COMBAT.field.width / 2;
 export const FIELD_SQUEEZE = 0.84;
 export const fieldX = (x: number): number => FIELD_CX + (x - FIELD_CX) * FIELD_SQUEEZE;
+/** Полуширина тела фигуры в координатах ядра — разведение (battleSpread) по размеру фигуры, а не одному эллипсу. */
+const spreadHalfW = (p: { body: { left: number; right: number } }): number => (p.body.right - p.body.left) / 2 / FIELD_SQUEEZE;
 
 /**
  * Вид юнита. pos (SpreadUnit) — позиция из лога ядра (её двигают шаги), node — показанная: pos + смещение
@@ -481,6 +483,8 @@ export class BattleScene extends Phaser.Scene {
   ready = false;
   /** Номер запуска сцены: отложенная сборка старого запуска (сцену уже выключили или перезапустили) не выполняется. */
   private createSeq = 0;
+  /** Открыт вопрос «Выйти из боя?» (Back Telegram/Android): часы боя стоят, пока он на экране. */
+  private leaveAsk = false;
   /**
    * Ульта вручную (docs/design/battle-decisions.md §1). rerun — пересчитать бой (и итог этапа) с вводами игрока; null —
    * режим недоступен (Охота: всегда авто). manual — текущий режим, startManual — с каким начали (вводы — от него).
@@ -517,6 +521,27 @@ export class BattleScene extends Phaser.Scene {
   private actorFactor = 1;
   private headerObjects: { node: Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform; dy: number }[] = [];
   private speedBtn: ButtonView | null = null;
+  /**
+   * Back Telegram/Android в бою (ux 4): «Выйти из боя?» — бой не засчитывается (итог пишется только в конце, commitStage),
+   * выход ведёт к родителю режима. Пока бой не построен или уже кончился (идёт переход к итогам) — ничего.
+   */
+  private askLeave(data: BattleData): void {
+    if (!this.ready || this.finished || this.skipping || this.leaveAsk || confirmOpen(this)) return;
+    this.leaveAsk = true;
+    confirm(this, 'Выйти из боя? Бой не засчитается — его придётся начать заново.', 'Выйти', () => this.leaveBattle(data), { danger: true });
+  }
+
+  /** Родитель боя по режиму: этап → «Этап», Башня, охота, Арена, задание героя → «Вечера», тестовый → Город. */
+  private leaveBattle(data: BattleData): void {
+    this.finished = true;
+    if (data.mode === 'stage') this.scene.start('Stage', { stageId: data.stageId });
+    else if (data.mode === 'tower') this.scene.start('Tower');
+    else if (data.mode === 'hunt') this.scene.start('Hunt');
+    else if (data.mode === 'autobattler') this.scene.start('Autobattler');
+    else if (data.mode === 'bond') startTavernEvening(this, { mode: 'hub', back: data.back });
+    else this.scene.start('Home');
+  }
+
   /** Полоска HP босса: засечки фаз (доля HP) и полоса заряда под ней. */
   private bossPips: { pct: number; pip: Phaser.GameObjects.Rectangle }[] = [];
   private bossCharge: { node: Phaser.GameObjects.Container; fill: Phaser.GameObjects.Rectangle } | null = null;
@@ -528,6 +553,9 @@ export class BattleScene extends Phaser.Scene {
   create(data: BattleData): void {
     // Выключение сцены: забыть юнитов и пулы (объекты, твины и таймеры Phaser убирает сам). once — без накопления слушателей.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
+    // ux 4: системная «назад» (Telegram, Android) в бою не закрывает игру, а спрашивает «Выйти из боя?».
+    this.leaveAsk = false;
+    sceneBack(this, () => this.askLeave(data));
     this.views.clear();
     this.viewList.length = 0;
     this.labelViews.length = 0;
@@ -1051,7 +1079,8 @@ export class BattleScene extends Phaser.Scene {
       .setScale(1.15)
       .setName('bossBanner');
     this.introLeft = BOSS_IN_MS + BOSS_HOLD_MS;
-    this.cameras.main.shake(260, 0.004);
+    // Общий путь тряски: «Уменьшить анимацию» и prefers-reduced-motion — без неё (SkillFx.shake).
+    this.sfx.shake(0.004, 260);
     this.tweens.chain({
       targets: node,
       tweens: [
@@ -1239,6 +1268,7 @@ export class BattleScene extends Phaser.Scene {
       sy: snap.y,
       side: snap.side,
       extra: def.kind === 'boss' ? 60 : 0,
+      halfW: spreadHalfW(presentation),
       active: true,
     };
     this.views.set(snap.uid, v);
@@ -1298,6 +1328,11 @@ export class BattleScene extends Phaser.Scene {
     for (let i = 0; i < views.length; i++) this.animateUnit(views[i], dt);
     this.layoutUnits(dt);
     if (this.finished) return;
+    // Вопрос «Выйти из боя?»: часы стоят, пока он открыт (закрыли «Отменой» — бой идёт дальше с того же места).
+    if (this.leaveAsk) {
+      if (confirmOpen(this)) return;
+      this.leaveAsk = false;
+    }
     // Баннер босса: часы боя стоят, пока он на экране («Пропустить» работает — skip не ждёт часов).
     if (this.introLeft > 0) {
       this.introLeft -= dt;
@@ -1547,6 +1582,7 @@ export class BattleScene extends Phaser.Scene {
     const shW = Phaser.Math.Clamp(footW * 1.1, 120, 360);
     v.shadow.setDisplaySize(shW, Math.min(56, shW * 0.3));
     v.nameY = -v.look.height - 22;
+    v.halfW = spreadHalfW(v.presentation);
     this.bodyHitArea(v);
   }
 

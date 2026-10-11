@@ -97,7 +97,10 @@ describe('старое нажатие не выдаёт награду втор�
 
 describe('покупка относится к показанному товару и остатку', () => {
   it('повтор старого intent не покупает вторую единицу даже при stock=2', () => {
-    state.save = late();
+    // Товар со stock=2 — набор опыта; при избытке опыта (отряд на пределе редкости или пул с запасом) Лавка их не ставит
+    // (heroExpAbundant) — здесь отряду нужен опыт: уровень 1 и пустой пул.
+    const base = late();
+    state.save = { ...base, heroes: base.heroes.map((h) => ({ ...h, level: 1 })), resources: { ...base.resources, heroExp: 0 } };
     const status = shopStatus(state.save, DAY, GAME);
     const slot = status.slots.find((s) => s.stock === 2 && s.affordable)!;
     expect(slot).toBeDefined();

@@ -50,7 +50,8 @@ describe('approved runtime layout bounds', () => {
 vi.mock('phaser', () => ({ default: { Scene: class {}, Scenes: { Events: { SHUTDOWN: 'shutdown' } }, GameObjects: { Events: { DESTROY: 'destroy' } }, BlendModes: { ADD: 1 } } }));
 vi.mock('../src/game/audio', () => ({ sfx: vi.fn() }));
 vi.mock('../src/game/haptics', () => ({ haptic: vi.fn() }));
-vi.mock('../src/game/session', () => ({ session: { save: null }, today: () => '2026-10-04', commit: vi.fn() }));
+// now — для совета стены у кнопки «Отряд» (CampaignScene.wallLine, аудит 11.10).
+vi.mock('../src/game/session', () => ({ session: { save: null }, today: () => '2026-10-04', now: () => 0, commit: vi.fn() }));
 vi.mock('../src/game/screen', () => ({ CONTENT_TOP: 170, contentBottom: () => 1760, unitFigure: vi.fn() }));
 vi.mock('../src/game/ui', () => ({
   BTN: { m: 96 }, SURFACE: { surface: {}, raised: {} },

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_sniper_falcon_mark",
   "name": "Метка сокола",
-  "description": "Авторский навык (не оригинальный RO). Врагу с наименьшими ОЗ: урон 1.65 × АТК; ЗАЩ -15% на 2 хода статуса.",
+  "description": "Сокол метит самого израненного врага: урон (×1,65) и −15% защиты на 2 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

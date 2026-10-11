@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_otto_whitesmith",
   "name": "Клеймо Отто",
-  "description": "На полной энергии. Врагам переднего ряда (если пуст — заднего): урон 2 × АТК; ЗАЩ -28% на 3 хода статуса.",
+  "description": "Клеймо на передний ряд врагов (если он пуст — на задний): ×2 и −28% защиты на 3 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

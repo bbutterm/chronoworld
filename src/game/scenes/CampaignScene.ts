@@ -3,13 +3,14 @@ import { hasArt } from '../assets';
 import { HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, type HintId } from '../hints';
 import { overlapArea, type Rect } from '../hintLayout';
 import { homeHintInput } from '../tutorial';
-import { actClaimOffline, actUseFastRewards, episodePageId, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, markPageSeen, pendingIntro, pendingScenes, stageStatus, type Pantry } from '../../core';
+import { actClaimOffline, actUseFastRewards, episodePageId, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, markPageSeen, offlineLoot, pendingIntro, pendingScenes, stageStatus, type Pantry } from '../../core';
 import { introPages, showPages } from '../storyPage';
 import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
 import { isChapterFinale, seenChapterScenes } from '../storyView';
 import { openStoryHistory, startChapterDone } from './ChapterDoneScene';
-import { currentStage, describeEvents, formatNumber, powerCheck, stageNo } from '../flow';
+import { currentStage, describeEvents, formatNumber, powerCheck, stageNo, wallAdvice } from '../flow';
+import { chapterTitle } from '../chapterTitle';
 import { powerShortfall } from '../frame';
 import { heroCard } from '../../core';
 import { heroSprite } from '../flow';
@@ -17,7 +18,7 @@ import { campaignLayout, campaignPages } from '../runtimeUiLayout';
 import { GAME_W } from '../layout';
 import { confirm, confirmOpen, CONTENT_TOP, contentBottom, unitFigure, cta, dot, gemIcon, NAV_H, NAV_TAB_W, navTabX, navY, screen } from '../screen';
 import { commit, now, restartOnNewDay, session, today } from '../session';
-import { BTN, button, chip, ellipsize, mixHex, plate, pressable, ScrollArea, SURFACE, text, toast, tutorialHint, type ButtonView } from '../ui';
+import { BTN, button, chip, clampLines, ellipsize, mixHex, plate, pressable, ScrollArea, SURFACE, text, toast, tutorialHint, type ButtonView } from '../ui';
 import { C, COLOR, COLOR_N, E, M, R, S, T, TOUCH } from '../theme';
 import { SKIN_TINT, skinIcon } from '../skin';
 import { screenBackground, setThemeBackground, themeOfChapter } from '../backdrops';
@@ -125,6 +126,7 @@ export class CampaignScene extends Phaser.Scene {
     this.chapterIndex = ci;
     const chapter = chapters[ci];
     screen(this, 'Кампания', 'Campaign');
+    this.quietNav();
     if (!chapter) {
       text(this, GAME_W / 2, 600, 'В data/campaign нет глав', T.heading);
       return;
@@ -156,6 +158,7 @@ export class CampaignScene extends Phaser.Scene {
       const dy = bottom - this.footerBottom;
       for (const o of this.footer) if (o.scene && 'y' in o) (o as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform).y += dy;
       this.footerBottom = bottom;
+      this.quietNav();
       this.hintView?.destroy();
       this.hintView = null;
       this.hintId = null;
@@ -213,7 +216,8 @@ export class CampaignScene extends Phaser.Scene {
     const chapter = CONTENT.chapters[ci];
     // Название главы — на ленте (между стрелками глав); стрелки — квадратные иконки-кнопки.
     plate(this, GAME_W / 2, CONTENT_TOP + 80, GAME_W, 180, { fill: COLOR.surface, alpha: 0.94, borderW: 0, r: 0 });
-    ellipsize(text(this, GAME_W / 2, CONTENT_TOP + 40, chapter.name, T.title, COLOR.textPrimary), 760);
+    // Номер главы — строкой ниже («Глава 6 · 0 / 18»): в заголовке только имя, без «Глава 6.» (не обрезается).
+    ellipsize(text(this, GAME_W / 2, CONTENT_TOP + 40, chapterTitle(chapter.name), T.title, COLOR.textPrimary).setName('chapterTitle'), 760);
     const arrow = (x: number, ico: 'back' | 'next', to: number, name: string) => {
       const b = button(this, x, CONTENT_TOP + 40, TOUCH, TOUCH, '', '', () => this.scene.restart({ chapter: to }), T.body, { variant: 'icon' });
       b.container.add(this.add.image(0, 0, skinIcon(ico)).setDisplaySize(52, 52).setTint(COLOR_N.title)).setName(name);
@@ -384,6 +388,7 @@ export class CampaignScene extends Phaser.Scene {
     // Одна подпись: кнопка «Отряд» над полосой героев (без второй такой же надписи слева).
     const editButton = button(this, GAME_W - S.l - 130, headerY, 260, this.compactLayout ? 132 : 96, '', 'Отряд', edit, T.caption, { variant: 'secondary' });
     editButton.container.setName('campaignSquadEdit');
+    this.wallLine(headerY, this.compactLayout ? 132 : 96);
     Array.from({ length: 5 }, (_, i) => {
       const hero = session.save.heroes.find((h) => h.id === session.save.squad[i]);
       const x = 144 + i * 198;
@@ -401,6 +406,34 @@ export class CampaignScene extends Phaser.Scene {
         ellipsize(text(this, x, this.layout.squadY + 56, heroCard(hero, GAME).name, T.caption, COLOR.textPrimary), 172);
       } else text(this, x, this.layout.squadY, 'Пусто', T.caption, COLOR.textSecondary);
     });
+  }
+
+  /**
+   * Аудит 11.10 (ux 1): стена — мощи на текущий этап мало. Слева от «Отряд» — что поможет сейчас (уровни, вещи,
+   * вознесение, блюдо дня, сундук: полон — забрать, нет — через сколько наполнится; а пока Башня и Охота). Касание —
+   * туда, где это делается. Мощи хватает — строки нет.
+   */
+  private wallLine(y: number, h: number): void {
+    const save = session.save;
+    const cur = currentStage(save, GAME);
+    if (!cur || cur.chapter !== CONTENT.chapters[this.chapterIndex]?.id || stageStatus(save, cur.id, GAME) !== 'open') return;
+    const wall = wallAdvice(save, cur.id, GAME, now(), today());
+    if (!wall) return;
+    const w = GAME_W - 2 * S.l - 260 - S.xs;
+    const bg = plate(this, S.l + w / 2, y, w, h, { fill: COLOR.surfaceSunken, alpha: 0.9, border: mixHex(COLOR.surfaceSunken, COLOR.warning, 0.6), borderW: 2, r: R.m }).setName('campaignWall');
+    const t = text(this, S.l + S.s, y, `${wall.text}${wall.action ? ' ›' : ''}`, T.caption - 6, COLOR.textPrimary, { wordWrap: { width: w - 2 * S.s } }).setOrigin(0, 0.5).setName('campaignWallText');
+    clampLines(t, 2);
+    const action = wall.action;
+    if (action) pressable(this, bg, w, h, () => (action === 'Campaign' ? this.claim() : this.scene.start(action)));
+  }
+
+  /**
+   * Новичок до первой победы (аудит 11.10, ux 15): красные точки других вкладок («Город»: вход дня, письмо) спорят с
+   * указателем «В бой» — до первой победы их не показываем. Точку «Кампании» оставляем.
+   */
+  private quietNav(): void {
+    if (session.save.campaign.cleared.length > 0) return;
+    for (const o of this.children.list) if (o.name.startsWith('navBadge_') && o.name !== 'navBadge_Campaign') (o as Phaser.GameObjects.Components.Visible & Phaser.GameObjects.GameObject).setVisible(false);
   }
 
   // ---------- «В бой» ----------
@@ -529,7 +562,12 @@ export class CampaignScene extends Phaser.Scene {
       return;
     }
     pressable(this, this.chestImg, this.layout.chestSize, this.layout.chestSize, () => this.claim());
-    this.chestView = new ChestCardView(this, { x: this.layout.fillX, w: this.layout.fillW, barY: this.layout.barY, chipsY: this.layout.chipsY, chipsW: this.layout.chipsW });
+    // Ряд накопленного — до самой «Собрать» (аудит 11.10: трофеи реже сворачиваются в «+N»).
+    const chipsW = Math.max(this.layout.chipsW, this.layout.claimX - this.layout.claimW / 2 - S.xs - this.layout.fillX);
+    this.chestView = new ChestCardView(this, { x: this.layout.fillX, w: this.layout.fillW, barY: this.layout.barY, chipsY: this.layout.chipsY, chipsW });
+    // Касание ряда накопленного — что именно в сундуке (названия вещей), без сбора.
+    const lz = this.add.zone(this.layout.fillX + chipsW / 2, this.layout.chipsY, chipsW, 88).setName('chestLootZone');
+    pressable(this, lz, chipsW, 88, () => this.showChestLoot());
     this.claimBtn = button(this, this.layout.claimX, this.layout.claimY, this.layout.claimW, this.layout.claimH, '', 'Собрать', () => this.claim(), T.body, { variant: 'secondary' });
     this.claimBtn.container.setName('chestClaim');
   }
@@ -558,6 +596,15 @@ export class CampaignScene extends Phaser.Scene {
       }
     }
     this.updateHint(st.hasIncome);
+  }
+
+  /** Тост с содержимым сундука: золото и опыт видны чипами, здесь — вещи по названиям, карты, гемы, свитки. */
+  private showChestLoot(): void {
+    const save = session.save;
+    const loot = offlineLoot(save, now(), GAME);
+    const lines = lootLines(loot);
+    if (loot.cards.length) lines.push(`Карты героя: ${loot.cards.length}`);
+    toast(this, lines.length ? `В сундуке:\n${lines.join('\n')}` : 'В сундуке пока золото и опыт — трофеи добавятся со временем.', C.title, 4500);
   }
 
   private claim(): void {

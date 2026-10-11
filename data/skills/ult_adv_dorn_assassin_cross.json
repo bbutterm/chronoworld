@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_dorn_assassin_cross",
   "name": "Расчёт Дорна",
-  "description": "На полной энергии. Врагу с наименьшими ОЗ: урон 2.6 × АТК; урон 0.35 × АТК каждый ход статуса на 3 хода статуса.",
+  "description": "Удар по врагу с наименьшими ОЗ: ×2,6 и рана (×0,35 в секунду, 3 с).",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {

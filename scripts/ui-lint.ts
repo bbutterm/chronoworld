@@ -10,7 +10,7 @@
  *
  * Что считается (строки и комментарии разбираются лексером, поэтому комментарии не считаются):
  *   instr    — «нажмите» / «коснитесь» / «чтобы» в строковых литералах (принцип 3: ноль инструкций в постоянном UI);
- *   color    — '#rrggbb' в строках и 0xRRGGBB в коде вне theme.ts / skin.ts (принцип 7: цвет — только токеном);
+ *   color    — '#rrggbb' в строках и 0xRRGGBB в коде вне theme.ts / skin.ts / kitchenDishArt.ts (принцип 7: цвет — только токеном);
  *   fontSize — числовой размер шрифта: `fontSize: 32` / `fontSize: '32px'`, 5-й аргумент text(), 9-й аргумент button()
  *              (принцип 2: только T.*);
  *   primary  — 'ui_btn_primary', variant: 'primary' и вызовы cta( (принцип 1: одна главная кнопка на экран);
@@ -33,7 +33,8 @@ export const METRIC_TITLE: Record<Metric, string> = {
 };
 
 /** Файлы, где литералы цветов законны: сами токены и скин. */
-const COLOR_ALLOWED = new Set(['src/game/theme.ts', 'src/game/skin.ts']);
+// theme.ts — токены; skin.ts и kitchenDishArt.ts — процедурный арт (скин, пиксельные блюда Кухни), их палитры — не цвета интерфейса.
+const COLOR_ALLOWED = new Set(['src/game/theme.ts', 'src/game/skin.ts', 'src/game/kitchenDishArt.ts']);
 
 export const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 export const BASELINE_PATH = join(ROOT, 'scripts/ui-lint-baseline.json');
