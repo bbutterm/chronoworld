@@ -122,6 +122,21 @@ export function hitSlot(slots: readonly Point[], w: number, h: number, p: Point,
 }
 
 /** Порядок героев в списке: по мощи ↓, при равной — по id ↑ (стабильно между перерисовками). */
+/**
+ * Список героев для отряда — по одной плитке на героя (скриншот владельца 11.10: копии стояли рядом, а две копии
+ * одного героя в отряд не встают): копия из отряда, иначе сильнейшая. Копии — для вознесения на экране «Герои».
+ */
+export function rosterOneEach<T extends { id: string; templateId: string }>(heroes: readonly T[], squad: readonly (string | null)[], power: (h: T) => number): T[] {
+  const inSquad = new Set(squad.filter((id): id is string => !!id));
+  const best = new Map<string, T>();
+  for (const h of heroes) {
+    const cur = best.get(h.templateId);
+    const better = !cur || (inSquad.has(h.id) && !inSquad.has(cur.id)) || (inSquad.has(h.id) === inSquad.has(cur.id) && (power(h) > power(cur) || (power(h) === power(cur) && h.id < cur.id)));
+    if (better) best.set(h.templateId, h);
+  }
+  return heroes.filter((h) => best.get(h.templateId) === h);
+}
+
 export function rosterOrder<T extends { id: string }>(heroes: readonly T[], power: (h: T) => number): T[] {
   const p = new Map(heroes.map((h) => [h.id, power(h)]));
   return [...heroes].sort((a, b) => p.get(b.id)! - p.get(a.id)! || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

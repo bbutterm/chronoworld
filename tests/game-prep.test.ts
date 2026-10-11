@@ -7,6 +7,7 @@ import {
   fieldSlots,
   hitSlot,
   removeAt,
+  rosterOneEach,
   rosterOrder,
   swapSlots,
   tapHero,
@@ -75,6 +76,20 @@ describe('подготовка к бою: поле и жесты', () => {
     const heroes = [{ id: 'b' }, { id: 'a' }, { id: 'c' }];
     const power: Record<string, number> = { a: 10, b: 10, c: 50 };
     expect(rosterOrder(heroes, (h) => power[h.id]).map((h) => h.id)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('список для отряда — по одной плитке на героя: копия из отряда, иначе сильнейшая (скриншот владельца 11.10)', () => {
+    const heroes = [
+      { id: 'h1', templateId: 'alan' },
+      { id: 'h2', templateId: 'alan' },
+      { id: 'h3', templateId: 'bran' },
+      { id: 'h4', templateId: 'bran' },
+      { id: 'h5', templateId: 'vika' },
+    ];
+    const power: Record<string, number> = { h1: 10, h2: 30, h3: 50, h4: 20, h5: 5 };
+    // Алан: в отряде слабая копия h1 — показываем её; Бран: в отряде никого — сильнейшая h3.
+    expect(rosterOneEach(heroes, ['h1', null, null, null, null], (h) => power[h.id]).map((h) => h.id)).toEqual(['h1', 'h3', 'h5']);
+    expect(rosterOneEach(heroes, [], (h) => power[h.id]).map((h) => h.id)).toEqual(['h2', 'h3', 'h5']);
   });
 
   it('жест: вбок или из списка — тянем героя, вертикально — листаем, удержание — тянем', () => {

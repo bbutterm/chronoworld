@@ -9,7 +9,7 @@ import { bump, countUp, juiceOn } from './juice';
 import { GAME_W } from './layout';
 import { numberFont, type NumberFont } from './numberFont';
 import type { CachedTextStyle } from './perf';
-import { classifyGesture, dropHero, fieldSlots, formationBodyRows, hitSlot, PREP, removeAt, rosterCardW, rosterOrder, slotBand, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
+import { classifyGesture, dropHero, fieldSlots, formationBodyRows, hitSlot, PREP, removeAt, rosterCardW, rosterOneEach, rosterOrder, slotBand, swapSlots, tapHero, type Point, type SquadMove } from './prepLayout';
 import { portrait, powerCompare, unitFigure, unitTint, updatePowerCompare } from './screen';
 import { commit, session } from './session';
 import { skinIcon } from './skin';
@@ -442,7 +442,7 @@ export class FormationEditor {
     const save = session.save;
     const gctx = withGear(GAME, save);
     const power = (hero: HeroState) => heroPower(hero, gctx);
-    const heroes = rosterOrder(save.heroes, power);
+    const heroes = rosterOrder(rosterOneEach(save.heroes, save.squad, power), power);
     const x0 = GAME_W / 2 - ((COLS - 1) * (CARD_W + CARD_GAP)) / 2;
     const inset = 6;
     heroes.forEach((hero, i) => {
