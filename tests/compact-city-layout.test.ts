@@ -41,6 +41,19 @@ describe('Лагерь и таверна сохраняют содержимое
     expect(end.y + layout.pityY + 88 - layout.bodyTop).toBe(layout.bodyBottom);
   });
 
+  it.each([
+    [-51, 1971],
+    [-16, 1936],
+    [0, 1803],
+  ])('×10 на высоком телефоне (safeTop %s, safeBottom %s) — вся серия без прокрутки, сверху нет пустой полосы', (safeTop, safeBottom) => {
+    // Скриншот владельца 11.10 (Telegram, iPhone): серия начиналась с отметки 320 и прокручивалась.
+    const layout = tavernRevealLayout(10, safeBottom, true, safeTop);
+    expect(layout.top).toBeLessThanOrEqual(safeTop + 200);
+    expect(layout.skipY - 66).toBeGreaterThanOrEqual(safeTop);
+    expect(layout.bodyHeight).toBeLessThanOrEqual(layout.bottom - layout.top);
+    for (const slot of layout.slots) expect(slot.w).toBeGreaterThanOrEqual(200);
+  });
+
   it.each([1, 10])('%s новых карт сохраняют ширину имён и доступны до самого конца без пересечения footer', (count) => {
     const layout = tavernRevealLayout(count, 1410, true);
     expect(layout.slots).toHaveLength(count);
