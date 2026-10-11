@@ -15,6 +15,7 @@ import { animateCurrency, heartbeat, juiceOn, type CurrencyPill } from './juice'
 import { sfx } from './audio';
 import { haptic } from './haptics';
 import { ModalBack } from './modalBack';
+import { powerMark, type PowerMarkOptions } from './powerMark';
 import { MODAL_DATA, topModal } from './modalInput';
 import { isLeaving } from './transitions';
 import { BACK, BADGE, badgeLabel, compactNumber, GEAR, HEADER_CY, navTabCenter, parseGrouped, PILL, powerShortfall, titleLeft } from './frame';
@@ -71,6 +72,15 @@ function sceneModalBack(scene: Phaser.Scene, goBack: (() => void) | null = null)
     if (modalBacks.get(scene) === modalBack) modalBacks.delete(scene);
   });
   return modalBack;
+}
+
+/**
+ * Back сцены без каркаса screen() (Бой, Итоги, «Глава пройдена», ux 4): системная «назад» Telegram и Android
+ * делает действие игры, а не закрывает приложение. Открытые окна сцены (registerModal) закрываются первыми, fn —
+ * когда окон нет; во время перехода и на неактивной сцене fn не вызывается. null — скрыть кнопку.
+ */
+export function sceneBack(scene: Phaser.Scene, fn: (() => void) | null): void {
+  sceneModalBack(scene, fn && (() => { if (!isLeaving(scene) && scene.sys.isActive()) fn(); }));
 }
 
 /** Обновить баланс и chrome после награды без перезапуска содержимого, списка или модального окна. */
@@ -485,9 +495,12 @@ export function setPowerChip(box: Phaser.GameObjects.Container, pc: PowerCheck, 
 }
 
 /**
- * Мощь отряда против нужной (Этап, Башня, Охота — правило 11, §3): иконка мечей и своя мощь; хватает — спокойная
- * зелёная галка и больше ничего, не хватает — «Не хватает N» красным. align — каким краем ряд стоит в (x, y).
- * Возвращает контейнер `powerCompare` (data `short` — сколько не хватает); updatePowerCompare — обновить на месте.
+ * Мощь отряда против нужной (Этап, Башня, Охота — правило 11, §3): иконка мечей и своя мощь; дальше знак powerMark
+ * (powerMark.ts): с запасом (×1.1, как вердикт ядра 'easy') — спокойная зелёная галка, от ориентира до запаса — жёлтая
+ * точка, не хватает — «Не хватает N» красным; opts.defeat (итог поражения) — галки нет, только число;
+ * opts.requirement — need это порог, а не ориентир боя (экспедиция): галка без запаса. align — каким краем ряд стоит
+ * в (x, y). Возвращает контейнер `powerCompare` (data `short` — сколько не хватает, `mark` — знак);
+ * updatePowerCompare — обновить на месте.
  */
 export function powerCompare(
   scene: Phaser.Scene,
@@ -495,45 +508,61 @@ export function powerCompare(
   y: number,
   own: number,
   need: number,
-  opts: { align?: 'left' | 'center' | 'right' } = {},
+  opts: { align?: 'left' | 'center' | 'right' } & PowerMarkOptions = {},
 ): Phaser.GameObjects.Container {
   const box = scene.add.container(x, y).setName('powerCompare');
   const ico = scene.add.image(0, 0, skinIcon('swords')).setDisplaySize(56, 56).setTint(COLOR_N.title);
   const num = text(scene, 0, 0, '', T.heading, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
   num.setShadow(0, 2, 'rgba(0,0,0,0.8)', 4, false, true);
   const ok = scene.add.image(0, 0, skinIcon('check')).setDisplaySize(56, 56).setTint(COLOR_N.positive);
+  // «На равных» (от ориентира до запаса): жёлтая точка без текста — не галка и не тревога.
+  const even = scene.add.circle(0, 0, EVEN_DOT_R, COLOR_N.warning).setStrokeStyle(3, COLOR_N.bg, 0.7);
   const short = text(scene, 0, 0, '', T.body, COLOR.negative, { fontStyle: 'bold' }).setOrigin(0, 0.5);
   short.setShadow(0, 2, 'rgba(0,0,0,0.8)', 4, false, true);
-  box.add([ico, num, ok, short]);
-  box.setData({ parts: { ico, num, ok, short }, align: opts.align ?? 'left' });
+  box.add([ico, num, ok, even, short]);
+  box.setData({ parts: { ico, num, ok, even, short }, align: opts.align ?? 'left', markOpts: { defeat: opts.defeat, requirement: opts.requirement } });
   updatePowerCompare(box, own, need);
   return box;
 }
 
+/** Радиус жёлтой точки «на равных» в ряду мощи. */
+const EVEN_DOT_R = 15;
+
 export function updatePowerCompare(box: Phaser.GameObjects.Container, own: number, need: number): void {
-  const { ico, num, ok, short } = box.getData('parts') as {
+  const { ico, num, ok, even, short } = box.getData('parts') as {
     ico: Phaser.GameObjects.Image;
     num: Phaser.GameObjects.Text;
     ok: Phaser.GameObjects.Image;
+    even: Phaser.GameObjects.Arc;
     short: Phaser.GameObjects.Text;
   };
   const cmp = powerShortfall(own, need);
+  const mark = powerMark(own, need, box.getData('markOpts') as PowerMarkOptions | undefined);
   num.setText(formatNumber(Math.floor(own)));
-  ok.setVisible(!cmp.label);
-  short.setVisible(!!cmp.label).setText(cmp.label ?? '');
-  // Ряд слева направо: мечи · число · (галка | «Не хватает N»).
+  ok.setVisible(mark === 'ahead');
+  even.setVisible(mark === 'even');
+  short.setVisible(mark === 'short').setText(mark === 'short' ? (cmp.label ?? '') : '');
+  // Ряд слева направо: мечи · число · (галка | точка | «Не хватает N» | ничего).
   let cx = 28;
   ico.setX(cx);
   cx += 28 + S.xxs;
   num.setX(cx);
+  let w = cx + num.width;
   cx += num.width + S.xs;
-  const tail = cmp.label ? short : ok;
-  tail.setX(cmp.label ? cx : cx + 28);
-  const w = cx + (cmp.label ? short.width : 56);
+  if (mark === 'short') {
+    short.setX(cx);
+    w = cx + short.width;
+  } else if (mark === 'ahead') {
+    ok.setX(cx + 28);
+    w = cx + 56;
+  } else if (mark === 'even') {
+    even.setX(cx + EVEN_DOT_R);
+    w = cx + 2 * EVEN_DOT_R;
+  }
   const align = box.getData('align') as 'left' | 'center' | 'right';
   const dx = align === 'left' ? 0 : align === 'center' ? -w / 2 : -w;
-  for (const o of [ico, num, ok, short]) o.x += dx;
-  box.setData('short', cmp.short).setSize(w, 56);
+  for (const o of [ico, num, ok, even, short]) o.x += dx;
+  box.setData({ short: cmp.short, mark }).setSize(w, 56);
 }
 
 /**
