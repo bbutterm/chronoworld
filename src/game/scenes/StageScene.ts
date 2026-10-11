@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { autoFormation, dropText, enemySquad, mealExp, replayAllowed, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus } from '../../core';
+import { autoFormation, autoFormationForStage, dropText, enemySquad, mealExp, replayAllowed, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
 import { currentStage, shortfallHint, stageNeeds, stageNo, wallAdvice, type StageNeeds, type WallAction } from '../flow';
@@ -334,7 +334,7 @@ export class StageScene extends Phaser.Scene {
     markHint('prep_auto');
     this.autoHint?.destroy();
     this.autoHint = null;
-    commit({ ...session.save, squad: autoFormation(session.save, GAME) });
+    commit({ ...session.save, squad: autoFormationForStage(session.save, this.stageId, GAME, { day: today() }) });
     this.editor.replaced('Отряд расставлен автоматически');
   }
 
