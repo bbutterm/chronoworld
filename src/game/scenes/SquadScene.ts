@@ -8,7 +8,7 @@ import { FormationEditor } from '../squadEditor';
 import { openPresetsSheet } from '../squadPresets';
 import { ScrollArea } from '../ui';
 import { onViewChange, view } from '../viewport';
-import { formationBodyRows } from '../prepLayout';
+import { formationBodyRows, prepFooterY } from '../prepLayout';
 
 export interface SquadData {
   /** Куда вернуться («Готово» и «Назад»): экран этапа, башня… */
@@ -18,7 +18,8 @@ export interface SquadData {
 }
 
 /** Геометрия экрана «Отряд» (игровые единицы 1080×1920): поле, заголовок сетки, сетка героев, «Готово». */
-const field = { top: CONTENT_TOP, bottom: CONTENT_TOP + 702 };
+// Поле ниже прежнего (слоты 160, аудит 11.10): над «Герои» нет пустой полосы, видно больше рядов.
+const field = { top: CONTENT_TOP, bottom: CONTENT_TOP + 620 };
 const bodyRows = formationBodyRows(field.bottom);
 const L = { field, rosterHeadY: bodyRows.rosterHeadY, roster: { top: bodyRows.rosterTop, bottom: bodyRows.rosterTop + 666 } };
 
@@ -32,7 +33,8 @@ export class SquadScene extends Phaser.Scene {
   private back: { to: string; data?: object } = { to: 'Home' };
   private editor!: FormationEditor;
   private body!: ScrollArea;
-  private get doneY(): number { return view().uiHeight - 110; }
+  /** «Готово» — у низа безопасной области вытянутого экрана (как «В бой» на этапе): списку героев больше места. */
+  private get doneY(): number { return prepFooterY(view()); }
 
   constructor() {
     super('Squad');

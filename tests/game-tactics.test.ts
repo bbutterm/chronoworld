@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildUnit, enemySquad, newGame, simulateBattle, type BattleEvent, type BattleResult } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 import { chargeFacts, encounterThreat, tacticalDefeat, tacticalSuccess } from '../src/game/tactics';
-import { STAGE_LAYOUT } from '../src/game/stageLayout';
+import { stagePrepLayout } from '../src/game/prepLayout';
 import { LEADING, T } from '../src/game/theme';
 import { defeatAdvice } from '../src/game/flow';
 const ctx = loadFullContext();
@@ -15,14 +15,16 @@ const result = (log: BattleEvent[], extra: Partial<BattleResult> = {}): BattleRe
 const charge = { t: 1, type: 'cast', unit: 'B0', skill: 'charge', name: 'Заряд', duration: 3, action: 'start', charge: true } as const;
 
 describe('разведка и факты боя', () => {
+  // Аудит 11.10: угроза живёт в общей полосе под полем (StageScene: строка редактора → совет стены → угроза), а не в
+  // отдельной второй полосе; совет — две строки вниз от adviceY (origin 0.5, 0).
   it('полоса угрозы не перехватывает касания поля и кнопок расстановки', () => {
-    const { field, threat, rosterHeadY } = STAGE_LAYOUT;
-    const rosterButtonTop = rosterHeadY - 96 / 2; // BTN.m — стандартные кнопки «Авто»/«Пресеты».
-    expect(threat.zoneY - threat.zoneH / 2).toBeGreaterThan(field.bottom);
-    expect(threat.zoneY + threat.zoneH / 2).toBeLessThan(rosterButtonTop);
-    expect(threat.titleY - T.caption * LEADING.caption / 2).toBeGreaterThan(field.bottom);
-    expect(threat.titleY + T.caption * LEADING.caption / 2).toBeLessThan(threat.adviceY - (T.caption - 6) * LEADING.caption / 2);
-    expect(threat.adviceY + (T.caption - 6) * LEADING.caption / 2).toBeLessThan(rosterButtonTop);
+    const { field, band, rosterHeadY } = stagePrepLayout();
+    const rosterButtonTop = rosterHeadY - 88 / 2; // кнопки-иконки «Авто»/«Пресеты» (squadEditor drawRosterHead).
+    expect(band.y - band.zoneH / 2).toBeGreaterThan(field.bottom);
+    expect(band.y + band.zoneH / 2).toBeLessThan(rosterButtonTop);
+    expect(band.titleY - T.caption * LEADING.caption / 2).toBeGreaterThan(field.bottom);
+    expect(band.titleY + T.caption * LEADING.caption / 2).toBeLessThanOrEqual(band.adviceY + 2);
+    expect(band.adviceY + 2 * (T.caption - 6) * LEADING.caption).toBeLessThanOrEqual(band.y + band.zoneH / 2);
     expect(T.caption - 6).toBeGreaterThanOrEqual(28);
   });
   it('пятый бой учит угрозе тыла без обещания недоступного стартеру перехвата', () => {
