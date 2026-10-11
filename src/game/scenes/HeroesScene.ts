@@ -10,8 +10,9 @@ import { sfx } from '../audio';
 import { haptic } from '../haptics';
 import { RARITY_CARD } from '../tavern';
 import { button, ellipsize, iconOf, plate, pressable, ScrollArea, SURFACE, tag, text, toast, tutorialHint } from '../ui';
-import { hintDone } from '../hints';
-import { C, COLOR, hexNum, M, R, S, T, TOUCH, TOUCH_COMFORT, Z } from '../theme';
+import { hintDone, hintNagged } from '../hints';
+import { HINT_GEOM } from '../hintLayout';
+import { C, COLOR, FS, hexNum, M, R, S, T, TOUCH, TOUCH_COMFORT, Z } from '../theme';
 import { cardIcon, drawHeroCard, heroCardIcon, heroCardSize, LINES, rarityColor, rarityName, ROLES } from '../heroCard';
 import { collectionCount, collectionHeroes, heroesUi, inventoryUi, missingTemplates, RARITY_ORDER, SORT_LABELS, SORT_ORDER } from '../heroesView';
 import { heroStoryNew, toastOpenedStories } from '../heroStoryView';
@@ -28,6 +29,8 @@ const GAP_Y = S.m;
 const L = S.l;
 /** Высота строки управления (класс, фильтр, сортировка). */
 const CTRL_H = TOUCH_COMFORT;
+/** От низа плитки до низа плашки подсказки под ней (стрелка, плашка в строку FS.body — ui.ts hintPointer) и зазор. */
+const HINT_BELOW = HINT_GEOM.arrowGap + HINT_GEOM.boxGap + 2 * FS.body + S.xs;
 
 /** Последняя показанная мощь отряда — отсчёт до нового значения при возвращении с карточки. */
 let lastSquadPower: number | null = null;
@@ -201,8 +204,19 @@ export class HeroesScene extends Phaser.Scene {
     });
     const n = lead + heroes.length + missing.length;
     let contentH = Math.ceil(n / COLS) * (tileH + GAP_Y) + GAP_Y;
+    // Обучение — один раз за визит, не при каждой перерисовке фильтром: «наденьте трофеи», иначе «вознесите».
+    // Цель выбираем до строки Таверны: плашка встаёт под плиткой, и если плитка в нижнем ряду, строке Таверны
+    // нужно отступить (first-30min P2: «Наденьте трофеи» закрывала заголовок «Новые герои — в Таверне»).
+    const hint = data.keep ? null : this.tileHint(heroes, ready, lead);
+    const hintCy = hint ? listTop + at(hint.i).y : 0;
+    const hintShown = !!hint && hintCy + tileH / 2 <= contentBottom() && !hintNagged(hint.id, 'Heroes');
+    const hintInLastRow = !!hint && hintShown && Math.floor(hint.i / COLS) === Math.floor((n - 1) / COLS);
     // Героев мало (начало игры) — под сеткой строка-вход в Таверну (или когда она откроется), а не пустой лес.
-    if (n <= COLS * 2 && !f.line && !f.role && !f.rarity) contentH += this.tavernRow(contentH + S.xs + 68) + S.l;
+    if (n <= COLS * 2 && !f.line && !f.role && !f.rarity) {
+      // От низа плитки до строки — 1,5 зазора сетки и S.xs; плашке подсказки под плиткой нужно HINT_BELOW.
+      if (hintInLastRow) contentH += Math.max(0, HINT_BELOW - (GAP_Y * 1.5 + S.xs));
+      contentH += this.tavernRow(contentH + S.xs + 68) + S.l;
+    }
     // «Вознести всех» — плавающая главная кнопка справа внизу, только когда есть кого (§3 п. 1 и 11).
     if (ascendAll(save, GAME).done.length) {
       const bw = 360;
@@ -216,22 +230,21 @@ export class HeroesScene extends Phaser.Scene {
     this.area.setContentHeight(contentH);
     staggerIn(this, 'Heroes', tiles);
 
-    // Обучение — один раз за визит, не при каждой перерисовке фильтром: «наденьте трофеи», иначе «вознесите».
     if (data.keep) return;
-    const gearHero = heroesWithGearUpgrades(save, GAME)[0];
+    if (!hint || hintCy + tileH / 2 > contentBottom()) return;
+    const tile = { w: TILE_W, h: tileH };
+    if (hint.id === 'equip_gear') tutorialHint(this, 'equip_gear', at(hint.i).x, hintCy, 'auto', tile, { text: 'Наденьте трофеи' });
+    else tutorialHint(this, 'ascend', at(hint.i).x, hintCy, 'auto', tile, { text: 'Копий хватает — вознесите' });
+  }
+
+  /** Подсказка на плитке: трофеи лучше надетых, иначе вознесение копиями (i — номер плитки в сетке); null — нет. */
+  private tileHint(heroes: readonly HeroState[], ready: ReadonlySet<string>, lead: number): { id: 'equip_gear' | 'ascend'; i: number } | null {
+    const gearHero = heroesWithGearUpgrades(session.save, GAME)[0];
     const gi = heroes.findIndex((x) => x.id === gearHero);
-    if (gi >= 0 && !hintDone('equip_gear')) {
-      const p = at(lead + gi);
-      const cy = listTop + p.y;
-      if (cy + tileH / 2 <= contentBottom()) tutorialHint(this, 'equip_gear', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Наденьте трофеи' });
-      return;
-    }
+    if (gi >= 0 && !hintDone('equip_gear')) return { id: 'equip_gear', i: lead + gi };
     const ai = heroes.findIndex((x) => ready.has(x.id));
-    if (ai >= 0 && !hintDone('ascend')) {
-      const p = at(lead + ai);
-      const cy = listTop + p.y;
-      if (cy + tileH / 2 <= contentBottom()) tutorialHint(this, 'ascend', p.x, cy, 'auto', { w: TILE_W, h: tileH }, { text: 'Копий хватает — вознесите' });
-    }
+    if (ai >= 0 && !hintDone('ascend')) return { id: 'ascend', i: lead + ai };
+    return null;
   }
 
   private resetFilters(): void {

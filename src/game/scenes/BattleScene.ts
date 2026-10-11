@@ -53,7 +53,7 @@ import { battleScreenLayout, presentedBattleY } from '../battleScreenLayout';
 import { minimumTouchSize, onViewChange, view } from '../viewport';
 import { gaitReset, gaitStep, type GaitState } from '../battleGait';
 import { BehaviorFx } from '../battleBehaviorFx';
-import { button, ellipsize, panel, text, toast, tutorialHint, type ButtonView } from '../ui';
+import { button, clampLines, ellipsize, panel, text, toast, tutorialHint, type ButtonView } from '../ui';
 import { audioSettings, setAudioSettings } from '../audio';
 import { hintDone, markHint } from '../hints';
 import { isUnlocked } from '../unlockBanner';
@@ -889,7 +889,14 @@ export class BattleScene extends Phaser.Scene {
     const hud = battleScreenLayout(view().uiHeight, view().safeTop, view().safeBottom, minimumTouchSize(), !!this.rerun);
     const { skip: xSkip, auto: xAuto, speed: xSpeed, sound: xSound } = hud.controls;
     const name = text(this, TOP_MARGIN, y + 26, title, T.caption, COLOR.textSecondary, { stroke: '#000000a0', strokeThickness: 3 }).setOrigin(0, 0.5).setDepth(PANEL_DEPTH);
-    ellipsize(name, xSound - hud.widths.sound / 2 - TOP_GAP - TOP_MARGIN);
+    const nameW = xSound - hud.widths.sound / 2 - TOP_GAP - TOP_MARGIN;
+    if (name.width > nameW) {
+      // Длинное имя этапа (босс «1-18 · Трон короля порингов» на 360 px) — двумя строками под таймером, а не
+      // многоточием: первая строка там же, где была одна, вторая уходит в тень под кнопками (до полосы босса далеко).
+      const top = y + 26 - name.height / 2;
+      name.setWordWrapWidth(nameW).setOrigin(0, 0).setY(top);
+      clampLines(name, 2);
+    } else ellipsize(name, nameW);
     if (DEBUG) text(this, TOP_MARGIN, y + 60, `seed ${this.result.seed}`, 22, '#e0cfb0').setOrigin(0, 0.5).setDepth(PANEL_DEPTH);
 
     const speedBtn = button(this, xSpeed, y, hud.widths.speed, hud.height, '', `${playback.speed}x`, () => {

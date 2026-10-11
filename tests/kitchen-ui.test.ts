@@ -38,3 +38,21 @@ describe('Кухня: вход на «Городе»', () => {
     expect(src).toMatch(/confirm\(/);
   });
 });
+
+describe('Кухня: полученные продукты видны в итогах', () => {
+  it('экспедиция (одна и «Забрать всё»), охота и сундук показывают поле ingredients иконками продуктов', () => {
+    const entry = SRC('game/kitchenEntry.ts');
+    // Чипы — иконки продуктов (foodSpec) в общем rewardRow; строка итога — названия из data/kitchen.json.
+    expect(entry).toMatch(/export function foodChips[\s\S]*foodSpec\(g\.icon\)/);
+    expect(entry).toMatch(/export function floatFood[\s\S]*rewardRow\(/);
+    expect(entry).toMatch(/export function foodLine[\s\S]*pantryText\(/);
+    const exp = SRC('game/scenes/ExpeditionsScene.ts');
+    expect(exp.match(/floatFood\(this, [^;]*r\.ingredients\);/g)).toHaveLength(2);
+    expect(exp.match(/foodLine\(r\.ingredients\)/g)).toHaveLength(2);
+    expect(SRC('game/scenes/HuntScene.ts')).toMatch(/items\.push\(\.\.\.foodChips\(g\.ingredients\)\)/);
+    const camp = SRC('game/scenes/CampaignScene.ts');
+    expect(camp).toMatch(/foodLine\(r\.ingredients\)/);
+    expect(camp).toMatch(/restartWithReward\([^;]*r\.ingredients\);/);
+    expect(camp).toMatch(/floatFood\(this, [^;]*food\);/);
+  });
+});

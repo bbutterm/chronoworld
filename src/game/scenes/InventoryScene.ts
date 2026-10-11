@@ -625,7 +625,7 @@ export class InventoryScene extends Phaser.Scene {
       this.lockList(false);
       return;
     }
-    const question = `Продать ${plan.instanceIds.length} предм. за ${formatNumber(plan.gold)} золота?${duplicates ? '\nОдна запасная вещь каждого вида останется. Надетые, заточенные, с картой и защищённые вещи сохранятся.' : ''}`;
+    const question = `Продать ${plan.instanceIds.length} предм. за ${formatNumber(plan.gold)} золота?${duplicates ? '\nОстанется по вещи каждому герою, которому она лучше надетой, и не меньше одной запасной каждого вида. Надетые, заточенные, с картой и защищённые вещи сохранятся.' : ''}`;
     confirm(this, question, 'Продать', () => {
       try {
         const result = salvageItems(session.save, plan.instanceIds, GAME);

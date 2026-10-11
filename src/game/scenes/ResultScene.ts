@@ -4,7 +4,7 @@ import { GAME } from '../content';
 import { autoNextStage, decimal, defeatAdvice, describeEvents, equipBestSquad, formatNumber, keyEventsFirst, levelUpReady, nextOpenStage, squadGearUpgrades, stageNeeds, stageNo, RARITY_COLORS, type AutoStop } from '../flow';
 import { collectFinding, featureUnlocked, pendingFinding, replayAllowed, stageFinding, type BattleResult, type Side } from '../../core';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from '../layout';
-import { commit, session } from '../session';
+import { commit, session, today } from '../session';
 import { findingIcon, findingPage, showPages } from '../storyPage';
 import { randomLine } from '../loreView';
 import { portraitKey } from '../sprites';
@@ -488,7 +488,7 @@ export class ResultScene extends Phaser.Scene {
     // Почему: мощь отряда против рекомендуемой (этап) — «⚔ 1 224  Не хватает 300».
     let y = L.metaY + 130;
     if (stage) {
-      const needs = stageNeeds(session.save, stage.stageId, GAME);
+      const needs = stageNeeds(session.save, stage.stageId, GAME, today());
       const pc = powerCompare(this, GAME_W / 2, y, needs.own, needs.power, { align: 'center' });
       layer.add(pc);
       reveal.step([pc]);
