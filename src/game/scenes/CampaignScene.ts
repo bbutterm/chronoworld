@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { hasArt } from '../assets';
 import { HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, type HintId } from '../hints';
+import { overlapArea, type Rect } from '../hintLayout';
 import { homeHintInput } from '../tutorial';
 import { actClaimOffline, actUseFastRewards, episodePageId, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, markPageSeen, pendingIntro, pendingScenes, stageStatus, type Pantry } from '../../core';
 import { introPages, showPages } from '../storyPage';
@@ -83,6 +84,8 @@ export class CampaignScene extends Phaser.Scene {
   private chestRays?: Phaser.GameObjects.Image;
   private chestGlow?: Phaser.GameObjects.Image;
   private claimBtn?: ButtonView;
+  /** Подпись карточки сундука «Добыча за время отдыха» (уступает место плашке подсказки — fitChestToHint). */
+  private chestCaption?: Phaser.GameObjects.Text;
   /** Сундук полон — один раз за показ экрана включаем мягкий пульс сундука. */
   private chestPulsing = false;
   /** R: показанная подсказка (одна за раз) и её указатель. */
@@ -107,6 +110,7 @@ export class CampaignScene extends Phaser.Scene {
       this.hintView = null;
       this.chestImg = this.chestRays = this.chestGlow = undefined;
       this.chestView = undefined;
+      this.chestCaption = undefined;
       this.claimBtn = undefined;
       this.mapArea = undefined;
       this.mapHeader = [];
@@ -496,12 +500,14 @@ export class CampaignScene extends Phaser.Scene {
    */
   private chest(): void {
     plate(this, GAME_W / 2, this.layout.cardY, this.layout.cardW, this.layout.cardH, { ...SURFACE.raised, borderW: 2, r: R.m }).setName('chestCard');
-    text(this, this.layout.fillX, this.layout.cardY - 90, 'Добыча за время отдыха', T.caption, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5);
+    const locked = session.save.campaign.cleared.length === 0;
+    // Новичок: полосы и чипов ещё нет — подпись ниже, у сундука; верх карточки свободен под плашку «Вперёд, в первый
+    // бой!» под «В бой» (first-30min P2: плашка закрывала подпись сундука).
+    this.chestCaption = text(this, this.layout.fillX, this.layout.cardY + (locked ? -10 : -90), 'Добыча за время отдыха', T.caption, COLOR.textPrimary, { fontStyle: 'bold' }).setOrigin(0, 0.5).setName('chestCaption');
     const cx = this.layout.chestX;
     const cy = this.layout.chestY;
     // Тёмная ниша под сундуком: лучи и сундук читаются «в рамке».
     this.add.image(cx, cy, 'skin_glow').setDisplaySize(240, 240).setTint(0x000000).setAlpha(0.5);
-    const locked = session.save.campaign.cleared.length === 0;
     if (hasArt('ui_chest_empty')) {
       if (!locked) {
         // За сундуком — медленные лучи и ореол, когда он полон (refresh включает).
@@ -517,8 +523,8 @@ export class CampaignScene extends Phaser.Scene {
       this.add.circle(lx, ly, 26, COLOR_N.bg).setStrokeStyle(3, SKIN_TINT.bronze);
       this.add.image(lx, ly, skinIcon('lock')).setDisplaySize(30, 30).setTint(SKIN_TINT.gold);
       const first = CONTENT.stages[0];
-      // Ниже середины карточки: над подписью ложится плашка подсказки «В бой» (у новичка).
-      const cap = text(this, this.layout.fillX, this.layout.chipsY, `Откроется после ${first ? stageNo(first, GAME) : 'этапа 1'}`, T.body, COLOR.textSecondary).setOrigin(0, 0.5);
+      // Ниже середины карточки: над подписями ложится плашка подсказки «В бой» (у новичка).
+      const cap = text(this, this.layout.fillX, this.layout.cardY + 50, `Откроется после ${first ? stageNo(first, GAME) : 'этапа 1'}`, T.body, COLOR.textSecondary).setOrigin(0, 0.5);
       cap.setName('chestLocked');
       return;
     }
@@ -534,6 +540,7 @@ export class CampaignScene extends Phaser.Scene {
       return;
     }
     const st: ChestState = this.chestView.update(session.save, now());
+    this.fitChestToHint();
     this.claimBtn.setEnabled(st.hasIncome);
     // Полон — подпись «Собрать» золотом, сундук мягко пульсирует (одна декоративная анимация на экран).
     if (st.hasIncome) this.claimBtn.label.setColor(st.fill.full ? COLOR.gold : COLOR.textPrimary);
@@ -607,10 +614,35 @@ export class CampaignScene extends Phaser.Scene {
     const shown = !!this.hintView && !this.hintView.getData('hintMuted');
     if (shown) markHintShown(id, true);
     if (!shown) this.hintId = null; // Подавленную подсказку попробуем снова после закрытия окна.
+    // Плашку раскладывает hintPointer на следующем кадре — после неё карточка сундука уступает ей место.
+    if (this.hintView) this.events.once(Phaser.Scenes.Events.POST_UPDATE, () => this.fitChestToHint());
     this.hintView?.once(Phaser.GameObjects.Events.DESTROY, () => {
       // Плашку пропустили касанием — на следующем тике покажется следующий шаг цепочки.
       if (this.hintId === id && hintDone(id)) this.hintId = null;
+      this.fitChestToHint();
     });
+  }
+
+  /**
+   * Плашка подсказки легла на карточку сундука (first-30min P2): «Собрать» — плашка над кнопкой, на подписи;
+   * вкладки снизу — на ряду накопленного. Карточка уступает место, а не прячет данные под плашкой: ряд накопленного
+   * поднимается на место подписи, подпись «Добыча за время отдыха» уходит (о сундуке говорит сама плашка).
+   * Плашки нет — всё на своих местах. Зовётся после раскладки плашки, её снятия и каждой перестройки чипов (refresh).
+   */
+  private fitChestToHint(): void {
+    const caption = this.chestCaption;
+    if (!caption?.scene) return;
+    const hint = this.hintView?.scene && this.hintView.getData('hintMode') === 'box' ? (this.hintView.getData('hintBox') as Rect | undefined) : undefined;
+    const covers = (o: { getBounds(): Phaser.Geom.Rectangle }) => {
+      if (!hint) return false;
+      const b = o.getBounds();
+      return overlapArea(hint, { x: b.x, y: b.y, w: b.width, h: b.height }) > 0;
+    };
+    const chips = this.children.getByName('chestChips') as Phaser.GameObjects.Container | null;
+    chips?.setY(this.layout.chipsY);
+    const lift = !!chips && covers(chips);
+    chips?.setY(lift ? caption.y : this.layout.chipsY);
+    caption.setVisible(!lift && !covers(caption));
   }
 
   /**

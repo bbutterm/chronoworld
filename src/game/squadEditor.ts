@@ -14,9 +14,9 @@ import { portrait, powerCompare, unitFigure, unitTint, updatePowerCompare } from
 import { commit, session } from './session';
 import { skinIcon } from './skin';
 import { portraitKey } from './sprites';
-import { button, ellipsize, plate, type ScrollArea, SURFACE, text, toast } from './ui';
+import { button, clampLines, ellipsize, mixHex, plate, type ScrollArea, SURFACE, text, toast } from './ui';
 import { minimumFontSize, worldPoint } from './viewport';
-import { C, COLOR, COLOR_N, E, FAMILY, M, R, S, T } from './theme';
+import { C, COLOR, COLOR_N, E, FAMILY, hexNum, M, R, S, T, TOUCH_COMFORT } from './theme';
 
 /**
  * Подготовка к бою (экран этапа и «Отряд»), в духе AFK Arena:
@@ -77,8 +77,16 @@ export interface FormationOpts {
   scrollBody?: { area: ScrollArea; origin: number };
 }
 
-/** Сколько держится заметка в строке подсказки (RR-17), мс. */
+/** Сколько держится заметка в строке под полем (RR-17), мс; отказ («Отряд полон») — дольше: его дочитывают. */
 const NOTE_MS = 3000;
+const REFUSE_MS = 3500;
+
+/** Заметка строкой под полем: что сделано (positive) или почему нельзя (negative). */
+interface Note {
+  text: string;
+  until: number;
+  tone: 'positive' | 'negative';
+}
 const SLOT_H = PREP.slotH;
 /** Плитки сетки героев: 5 колонок на ширину контента 1080 − 2·S.l (prepLayout.ts PREP). */
 const COLS = PREP.cols;
@@ -125,8 +133,16 @@ export class FormationEditor {
   /** Числа уровней врагов — перекрашиваются при смене отряда (refreshInfo). */
   private readonly levelTexts: { t: Phaser.GameObjects.BitmapText; level: number }[] = [];
   private readonly tip: Phaser.GameObjects.Text;
-  /** RR-17: короткая заметка в строке подсказки («Отряд расставлен автоматически») и когда она отживёт. */
-  private note: { text: string; until: number } | null = null;
+  /** Высота строки под полем (логическая, до прокрутки тела). */
+  private readonly tipY: number;
+  /**
+   * RR-17: короткая заметка в строке под полем («Отряд расставлен автоматически», «Отряд полон: …») и когда она
+   * отживёт. Рисуется плашкой noteBox поверх строки (как тост, но в просвете между полем и списком, а не под шапкой).
+   */
+  private note: Note | null = null;
+  private readonly noteBox: Phaser.GameObjects.Container;
+  /** Какая заметка сейчас нарисована (until; '' — никакой): перерисовка отряда не перезапускает её появление. */
+  private noteDrawn = '';
   private readonly fixBtn: ReturnType<typeof button>;
   private readonly font: NumberFont;
   /** Подсветка сетки, пока выбран пустой слот (вместо строки «Слот выбран — нажмите на героя»). */
@@ -205,9 +221,12 @@ export class FormationEditor {
     // Строка под полем — только когда есть что сказать: предупреждение «стрелки во фронте» + «Переставить», пустой
     // отряд или короткая заметка (Авто). Постоянной инструкции нет.
     const tipY = opts.scrollBody ? formationBodyRows(field.bottom).warningY : field.bottom + 40;
+    this.tipY = tipY;
     this.tip = text(scene, GAME_W / 2, tipY, '', T.caption, COLOR.textSecondary);
     this.fixBtn = button(scene, GAME_W - S.l - 150, tipY, 300, 84, '', 'Переставить', () => this.rearrange(), T.caption, { variant: 'secondary' });
     this.fixBtn.container.setName('rearrangeBtn');
+    // Плашка заметки — в той же строке, поверх подписи и «Переставить» (пока видна, их нет); прокручивается с полем.
+    this.noteBox = scene.add.container(GAME_W / 2, tipY).setName('squadNote').setVisible(false);
 
     // --- Заголовок сетки (необязательно) ---
     if (opts.rosterHead) this.drawRosterHead(opts.rosterHead);
@@ -492,6 +511,14 @@ export class FormationEditor {
     }
     if (this.powerBox && prev !== null && prev !== mine) bump(this.scene, this.powerBox, 1.06);
 
+    // RR-17: заметка («Отряд полон», «Отряд расставлен…») на пару секунд занимает строку целиком.
+    const note = this.note && this.scene.time.now < this.note.until ? this.note : null;
+    this.drawNote(note);
+    if (note) {
+      this.fixBtn.container.setVisible(false);
+      this.tip.setText('');
+      return;
+    }
     const misplaced = misplacedInFront(save, GAME);
     this.fixBtn.container.setVisible(misplaced.length > 0);
     if (misplaced.length) {
@@ -503,14 +530,79 @@ export class FormationEditor {
       ellipsize(this.tip, GAME_W - 2 * S.l - 300 - S.s);
       return;
     }
-    // RR-17: «Отряд расставлен автоматически» — строкой под полем на пару секунд, а не тостом на названии этапа.
-    const note = this.note && this.scene.time.now < this.note.until ? this.note.text : null;
     const empty = !save.squad.some(Boolean);
     // Сил не хватает — какие нужны герои (§3 правило 11: требование — только при нехватке).
     const rec = this.opts.chrome !== false && this.opts.recommend && enemy !== undefined && powerTone(mine, enemy) !== 'ahead' ? recommendText(this.opts.recommend) : '';
-    const msg = note ?? (empty ? 'Поставьте в отряд хотя бы одного героя' : rec);
-    this.tip.setText(msg).setColor(note ? COLOR.positive : COLOR.warning).setX(GAME_W / 2).setOrigin(0.5).setName(rec && msg === rec ? 'stageRecommend' : '');
+    const msg = empty ? 'Поставьте в отряд хотя бы одного героя' : rec;
+    this.tip.setText(msg).setColor(COLOR.warning).setX(GAME_W / 2).setOrigin(0.5).setName(rec && msg === rec ? 'stageRecommend' : '');
     ellipsize(this.tip, GAME_W - 2 * S.l);
+  }
+
+  /**
+   * Заметка — тёмная плашка с точкой цвета тона (как тост), до двух строк T.body по центру строки под полем: в просвете
+   * между полем и списком она не закрывает ни слоты, ни плитки героев. null — убрать, строка снова своя.
+   */
+  private drawNote(note: Note | null): void {
+    const key = note ? String(note.until) : '';
+    if (key === this.noteDrawn) return;
+    this.noteDrawn = key;
+    const box = this.noteBox;
+    this.scene.tweens.killTweensOf(box);
+    box.removeAll(true);
+    this.tip.setVisible(!note);
+    if (!note) {
+      box.setVisible(false);
+      return;
+    }
+    const scene = this.scene;
+    const toneColor = note.tone === 'negative' ? COLOR.negative : COLOR.positive;
+    const dot = 16;
+    const maxW = GAME_W - 2 * S.l;
+    const t = text(scene, 0, 0, note.text, T.body, COLOR.textPrimary, { wordWrap: { width: maxW - 2 * S.m - dot - S.xs } }).setOrigin(0, 0.5);
+    clampLines(t, 2);
+    const w = Math.round(Math.min(maxW, t.width + 2 * S.m + dot + S.xs));
+    const h = Math.round(t.height + 2 * S.xs);
+    const oneLine = t.height < T.body * 1.6;
+    const bg = plate(scene, 0, 0, w, h, { fill: COLOR.surfaceSunken, alpha: 0.95, border: mixHex(COLOR.surfaceSunken, toneColor, 0.6), borderW: 2, r: oneLine ? R.pill : R.l });
+    const left = -w / 2 + S.m;
+    const mark = scene.add.circle(left + dot / 2, oneLine ? 0 : -t.height / 2 + T.body * 0.65, dot / 2, hexNum(toneColor));
+    t.setX(left + dot + S.xs);
+    box.add([bg, mark, t]).setVisible(true);
+    if (!juiceOn()) {
+      box.setAlpha(1).setY(this.tipY);
+      return;
+    }
+    box.setAlpha(0).setY(this.tipY - S.xs);
+    scene.tweens.add({ targets: box, alpha: 1, y: this.tipY, duration: M.fast, ease: E.out });
+  }
+
+  /** Строка под полем на экране целиком (поле прокручено не дальше неё). */
+  private noteRowVisible(): boolean {
+    const body = this.opts.scrollBody?.area;
+    if (!body) return true;
+    const [top, bottom] = body.content.getData('clip') as [number, number];
+    const y = this.tipY + this.bodyShift();
+    return y - TOUCH_COMFORT / 2 >= top && y + TOUCH_COMFORT / 2 <= bottom;
+  }
+
+  /**
+   * Сказать коротко, что вышло или почему нельзя: строкой под полем на пару секунд, а не тостом под шапкой — тот на
+   * прокрученном экране ложился на слоты отряда (скриншот владельца: Telegram 460×1000, «Отряд полон…» поверх героев).
+   * Строку под полем прокрутили за верхний край — поля на экране уже нет, и обычный тост ничего не закрывает.
+   */
+  private say(message: string, tone: Note['tone']): void {
+    if (!this.noteRowVisible()) {
+      toast(this.scene, message);
+      return;
+    }
+    const until = this.scene.time.now + (tone === 'negative' ? REFUSE_MS : NOTE_MS);
+    this.note = { text: message, until, tone };
+    // Строка вернётся к обычной, когда заметка отжила (если её не сменила другая).
+    this.scene.time.delayedCall(until - this.scene.time.now + 20, () => {
+      if (this.note?.until !== until || !this.tip.scene) return;
+      this.note = null;
+      this.refreshInfo();
+    });
   }
 
   // ---------- прокрутка ----------
@@ -760,19 +852,21 @@ export class FormationEditor {
 
   private apply(r: SquadMove, popSlot: number | null): void {
     if (!r.squad) {
-      if (r.reason === 'last') toast(this.scene, 'В отряде должен остаться хотя бы один герой');
-      else if (r.reason === 'full') toast(this.scene, 'Отряд полон: перетащите героя на занятое место или уберите кого-нибудь');
+      if (r.reason === 'last') this.say('В отряде должен остаться хотя бы один герой', 'negative');
+      else if (r.reason === 'full') this.say('Отряд полон: перетащите героя на занятое место или уберите кого-нибудь', 'negative');
       if (r.reason === 'last' || r.reason === 'full') haptic('error');
       this.draw();
       return;
     }
     // Одна копия каждой карточки в отряде (ядро: duplicate_card).
     if (duplicateCardsInSquad(session.save, r.squad).length) {
-      toast(this.scene, 'Эта карточка уже в отряде — можно взять только одну копию');
+      this.say('Эта карточка уже в отряде — можно взять только одну копию', 'negative');
       haptic('error');
       this.draw();
       return;
     }
+    // Отряд сменился — отказ («Отряд полон») уже не про него.
+    if (this.note?.tone === 'negative') this.note = null;
     commit({ ...session.save, squad: r.squad });
     // Рутина — тихо (§3 правило 10): щелчок, лёгкая вибрация и подскок слота.
     sfx('ui_toggle');
@@ -787,8 +881,8 @@ export class FormationEditor {
     this.selected = null;
     this.popAll = true;
     haptic('tap');
+    this.say('Отряд переставлен: дальний бой и лекари — в тылу', 'positive');
     this.draw();
-    toast(this.scene, 'Отряд переставлен: дальний бой и лекари — в тылу');
   }
 
   /** Отряд целиком заменён снаружи (авто, пресет) — перерисовать; герои «запрыгивают» в слоты. */
@@ -796,14 +890,8 @@ export class FormationEditor {
     this.selected = null;
     this.popAll = true;
     haptic('tap');
-    if (note) {
-      const until = this.scene.time.now + NOTE_MS;
-      this.note = { text: note, until };
-      // Подсказка вернётся к обычной, когда заметка отжила (если за это время ничего не менялось).
-      this.scene.time.delayedCall(NOTE_MS + 20, () => {
-        if (this.note?.until === until && this.tip.scene) this.refreshInfo();
-      });
-    }
+    if (note) this.say(note, 'positive');
+    else if (this.note?.tone === 'negative') this.note = null;
     this.draw();
   }
 }
