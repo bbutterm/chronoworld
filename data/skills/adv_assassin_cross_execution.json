@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_assassin_cross_execution",
   "name": "Расчёт убийцы",
-  "description": "Авторский навык (не оригинальный RO). При убийстве (шанс 25%): На себя: энергия +8.",
+  "description": "После убийства врага: шанс 25% получить +8 энергии ульты.",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {

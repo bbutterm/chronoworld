@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_professor_lecture",
   "name": "Защитная формула",
-  "description": "Авторский навык (не оригинальный RO). Союзнику с наименьшей долей ОЗ (включая себя): щит 16% макс. ОЗ цели; энергия +8.",
+  "description": "Самому раненому союзнику: щит 16% ОЗ и +8 энергии ульты.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

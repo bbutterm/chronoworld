@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_meilin_sniper",
   "name": "Разведка боем Мэйлин",
-  "description": "На полной энергии. Врагам заднего ряда (если пуст — переднего): урон 1.8 × АТК; СКР -30% на 2 хода статуса.",
+  "description": "Залп по заднему ряду врагов (если он пуст — по переднему): ×1,8 и −30% скорости на 2 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

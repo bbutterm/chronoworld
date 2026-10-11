@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_zara_stalker",
   "name": "Захват Зары",
-  "description": "На полной энергии. Врагу с наименьшими ОЗ: урон 2.3 × АТК; оглушение на 1 хода статуса; энергия -15.",
+  "description": "Захват врага с наименьшими ОЗ: ×2,3, оглушение 1 с и −15 энергии. Сбивает заряд босса.",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {

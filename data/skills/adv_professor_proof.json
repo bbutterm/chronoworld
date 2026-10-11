@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_professor_proof",
   "name": "Доказанная защита",
-  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): Всем союзникам, включая себя: ЗАЩ +10% на 3 хода статуса.",
+  "description": "В начале боя: +10% защиты всему отряду на 12 с.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {
@@ -16,7 +16,7 @@
       "status": {
         "id": "adv_proof",
         "name": "Защита",
-        "turns": 3,
+        "turns": 12,
         "stats": {
           "def": 0.1
         }

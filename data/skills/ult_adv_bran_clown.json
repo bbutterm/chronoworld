@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_bran_clown",
   "name": "Размеренный напев Брана",
-  "description": "На полной энергии. Всем союзникам, включая себя: лечение 0.8 × АТК; ЗАЩ +22% на 3 хода статуса; энергия +10.",
+  "description": "Напев всему отряду: лечение ×0,8, +22% защиты на 3 с и +10 энергии.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

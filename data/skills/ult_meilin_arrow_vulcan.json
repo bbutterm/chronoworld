@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_meilin_arrow_vulcan",
   "name": "Вулкан стрел",
-  "description": "Девять стрел в одну цель: 9 × ×0,45.",
+  "description": "Девять стрел в одну цель: 9 × ×0,5.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {
@@ -13,7 +13,7 @@
   "effects": [
     {
       "type": "damage",
-      "k": 0.45
+      "k": 0.5
     }
   ]
 }

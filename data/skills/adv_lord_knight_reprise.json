@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_lord_knight_reprise",
   "name": "Ответный выпад",
-  "description": "Авторский навык (не оригинальный RO). В начале хода (шанс 25%): Ближайшему врагу: урон 0.35 × АТК.",
+  "description": "Иногда перед своим действием (шанс 25%): быстрый выпад в ближайшего врага (×0,35).",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

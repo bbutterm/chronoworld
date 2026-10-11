@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_greta_whitesmith",
   "name": "Ремонт Греты",
-  "description": "На полной энергии. Всем союзникам, включая себя: щит 18% макс. ОЗ цели; АТК +22% на 3 хода статуса.",
+  "description": "Ремонт снаряжения всего отряда: щит 18% ОЗ и +22% атаки на 3 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {

@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_vika_asura",
   "name": "Удар Асуры",
-  "description": "Вика собирает всю силу духа в кулак и обрушивает её на ближайшего врага.",
+  "description": "Вика собирает всю силу духа в кулак и обрушивает её на ближайшего врага — удар на миг оглушает. Сбивает заряд босса.",
   "icon": "icon_ult_warrior",
   "range": "melee",
   "target": {
@@ -12,7 +12,16 @@
   "effects": [
     {
       "type": "damage",
-      "k": 5
+      "k": 5.5
+    },
+    {
+      "type": "status",
+      "status": {
+        "id": "stun",
+        "name": "Оглушение",
+        "turns": 1,
+        "stun": true
+      }
     }
   ]
 }

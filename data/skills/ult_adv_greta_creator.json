@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_greta_creator",
   "name": "Аптечка Греты",
-  "description": "На полной энергии. Союзнику с наименьшей долей ОЗ (включая себя): лечение 2.4 × АТК; щит 22% макс. ОЗ цели.",
+  "description": "Аптечка союзнику с наименьшей долей ОЗ, в том числе себе: лечение ×2,4 и щит 22% ОЗ.",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {

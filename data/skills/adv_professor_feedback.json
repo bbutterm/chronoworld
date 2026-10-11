@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_professor_feedback",
   "name": "Обратный поток",
-  "description": "Авторский навык (не оригинальный RO). В начале хода (шанс 25%): Ближайшему врагу: энергия -5.",
+  "description": "Иногда перед своим действием (шанс 25%): отнимает 5 энергии ульты у ближайшего врага.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

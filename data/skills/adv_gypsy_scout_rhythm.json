@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_gypsy_scout_rhythm",
   "name": "Ритм разведки",
-  "description": "Авторский навык (не оригинальный RO). Всем союзникам, включая себя: СКР +18% на 2 хода статуса; энергия +5.",
+  "description": "Ритм для всего отряда: +18% скорости на 2 с и +5 энергии ульты каждому.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

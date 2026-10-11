@@ -161,7 +161,7 @@
         },
         {
           "level": 30,
-          "skill": "job_merchant_mammonite"
+          "skill": "job_blacksmith_cart_termination"
         },
         {
           "level": 50,
@@ -205,6 +205,10 @@
           {
             "level": 30,
             "skill": "job_merchant_mammonite"
+          },
+          {
+            "level": 30,
+            "skill": "job_blacksmith_cart_termination"
           },
           {
             "level": 50,

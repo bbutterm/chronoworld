@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "ult_adv_bran_sniper",
   "name": "Выстрел Брана",
-  "description": "На полной энергии. Врагу с наименьшими ОЗ: урон 2.8 × АТК; ЗАЩ -25% на 3 хода статуса.",
+  "description": "Выстрел по врагу с наименьшими ОЗ: ×2,8 и −25% защиты цели на 3 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {

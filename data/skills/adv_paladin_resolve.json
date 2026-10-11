@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_paladin_resolve",
   "name": "Стойкость обета",
-  "description": "Авторский навык (не оригинальный RO). В начале хода (шанс 25%): На себя: лечение 0.32 × АТК.",
+  "description": "Иногда перед своим действием (шанс 25%): лечит себя (×0,32).",
   "icon": "icon_ult_guard",
   "range": "ranged",
   "target": {

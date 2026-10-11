@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_gypsy_afterbeat",
   "name": "Отзвук танца",
-  "description": "Авторский навык (не оригинальный RO). В начале хода (шанс 25%): Ближайшему врагу: СКР -12% на 2 хода статуса.",
+  "description": "Иногда перед своим действием (шанс 25%): −12% скорости ближайшему врагу на 2 с.",
   "icon": "icon_ult_archer",
   "range": "ranged",
   "target": {
