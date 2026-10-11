@@ -324,6 +324,7 @@
  "Неизвестное блюдо: {0}": "Unknown dish: {0}",
  "Не хватает: {0}": "Not enough: {0}",
  "Неизвестный продукт: {0}": "Unknown ingredient: {0}",
+ "Кладовая полна: больше {0} не поместится": "Pantry is full: no room for more than {0}",
  "На сегодня продукты раскуплены — завтра привезут ещё": "Sold out for today — more arrives tomorrow",
  "+{0}% к АТК, ОЗ и защите": "+{0}% ATK, HP and DEF",
  "+{0}% АТК": "+{0}% ATK",

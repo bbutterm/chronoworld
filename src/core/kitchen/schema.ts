@@ -10,6 +10,17 @@ const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в ниж
 export const KITCHEN_ICONS = ['meat', 'apple', 'carrot', 'honey', 'milk', 'pot'] as const;
 export type KitchenIcon = (typeof KITCHEN_ICONS)[number];
 
+/**
+ * Когда блюдо стоит советовать (kitchenAdvice): boss — следующий этап кампании с боссом; level — героям отряда не хватает
+ * опыта на уровень, а золото на него есть. Без ситуации совет — самое сильное из доступных (recipeScore).
+ */
+export const KITCHEN_SITUATIONS = ['boss', 'level'] as const;
+export type KitchenSituation = (typeof KITCHEN_SITUATIONS)[number];
+
+/** Основа картинки блюда (src/game/kitchenDishArt.ts): тарелка, миска, стакан, пирог на тарелке, котелок. */
+export const DISH_BASES = ['plate', 'bowl', 'glass', 'pie', 'pot'] as const;
+export type DishBase = (typeof DISH_BASES)[number];
+
 /** Прибавки блюда, проценты: atk/hp/def — к статам отряда в бою; exp — к опыту героев за этапы кампании. */
 export const KitchenBuffSchema = z
   .object({
@@ -40,6 +51,22 @@ export const RecipeSchema = z.object({
   /** Продукт → штук на одно блюдо. */
   cost: z.record(id, z.number().int().positive()),
   buff: KitchenBuffSchema,
+  /** Когда блюдо советовать (KITCHEN_SITUATIONS). Нет поля — только как самое сильное из доступных. */
+  goodFor: z.array(z.enum(KITCHEN_SITUATIONS)).optional(),
+  /**
+   * Картинка блюда (собирается из иконок RO при показе, src/game/kitchenDishArt.ts): основа base и продукты items
+   * (id продуктов, иконки assets/ui/icons/item_food_<icon продукта>.png; первый — главный, на тарелке — в центре,
+   * второй — сзади слева, третий — спереди слева). cooked — главный продукт прожарен (тёплый оттенок), hot — над блюдом пар.
+   * Нет поля — иконка icon, как у продукта.
+   */
+  dish: z
+    .object({
+      base: z.enum(DISH_BASES),
+      items: z.array(id).min(1).max(3),
+      cooked: z.boolean().optional(),
+      hot: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 const range = z.object({ min: z.number().int().nonnegative(), max: z.number().int().nonnegative() }).refine((r) => r.max >= r.min, 'max не меньше min');
@@ -68,6 +95,11 @@ export const KitchenConfigSchema = z
     }),
     /** Покупка продуктов за золото: не больше dailyLimit штук в день; цена растёт с главой. */
     shop: z.object({ dailyLimit: z.number().int().nonnegative(), chapterGrowth: z.number().nonnegative() }),
+    /**
+     * Предел кладовой: не больше pantryCap штук каждого продукта. Сверх предела выдача не начисляется, купить нельзя;
+     * старый запас сверх предела не сгорает — тратится на блюда. Нет поля — без предела.
+     */
+    pantryCap: z.number().int().positive().optional(),
   })
   .superRefine((cfg, c) => {
     const ing = new Set<string>();
@@ -82,10 +114,14 @@ export const KitchenConfigSchema = z
       const keys = Object.keys(r.cost);
       if (!keys.length) c.addIssue({ code: 'custom', path: ['recipes', i, 'cost'], message: 'у блюда нужен хотя бы один продукт' });
       for (const k of keys) if (!ing.has(k)) c.addIssue({ code: 'custom', path: ['recipes', i, 'cost', k], message: `продукт ${k} не найден в ingredients` });
+      r.dish?.items.forEach((k, j) => {
+        if (!ing.has(k)) c.addIssue({ code: 'custom', path: ['recipes', i, 'dish', 'items', j], message: `продукт ${k} не найден в ingredients` });
+      });
     });
   });
 
 export type KitchenBuff = z.infer<typeof KitchenBuffSchema>;
 export type Ingredient = z.infer<typeof IngredientSchema>;
 export type Recipe = z.infer<typeof RecipeSchema>;
+export type DishArt = NonNullable<Recipe['dish']>;
 export type KitchenConfig = z.infer<typeof KitchenConfigSchema>;
