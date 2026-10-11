@@ -121,6 +121,50 @@
                 "maximum": 100
               }
             }
+          },
+          "goodFor": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "boss",
+                "level"
+              ]
+            }
+          },
+          "dish": {
+            "type": "object",
+            "properties": {
+              "base": {
+                "type": "string",
+                "enum": [
+                  "plate",
+                  "bowl",
+                  "glass",
+                  "pie",
+                  "pot"
+                ]
+              },
+              "items": {
+                "minItems": 1,
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                }
+              },
+              "cooked": {
+                "type": "boolean"
+              },
+              "hot": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "base",
+              "items"
+            ]
           }
         },
         "required": [
@@ -236,6 +280,11 @@
         "dailyLimit",
         "chapterGrowth"
       ]
+    },
+    "pantryCap": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
     }
   },
   "required": [

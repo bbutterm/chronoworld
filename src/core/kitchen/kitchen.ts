@@ -3,6 +3,7 @@
  * - Продукты копятся из экспедиций, охоты и сундука простоя (броски от seed источника; повторы этапов — только при
  *   progression.campaign.replay ≠ false и sources.replay) и
  *   покупаются за золото (лимит в день). Копятся и до открытия Кухни — к открытию кладовая не пуста.
+ *   Предел кладовой — pantryCap штук каждого продукта: лишнее не начисляется (старый запас сверх предела не сгорает).
  * - Раз в день (день передаёт UI, как у заданий дня) готовится одно блюдо; оно действует до смены дня. День не
  *   новее дня последнего блюда (часы назад) — готовить нельзя: второго блюда переводом часов не получить.
  * - Прибавка — к статам отряда в боях кампании, Башни и охоты (withMeal; Арена нормализована и её не видит) и к опыту
@@ -27,7 +28,16 @@ export type KitchenState = NonNullable<SaveState['kitchen']>;
 /** Продукт → штук (выдача или цена). */
 export type Pantry = Record<string, number>;
 
-export type KitchenErrorCode = 'kitchen_locked' | 'no_kitchen' | 'already_cooked' | 'unknown_recipe' | 'not_enough' | 'unknown_ingredient' | 'day_limit' | 'not_enough_gold';
+export type KitchenErrorCode =
+  | 'kitchen_locked'
+  | 'no_kitchen'
+  | 'already_cooked'
+  | 'unknown_recipe'
+  | 'not_enough'
+  | 'unknown_ingredient'
+  | 'day_limit'
+  | 'not_enough_gold'
+  | 'pantry_full';
 
 export class KitchenError extends Error {
   override name = 'KitchenError';
@@ -99,7 +109,23 @@ export function mealExp(exp: number, save: Pick<SaveState, 'kitchen'>, day: stri
 
 // ---------- Продукты ----------
 
-/** Сложить продукты в кладовую. Пусто — тот же объект. */
+/** Предел кладовой на каждый продукт (data/kitchen.json → pantryCap; нет поля или Кухни — без предела). */
+export function pantryCap(ctx: object): number {
+  return cfgOf(ctx)?.pantryCap ?? Infinity;
+}
+
+/** Сколько из выдачи поместится в кладовую под пределом cap (запас сверх предела не уменьшается). */
+export function fitPantry(save: Pick<SaveState, 'kitchen'>, gained: Pantry, cap: number): Pantry {
+  const pantry = save.kitchen?.pantry ?? {};
+  const out: Pantry = {};
+  for (const [id, n] of Object.entries(gained)) {
+    const m = Math.min(n, Math.max(0, cap - (pantry[id] ?? 0)));
+    if (m > 0) out[id] = m;
+  }
+  return out;
+}
+
+/** Сложить продукты в кладовую (без предела — его учитывают выдачи через fitPantry). Пусто — тот же объект. */
 export function addIngredients(save: SaveState, gained: Pantry): SaveState {
   const entries = Object.entries(gained).filter(([, n]) => n > 0);
   if (!entries.length) return save;
@@ -135,7 +161,11 @@ export interface IngredientGrant {
 }
 
 const none = (save: SaveState): IngredientGrant => ({ save, gained: {} });
-const give = (save: SaveState, gained: Pantry): IngredientGrant => ({ save: addIngredients(save, gained), gained });
+/** Выдать под пределом кладовой: gained — что реально легло (кладовая полна — пусто, тот же save). */
+const give = (save: SaveState, rolled: Pantry, ctx: object): IngredientGrant => {
+  const gained = fitPantry(save, rolled, pantryCap(ctx));
+  return { save: addIngredients(save, gained), gained };
+};
 const rngOf = (...parts: (string | number)[]) => new Rng(lootSeed('kitchen', ...parts));
 
 /** Вернувшаяся экспедиция: sources.expedition.min…max продуктов. seed — seed экспедиции. */
@@ -144,7 +174,7 @@ export function grantExpeditionIngredients(save: SaveState, seed: number, ctx: o
   if (!cfg) return none(save);
   const rng = rngOf('expedition', seed);
   const { min, max } = cfg.sources.expedition;
-  return give(save, rollIngredients(rng, min + rng.int(max - min + 1), cfg));
+  return give(save, rollIngredients(rng, min + rng.int(max - min + 1), cfg), ctx);
 }
 
 /** Попытка охоты: взят порог tier (≥ 0) — min + ⌊tier / tiersPerExtra⌋ продуктов (не больше max). seed — добыча попытки. */
@@ -158,7 +188,7 @@ export function grantHuntIngredients(save: SaveState, tier: number, seed: number
   const cfg = cfgOf(ctx);
   if (!cfg) return none(save);
   const n = huntIngredientCount(tier, cfg);
-  return n > 0 ? give(save, rollIngredients(rngOf('hunt', seed), n, cfg)) : none(save);
+  return n > 0 ? give(save, rollIngredients(rngOf('hunt', seed), n, cfg), ctx) : none(save);
 }
 
 /** Победный повтор этапа с наградой (только при разрешённых повторах): с шансом sources.replay.chance — count продуктов. Нет sources.replay — ничего. seed — seed боя. */
@@ -168,7 +198,7 @@ export function grantReplayIngredients(save: SaveState, seed: number, ctx: objec
   if (!cfg || !src) return none(save);
   const rng = rngOf('replay', seed);
   if (rng.next() >= src.chance) return none(save);
-  return give(save, rollIngredients(rng, src.count, cfg));
+  return give(save, rollIngredients(rng, src.count, cfg), ctx);
 }
 
 /** Сбор сундука: по броску на каждый полный тик (шанс sources.chest.chancePerTick). seed — seed сундука до сбора. */
@@ -178,7 +208,7 @@ export function grantChestIngredients(save: SaveState, ticks: number, seed: numb
   const rng = rngOf('chest', seed);
   let n = 0;
   for (let i = 0; i < ticks; i++) if (rng.next() < cfg.sources.chest.chancePerTick) n++;
-  return n > 0 ? give(save, rollIngredients(rng, n, cfg)) : none(save);
+  return n > 0 ? give(save, rollIngredients(rng, n, cfg), ctx) : none(save);
 }
 
 // ---------- Покупка и готовка ----------
@@ -214,6 +244,8 @@ export interface PantryRow extends Ingredient {
   count: number;
   /** Цена сейчас (с ростом по главе). */
   priceNow: number;
+  /** Кладовая полна (count ≥ pantryCap): выдача не начисляется, купить нельзя. */
+  full: boolean;
 }
 
 export interface KitchenStatus {
@@ -230,6 +262,8 @@ export interface KitchenStatus {
   bought: number;
   buyLimit: number;
   buyLeft: number;
+  /** Предел кладовой на продукт (data/kitchen.json → pantryCap) или null — без предела. */
+  cap: number | null;
 }
 
 /** Состояние Кухни на день day (save не меняется). Нет data/kitchen.json — KitchenError('no_kitchen'). */
@@ -247,10 +281,11 @@ export function kitchenStatus(save: SaveState, day: string, ctx: KitchenContext)
     return { ...r, affordable: !Object.keys(missing).length, missing, active: meal?.id === r.id };
   });
   const bought = boughtToday(save, day, cfg);
+  const cap = cfg.pantryCap ?? Infinity;
   return {
     unlocked,
     lockedText: lockedText(save, 'kitchen', ctx),
-    pantry: cfg.ingredients.map((g) => ({ ...g, count: k.pantry[g.id] ?? 0, priceNow: ingredientPrice(save, g, cfg, ctx) })),
+    pantry: cfg.ingredients.map((g) => ({ ...g, count: k.pantry[g.id] ?? 0, priceNow: ingredientPrice(save, g, cfg, ctx), full: (k.pantry[g.id] ?? 0) >= cap })),
     recipes,
     meal,
     canCook,
@@ -258,6 +293,7 @@ export function kitchenStatus(save: SaveState, day: string, ctx: KitchenContext)
     bought,
     buyLimit: cfg.shop.dailyLimit,
     buyLeft: Math.max(0, cfg.shop.dailyLimit - bought),
+    cap: cfg.pantryCap ?? null,
   };
 }
 
@@ -299,7 +335,8 @@ export function cookMeal(save: SaveState, day: string, recipeId: string, ctx: Ki
 
 /**
  * Купить продукт за золото (count штук). Лимит — shop.dailyLimit в день; день раньше записанного — лимит исчерпан.
- * KitchenError: kitchen_locked, unknown_ingredient, day_limit, not_enough_gold.
+ * Больше предела кладовой (pantryCap) не купить.
+ * KitchenError: kitchen_locked, unknown_ingredient, pantry_full, day_limit, not_enough_gold.
  */
 export function buyIngredient(save: SaveState, day: string, ingredientId: string, ctx: KitchenContext, count = 1): SaveState {
   assertDay(day);
@@ -307,6 +344,8 @@ export function buyIngredient(save: SaveState, day: string, ingredientId: string
   const ing = cfg.ingredients.find((g) => g.id === ingredientId);
   if (!ing) throw new KitchenError('unknown_ingredient', `Неизвестный продукт: ${ingredientId}`);
   const n = Math.max(1, Math.floor(count));
+  const cap = cfg.pantryCap ?? Infinity;
+  if ((save.kitchen?.pantry[ing.id] ?? 0) + n > cap) throw new KitchenError('pantry_full', `Кладовая полна: больше ${cap} не поместится`);
   const bought = boughtToday(save, day, cfg);
   if (bought + n > cfg.shop.dailyLimit) throw new KitchenError('day_limit', 'На сегодня продукты раскуплены — завтра привезут ещё');
   const price = ingredientPrice(save, ing, cfg, ctx) * n;
