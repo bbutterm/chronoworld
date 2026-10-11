@@ -8,13 +8,13 @@ import {
   eventOptionAllowed,
   familyStates,
   heroGender,
-  heroPower,
   isBattleNode,
   markTowerSummarySeen,
   NODE_NAMES,
   pickTowerBlessing,
   previewTowerBlessingChoice,
   skipTowerBlessing,
+  squadPower,
   rerollTowerBlessing,
   resolveTowerEvent,
   runConfig,
@@ -28,6 +28,7 @@ import {
   upgradeLevel,
   upgradeValue,
   withGear,
+  withMeal,
   type Blessing,
   type HeroState,
   type TowerNodeKind,
@@ -327,9 +328,9 @@ export class TowerScene extends Phaser.Scene {
   /** Отряд забега: заголовок с мощью и ряд портретов с карандашом; касание — правка отряда. */
   private squadRow(): void {
     const save = session.save;
-    const gctx = withGear(GAME, save);
     const heroes = save.squad.map((id) => (id ? save.heroes.find((h) => h.id === id) : undefined));
-    const power = heroes.reduce((n, h) => n + (h ? heroPower(h, gctx) : 0), 0);
+    // С блюдом дня Кухни: в бою Башни оно прибавляет статы (towerRunSquad).
+    const power = squadPower(save, GAME, today());
     text(this, S.l, L.squadHeadY, 'Отряд', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
     chip(this, GAME_W - S.l, L.squadHeadY, 'swords', formatNumber(power), 'neutral', { size: 's', align: 'right', bg: false });
     const h = 172;
@@ -502,15 +503,16 @@ export class TowerScene extends Phaser.Scene {
     }
   }
 
-  /** Мощь живого отряда забега с учётом ран (ОЗ-часть мощи — пропорционально). */
+  /** Мощь живого отряда забега с учётом ран (ОЗ-часть мощи — пропорционально) и блюда дня Кухни (как в бою). */
   private runPower(run: TowerRun): number {
     const save = session.save;
     const gctx = withGear(GAME, save);
+    const day = today();
     let sum = 0;
     for (const id of run.squad) {
       const hero = id ? save.heroes.find((h) => h.id === id) : undefined;
       if (!hero) continue;
-      const u = buildUnit(hero, gctx);
+      const u = withMeal([buildUnit(hero, gctx)], save, day, GAME)[0] ?? buildUnit(hero, gctx);
       const hp = (run.hp[hero.id] ?? 1000) / 1000;
       sum += unitPower({ ...u, stats: { ...u.stats, hp: Math.max(1, Math.round(u.stats.hp * hp)) } }, GAME);
     }

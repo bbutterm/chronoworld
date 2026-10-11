@@ -358,7 +358,8 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
   rarity, ctx, branch?)`.
 - Копии: `heroCopies(save, templateId)` (сильнейший первым), `storyHero(save, templateId)` — сильнейший экземпляр.
 - Редкости: `CARD_RARITIES`, `rarityDef(ctx, r)` (цвет, предел, множители), `maxLevelOf`, `nextRarity`, `rarityIndex`.
-- Мощь: `heroPower(hero, ctx, save)` (K2, с экипировкой), `squadPower(save, ctx)`, `stagePower(stageId, ctx)` (враги этапа).
+- Мощь: `heroPower(hero, ctx, save, day?)` (K2, с экипировкой), `squadPower(save, ctx, day?)`, `stagePower(stageId, ctx)` (враги этапа);
+  `day` — с блюдом дня Кухни, как в бою (только экраны кампании и Башни; Арена и общая мощь — без дня).
 - **Рекомендуемая мощь этапа** (как в AFK над «В бой»): `recommendedPower(stageId, ctx)` — красивое число; `stagePowerCheck(save,
   stageId, ctx)` → `{ squad, recommended, ratio, verdict 'easy'|'ok'|'hard'|'very_hard' }` (≥1.1 / ≥0.95 / ≥0.85 / ниже) — цвет и
   подсказка «чуть-чуть не хватает — поднимите уровни». Коэффициенты — `data/progression.json → power.recommended*`, подбор —

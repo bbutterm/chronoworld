@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { hasArt } from '../assets';
 import { HINT_TEXT, hintDone, hintShown, markHint, markHintShown, pickHomeHint, type HintId } from '../hints';
 import { homeHintInput } from '../tutorial';
-import { actClaimOffline, actUseFastRewards, episodePageId, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, markPageSeen, pendingIntro, pendingScenes, stageStatus } from '../../core';
+import { actClaimOffline, actUseFastRewards, episodePageId, fastRewardsLoot, fastRewardsPreview, fastRewardsStatus, markPageSeen, pendingIntro, pendingScenes, stageStatus, type Pantry } from '../../core';
 import { introPages, showPages } from '../storyPage';
 import { CONTENT, GAME } from '../content';
 import { playScenes } from '../dialogue';
@@ -28,6 +28,7 @@ import { campaignObjective, chestArt, nodeLabeled } from '../campaignView';
 import { rewardIcon } from '../rewardsView';
 import { touchToday } from '../homeEvents';
 import { minimumFontSize, onViewChange } from '../viewport';
+import { floatFood, foodLine } from '../kitchenEntry';
 
 /** Узел этапа на тропе (босс — ×1.25). */
 const NODE = 120;
@@ -415,7 +416,7 @@ export class CampaignScene extends Phaser.Scene {
     b.container.setName('fightCta');
     if (!open) return;
 
-    const pc = powerCheck(session.save, cur.id, GAME);
+    const pc = powerCheck(session.save, cur.id, GAME, today());
     const short = powerShortfall(pc.squad, pc.recommended).label;
     if (short) {
       b.label.setY(-22);
@@ -566,7 +567,8 @@ export class CampaignScene extends Phaser.Scene {
     // Монеты вылетают из сундука и летят в золото в шапке (juice.ts); опыт всплывает над сундуком.
     const from = { x: this.layout.chestX, y: this.layout.chestY };
     queueRewardFly('Campaign', from, before, { burst: true });
-    this.restartWithReward(from, r.rewards.jobExp, [...lootLines(r.loot), ...describeEvents(r.events, r.save, GAME)]);
+    const food = foodLine(r.ingredients);
+    this.restartWithReward(from, r.rewards.jobExp, [...lootLines(r.loot), ...(food ? [food] : []), ...describeEvents(r.events, r.save, GAME)], r.ingredients);
   }
 
   // ---------- R. Подсказки первой сессии ----------
@@ -615,10 +617,12 @@ export class CampaignScene extends Phaser.Scene {
    * Перезапустить экран (та же глава) после награды: монеты летят в «таблетки» валют (queueRewardFly), опыт в запас
    * всплывает чипом над точкой получения; тост — только о том, чего на экране не видно (трофеи, события).
    */
-  private restartWithReward(from: { x: number; y: number }, exp: number, lines: string[]): void {
+  private restartWithReward(from: { x: number; y: number }, exp: number, lines: string[], food?: Pantry): void {
     this.scene.restart({ chapter: this.chapterIndex });
     this.events.once(Phaser.Scenes.Events.CREATE, () => {
       if (exp > 0) this.floatGain(from, exp);
+      // Продукты Кухни (сундук) — рядом чипов под опытом.
+      floatFood(this, { x: from.x, y: from.y + 70 }, food);
       if (lines.length) afterRewardFly(this, () => toast(this, lines.join('\n'), C.success));
     });
   }

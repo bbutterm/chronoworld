@@ -1,18 +1,21 @@
 import Phaser from 'phaser';
-import { activeMeal, kitchenReady, type KitchenContext, type KitchenIcon } from '../core';
+import { activeMeal, kitchenReady, pantryText, type KitchenContext, type KitchenIcon, type Pantry } from '../core';
 import { GAME } from './content';
 import { compactEntry, type EntryView } from './homeBuildings';
+import { juiceOn } from './juice';
+import { GAME_W } from './layout';
 import { dot } from './screen';
 import { session, today } from './session';
 import { skinIcon } from './skin';
-import { COLOR, hexNum, RARITY } from './theme';
-import { tag } from './ui';
+import { COLOR, E, hexNum, M, RARITY, S } from './theme';
+import { rewardRow, tag, type ChipSpec } from './ui';
 import { isUnlocked } from './unlockBanner';
 import { roIcon, roIconScale } from './itemIcons';
 
 /**
  * Кухня в Таверне (docs/design/kitchen.md, ядро src/core/kitchen): вход со страницы «Город» (kitchenTile — под
- * Лавкой), иконки продуктов и короткая плашка блюда дня для подготовки к бою (mealTag). Экран — KitchenScene.
+ * Лавкой), иконки продуктов и короткая плашка блюда дня для подготовки к бою (mealTag), полученные продукты в итогах
+ * экспедиции, охоты и сундука (foodChips, foodLine, floatFood). Экран — KitchenScene.
  */
 
 /** Контекст Кухни (data/kitchen.json собран в GAME.kitchen; нет файла — Кухни нет). */
@@ -42,6 +45,42 @@ export function foodIcon(scene: Phaser.Scene, x: number, y: number, icon: Kitche
 
 /** IconSpec для chip/rewardRow: иконка продукта нужного размера. */
 export const foodSpec = (icon: KitchenIcon) => (scene: Phaser.Scene, x: number, y: number, size: number) => foodIcon(scene, x, y, icon, size);
+
+/**
+ * Полученные продукты (поле ingredients итогов claimExpedition, HuntGrant, claimOffline) чипами «иконка ×N» для rewardRow —
+ * в порядке кладовой (data/kitchen.json). Нет выдачи или Кухни — [].
+ */
+export function foodChips(gained: Pantry | undefined): ChipSpec[] {
+  const cfg = kitchenCtx().kitchen;
+  if (!cfg || !gained) return [];
+  return cfg.ingredients.filter((g) => (gained[g.id] ?? 0) > 0).map((g) => ({ icon: foodSpec(g.icon), value: `×${gained[g.id]}` }));
+}
+
+/** Строка итога для тостов и окон: «Продукты: Мясо ×2, Мёд ×1». Нет выдачи — null. */
+export function foodLine(gained: Pantry | undefined): string | null {
+  const list = gained ? pantryText(gained, kitchenCtx()) : '';
+  return list ? `Продукты: ${list}` : null;
+}
+
+/**
+ * Продукты всплывают рядом чипов над точкой получения и гаснут — как опыт над сундуком (CampaignScene floatGain).
+ * Ряд не выходит за поля экрана. Нет выдачи — null. «Уменьшить анимацию» — постоять и исчезнуть без движения.
+ */
+export function floatFood(scene: Phaser.Scene, from: { x: number; y: number }, gained: Pantry | undefined): Phaser.GameObjects.Container | null {
+  const items = foodChips(gained);
+  if (!items.length) return null;
+  const row = rewardRow(scene, from.x, from.y - 40, items, { size: 's', gap: S.xxs, maxW: GAME_W - 2 * S.l }).setDepth(50).setName('foodGain');
+  const half = row.width / 2;
+  row.setX(Math.min(GAME_W - S.l - half, Math.max(S.l + half, from.x)));
+  if (!juiceOn()) {
+    scene.time.delayedCall(M.count * 2, () => row.destroy());
+    return row;
+  }
+  row.setAlpha(0);
+  scene.tweens.add({ targets: row, alpha: 1, y: from.y - 110, duration: M.slow, ease: E.out });
+  scene.tweens.add({ targets: row, alpha: 0, y: from.y - 160, delay: M.slow + M.count, duration: M.base, ease: E.in, onComplete: () => row.destroy() });
+  return row;
+}
 
 /**
  * Вход на «Городе» (центр x, y; w×h): компактная карточка «Кухня». Блюдо дня готово — подпись «Готово»; сегодня не
