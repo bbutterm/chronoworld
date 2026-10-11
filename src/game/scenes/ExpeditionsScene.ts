@@ -34,6 +34,7 @@ import { rewardIcon } from '../rewardsView';
 import { expeditionRewardPreview } from '../expeditionRewards';
 import { EXPEDITION_PARTY_PANEL, openExpeditionPartyPicker } from '../expeditionPartyPicker';
 import { onViewChange } from '../viewport';
+import { floatFood, foodLine } from '../kitchenEntry';
 
 /** Карточка локации: ширина — по полям экрана, высота и шаг списка. */
 const CARD_W = GAME_W - 2 * S.l;
@@ -524,11 +525,16 @@ export class ExpeditionsScene extends Phaser.Scene {
       commit(r.save);
       queueRewardFly('Expeditions', at, before);
       const name = GAME.meta.expeditions.locations.find((l) => l.id === e.location)?.name ?? e.location;
-      const lines = [`«${name}»: ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`, ...lootLines(r.rewards), ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
+      const food = foodLine(r.ingredients);
+      const lines = [`«${name}»: ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`, ...lootLines(r.rewards), ...(food ? [food] : []), ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы'))];
       // Строка возвращения (lore-route §5.8, data/lore/lines.json → expeditionReturn) — первой.
       const said = randomLine('expeditionReturn');
       this.scene.restart({ scroll: this.area.offset });
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => this.report(`«${name}»`, [{ location: e.location, story: r.story }], lines, said)));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => {
+        // Продукты Кухни всплывают иконками над кнопкой «Забрать», пока монеты летят в золото.
+        floatFood(this, at, r.ingredients);
+        afterRewardFly(this, () => this.report(`«${name}»`, [{ location: e.location, story: r.story }], lines, said));
+      });
     } catch (err) {
       toast(this, err instanceof Error ? err.message : String(err), C.error);
     }
@@ -575,15 +581,22 @@ export class ExpeditionsScene extends Phaser.Scene {
         return;
       }
       commit(r.save);
-      queueRewardFly('Expeditions', { x: GAME_W / 2, y: BAR_Y }, before);
+      const from = { x: GAME_W / 2, y: BAR_Y };
+      queueRewardFly('Expeditions', from, before);
+      const food = foodLine(r.ingredients);
       const lines = [
         `Экспедиций: ${r.claimed.length} · ${formatNumber(r.rewards.gold)} золота · ${formatNumber(r.rewards.jobExp)} опыта в запас`,
         ...lootLines(r.rewards),
+        ...(food ? [food] : []),
         ...describeEvents(r.events, r.save, GAME).filter((l) => !l.startsWith('Гемы')),
       ];
       const said = randomLine('expeditionReturn');
       this.scene.restart({ scroll: this.area.offset });
-      this.events.once(Phaser.Scenes.Events.CREATE, () => afterRewardFly(this, () => this.report('Экспедиции вернулись', r.stories, lines, said)));
+      this.events.once(Phaser.Scenes.Events.CREATE, () => {
+        // Под полосой «Забрать всё»: всплывают вниз, а не под шапку.
+        floatFood(this, { x: from.x, y: from.y + 220 }, r.ingredients);
+        afterRewardFly(this, () => this.report('Экспедиции вернулись', r.stories, lines, said));
+      });
     } catch (e) {
       toast(this, e instanceof Error ? e.message : String(e), C.error);
     }

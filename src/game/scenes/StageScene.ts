@@ -123,7 +123,7 @@ export class StageScene extends Phaser.Scene {
     });
 
     // Полоса над полем: мощь (обновляется в onSquadChange), «БОСС» и «i» разведки.
-    const needs = stageNeeds(session.save, this.stageId, GAME);
+    const needs = stageNeeds(session.save, this.stageId, GAME, today());
     this.power = powerCompare(this, 56, L.powerY, needs.own, needs.power, { align: 'left' });
     this.shortText = text(this, 60, L.shortY, '', T.caption, COLOR.negative, { fontStyle: 'bold' }).setOrigin(0, 0.5).setName('stageShort');
     this.shortText.setShadow(0, 2, 'rgba(0,0,0,0.8)', 4, false, true);
@@ -210,7 +210,7 @@ export class StageScene extends Phaser.Scene {
     const before = new Set(this.children.list);
     this.editor.locked = true;
     this.body.locked = true;
-    const needs = stageNeeds(session.save, this.stageId, GAME);
+    const needs = stageNeeds(session.save, this.stageId, GAME, today());
     scoutSheet(this, enemySquad(this.stageId, GAME, session.save.campaignChoices), Object.values(squadDefs(session.save)), needs);
     const unlock = () => { this.editor.locked = false; this.body.locked = false; };
     const modal = this.children.list.find(o => !before.has(o) && o.getData('screenModal'));
@@ -249,7 +249,7 @@ export class StageScene extends Phaser.Scene {
     const ready = save.squad.some(Boolean);
     for (const b of this.fightBtns) b.setEnabled(ready);
     if (!this.power?.scene) return;
-    const needs: StageNeeds = stageNeeds(save, this.stageId, GAME);
+    const needs: StageNeeds = stageNeeds(save, this.stageId, GAME, today());
     updatePowerCompare(this.power, needs.own, needs.power);
     this.shortText?.setText(needs.short ? shortfallHint(needs.short) : '');
     const short = needs.own < needs.power;

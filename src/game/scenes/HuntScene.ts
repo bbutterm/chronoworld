@@ -23,6 +23,7 @@ import { rewardIcon } from '../rewardsView';
 import { adventureModeLayout } from '../adventureModeLayout';
 import { adventureModePanel } from '../adventureModePanel';
 import { onViewChange } from '../viewport';
+import { foodChips } from '../kitchenEntry';
 
 /** Данные экрана: после боя (BattleScene) или «Зачистки» — итог попытки поверх экрана. */
 export interface HuntSceneData {
@@ -486,6 +487,8 @@ export class HuntScene extends Phaser.Scene {
       const rar = GAME.equipment.items[g.items[0].itemId]?.rarity ?? 'common';
       items.push({ icon: (s, x, y, size) => roIconOr(s, x, y, size, g.items[0].itemId, RARITY_COLORS[rar]), value: `×${g.items.length}` });
     }
+    // Продукты Кухни (взят хотя бы первый порог) — иконками продуктов в том же ряду.
+    items.push(...foodChips(g.ingredients));
     const row = items.length ? rewardRow(this, cx, 0, items, { maxW: bw - 2 * S.l }).setName('huntOutRewards') : null;
     const pityTag = !cardDef && out.killed && !!out.boss.card && !!GAME.hunt.mvp;
     const CARD_H = 190;

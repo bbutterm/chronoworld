@@ -482,6 +482,8 @@ export function recommendText(rec: Pick<StageRecommend, 'level' | 'rarity' | 'ow
  * «ур. N» у каждого врага: у врагов разброс по hp·atk в десятки уровней, после сдвига к отряду слабые упирались в
  * «ур. 1» рядом с «ур. 17» у танка — выглядело случайным). short — только когда мощи не хватает: до какого уровня
  * поднять героев отряда (capped — и пределов редкостей не хватит).
+ * day — день боя: own — с блюдом дня Кухни, как в бою кампании (squadPower). Уровни (enemyLevel, short) — без блюда:
+ * та же шкала, что у подписей врагов в бою (stageLevelsFor), с блюдом нужный уровень только ниже.
  */
 export interface StageNeeds {
   power: number;
@@ -490,8 +492,8 @@ export interface StageNeeds {
   short?: { level: number; capped?: boolean };
 }
 
-export function stageNeeds(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext): StageNeeds {
-  const own = squadPower(save, ctx);
+export function stageNeeds(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext, day?: string): StageNeeds {
+  const own = squadPower(save, ctx, day);
   const power = recommendedPower(stageId, ctx, save.campaignChoices);
   const lv = stageLevelsFor(save, stageId, ctx);
   const rec = lv.recommended;
@@ -512,8 +514,9 @@ export interface PowerCheck {
   verdict: string;
 }
 
-export function powerCheck(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext): PowerCheck {
-  const squad = squadPower(save, ctx);
+/** day — день боя: мощь отряда с блюдом дня Кухни (как stageNeeds). */
+export function powerCheck(save: SaveState, stageId: string, ctx: FeatureContext & EquipmentContext, day?: string): PowerCheck {
+  const squad = squadPower(save, ctx, day);
   const recommended = recommendedPower(stageId, ctx, save.campaignChoices);
   const tone = powerTone(squad, recommended);
   return { squad, recommended, tone, verdict: POWER_VERDICT[tone] };

@@ -3,6 +3,7 @@ import { enemySquad, getStage } from '../campaign/campaign';
 import type { UnitDef } from '../content/schema';
 import { heroGearStats, withGear } from '../equipment/equipment';
 import type { EquipmentConfig } from '../equipment/load';
+import { withMeal } from '../kitchen/kitchen';
 import { buildUnit } from '../progression/stats';
 import type { HeroState, SaveState } from '../save/schema';
 import type { FeatureContext } from './config';
@@ -22,28 +23,41 @@ export function unitPower(unit: UnitDef, ctx: FeatureContext): number {
 }
 
 /**
+ * Юнит с блюдом дня Кухни — как в бою кампании, Башни и охоты (kitchen.ts withMeal: hp/atk/def × (1 + %/100)).
+ * Нет сохранения, дня или блюда на этот день — тот же юнит.
+ */
+function fed(unit: UnitDef, save: Pick<SaveState, 'kitchen'> | undefined, day: string | undefined, ctx: object): UnitDef {
+  return save && day !== undefined ? (withMeal([unit], save, day, ctx)[0] ?? unit) : unit;
+}
+
+/**
  * K2. Мощь героя игрока = unitPower(buildUnit(hero)).
  * K6: с save и ctx.equipment — с экипировкой героя из save.inventory (иначе без неё).
+ * day (с save) — день боя: блюдо дня Кухни, приготовленное в этот день, прибавляет статы, как в бою. Без дня — без блюда.
  */
-export function heroPower(hero: HeroState, ctx: FeatureContext & { equipment?: EquipmentConfig }, save?: SaveState): number {
+export function heroPower(hero: HeroState, ctx: FeatureContext & { equipment?: EquipmentConfig }, save?: SaveState, day?: string): number {
   if (save && ctx.equipment) {
     // withGear раньше строил прибавки всей коллекции ради одного героя. Карты остаются от настоящего
     // экземпляра в save, даже если hero — предварительный просмотр уровня/профессии.
     const gear = save.heroes.some((h) => h.id === hero.id)
       ? heroGearStats(save, hero.id, ctx as FeatureContext & { equipment: EquipmentConfig })
       : { hp: 0, atk: 0, def: 0, spd: 0 };
-    return unitPower(buildUnit(hero, ctx, gear), ctx);
+    return unitPower(fed(buildUnit(hero, ctx, gear), save, day, ctx), ctx);
   }
-  return unitPower(buildUnit(hero, ctx), ctx);
+  return unitPower(fed(buildUnit(hero, ctx), save, day, ctx), ctx);
 }
 
-/** K2. Мощь отряда = сумма мощи героев в слотах save.squad (пустые и неизвестные слоты — 0), K6: с экипировкой. */
-export function squadPower(save: SaveState, ctx: FeatureContext & { equipment?: EquipmentConfig }): number {
+/**
+ * K2. Мощь отряда = сумма мощи героев в слотах save.squad (пустые и неизвестные слоты — 0), K6: с экипировкой.
+ * day — день боя: блюдо дня Кухни прибавляет статы, как в бою кампании, Башни и охоты (squadUnits / towerRunSquad).
+ * Без дня — без блюда: общая мощь отряда (экран «Герои», рейтинги) и Арена, которая блюда не видит.
+ */
+export function squadPower(save: SaveState, ctx: FeatureContext & { equipment?: EquipmentConfig }, day?: string): number {
   const gctx = withGear(ctx, save);
   let sum = 0;
   for (const id of save.squad) {
     const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
-    if (hero) sum += heroPower(hero, gctx);
+    if (hero) sum += unitPower(fed(buildUnit(hero, gctx), save, day, ctx), gctx);
   }
   return sum;
 }
@@ -95,9 +109,9 @@ export interface StagePowerCheck {
   verdict: PowerVerdict;
 }
 
-/** Мощь отряда против рекомендуемой мощи этапа — для экрана подготовки к бою и карты кампании. */
-export function stagePowerCheck(save: SaveState, stageId: string, ctx: FeatureContext & { equipment?: EquipmentConfig }): StagePowerCheck {
-  const squad = squadPower(save, ctx);
+/** Мощь отряда против рекомендуемой мощи этапа — для экрана подготовки к бою и карты кампании. day — с блюдом дня (squadPower). */
+export function stagePowerCheck(save: SaveState, stageId: string, ctx: FeatureContext & { equipment?: EquipmentConfig }, day?: string): StagePowerCheck {
+  const squad = squadPower(save, ctx, day);
   const recommended = recommendedPower(stageId, ctx, save.campaignChoices);
   const ratio = recommended > 0 ? squad / recommended : 0;
   const verdict: PowerVerdict = ratio >= 1.1 ? 'easy' : ratio >= 0.95 ? 'ok' : ratio >= 0.85 ? 'hard' : 'very_hard';
