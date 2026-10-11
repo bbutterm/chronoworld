@@ -100,6 +100,8 @@ const GHOST_LIFT = 70;
 const GHOST_SIZE = 150;
 /** Высота ряда мощи над слотами. */
 const HEAD_H = PREP.headH;
+/** Высота затухания у нижнего края списка героев. */
+const FADE_H = 56;
 
 /** Значок роли: 0 — танк (щит), 1 — ближний бой (меч), 2 — дальний бой (лук), 3 — лекарь (крест). */
 const RANK_ICON = ['tank', 'melee', 'ranged', 'healer'] as const;
@@ -167,6 +169,8 @@ export class FormationEditor {
   locked = false;
   private bodyContainer: Phaser.GameObjects.Container | null = null;
   private bodyDragLocked = false;
+  /** Затухание у нижнего края окна прокрутки: ряд героев уходит под край мягко, а не срезом рамки (аудит 11.10). */
+  private fade: Phaser.GameObjects.Image | null = null;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -274,6 +278,12 @@ export class FormationEditor {
       if (body.offset !== previous) this.moveGhost(w);
     };
     if (opts.scrollBody) scene.events.on(Phaser.Scenes.Events.UPDATE, autoScroll);
+    // Затухание у нижнего края прокрутки — пока ниже края есть плитки героев.
+    const fadeTick = () => this.updateFade();
+    if (opts.scrollBody) {
+      this.fade = scene.add.image(GAME_W / 2, 0, 'prep_fade').setOrigin(0.5, 1).setDisplaySize(GAME_W + 2 * S.l, FADE_H).setDepth(10).setVisible(false).setName('rosterFade');
+      scene.events.on(Phaser.Scenes.Events.UPDATE, fadeTick);
+    }
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       input.off('pointerdown', down);
       input.off('pointermove', move);
@@ -281,6 +291,7 @@ export class FormationEditor {
       input.off('pointerupoutside', up);
       input.off('wheel', wheel);
       scene.events.off(Phaser.Scenes.Events.UPDATE, autoScroll);
+      scene.events.off(Phaser.Scenes.Events.UPDATE, fadeTick);
       this.cancelGesture();
     });
     if (opts.scrollBody) {
@@ -298,8 +309,26 @@ export class FormationEditor {
   /** Дополнения сцены (разведка, награды, кнопки ростера) используют ту же прокрутку и маску. */
   addToBody(objects: Phaser.GameObjects.GameObject[]): void {
     if (!this.bodyContainer || !this.opts.scrollBody) return;
-    const outside = new Set([...this.opts.scrollBody.area.parts, this.bodyContainer, this.highlight, this.dragLayer]);
+    const outside = new Set<Phaser.GameObjects.GameObject>([...this.opts.scrollBody.area.parts, this.bodyContainer, this.highlight, this.dragLayer, ...(this.fade ? [this.fade] : [])]);
     this.bodyContainer.add(objects.filter(o => !outside.has(o)));
+  }
+
+  /**
+   * Строка под полем занята редактором: предупреждение «во фронте» с «Переставить», «Поставьте героя» или заметка
+   * («Отряд расставлен автоматически»). Экран этапа в это время прячет угрозу и совет стены той же полосы.
+   */
+  get rowBusy(): boolean {
+    return this.noteBox.visible || this.fixBtn.container.visible || this.tip.text !== '';
+  }
+
+  /** Затухание видно, пока нижний ряд героев уходит за нижний край окна прокрутки. */
+  private updateFade(): void {
+    const fade = this.fade;
+    const body = this.opts.scrollBody?.area;
+    if (!fade?.scene || !body) return;
+    const [, bottom] = body.content.getData('clip') as [number, number];
+    const rosterBottom = this.opts.roster.top + this.rosterH + this.bodyShift();
+    fade.setY(bottom).setVisible(this.rosterH > 0 && rosterBottom > bottom + S.xxs);
   }
 
   /** Resize отменяет незавершённый перенос, сохраняя выбранный пустой слот и состав. */
@@ -364,7 +393,8 @@ export class FormationEditor {
       const both = 44 + S.xxs + b.label.width;
       ico.setX(-both / 2 + 22);
       b.label.setX(-both / 2 + 44 + S.xxs + b.label.width / 2);
-      b.container.setName(name);
+      // Ширина — для подсказки обучения на кнопке («Авто» на экране этапа).
+      b.container.setName(name).setData('w', w);
       right -= w + S.xs;
     };
     // Справа налево: «Пресеты» у края, «Авто» левее.
@@ -972,6 +1002,19 @@ function roleGlyph(c: Ctx2D, kind: (typeof RANK_ICON)[number]): void {
  */
 function ensurePrepTextures(scene: Phaser.Scene): void {
   const S64 = 64;
+  // Затухание у низа окна списка: прозрачный → цвет фона (холст — работает и в Canvas, без градиентов WebGL).
+  if (!scene.textures.exists('prep_fade')) {
+    const t = scene.textures.createCanvas('prep_fade', 4, 64);
+    if (t) {
+      const c = t.getContext();
+      const g = c.createLinearGradient(0, 0, 0, 64);
+      g.addColorStop(0, 'rgba(13,14,11,0)');
+      g.addColorStop(1, 'rgba(13,14,11,0.92)');
+      c.fillStyle = g;
+      c.fillRect(0, 0, 4, 64);
+      t.refresh();
+    }
+  }
   const colors: Record<(typeof RANK_ICON)[number], string> = { tank: '#7fb2ff', melee: '#ff8f6a', ranged: '#9fe07a', healer: '#fff2a8' };
   for (const kind of RANK_ICON) {
     canvasIcon(scene, `prep_role_${kind}`, S64, (c) => {

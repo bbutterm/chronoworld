@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { autoFormation, enemySquad, mealExp, replayAllowed, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus } from '../../core';
+import { autoFormation, dropText, enemySquad, mealExp, replayAllowed, resolveStageEnemies, getStage, setSquad, stageCardDrop, stageStatus } from '../../core';
 import { heroCardIcon } from '../heroCard';
 import { CONTENT, GAME } from '../content';
-import { currentStage, shortfallHint, stageNeeds, stageNo, type StageNeeds } from '../flow';
+import { currentStage, shortfallHint, stageNeeds, stageNo, wallAdvice, type StageNeeds, type WallAction } from '../flow';
 import { GAME_W } from '../layout';
 import { COMBAT as COMBAT_CFG } from '../../core';
 import { CONTENT_TOP, cta, powerCompare, screen, updatePowerCompare } from '../screen';
-import { commit, session, today } from '../session';
+import { commit, now, session, today } from '../session';
 import { BTN, button, clampLines, ellipsize, infoButton, pressable, rewardRow, ScrollArea, tag, text, toast, tutorialHint, type ButtonView, type ChipSpec } from '../ui';
 import { monsterTeaser, roleName } from '../loreView';
 import { ctaShine } from '../decor';
@@ -16,7 +16,7 @@ import { squadDefs } from './BattleScene';
 import { mealTag } from '../kitchenEntry';
 import { FormationEditor } from '../squadEditor';
 import { bump } from '../juice';
-import { C, COLOR, FAMILY, S, T } from '../theme';
+import { C, COLOR, S, T } from '../theme';
 import { enemyTraits } from '../../core/behavior';
 import { defenseElement, ELEMENT_NAMES } from '../../core/elements';
 import { elementBadge } from '../battleElements';
@@ -26,18 +26,17 @@ import { encounterThreat } from '../tactics';
 import { squadChoices } from '../squadChoice';
 import { showSquadChoices } from '../squadChoiceView';
 import { onViewChange, view } from '../viewport';
-import { formationBodyRows } from '../prepLayout';
+import { prepFooterY, stagePrepLayout } from '../prepLayout';
 
-import { STAGE_LAYOUT as BASE_LAYOUT } from '../stageLayout';
+// Аудит 11.10: одна полоса под полем (предупреждение редактора → совет стены → угроза), поле ниже, «В бой» у низа
+// безопасной области — списку героев 2 полных ряда на 360×740 и 460×1000 (prepLayout.ts stagePrepLayout).
+const base = stagePrepLayout();
+const L = { ...base, roster: { top: base.rosterTop, bottom: base.rosterTop + 516 } };
+/** Цель нажатия ряда наград — не уже двух стандартных целей. */
+const TOUCH_W = 2 * 96;
 
-// Предупреждение о расстановке, угроза и кнопки ростера имеют отдельные цели нажатия.
-const bodyRows = formationBodyRows(BASE_LAYOUT.field.bottom, true);
-const L = {
-  ...BASE_LAYOUT,
-  threat: bodyRows.threat,
-  rosterHeadY: bodyRows.rosterHeadY,
-  roster: { top: bodyRows.rosterTop, bottom: bodyRows.rosterTop + BASE_LAYOUT.roster.bottom - BASE_LAYOUT.roster.top },
-};
+/** Что сейчас в полосе под полем (кроме строки редактора): угроза встречи, совет стены или ничего. */
+type BandMode = 'none' | 'threat' | 'wall';
 
 /** Шанс карты героя: «6%», «×1», «≈1.5» (как dropText ядра, только число). */
 function dropValue(x: number): string {
@@ -51,7 +50,8 @@ export function stageRewardChips(gold: number, exp: number, drop: HeroCardDrop |
   if (exp > 0) items.push({ icon: 'hero_exp', value: exp });
   for (const r of ['blue', 'purple'] as const) {
     const p = drop?.[r] ?? 0;
-    if (p > 0) items.push({ icon: (s, x, y, size) => heroCardIcon(s, x, y, size, r), value: dropValue(p), tone: 'info' });
+    // «карта 6%», а не «? 6%»: значок «?» читался как «неизвестная награда» (аудит 11.10).
+    if (p > 0) items.push({ icon: (s, x, y, size) => heroCardIcon(s, x, y, size, r), value: `карта ${dropValue(p)}`, tone: 'info' });
   }
   return items;
 }
@@ -74,9 +74,15 @@ export class StageScene extends Phaser.Scene {
   private wasShort: boolean | null = null;
   private threatText: Phaser.GameObjects.Text | null = null;
   private tacticText: Phaser.GameObjects.Text | null = null;
+  private bandZone: Phaser.GameObjects.Zone | null = null;
+  private bandMode: BandMode = 'none';
+  private bandBusy: boolean | null = null;
+  private threat: { text: string; advice: string } | null = null;
+  private wall: { text: string; action: WallAction } | null = null;
   private choosingSquad = false;
   private body!: ScrollArea;
-  private get fightY(): number { return view().uiHeight - 110; }
+  /** «В бой» — у низа безопасной области вытянутого экрана (как Таверна и итоги), не над пустой полосой. */
+  private get fightY(): number { return prepFooterY(view()); }
 
   constructor() {
     super('Stage');
@@ -90,6 +96,11 @@ export class StageScene extends Phaser.Scene {
     this.wasShort = null;
     this.threatText = null;
     this.tacticText = null;
+    this.bandZone = null;
+    this.bandMode = 'none';
+    this.bandBusy = null;
+    this.threat = null;
+    this.wall = null;
     this.choosingSquad = false;
     this.fightBtns = [];
     this.footerBtns = [];
@@ -104,7 +115,13 @@ export class StageScene extends Phaser.Scene {
     // --- Награда: один ряд чипов. Пройденный этап (как в AFK Arena) — только просмотр: «Пройдено» вместо наград ---
     const first = stageStatus(session.save, this.stageId, GAME) !== 'cleared';
     if (first) {
-      rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(stage.rewards.gold, mealExp(stage.rewards.jobExp, session.save, today(), GAME), stageCardDrop(stage, true, GAME)), { size: 's' }).setName('stageRewards');
+      const drop = stageCardDrop(stage, true, GAME);
+      const row = rewardRow(this, GAME_W / 2, L.rewardY, stageRewardChips(stage.rewards.gold, mealExp(stage.rewards.jobExp, session.save, today(), GAME), drop), { size: 's' }).setName('stageRewards');
+      // Касание наград — что это за чипы (шанс карты героя — словами).
+      const cards = dropText(drop);
+      const rw = Math.max(TOUCH_W, row.width + S.l);
+      const rz = this.add.zone(GAME_W / 2, L.rewardY, rw, 88).setName('stageRewardsZone');
+      pressable(this, rz, rw, 88, () => toast(this, `Награда за первую победу: золото, опыт героев${cards ? `, ${cards}` : ''}.`, C.title, 4000));
     } else {
       tag(this, GAME_W / 2, L.rewardY, 'Пройдено', 'positive', { solid: true }).setName('stageCleared');
     }
@@ -119,6 +136,12 @@ export class StageScene extends Phaser.Scene {
       enemies,
       roster: L.roster,
       scrollBody: { area: this.body, origin: CONTENT_TOP },
+      // «Авто» и «Пресеты» — те же кнопки-иконки, что на экране «Отряд» (аудит 11.10, ui-core 12).
+      rosterHead: {
+        y: L.rosterHeadY,
+        onAuto: () => this.auto(),
+        onPresets: () => this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } }, presets: true }),
+      },
       onChange: () => this.onSquadChange(),
     });
 
@@ -136,20 +159,15 @@ export class StageScene extends Phaser.Scene {
     const meal = mealTag(this, (boss ? boss.x - boss.width / 2 : info.x - 48) - S.xs, L.powerY);
     if (meal && this.power && meal.x - meal.width / 2 < 56 + this.power.width + S.xs) meal.setPosition(GAME_W - S.l - meal.width / 2, L.shortY + S.s);
 
-    // Угроза видна без открытия разведки; спокойная строка не перекрывает сюжет и обучение.
-    this.threatText = text(this, GAME_W / 2, L.threat.titleY, '', T.caption, COLOR.title, { fontStyle: 'bold' }).setName('stageThreat');
-    // Совет — до двух строк (не обрезается на полуслове); верх строки — там, где была середина одной строки.
-    this.tacticText = text(this, GAME_W / 2, L.threat.adviceY - 18, '', T.caption - 6, COLOR.textSecondary, { wordWrap: { width: GAME_W - 2 * S.l }, align: 'center' }).setOrigin(0.5, 0).setName('stageTactic');
-    const threatZone = this.add.zone(GAME_W / 2, L.threat.zoneY, GAME_W - 2 * S.l, L.threat.zoneH).setName('stageThreatZone');
-    pressable(this, threatZone, GAME_W - 2 * S.l, L.threat.zoneH, () => this.openScout());
-
-    // --- Список героев: заголовок, «Авто» и «Пресеты» — вторичные ---
-    text(this, S.l, L.rosterHeadY, 'Герои', T.heading, COLOR.title, { fontFamily: FAMILY.heading, fontStyle: 'bold' }).setOrigin(0, 0.5);
-    const autoX = GAME_W - S.l - 260 - S.xs - 110;
-    button(this, autoX, L.rosterHeadY, 220, BTN.m, '', 'Авто', () => this.auto(), T.body, { variant: 'secondary' }).container.setName('autoBtn');
-    button(this, GAME_W - S.l - 130, L.rosterHeadY, 260, BTN.m, '', 'Пресеты', () =>
-      this.scene.start('Squad', { back: { to: 'Stage', data: { stageId: this.stageId } }, presets: true }),
-    T.body, { variant: 'secondary' }).container.setName('presetsBtn');
+    // Полоса под полем — одна на три сообщения (аудит 11.10): строка редактора (предупреждение, заметка «Авто») главнее,
+    // затем совет стены (мощи мало — что делать и когда вернуться), затем угроза встречи. Касание: угроза — разведка,
+    // совет — нужный экран.
+    this.threatText = text(this, GAME_W / 2, L.band.titleY, '', T.caption, COLOR.title, { fontStyle: 'bold' }).setName('stageThreat');
+    // Совет — до двух строк (не обрезается на полуслове).
+    this.tacticText = text(this, GAME_W / 2, L.band.adviceY, '', T.caption - 6, COLOR.textSecondary, { wordWrap: { width: GAME_W - 2 * S.l }, align: 'center' }).setOrigin(0.5, 0).setName('stageTactic');
+    const bandZone = this.add.zone(GAME_W / 2, L.band.y, GAME_W - 2 * S.l, L.band.zoneH).setName('stageThreatZone');
+    pressable(this, bandZone, GAME_W - 2 * S.l, L.band.zoneH, () => this.tapBand());
+    this.bandZone = bandZone;
 
     this.editor.draw();
     this.enemyTaps(resolveStageEnemies(stage, session.save.campaignChoices).map((e) => e?.unit ?? null));
@@ -179,14 +197,19 @@ export class StageScene extends Phaser.Scene {
     const benchStronger = ids(autoFormation(session.save, GAME)) !== ids(session.save.squad);
     // Пройденный этап — только просмотр: подсказок подготовки к бою там нет.
     const hint = first ? pickPrepHint({ first, benchStronger, summoned: session.save.summon.firstTenDone }) : null;
-    if (hint === 'prep_auto') {
+    const autoBtn = this.children.getByName('autoBtn') as Phaser.GameObjects.Container | null;
+    if (hint === 'prep_auto' && autoBtn) {
       this.body.offset = Math.max(0, L.rosterHeadY - (this.fightY - 280));
-      this.autoHint = tutorialHint(this, hint, autoX, L.rosterHeadY - this.body.offset, 'above', { w: 220, h: BTN.m });
+      this.autoHint = tutorialHint(this, hint, autoBtn.x, L.rosterHeadY - this.body.offset, 'above', { w: (autoBtn.getData('w') as number | undefined) ?? 220, h: 88 });
       if (this.autoHint && this.body.content.mask) this.autoHint.setMask(this.body.content.mask);
+      this.refreshBand();
+      this.autoHint?.once(Phaser.GameObjects.Events.DESTROY, () => this.refreshBand());
     }
     const fightHint = hint === 'stage_fight' ? tutorialHint(this, hint, GAME_W / 2, this.fightY, 'above', { w: 640, h: 140 }) : null;
     let hintOffset = this.body.offset;
     const followAutoHint = () => {
+      // Строка редактора заняла / освободила полосу — угроза или совет стены возвращаются.
+      if (this.editor.rowBusy !== this.bandBusy) this.refreshBand();
       if (!this.autoHint?.scene) return;
       this.autoHint.y += hintOffset - this.body.offset;
       hintOffset = this.body.offset;
@@ -255,11 +278,36 @@ export class StageScene extends Phaser.Scene {
     const short = needs.own < needs.power;
     if (this.wasShort !== null && this.wasShort !== short) bump(this, this.power, 1.08);
     this.wasShort = short;
-    const threat = encounterThreat(enemySquad(this.stageId, GAME, session.save.campaignChoices), Object.values(squadDefs(save)), GAME);
-    this.threatText?.setText(threat?.text ?? '');
-    this.tacticText?.setText(threat?.advice ?? '');
-    if (this.threatText) ellipsize(this.threatText, GAME_W - 2 * S.l);
-    if (this.tacticText) clampLines(this.tacticText, 2);
+    this.threat = encounterThreat(enemySquad(this.stageId, GAME, session.save.campaignChoices), Object.values(squadDefs(save)), GAME);
+    // Совет стены — только перед первой победой (пройденный этап — просмотр).
+    this.wall = stageStatus(save, this.stageId, GAME) !== 'cleared' ? wallAdvice(save, this.stageId, GAME, now(), today()) : null;
+    this.refreshBand();
+  }
+
+  /** Полоса под полем: строка редактора занята — пусто; иначе совет стены, иначе угроза. */
+  private refreshBand(): void {
+    if (!this.threatText?.scene || !this.tacticText?.scene) return;
+    const busy = this.editor.rowBusy;
+    this.bandBusy = busy;
+    const mode: BandMode = busy ? 'none' : this.wall ? 'wall' : this.threat ? 'threat' : 'none';
+    this.bandMode = mode;
+    const title = mode === 'wall' ? 'Мощи мало — что поможет' : mode === 'threat' ? this.threat!.text : '';
+    const advice = mode === 'wall' ? `${this.wall!.text}${this.wall!.action ? ' ›' : ''}` : mode === 'threat' ? this.threat!.advice : '';
+    this.threatText.setText(title).setColor(mode === 'wall' ? COLOR.warning : COLOR.title);
+    this.tacticText.setText(advice).setColor(mode === 'wall' ? COLOR.textPrimary : COLOR.textSecondary);
+    ellipsize(this.threatText, GAME_W - 2 * S.l);
+    clampLines(this.tacticText, 2);
+    const tappable = mode === 'threat' || (mode === 'wall' && !!this.wall?.action);
+    // Пока висит подсказка «Авто», полоса — не цель нажатия: плашке подсказки нужно место над кнопкой.
+    if (this.bandZone?.input) this.bandZone.input.enabled = tappable && !this.autoHint?.scene;
+  }
+
+  /** Касание полосы: угроза — лист разведки, совет стены — экран, где это делается. */
+  private tapBand(): void {
+    if (this.editor.locked) return;
+    if (this.bandMode === 'threat') return this.openScout();
+    const action = this.bandMode === 'wall' ? this.wall?.action : null;
+    if (action) this.scene.start(action);
   }
 
   /** A real fifth-slot trade-off after summoning; smaller rosters keep the one-tap auto setup. */

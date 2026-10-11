@@ -18,6 +18,39 @@ export function formationBodyRows(fieldBottom: number, withThreat = false) {
   };
 }
 
+/**
+ * Экран этапа (аудит 11.10, ui-core 1): одна информационная полоса под полем вместо двух. В ней по очереди —
+ * предупреждение редактора («во фронте» + «Переставить») или заметка «Авто», иначе совет стены (мощи мало), иначе угроза
+ * встречи. Поле ниже (слоты PREP.slotH), «В бой» — у низа безопасной области: на 460×1000 видно 2 полных ряда героев.
+ */
+export function stagePrepLayout() {
+  const field = { top: 270, bottom: 890 };
+  const rows = formationBodyRows(field.bottom);
+  return {
+    rewardY: 212,
+    field,
+    powerY: 310,
+    shortY: 350,
+    /** Полоса под полем: центр строки, заголовок и совет в пределах её цели нажатия (TOUCH_COMFORT). */
+    band: { y: rows.warningY, titleY: rows.warningY - 40, adviceY: rows.warningY - 14, zoneH: TOUCH_COMFORT },
+    rosterHeadY: rows.rosterHeadY,
+    rosterTop: rows.rosterTop,
+  };
+}
+
+/** Низ главной кнопки экрана подготовки: у низа безопасной области вытянутого экрана, не ниже поля интерфейса. */
+export function prepFooterY(view: { uiHeight: number; safeBottom: number }): number {
+  return Math.max(view.uiHeight, view.safeBottom) - 110;
+}
+
+/**
+ * Окно списка героев (на экране без прокрутки поля): сколько рядов плиток видно целиком от rosterTop до bottom.
+ * Для тестов раскладки: 2 полных ряда на 360×740 и 460×1000 (в том числе в Telegram).
+ */
+export function fullRosterRows(rosterTop: number, bottom: number): number {
+  return Math.max(0, Math.floor((bottom - rosterTop - S.xs + PREP.gap) / (PREP.cardH + PREP.gap)));
+}
+
 export type Squad = (string | null)[];
 
 /**
@@ -158,10 +191,11 @@ export function classifyGesture(
 }
 
 /**
- * Итерация 4: размеры редактора отряда (squadEditor.ts). slotH — высота слота поля; headH — ряд мощи над слотами;
+ * Итерация 4: размеры редактора отряда (squadEditor.ts). slotH — высота слота поля (160: аудит 11.10 — поле ниже,
+ * списку героев больше места); headH — ряд мощи над слотами;
  * cols/gap/margin — сетка героев (5 плиток в ряд на ширину поля 1080 с полями margin), cardH — высота плитки.
  */
-export const PREP = { slotH: 184, headH: 100, cols: 5, gap: 16, margin: 48, cardH: 212 } as const;
+export const PREP = { slotH: 160, headH: 100, cols: 5, gap: 16, margin: 48, cardH: 212 } as const;
 
 /** Ширина плитки сетки героев: cols плиток с зазором gap на ширину width − 2·margin. */
 export function rosterCardW(width: number, cols: number = PREP.cols, gap: number = PREP.gap, margin: number = PREP.margin): number {
