@@ -5,7 +5,7 @@ import { sceneSoundOf } from '../sceneAudio';
 import { playScenes } from '../dialogue';
 import { formatNumber, heroSprite, levelText, ROLE_NAMES } from '../flow';
 import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from '../layout';
-import { bottomSheet, confirm, cta, unitFigure } from '../screen';
+import { bottomSheet, confirm, cta, sceneBack, unitFigure } from '../screen';
 import { chapterDoneLayout } from '../battleScreenLayout';
 import { minimumTouchSize, onViewChange, view } from '../viewport';
 import { arrangeSquad, pendingEvening, chapterChronicle, chroniclePageId, clearChapterDone, findingEntries, heroCard, heroName, heroPower, markPageSeen, pendingChronicle, type HeroState, type SaveState } from '../../core';
@@ -15,7 +15,8 @@ import { commit, session } from '../session';
 import { setThemeBackground, themeOfChapter } from '../backdrops';
 import { chapterSummary, sceneLabel, seenChapterScenes } from '../storyView';
 import { BTN, button, clampLines, ellipsize, groupNum, plate, rewardRow, ScrollArea, SURFACE, tag, text, toast, type ChipSpec } from '../ui';
-import { COLOR, E, M, R, S, T, TINT } from '../theme';
+import { COLOR, COLOR_N, E, M, R, S, T, TINT } from '../theme';
+import { shadeBand } from '../battlePanel';
 import { countUp, juiceOn, moment } from '../juice';
 import { glow } from '../decor';
 import { Reveal } from '../rewardsView';
@@ -51,6 +52,9 @@ const L = {
 
 /** Затемнение арта главы после «удара» заголовка (арт проступает, текст читается). */
 const ART_DIM = 0.35;
+/** Низ затемнения верха экрана (поле 9:16) и его глубина: над лучами момента (2), под заголовком (3). */
+const TOP_SHADE = 240;
+const TOP_SHADE_DEPTH = 2.5;
 
 type Summary = ReturnType<typeof chapterSummary>;
 
@@ -79,6 +83,8 @@ export class ChapterDoneScene extends Phaser.Scene {
       this.headerNodes = [];
     });
     const sum = chapterSummary(session.save, data.chapterId, GAME);
+    // ux 4: системная «назад» (Telegram, Android) — то же, что главная кнопка «Глава N ›» (окна сверху закрываются первыми).
+    sceneBack(this, () => this.proceed(sum));
     // Сцену добавляют при первом показе — хук звука экранов (installAudio) её не знает: музыка босса сменяется картой главы сама.
     try {
       applySceneSound(sceneSoundOf(this));
@@ -107,6 +113,12 @@ export class ChapterDoneScene extends Phaser.Scene {
     this.headerNodes = this.children.list.filter((o): o is Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform =>
       'y' in o && 'depth' in o && Number(o.depth) >= 2 && Number(o.depth) <= 3)
       .map(node => ({ node, dy: node.y - this.endpointLayout.titleY }));
+    // ui-core 8: над полем 9:16 вытянутого экрана фон продолжается растяжкой крайних пикселей (полосы крыш и деревьев,
+    // шов на y = 0), туда же уходят хвосты лучей момента. Верх темнеет к фону приложения, как в бою (BattleScene
+    // topBar): плотная полоса над полем и градиент до y ≈ TOP_SHADE. Глубина — над лучами (2), под заголовком (3); после
+    // headerNodes: полоса привязана к краю поля, а не к заголовку.
+    shadeBand(this, 0, TOP_SHADE, TOP_SHADE_DEPTH, true);
+    this.add.rectangle(cx, 0, GAME_W + 2 * BLEED_X, 2 * BLEED_Y, COLOR_N.bg, 0.85).setOrigin(0.5, 1).setDepth(TOP_SHADE_DEPTH);
     onViewChange(this, () => {
       this.endpointLayout = chapterDoneLayout(view().uiHeight, view().safeBottom);
       this.bodyArea?.setBounds(this.endpointLayout.bodyTop, this.endpointLayout.bodyBottom);
@@ -259,16 +271,19 @@ export class ChapterDoneScene extends Phaser.Scene {
       out.push(b.container);
     });
     const next = sum.next;
-    const go = cta(this, cx, this.endpointLayout.ctaY, next ? `Глава ${next.number} ›` : 'К приключениям', () => {
-      // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).
-      commit(clearChapterDone(session.save));
-      if (next) this.scene.start('Campaign', { chapter: next.index });
-      else this.scene.start('Adventure');
-    }, { w: 700 });
+    const go = cta(this, cx, this.endpointLayout.ctaY, next ? `Глава ${next.number} ›` : 'К приключениям', () => this.proceed(sum), { w: 700 });
     out.push(go.container);
     // Название следующей главы под кнопкой — когда его не показала карточка «Впереди».
     if (next && sum.recruit) out.push(ellipsize(text(this, cx, this.endpointLayout.ctaY + BTN.cta / 2 + S.l, next.name.replace(/^Глава\s*\d+\.\s*/, ''), T.caption, COLOR.textSecondary), 900));
     return out;
+  }
+
+  /** Главное действие экрана («Глава N ›» и Back): следующая глава кампании, после финала — «Приключения». */
+  private proceed(sum: Summary): void {
+    // Игрок ушёл с экрана — больше не показывать (метка в сохранении держала его на случай перезагрузки).
+    commit(clearChapterDone(session.save));
+    if (sum.next) this.scene.start('Campaign', { chapter: sum.next.index });
+    else this.scene.start('Adventure');
   }
 
   /** «Летопись отряда» главы — страница поверх экрана; прочитана — отметка в сохранении. */

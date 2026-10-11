@@ -7,6 +7,7 @@ import { BLEED_X, BLEED_Y, GAME_H, GAME_W } from './layout';
 import { bleedImage, onViewChange, view } from './viewport';
 import { SKIN, SKIN_TINT } from './skin';
 import { registerModal } from './screen';
+import { shadeBand } from './battlePanel';
 import { BTN, button, mixHex, plate, ScrollArea, SURFACE, text, type PlateSpec } from './ui';
 import { C, COLOR, FAMILY, M, R, S, T, TINT } from './theme';
 import { hush, speak } from './voice';
@@ -15,8 +16,10 @@ import { hush, speak } from './voice';
  * Страницы «между этапами» (docs/design/lore-route.md §5): «Эпизод N» и легенда перед главой, летопись главы после
  * финала, находка после боя. Полноэкранная страница поверх экрана: фон темы главы, надзаголовок («Эпизод 1»),
  * заголовок, эпиграф, текст (длинный — прокручивается), подпись, комментарий героя; «Далее ›» / касание — следующая,
- * «Пропустить» — закрыть все. Слой называется как диалог сюжета (DIALOGUE_NAME): экран под ним недоступен, e2e
- * пролистывает его тем же способом («Пропустить» или касания).
+ * «Пропустить» — закрыть все. На последней (и единственной) странице «Пропустить» скрыта: закрывает главная кнопка
+ * («Закрыть», «В путь»), два выхода с одним действием не спорят (ui-core 10). Слой называется как диалог сюжета
+ * (DIALOGUE_NAME): экран под ним недоступен, e2e пролистывает его тем же способом («Пропустить» или касания —
+ * касание по месту скрытой «Пропустить» попадает в фон и тоже листает/закрывает).
  */
 
 export interface StoryPage {
@@ -67,6 +70,10 @@ const TEXT_W = 900;
 const BODY_FS = T.body;
 const BODY_LEADING = Math.round(T.body * 0.4);
 const BODY_TOP_MIN = 520;
+/** Фон страницы под артом главы (почти чёрный, чуть фиолетовый). */
+const PAGE_BG = 0x07060a;
+/** Низ затемнения верха страницы (над полем — плотная полоса, ниже — градиент до прозрачного). */
+const TOP_SHADE = 200;
 const BODY_BOTTOM = 1690;
 
 /** Открыта ли страница на экране (тот же слой, что у диалога). */
@@ -82,14 +89,20 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
   }
   const layer = scene.add.container(0, 0).setDepth(DEPTH).setName(DIALOGUE_NAME).setData('pages', pages.length);
   const cx = GAME_W / 2;
-  const back = scene.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x07060a, 1).setInteractive();
+  const back = scene.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, PAGE_BG, 1).setInteractive();
   layer.add(back);
   let bg: Phaser.GameObjects.Image | null = null;
-  const dim = scene.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, 0x07060a, 0.66);
+  const dim = scene.add.rectangle(cx, GAME_H / 2, GAME_W + 2 * BLEED_X, GAME_H + 2 * BLEED_Y, PAGE_BG, 0.66);
   // Мягкий тёплый свет сверху — страница «освещена».
   const glowKey = scene.textures.exists('skin_glow') ? 'skin_glow' : null;
   const warm = glowKey ? scene.add.image(cx, 380, glowKey).setDisplaySize(1300, 900).setTint(0xffc870).setAlpha(0.16).setBlendMode(Phaser.BlendModes.ADD) : null;
   layer.add(warm ? [dim, warm] : [dim]);
+  // Над полем 9:16 вытянутого экрана фон продолжается растяжкой края (шов на y = 0) — верх темнеет к фону приложения,
+  // как на «Глава пройдена» и в бою (ui-core 8).
+  layer.add([
+    shadeBand(scene, 0, TOP_SHADE, 0, true),
+    scene.add.rectangle(cx, 0, GAME_W + 2 * BLEED_X, 2 * BLEED_Y, PAGE_BG, 0.85).setOrigin(0.5, 1),
+  ]);
 
   let page = scene.add.container(0, 0);
   layer.add(page);
@@ -158,6 +171,8 @@ export function showPages(scene: Phaser.Scene, pages: readonly StoryPage[], onDo
     else buildPage(scene, page, p, (a) => (area = a));
     const last = i === pages.length - 1;
     nextBtn.label.setText(last ? (opts.doneLabel ?? 'Закрыть') : 'Далее ›');
+    // Последняя страница: закрывает главная кнопка — «Пропустить» с тем же действием не нужна.
+    skip.container.setVisible(!last);
     dots.removeAll(true);
     if (pages.length > 1)
       pages.forEach((_, k) => dots.add(scene.add.circle((k - (pages.length - 1) / 2) * 36, 0, k === i ? 9 : 7, k === i ? COLOR_N_ACCENT : COLOR_N_DIM, k === i ? 1 : 0.6)));

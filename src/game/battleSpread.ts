@@ -17,6 +17,8 @@ export interface SpreadUnit {
   side: 'A' | 'B';
   /** Добавка к радиусу (крупный босс). */
   extra: number;
+  /** Половина ширины тела фигуры в координатах ядра (presentation.body / FIELD_SQUEEZE); нет — только базовый эллипс. */
+  halfW?: number;
   /** Участвует в расталкивании (жив и смерть ещё не показана). */
   active: boolean;
 }
@@ -26,12 +28,24 @@ const FOE_RX = 150;
 const FOE_RY = 120;
 const ALLY_RX = 130;
 const ALLY_RY = 135;
+/**
+ * Пара шире базового эллипса (ui-core 6: поздние монстры и вторые профессии крупнее): полуось по x — не меньше суммы
+ * полуширин тел × BODY_FIT. Тело — объединение стойки, ходьбы и «ранен» с прозрачным запасом, поэтому фигуры только
+ * касаются контурами; клинок удара (кадры атаки в тело не входят) по-прежнему заходит на соседа.
+ */
+const BODY_FIT = 1.05;
+/** Потолок полуоси от тел: огромного босса раздвигает separateBattleSprites (battlePresentation.ts), не разведение. */
+const BODY_RX_MAX = 260;
 /** Доля второстепенной оси в толчке: враги почти не уходят по вертикали, союзники — по горизонтали. */
 const MINOR = 0.6;
-/** Наибольшее смещение от позиции ядра — фигура остаётся «там же», только не на соседе. */
-const MAX_OFF_X = 100;
-const MAX_OFF_Y = 130;
-const ITERATIONS = 6;
+/**
+ * Наибольшее смещение от позиции ядра — фигура остаётся «там же», только не на соседе. Потолок 100 не давал
+ * развести больше трёх бойцов, сошедшихся в одну точку (6-1: семь фигур в пятне ~150×150 CSS).
+ */
+const MAX_OFF_X = 200;
+const MAX_OFF_Y = 160;
+/** Итераций решателя: при 7–8 фигурах в одной точке шести не хватало, чтобы разойтись. */
+const ITERATIONS = 10;
 /** Постоянная времени сглаживания, мс боя. */
 const SMOOTH_MS = 120;
 
@@ -59,7 +73,7 @@ export function spreadUnits(units: readonly SpreadUnit[], dt: number, b: SpreadB
         const c = units[j];
         if (!c.active) continue;
         const foe = a.side !== c.side;
-        const rx = (foe ? FOE_RX : ALLY_RX) + a.extra + c.extra;
+        const rx = Math.max(foe ? FOE_RX : ALLY_RX, Math.min(BODY_RX_MAX, ((a.halfW ?? 0) + (c.halfW ?? 0)) * BODY_FIT)) + a.extra + c.extra;
         const ry = (foe ? FOE_RY : ALLY_RY) + (a.extra + c.extra) * 0.5;
         const dx = c.sx - a.sx;
         const dy = c.sy - a.sy;
