@@ -571,23 +571,23 @@
       "enemies": [
         {
           "unit": "mob3_elite",
-          "mult": 0.1082
+          "mult": 0.1021
         },
         {
           "unit": "mob3_elite",
-          "mult": 0.1082
+          "mult": 0.1021
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.1665
+          "mult": 0.1571
         },
         {
           "unit": "mob3_fast",
-          "mult": 0.1665
+          "mult": 0.1571
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.1665
+          "mult": 0.1571
         }
       ],
       "rewards": {
@@ -652,23 +652,23 @@
       "enemies": [
         {
           "unit": "mob3_tank",
-          "mult": 0.0626
+          "mult": 0.0574
         },
         {
           "unit": "mob7_boss",
-          "mult": 0.0658
+          "mult": 0.0604
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.1732
+          "mult": 0.1589
         },
         {
           "unit": "mob3_elite",
-          "mult": 0.0626
+          "mult": 0.0574
         },
         {
           "unit": "mob3_ranged",
-          "mult": 0.1732
+          "mult": 0.1589
         }
       ],
       "rewards": {

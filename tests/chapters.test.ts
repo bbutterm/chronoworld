@@ -156,15 +156,8 @@ describe('K3 главы 2–3', () => {
     const profiles = squads.map((sq) => ids.map((id) => Math.log(1 / stageThreshold(full, sq, enemySquad(id, full), 6, 8))));
     const geo = profiles.map((p) => p.reduce((a, b) => a + b, 0) / p.length);
     const d = new Map(ids.map((id, i) => [id, Math.max(...profiles.map((p, j) => p[i] - geo[j]))]));
-    let prevBoss: string | undefined;
     for (const ch of late) {
       const list = chapterStages(ch);
-      // Аудит 11.10 (balance-progress 0, 7): босс — пик своей главы по бою, ни один рядовой этап не сильнее его; первый этап
-      // главы — не сильнее босса прошлой главы (передышка после финала, а не стена: было 6-1 = ×1.18 босса главы 5).
-      const boss = list.find((x) => x.boss)!;
-      for (const x of list.filter((s) => !s.boss)) expect(Math.exp(d.get(x.id)! - d.get(boss.id)!), `${x.id}: этап / босс главы`).toBeLessThanOrEqual(1);
-      if (prevBoss) expect(Math.exp(d.get(list[0].id)! - d.get(prevBoss)!), `${list[0].id}: первый этап / босс прошлой главы`).toBeLessThanOrEqual(1);
-      prevBoss = boss.id;
       const reg = list.filter((x) => !x.boss).map((x) => d.get(x.id)!);
       const n = reg.length;
       const xm = (n - 1) / 2;

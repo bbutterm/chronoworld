@@ -315,19 +315,19 @@
       "enemies": [
         {
           "unit": "mob7_bridge_warden",
-          "mult": 0.0436
+          "mult": 0.0379
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.072
+          "mult": 0.0626
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.072
+          "mult": 0.0626
         },
         {
           "unit": "mob7_support",
-          "mult": 0.072
+          "mult": 0.0626
         },
         null
       ],
@@ -499,23 +499,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.0324
+          "mult": 0.0309
         },
         {
           "unit": "mob7_tank",
-          "mult": 0.0324
+          "mult": 0.0309
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.0324
+          "mult": 0.0309
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.0324
+          "mult": 0.0309
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0324
+          "mult": 0.0309
         }
       ],
       "rewards": {
@@ -617,23 +617,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.0417
+          "mult": 0.039
         },
         {
           "unit": "mob7_melee",
-          "mult": 0.0417
+          "mult": 0.039
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.0417
+          "mult": 0.039
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0417
+          "mult": 0.039
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0417
+          "mult": 0.039
         }
       ],
       "rewards": {
@@ -652,23 +652,23 @@
       "enemies": [
         {
           "unit": "mob7_elite",
-          "mult": 0.0269
+          "mult": 0.0254
         },
         {
           "unit": "mob_lord_of_death",
-          "mult": 0.0189
+          "mult": 0.0178
         },
         {
           "unit": "mob7_elite",
-          "mult": 0.0269
+          "mult": 0.0254
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0269
+          "mult": 0.0254
         },
         {
           "unit": "mob7_ranged",
-          "mult": 0.0269
+          "mult": 0.0254
         }
       ],
       "rewards": {
