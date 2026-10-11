@@ -271,7 +271,7 @@ describe('уровень: общий пул опыта + золото («Улу�
   });
 
   it('не хватает опыта или золота — ошибка без изменений; affordable считает, сколько уровней по карману', () => {
-    expect(levelUpInfo(rich(99, 1000), 'h1', ctx)).toMatchObject({ canLevel: false, blocker: 'not_enough_exp', affordable: 0 });
+    expect(levelUpInfo(rich(levelUpCost(1, ctx).exp - 1, 1000), 'h1', ctx)).toMatchObject({ canLevel: false, blocker: 'not_enough_exp', affordable: 0 });
     expect(levelUpInfo(rich(1000, levelUpCost(1, ctx).gold - 1), 'h1', ctx)).toMatchObject({ canLevel: false, blocker: 'not_enough_gold' });
     const two = levelUpCost(1, ctx).exp + levelUpCost(2, ctx).exp;
     expect(levelUpInfo(rich(two, 1000), 'h1', ctx).affordable).toBe(2);

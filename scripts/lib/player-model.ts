@@ -107,6 +107,8 @@ import {
   kitchenStatus,
   cookMeal,
   buyIngredient,
+  salvageItems,
+  salvagePlan,
 } from '../../src/core';
 import { loadFullContext } from './content-node';
 import { prepareModelTower } from './tower-player';
@@ -180,12 +182,25 @@ export interface PlayerModel {
    */
   kitchen?: boolean;
   /**
-   * Заточка снаряжения (data/drops.json → refine): после подготовки — самый дешёвый шаг среди надетого на отряд, пока
-   * золото сверх резерва (refineReserve: refineReserveLevels уровней на героя + золото на опыт пула). false — не точить.
+   * Заточка снаряжения (data/drops.json → refine): после подготовки. С refineByValue — шаг с наибольшей мощью на 1 золото,
+   * пока он выгоднее следующего уровня самого низкого героя отряда (аудит 11.10: золото идёт туда, где больше мощи);
+   * без него (или refineReserveLevels 0) — самый дешёвый шаг, пока золото сверх резерва (refineReserve). false — не точить.
    */
   refine: boolean;
-  /** Сколько уровней вперёд на героя отряда заточка оставляет золота (на потолке уровней — 0). */
+  /**
+   * Сколько уровней вперёд на героя отряда заточка оставляет золота (на потолке уровней — 0), если выбор не по выгоде.
+   * 0 — точить всё золото сверх золота на опыт пула, без сравнения с уровнями (ночной бот).
+   */
   refineReserveLevels: number;
+  /** Заточка по выгоде: мощь на 1 золото у шага заточки против следующего уровня (нет поля — по резерву). */
+  refineByValue?: boolean;
+  /** Руды больше стольких — рискованные шаги ниже refineOreFromRisk тоже рудой (иначе руда лежит без дела). */
+  refineOreKeep?: number;
+  /**
+   * «Продать повторы» (salvagePlan → salvageItems, как кнопка в Сумке) каждую подготовку: лишние обычные и редкие
+   * копии сверх тех, что ждут герои. Нет поля — не продавать.
+   */
+  salvage?: boolean;
   /** Секунд интерфейса на один шаг заточки. */
   refineSec: number;
   /**
@@ -235,6 +250,9 @@ export const PLAYER_MODEL: PlayerModel = {
   shop: true,
   refine: true,
   refineReserveLevels: 5,
+  refineByValue: true,
+  refineOreKeep: 10,
+  salvage: true,
   refineSec: 1,
   refineMaxRisk: 0.3,
   refineOreFromRisk: 0.5,
@@ -371,7 +389,7 @@ export interface LevelLog {
 }
 
 /** Источники доходов/расходов золота, гемов и опыта. */
-export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'expeditions', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop', 'refine', 'kitchen'] as const;
+export const SOURCES = ['offline', 'fast_rewards', 'campaign', 'tower', 'hunt', 'expeditions', 'quests', 'achievements', 'events', 'mail', 'heroes', 'summon', 'shop', 'refine', 'kitchen', 'salvage'] as const;
 export type Source = (typeof SOURCES)[number];
 export type Ledger = Record<Source, { gold: number; gems: number; exp: number }>;
 
@@ -427,6 +445,9 @@ export interface BalanceResult {
   /** Кухня: блюда дня (id → дней) и продуктов куплено за золото. */
   meals: Record<string, number>;
   ingredientsBought: number;
+  /** «Продать повторы»: продано вещей и получено золота. */
+  salvaged: number;
+  salvageGold: number;
   /** Шагов заточки (всего) и уровни заточки надетого на отряд на конец каждого дня (средний, максимум). */
   refines: number;
   /** Сломано вещей при заточке. */
@@ -485,6 +506,8 @@ export class BalancePlayer {
   eventClaims: BalanceResult['eventClaims'] = [];
   shopBuys: Record<string, number> = {};
   refines = 0;
+  salvaged = 0;
+  salvageGold = 0;
   refineFailures = 0;
   refineModes: Record<RefineMode, number> = { normal: 0, safe: 0, ore: 0 };
   oreIn: BalanceResult['oreIn'] = {};
@@ -806,6 +829,18 @@ export class BalancePlayer {
     this.autoEquip();
     this.save = { ...this.save, squad: this.formation() };
     this.refine();
+    this.sell();
+  }
+
+  /** «Продать повторы» (как кнопка в Сумке): лишние копии сверх тех, что ждут герои; эпики и заточенное не трогает. */
+  sell(): void {
+    if (!this.model.salvage || !this.ctx.equipment.drops.salvage) return;
+    const plan = salvagePlan(this.save, this.ctx);
+    if (!plan.instanceIds.length) return;
+    const out = salvageItems(this.save, plan.instanceIds, this.ctx);
+    this.step('salvage', out.save);
+    this.salvaged += out.sold;
+    this.salvageGold += out.gold;
   }
 
   /**
@@ -824,12 +859,80 @@ export class BalancePlayer {
     return Math.max(sum, this.goldForExp(0));
   }
 
+  /** Режим шага заточки с уровня lvl: безопасный — обычный; дорогой рискованный и любой при запасе руды — рудой; иначе надёжно. */
+  refineMode(lvl: number, ore: number): RefineMode {
+    const c = refineBreakChance(lvl, this.ctx);
+    if (c <= 0) return 'normal';
+    if (ore > 0 && (c >= this.model.refineOreFromRisk || ore > (this.model.refineOreKeep ?? Infinity))) return 'ore';
+    return refineSafeAvailable(this.ctx) ? 'safe' : 'normal';
+  }
+
+  /** Мощь следующего уровня на 1 золото у самого низкого героя отряда (как «Улучшить отряд»); все на пределе — 0. */
+  levelValue(): number {
+    const heroes = this.save.squad
+      .map((id) => (id ? this.save.heroes.find((h) => h.id === id) : undefined))
+      .filter((h): h is HeroState => !!h && levelUpInfo(this.save, h.id, this.ctx).blocker !== 'max_level')
+      .sort((a, b) => a.level - b.level);
+    const hero = heroes[0];
+    if (!hero) return 0;
+    const gain = modelHeroPower({ ...hero, level: hero.level + 1 }, this.ctx, this.save) - modelHeroPower(hero, this.ctx, this.save);
+    return gain / Math.max(1, levelUpCost(hero.level, this.ctx).gold);
+  }
+
   /**
-   * Заточка надетого на отряд: сначала самый дешёвый шаг с риском не выше refineMaxRisk, только золото сверх
-   * refineReserve. Поломка — вещь пропала, autoEquip надевает лучшую замену из инвентаря.
+   * Заточка по выгоде: шаг надетого на отряд с наибольшей ожидаемой мощью на 1 золото (риск — доля неудачи), пока он
+   * выгоднее следующего уровня (levelValue) и золота хватает. Главы 1–3 — почти всё в уровни, позже — и в заточку.
+   */
+  refineByValue(): void {
+    for (let guard = 0; guard < 300; guard++) {
+      const ore = blessedOre(this.save);
+      const bar = this.levelValue();
+      let best: { id: string; gold: number; mode: RefineMode; value: number } | null = null;
+      for (const id of this.save.squad) {
+        if (!id) continue;
+        const hero = this.save.heroes.find((h) => h.id === id);
+        if (!hero) continue;
+        const base = modelHeroPower(hero, this.ctx, this.save);
+        for (const s of Object.values(heroSlots(this.save, id, this.ctx))) {
+          const lvl = refineLevel(s.instance);
+          const mode = this.refineMode(lvl, ore);
+          const risk = refineBreakChance(lvl, this.ctx, mode);
+          if (risk > this.model.refineMaxRisk) continue;
+          const cost = refineModeCost(s.instance, s.def, this.ctx, mode);
+          if (!cost || cost.gold > this.save.resources.gold) continue;
+          const next = { ...this.save, inventory: { ...this.save.inventory, items: this.save.inventory.items.map((i) => (i.id === s.instance.id ? { ...i, refine: lvl + 1 } : i)) } };
+          const value = ((modelHeroPower(hero, this.ctx, next) - base) * (1 - risk)) / Math.max(1, cost.gold);
+          if (value > 0 && (!best || value > best.value)) best = { id: s.instance.id, gold: cost.gold, mode, value };
+        }
+      }
+      if (!best || best.value <= bar) break;
+      this.refineStep(best.id, best.mode);
+    }
+  }
+
+  refineStep(id: string, mode: RefineMode): void {
+    const r = refineItem(this.save, id, this.ctx, { mode });
+    this.step('refine', r.save);
+    this.refines++;
+    this.refineModes[mode]++;
+    if (r.events.some((e) => e.type === 'refineFailed')) {
+      this.refineFailures++;
+      this.autoEquip();
+    }
+    this.spendTime(this.model.refineSec * 1000);
+  }
+
+  /**
+   * Заточка надетого на отряд. По выгоде (refineByValue, refineReserveLevels > 0) — refineByValue(); иначе самый
+   * дешёвый шаг с риском не выше refineMaxRisk, только золото сверх refineReserve. Неудача — золото списано, вещь
+   * и прежняя заточка сохранены (refine.ts).
    */
   refine(): void {
     if (!this.model.refine || !refineUnlocked(this.save, this.ctx)) return;
+    if (this.model.refineByValue && this.model.refineReserveLevels > 0) {
+      this.refineByValue();
+      return;
+    }
     const reserve = this.refineReserve();
     for (let guard = 0; guard < 500; guard++) {
       let best: { id: string; gold: number; mode: RefineMode } | null = null;
@@ -838,24 +941,14 @@ export class BalancePlayer {
         if (!id) continue;
         for (const s of Object.values(heroSlots(this.save, id, this.ctx))) {
           const lvl = refineLevel(s.instance);
-          const c = refineBreakChance(lvl, this.ctx);
-          // Безопасный шаг — обычный; дорогой рискованный — рудой (если есть); остальной рискованный — надёжно.
-          const mode: RefineMode = c <= 0 ? 'normal' : ore > 0 && c >= this.model.refineOreFromRisk ? 'ore' : refineSafeAvailable(this.ctx) ? 'safe' : 'normal';
+          const mode = this.refineMode(lvl, ore);
           if (refineBreakChance(lvl, this.ctx, mode) > this.model.refineMaxRisk) continue;
           const cost = refineModeCost(s.instance, s.def, this.ctx, mode);
           if (cost && (!best || cost.gold < best.gold)) best = { id: s.instance.id, gold: cost.gold, mode };
         }
       }
       if (!best || this.save.resources.gold - best.gold < reserve) break;
-      const r = refineItem(this.save, best.id, this.ctx, { mode: best.mode });
-      this.step('refine', r.save);
-      this.refines++;
-      this.refineModes[best.mode]++;
-      if (r.events.some((e) => e.type === 'refineFailed')) {
-        this.refineFailures++;
-        this.autoEquip();
-      }
-      this.spendTime(this.model.refineSec * 1000);
+      this.refineStep(best.id, best.mode);
     }
   }
 
@@ -1335,6 +1428,8 @@ export function runBalance(ctx: FullContext, days: number, model: PlayerModel = 
     shopBuys: sim.shopBuys,
     meals: sim.meals,
     ingredientsBought: sim.ingredientsBought,
+    salvaged: sim.salvaged,
+    salvageGold: sim.salvageGold,
     refines: sim.refines,
     refineFailures: sim.refineFailures,
     refineModes: sim.refineModes,
@@ -1594,7 +1689,11 @@ export function signals(res: BalanceResult, ctx: FullContext): string[] {
   }
 
   const free = res.save.inventory.items.filter((i) => i.equippedBy === null).length;
-  if (free >= 10) out.push(`Лишние предметы копятся: ${free} в инвентаре не надеты (разбора/продажи нет).`);
+  if (free >= 10) {
+    const plan = ctx.equipment.drops.salvage ? salvagePlan(res.save, ctx) : { instanceIds: [], gold: 0 };
+    const sold = res.salvaged ? `; продано ${res.salvaged} за ${res.salvageGold} золота` : '';
+    out.push(`Лишние предметы копятся: ${free} в инвентаре не надеты${sold}; «Продать повторы» сейчас дала бы ${plan.gold} золота за ${plan.instanceIds.length}.`);
+  }
 
   const never = ctx.features.quests.quests.filter((q) => !res.questClaims[q.id]).map((q) => q.id);
   if (never.length) out.push(`Задания ни разу не выполнены: ${never.join(', ')}.`);

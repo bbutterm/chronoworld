@@ -464,7 +464,7 @@
  "Сохранение не читается: {0}.": "Save unreadable: {0}.",
  "data/shop.json: товар {0} — этап {1} не найден в data/campaign": "data/shop.json: product {0} — stage {1} not found in data/campaign",
  "data/shop.json: товар {0} — нет предметов редкости {1} (drop ≠ false)": "data/shop.json: product {0} — no items of rarity {1} (drop ≠ false)",
- "data/shop.json: слот {0} — нужен хотя бы один товар без fromStage и не карта героя (иначе слот бывает пустым)": "data/shop.json: slot {0} — needs at least one product without fromStage that isn't a hero card (otherwise the slot can be empty)",
+ "data/shop.json: слот {0} — нужен хотя бы один товар без fromStage/untilStage, не карта героя и не опыт (иначе слот бывает пустым)": "data/shop.json: slot {0} — needs at least one product without fromStage/untilStage that isn't a hero card or hero EXP (otherwise the slot can be empty)",
  "Лавка ещё закрыта — пройдите дальше по кампании": "Shop still locked — advance further in the campaign",
  "Обновлять лавку можно {0} раз в день": "Shop can be refreshed {0} times a day",
  "Не хватает гемов: нужно {0}, у вас {1}": "Not enough gems: need {0}, you have {1}",

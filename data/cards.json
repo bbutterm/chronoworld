@@ -9,7 +9,7 @@
     { "id": "red", "name": "Красный", "color": "#E0443A", "maxLevel": 100, "statMult": 2.3, "skillPower": 1.5 }
   ],
   "level": {
-    "exp": { "base": 100, "power": 1.5 },
+    "exp": { "base": 55, "power": 1.75 },
     "gold": { "base": 15, "power": 2 }
   },
   "merge": [
