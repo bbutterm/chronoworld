@@ -1,6 +1,6 @@
 {
   "$schema": "schema/expeditions.schema.json",
-  "$comment": "Экспедиции по локациям (K9, заменили доску поручений). Локация открывается после первой победы на stage; игрок выбирает срок (durations) и жмёт «Отправить» — отряд до maxHeroes свободных героев собирается сам (сначала те, кого нельзя отдать в корм вознесения: основной отряд, сюжетные, закреплённые; затем запас), нужна только сумма мощи ≥ power; ролей и редкостей нет. Добыча за «час добычи» = часы × (1 + bonus): perHour золота и опыта (в общий пул) и броски loot (шанс за час добычи). id локаций лежат в сохранениях — не переименовывать. Числа и расчёт — docs/content/meta.md (раздел K9), баланс — docs/content/balance.md. presets — лимиты пресетов отряда (K8, временно здесь).",
+  "$comment": "Экспедиции по локациям (K9, заменили доску поручений). Локация открывается после первой победы на stage; игрок выбирает срок (durations) и жмёт «Отправить» — отряд до maxHeroes свободных героев собирается сам (сначала те, кого нельзя отдать в корм вознесения: основной отряд, сюжетные, закреплённые; затем запас), нужна только сумма мощи ≥ power; ролей и редкостей нет. Добыча за «час добычи» = часы × (1 + bonus): perHour золота и опыта (в общий пул) и броски loot (шанс за час добычи). С главы 4 perHour ≈ 2 минуты дохода сундука этапа локации (stage → offlinePerMinute; аудит 11.10): иначе к главе 8 экспедиция давала меньше 1% дохода. Лестница локаций сохраняется — привязка к этапу локации, не к этапу игрока. id локаций лежат в сохранениях — не переименовывать. Числа и расчёт — docs/content/meta.md (раздел K9), баланс — docs/content/balance.md. presets — лимиты пресетов отряда (K8, временно здесь).",
   "maxHeroes": 5,
   "durations": [
     { "hours": 1, "bonus": 0 },
@@ -84,7 +84,7 @@
       "power": 4500,
       "tint": "#c9a24a",
       "monster": "mob4_elite",
-      "perHour": { "gold": 150, "jobExp": 210 },
+      "perHour": { "gold": 280, "jobExp": 400 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["desert_sandals", "pharaoh_headdress"] },
         { "kind": "item", "chance": 0.004, "items": ["sograt_scimitar", "isis_mantle"] },
@@ -101,7 +101,7 @@
       "power": 6000,
       "tint": "#7d5aa8",
       "monster": "mob5_elite",
-      "perHour": { "gold": 250, "jobExp": 350 },
+      "perHour": { "gold": 550, "jobExp": 780 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["geta"] },
         { "kind": "item", "chance": 0.004, "items": ["moonlight_dagger", "ninja_suit", "kitsune_mask"] },
@@ -118,7 +118,7 @@
       "power": 7500,
       "tint": "#3f7f8f",
       "monster": "mob6_elite",
-      "perHour": { "gold": 400, "jobExp": 560 },
+      "perHour": { "gold": 1050, "jobExp": 1500 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sea_boots", "pirate_bandana"] },
         { "kind": "item", "chance": 0.004, "items": ["pirate_saber", "captain_coat"] },
@@ -135,7 +135,7 @@
       "power": 9000,
       "tint": "#4a4a6a",
       "monster": "mob3_tank",
-      "perHour": { "gold": 650, "jobExp": 910 },
+      "perHour": { "gold": 2300, "jobExp": 3270 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sea_boots", "pirate_bandana"] },
         { "kind": "item", "chance": 0.004, "items": ["abyss_blade", "dark_lord_robe", "helm_of_darkness", "sentry_greaves"] },
@@ -152,7 +152,7 @@
       "power": 10000,
       "tint": "#4f6a3a",
       "monster": "maze_baphomet_jr",
-      "perHour": { "gold": 975, "jobExp": 1365 },
+      "perHour": { "gold": 3400, "jobExp": 4830 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["abyss_blade", "sentry_greaves"] },
         { "kind": "item", "chance": 0.004, "items": ["crescent_scythe", "pact_robe", "majestic_goat", "maze_boots"] },
@@ -169,7 +169,7 @@
       "power": 11000,
       "tint": "#5a4f7a",
       "monster": "mob7_elite",
-      "perHour": { "gold": 1400, "jobExp": 1960 },
+      "perHour": { "gold": 5020, "jobExp": 7150 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["dark_lord_robe", "helm_of_darkness"] },
         { "kind": "item", "chance": 0.004, "items": ["bloody_axe", "valkyrie_armor", "gjoll_helm", "valkyrie_boots"] },

@@ -8,6 +8,8 @@ const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'id: латиница в ниж
  * Лавка (как магазин AFK Arena): 8 слотов, раз в день новый ассортимент, ручное обновление за гемы.
  * Виды товаров: предмет экипировки заданной редкости (конкретный предмет выбирается при обновлении), карта героя
  * (случайный герой редкости cardRarity, выбирается при обновлении), опыт в общий пул, свитки призыва, золото (за гемы).
+ * Предметы — «своей главы» (как трофеи кампании: data/drops.json → rules → itemsFromChapter); опыт не предлагается,
+ * когда его в запасе с избытком (heroExpAbundant) — узкое место тогда золото.
  */
 export const SHOP_GOOD_KINDS = ['item', 'heroCard', 'heroExp', 'scrolls', 'gold'] as const;
 export type ShopGoodKind = (typeof SHOP_GOOD_KINDS)[number];
@@ -33,6 +35,8 @@ export const ShopGoodSchema = z
     weight: z.number().positive(),
     /** Товар появляется только после первого прохождения этого этапа кампании. */
     fromStage: id.optional(),
+    /** Товар больше не появляется после первого прохождения этого этапа (наборы опыта — только в начале игры). */
+    untilStage: id.optional(),
     /** Не больше стольких покупок товара за день (с учётом ручных обновлений). Нет поля — без лимита. */
     perDay: z.number().int().positive().optional(),
   })
@@ -44,6 +48,7 @@ export const ShopGoodSchema = z
     if (g.kind !== 'heroCard' && g.cardRarity) c.addIssue({ code: 'custom', path: ['cardRarity'], message: 'cardRarity — только у карты героя (kind heroCard)' });
     if (g.kind === 'heroCard' && g.count !== 1) c.addIssue({ code: 'custom', path: ['count'], message: 'карта героя продаётся по одной (count 1)' });
     if (g.kind === 'gold' && g.price.currency === 'gold') c.addIssue({ code: 'custom', path: ['price', 'currency'], message: 'золото за золото не продаётся' });
+    if (g.fromStage && g.untilStage && g.fromStage === g.untilStage) c.addIssue({ code: 'custom', path: ['untilStage'], message: 'fromStage и untilStage совпадают — товар никогда не появится' });
   });
 
 export const ShopConfigSchema = z
