@@ -460,7 +460,7 @@ export class TavernScene extends Phaser.Scene {
     layer.add(shade);
     // Свет над столом.
     layer.add(this.add.image(GAME_W / 2, TABLE_Y, GLOW).setTint(0xffa050).setAlpha(0.25).setDisplaySize(1300, 1100).setBlendMode(Phaser.BlendModes.ADD));
-    const geometry = tavernRevealLayout(results.length, view().safeBottom, view().adaptive);
+    const geometry = tavernRevealLayout(results.length, view().safeBottom, view().adaptive, view().safeTop);
     const body = new ScrollArea(this, geometry.top, geometry.bottom);
     body.content.setName('tavernRevealScroll');
     body.setContentHeight(geometry.bodyHeight);
@@ -494,7 +494,7 @@ export class TavernScene extends Phaser.Scene {
       if (armed && (state.phase === 'deal' || state.phase === 'pick')) this.skip(state);
       armed = false;
     });
-    const skip = button(this, GAME_W - S.l - 140, CONTENT_TOP + 66, 280, 132, '', 'Пропустить', () => this.skip(state), T.body, { variant: 'ghost' });
+    const skip = button(this, GAME_W - S.l - 140, geometry.skipY, 280, 132, '', 'Пропустить', () => this.skip(state), T.body, { variant: 'ghost' });
     skip.container.setName('tavernRevealSkip');
     layer.add(skip.container);
     state.ui.push(skip.container);
@@ -508,7 +508,7 @@ export class TavernScene extends Phaser.Scene {
     }
     const slots = geometry.slots;
     onViewChange(this, () => {
-      const next = tavernRevealLayout(state.count, view().safeBottom, view().adaptive);
+      const next = tavernRevealLayout(state.count, view().safeBottom, view().adaptive, view().safeTop);
       body.setBounds(next.top, next.bottom);
       const dy = view().safeBottom - state.footerBottom;
       for (const o of state.footer) if (o.scene && 'y' in o) (o as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform).y += dy;
@@ -580,7 +580,7 @@ export class TavernScene extends Phaser.Scene {
     const n = state.cards.length;
     state.cards.forEach((cv, k) => {
       const { root, slot } = cv;
-      root.setPosition(DECK.x, tavernRevealLayout(state.count, view().safeBottom, view().adaptive).deckY).setScale(0.35).setAngle(-160 + k * 12).setAlpha(0);
+      root.setPosition(DECK.x, tavernRevealLayout(state.count, view().safeBottom, view().adaptive, view().safeTop).deckY).setScale(0.35).setAngle(-160 + k * 12).setAlpha(0);
       this.tweens.add({
         targets: root,
         x: slot.x,
@@ -921,7 +921,7 @@ export class TavernScene extends Phaser.Scene {
     const btns = summonButtons(st);
     const again = state.count === 10 ? btns.ten : btns.one;
     const next = currentStage(session.save, GAME);
-    const geometry = tavernRevealLayout(state.count, view().safeBottom, view().adaptive);
+    const geometry = tavernRevealLayout(state.count, view().safeBottom, view().adaptive, view().safeTop);
     const beforeFooter = new Set(L2.list);
     if (next) {
       const prep = button(this, GAME_W / 2, geometry.prepareY, GAME_W - 2 * S.l, BTN_H, '', 'Собрать отряд', () => this.scene.start('Stage', { stageId: next.id }), T.heading, { variant: 'secondary' });
