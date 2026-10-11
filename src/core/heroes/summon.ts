@@ -8,9 +8,8 @@ import { addHeroCard } from './roster';
 import { rarityIndex, type CardRarity } from './schema';
 import { groupDigits } from '../format';
 import { idleIncome, lastClearedStage } from '../campaign/offline';
-import { itemPools } from '../equipment/chest';
+import { chapterItemPools } from '../equipment/chapterPools';
 import { addItems } from '../equipment/equipment';
-import { progressChapter } from '../equipment/gates';
 import type { EquipmentConfig } from '../equipment/load';
 import { addHeroExp } from './level';
 
@@ -196,7 +195,10 @@ function pickTemplate(pool: readonly string[], discovered: readonly string[], ne
 const ITEM_LOOK: Record<string, CardRarity> = { common: 'green', rare: 'blue', epic: 'purple' };
 const LOOT_NAMES: Record<Exclude<SummonLootKind, 'gear'>, string> = { heroExp: 'Опыт героев', gold: 'Золото', gems: 'Алмазы', ore: 'Благословенная руда' };
 
-/** Выдать награду в сохранение. Вещи в главе нет (или нет конфига снаряжения) — вместо неё золото. */
+/**
+ * Выдать награду в сохранение. «Вещь главы» — из вещей, что падают в кампании главы игрока (chapterItemPools:
+ * с главы 4 — только своей главы, обычных там нет — сразу редкая). Вещи нет (или нет конфига снаряжения) — золото.
+ */
 function grantLoot(save: SaveState, def: LootDef, rng: Rng, ctx: SummonCtx): { save: SaveState; loot: SummonLoot } {
   const base = { rarity: 'green' as const, isNew: false as const, guaranteed: false as const };
   const income = (minutes: number) => {
@@ -204,7 +206,7 @@ function grantLoot(save: SaveState, def: LootDef, rng: Rng, ctx: SummonCtx): { s
     return stage ? idleIncome(stage, minutes, ctx) : { gold: 0, jobExp: 0 };
   };
   if (def.kind === 'gear') {
-    const pools = ctx.equipment ? itemPools(ctx.equipment.items, progressChapter(save, ctx)) : null;
+    const pools = ctx.equipment ? chapterItemPools(save, { equipment: ctx.equipment, content: ctx.content }) : null;
     const want = rng.next() < def.blueChance ? 'rare' : 'common';
     const pool = pools ? (pools[want].length ? pools[want] : pools.common.length ? pools.common : pools.rare) : [];
     if (pool.length && ctx.equipment) {
