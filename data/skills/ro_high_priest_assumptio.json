@@ -1,7 +1,7 @@
 {
   "id": "ro_high_priest_assumptio",
   "name": "Высшее Ассумптио",
-  "description": "На 3 с снижает входящий урон всего отряда на 50%. Школа RO: Assumptio · Transcendent. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
+  "description": "На 3 с снижает входящий урон всего отряда на 50%. Школа RO: Assumptio · Transcendent.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

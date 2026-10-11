@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_high_priest_vespers",
   "name": "Вечерняя служба",
-  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): Всем союзникам, включая себя: щит 8% макс. ОЗ цели.",
+  "description": "В начале боя: щит 12% ОЗ всему отряду.",
   "icon": "icon_ult_priest",
   "range": "ranged",
   "target": {
@@ -13,7 +13,7 @@
   "effects": [
     {
       "type": "shield",
-      "pctMaxHp": 0.08
+      "pctMaxHp": 0.12
     }
   ],
   "castTime": 0,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadFullContext } from '../scripts/lib/content-node';
 import {
-  arrangeSquad, autoFormation, duplicateCardsInSquad, enemySquad, formationRank, heroPower, heroRole, heroSustain,
+  arrangeSquad, autoFormation, autoFormationForStage, duplicateCardsInSquad, enemySquad, formationRank, heroPower, heroRole, heroSustain,
   newGame, reserveSustain, setSquad, simulateBattle, squadUnits,
   type FormationCandidate, type HeroState, type SaveState,
 } from '../src/core';
@@ -170,5 +170,62 @@ describe('automatic formation: useful support', () => {
     const manual = setSquad(save, ['h17', 'h29', 'h5', 'h2', 'h9']);
     expect(arrangeSquad(manual, ctx).filter(Boolean).sort()).toEqual(manual.squad.filter(Boolean).sort());
     expect(manual.squad).not.toContain('h16');
+  });
+});
+
+describe('automatic formation: constant healing versus episodic healing', () => {
+  it('separates a constant healer from ult-only and chance-based healing', () => {
+    expect(heroSustain(hero('vika', 'vika/priest', 30), ctx)).toMatchObject({ heals: true, mainHeals: true });
+    expect(heroSustain(hero('teo', 'teo/priest', 14), ctx)).toMatchObject({ heals: true, mainHeals: true });
+    // Потоп Лиры-мудреца — ульта раз в ~20 с, Яблоко Идун и Метание зелья — по шансу: лечат, но лекаря не заменяют.
+    expect(heroSustain(hero('lira', 'lira/sage', 51), ctx)).toMatchObject({ heals: true, mainHeals: false });
+    expect(heroSustain(hero('bard', 'bran/bard', 30), ctx)).toMatchObject({ heals: true, mainHeals: false });
+    expect(heroSustain(hero('greta', 'greta/alchemist', 50), ctx)).toMatchObject({ heals: true, mainHeals: false });
+  });
+
+  it('seats the benched priestess when the squad only has Lira-sage ult healing (audit 11.10, b14-2)', () => {
+    const save = roster([
+      hero('alan', 'alan/knight', 51), hero('zara', 'zara/assassin', 51), hero('iris', 'iris/knight', 51),
+      hero('meilin', 'meilin/hunter', 51), hero('lira', 'lira/sage', 51), hero('vika', 'vika/priest', 40),
+    ]);
+    const squad = autoFormation(save, ctx);
+    expect(squad).toContain('vika');
+    expect(squad[4]).toBe('vika');
+  });
+
+  it('replaces the weakest member with a trained blue Vika in otto/alan/dorn/lira-sage/kai (audit 11.10, b14-3)', () => {
+    const save = roster([
+      hero('otto', 'otto/blacksmith', 50), hero('alan', 'alan/knight', 50), hero('dorn', 'dorn/assassin', 50),
+      hero('lira', 'lira/sage', 50), hero('kai', 'kai/wizard', 50), hero('vika', 'vika', 24, 'blue'),
+    ]);
+    const squad = autoFormation(save, ctx);
+    expect(squad).toContain('vika');
+    expect(squad).toContain('lira');
+  });
+});
+
+describe('automatic formation for a stage (autoFormationForStage)', () => {
+  const winsOver = (save: SaveState, squad: (string | null)[], stageId: string, seeds: number[]) => {
+    const units = squadUnits({ ...save, squad }, ctx).squad;
+    return seeds.filter((seed) => simulateBattle(ctx.content, units, enemySquad(stageId, ctx), seed, { combat: ctx.combat, log: false }).winner === 'A').length;
+  };
+  const seeds = Array.from({ length: 16 }, (_, i) => i + 1);
+
+  it('swaps the knights against ch6_s3 leapers when the plain auto formation almost always loses', () => {
+    const save = roster(['alan/knight', 'zara/assassin', 'iris/knight', 'meilin/hunter', 'lira/sage'].map((t) => hero(t.split('/')[0], t, 50, 'gold')));
+    const plain = autoFormation(save, ctx);
+    const staged = autoFormationForStage(save, 'ch6_s3', ctx);
+    expect(staged.filter(Boolean).sort()).toEqual(plain.filter(Boolean).sort());
+    expect(staged).not.toEqual(plain);
+    // Независимые seed (не те, на которых подбиралась расстановка).
+    expect(winsOver(save, plain, 'ch6_s3', seeds)).toBeLessThanOrEqual(4);
+    expect(winsOver(save, staged, 'ch6_s3', seeds)).toBeGreaterThanOrEqual(12);
+    expect(autoFormationForStage(save, 'ch6_s3', ctx)).toEqual(staged);
+  });
+
+  it('keeps the plain auto formation when it already wins, and for unknown stages', () => {
+    const save = chapter4Roster();
+    expect(autoFormationForStage(save, 'ch1_s1', ctx)).toEqual(autoFormation(save, ctx));
+    expect(autoFormationForStage(save, 'no_such_stage', ctx)).toEqual(autoFormation(save, ctx));
   });
 });

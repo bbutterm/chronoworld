@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_high_wizard_convergence",
   "name": "Схождение стихий",
-  "description": "Авторский навык (не оригинальный RO). Всем врагам: урон 1.05 × АТК; СКР -15% на 2 хода статуса.",
+  "description": "Стихии сходятся на всех врагах: урон (×1,05) и −15% скорости на 2 с.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

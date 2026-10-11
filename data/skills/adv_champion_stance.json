@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_champion_stance",
   "name": "Стойка мастера",
-  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): На себя: ЗАЩ +15% на 4 хода статуса.",
+  "description": "В начале боя: +15% защиты себе на 12 с.",
   "icon": "icon_ult_warrior",
   "range": "ranged",
   "target": {
@@ -15,7 +15,7 @@
       "status": {
         "id": "adv_stance",
         "name": "Защита",
-        "turns": 4,
+        "turns": 12,
         "stats": {
           "def": 0.15
         }

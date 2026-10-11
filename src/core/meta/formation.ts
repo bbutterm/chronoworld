@@ -1,5 +1,7 @@
 import type { EquipmentConfig } from '../equipment/load';
 import { withGear } from '../equipment/equipment';
+import { simulateBattle } from '../battle';
+import { enemySquad, squadUnits } from '../campaign/campaign';
 import type { FeatureContext } from '../features/config';
 import { heroPower } from '../features/power';
 import { activeForm, heroRole, heroSkills, heroTemplate } from '../heroes/card';
@@ -28,6 +30,12 @@ const DEFAULT_FORMATION: Required<AutoFormationOptions> = { sustain: true, healR
 export interface HeroSustain {
   /** An unlocked skill can restore an ally's HP. Self-healing does not qualify. */
   heals: boolean;
+  /**
+   * Постоянное лечение: союзника лечит обычная атака или активный навык без триггера с перезарядкой не дольше
+   * MAIN_HEAL_COOLDOWN (Лечение жрицы, Восстановление создателя). Ульта, срабатывание с шансом и редкое массовое
+   * лечение (Потоп Лиры-мудреца, Яблоко Идун барда, Метание зелья) — эпизодическое: heals true, mainHeals false.
+   */
+  mainHeals: boolean;
   /** An unlocked skill can shield an ally. Self-only shields do not qualify. */
   shields: boolean;
   /** The skills that actually provide the above support, including basic attacks and ultimates. */
@@ -40,12 +48,15 @@ export interface FormationCandidate {
   power: number;
 }
 
+/** Активное лечение с перезарядкой не дольше этого (с) — постоянное (heroSustain.mainHeals). */
+const MAIN_HEAL_COOLDOWN = 9;
+
 /** Sustain comes from the current skill set, not a role name or a future profession. */
 export function heroSustain(hero: HeroState, ctx: GameContext): HeroSustain {
   const open = heroSkills(hero, ctx);
   const ult = activeForm(heroTemplate(ctx, hero.templateId), hero).ult;
   const ids = new Set([open.basic, ...open.actives, ...open.passives, ...(ult ? [ult] : [])]);
-  const result: HeroSustain = { heals: false, shields: false, skills: [] };
+  const result: HeroSustain = { heals: false, mainHeals: false, shields: false, skills: [] };
   for (const id of ids) {
     const skill = ctx.content.skills[id];
     if (!skill || skill.target.side !== 'ally' || skill.target.pick === 'self' || (skill.trigger && skill.chance <= 0)) continue;
@@ -54,6 +65,8 @@ export function heroSustain(hero: HeroState, ctx: GameContext): HeroSustain {
     if (heals || shields) result.skills.push(id);
     result.heals ||= heals;
     result.shields ||= shields;
+    const main = id === open.basic || (id !== ult && !skill.trigger && (skill.cooldown ?? Infinity) <= MAIN_HEAL_COOLDOWN);
+    result.mainHeals ||= heals && main;
   }
   return result;
 }
@@ -93,9 +106,11 @@ export function reserveSustain<T extends FormationCandidate>(
     }
     return support;
   };
-  const priority = (candidate: T) => profile(candidate).heals ? 2 : profile(candidate).shields ? 1 : 0;
+  // 3 — постоянное лечение, 2 — эпизодическое (ульта, шанс, редкое массовое), 1 — щит союзникам. Эпизодическое
+  // лечение не заменяет лекаря: Потоп Лиры-мудреца раз в ~20 с не держит отряд, и «Авто» не убирает ради него жрицу.
+  const priority = (candidate: T) => profile(candidate).mainHeals ? 3 : profile(candidate).heals ? 2 : profile(candidate).shields ? 1 : 0;
   const current = Math.max(...chosen.map(priority));
-  if (current === 2) return [...chosen];
+  if (current === 3) return [...chosen];
   const selectedIds = new Set(chosen.map((candidate) => candidate.hero.id));
   const eligible = [...candidates]
     .filter((candidate) => !selectedIds.has(candidate.hero.id) && Number.isFinite(candidate.power) && candidate.power > 0 && priority(candidate) > current)
@@ -112,10 +127,10 @@ export function reserveSustain<T extends FormationCandidate>(
 function reserveFrontline<T extends FormationCandidate>(chosen: readonly T[], candidates: readonly T[], ctx: GameContext, ratio: number): T[] {
   if (chosen.length < 3 || chosen.some((candidate) => heroRole(candidate.hero, ctx) === 'tank')) return [...chosen];
   const selected = new Set(chosen.map((candidate) => candidate.hero.id));
-  const healers = chosen.filter((candidate) => heroSustain(candidate.hero, ctx).heals);
+  const healers = chosen.filter((candidate) => heroSustain(candidate.hero, ctx).mainHeals);
   const tanks = [...candidates].filter((candidate) => !selected.has(candidate.hero.id) && heroRole(candidate.hero, ctx) === 'tank').sort(byCandidatePower);
   for (const incoming of tanks) {
-    const outgoing = replacementFor(chosen, incoming, ctx, (candidate) => healers.length === 1 && candidate === healers[0] && !heroSustain(incoming.hero, ctx).heals);
+    const outgoing = replacementFor(chosen, incoming, ctx, (candidate) => healers.length === 1 && candidate === healers[0] && !heroSustain(incoming.hero, ctx).mainHeals);
     if (outgoing && incoming.power >= outgoing.power * ratio) return chosen.map((candidate) => candidate === outgoing ? incoming : candidate);
   }
   return [...chosen];
@@ -260,6 +275,73 @@ export function autoFormation(save: SaveState, ctx: FeatureContext & { equipment
   for (const h of frontline) place(h.hero.id, [0, 1, 2, 3, 4]);
   for (const h of back) place(h.hero.id, [4, 3, 2, 1, 0]);
   return squad;
+}
+
+/** Seeds of the stage check: fixed, never the seed of the player's next battle (no peeking at the real outcome). */
+export const STAGE_FORMATION_SEEDS = [9001, 9002, 9003, 9004] as const;
+/** Second pass for the best swap only; the swap must win at least STAGE_CONFIRM_MARGIN more of all 12 battles. */
+const STAGE_CONFIRM_SEEDS = [9005, 9006, 9007, 9008, 9009, 9010, 9011, 9012] as const;
+const STAGE_CONFIRM_MARGIN = 3;
+
+export interface StageFormationOptions extends AutoFormationOptions {
+  /** Day of the battle: today's Kitchen dish counts, as in playStage. */
+  day?: string;
+}
+
+/**
+ * «Авто» под конкретный этап. Состав — тот же, что у autoFormation; расстановка проверяется боями ядра:
+ * кандидаты — обмены двух слотов autoFormation внутри своей группы (ближние между собой, дальние между собой),
+ * каждый — STAGE_FORMATION_SEEDS.length боёв simulateBattle без лога против врагов этапа. Лучший обмен
+ * перепроверяется ещё на 8 seed и берётся, только если из 12 боёв выигрывает хотя бы на 3 больше autoFormation;
+ * иначе (и если autoFormation и так выигрывает все 4) — autoFormation, расстановка не прыгает.
+ * Так прыгуны (Сворд-фиш на ch6_s1) не застают отряд, где страж стоит не там: перехват дотягивается до тыла.
+ * Детерминированно; чистая функция, save не меняет. До ~50 коротких боёв — для кнопки «Авто» на экране этапа.
+ */
+export function autoFormationForStage(save: SaveState, stageId: string, ctx: FeatureContext & { equipment?: EquipmentConfig }, options: StageFormationOptions = {}): (string | null)[] {
+  const base = autoFormation(save, ctx, options);
+  const filled = base.filter((id) => id !== null).length;
+  if (filled < 2 || !ctx.content.stages.some((stage) => stage.id === stageId)) return base;
+  // Обмены только внутри своей группы: ближние (танк, ближний бой) между собой, дальние и лекари между собой.
+  // Маг или жрица в первом ряду ради случайной победы игроку непонятны — такие кандидаты не рассматриваются.
+  const front = (id: string | null) => {
+    const hero = id === null ? undefined : save.heroes.find((h) => h.id === id);
+    return hero ? formationRank(hero, ctx) <= 1 : undefined;
+  };
+  const candidates: (string | null)[][] = [];
+  for (let i = 0; i < SQUAD_SIZE; i++)
+    for (let j = i + 1; j < SQUAD_SIZE; j++) {
+      const a = front(base[i]);
+      const b = front(base[j]);
+      if (a !== b && a !== undefined && b !== undefined) continue;
+      if (a === undefined && b === undefined) continue;
+      const swapped = [...base];
+      [swapped[i], swapped[j]] = [swapped[j], swapped[i]];
+      candidates.push(swapped);
+    }
+  if (candidates.length === 0) return base;
+  const gear = withGear(ctx, save);
+  const enemies = enemySquad(stageId, ctx, save.campaignChoices);
+  const wins = (squad: (string | null)[], seeds: readonly number[]) => {
+    const units = squadUnits({ ...save, squad }, gear, options.day).squad;
+    return seeds.filter((seed) => simulateBattle(ctx.content, units, enemies, seed, { combat: ctx.combat, log: false }).winner === 'A').length;
+  };
+  const baseWins = wins(base, STAGE_FORMATION_SEEDS);
+  if (baseWins === STAGE_FORMATION_SEEDS.length) return base;
+  let best: (string | null)[] | undefined;
+  let bestWins = baseWins;
+  for (const candidate of candidates) {
+    const w = wins(candidate, STAGE_FORMATION_SEEDS);
+    if (w > bestWins) {
+      best = candidate;
+      bestWins = w;
+    }
+    if (bestWins === STAGE_FORMATION_SEEDS.length) break;
+  }
+  if (!best) return base;
+  // Проверка на других seed: 4 боя шумны, обмен должен быть заметно лучше и там (иначе расстановка прыгает зря).
+  const total = bestWins + wins(best, STAGE_CONFIRM_SEEDS);
+  const baseTotal = baseWins + wins(base, STAGE_CONFIRM_SEEDS);
+  return total >= baseTotal + STAGE_CONFIRM_MARGIN ? best : base;
 }
 
 /**

@@ -1,7 +1,7 @@
 {
   "id": "ro_assassin_cross_soul_breaker",
   "name": "Раскол души",
-  "description": "Оружейный удар и духовный урон, который игнорирует защиту. Школа RO: Soul Breaker. Совместимые общие эффекты RO; точная оригинальная анимация этого приёма ещё не подключена.",
+  "description": "Оружейный удар и духовный урон, который игнорирует защиту. Школа RO: Soul Breaker.",
   "icon": "icon_ult_mage",
   "range": "ranged",
   "target": {

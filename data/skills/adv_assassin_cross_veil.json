@@ -2,7 +2,7 @@
   "$schema": "../schema/skill.schema.json",
   "id": "adv_assassin_cross_veil",
   "name": "Тень перед ударом",
-  "description": "Авторский навык (не оригинальный RO). В начале боя (шанс 100%): На себя: СКР +15% на 3 хода статуса.",
+  "description": "В начале боя: +15% скорости себе на 12 с.",
   "icon": "icon_ult_assassin",
   "range": "ranged",
   "target": {
@@ -15,7 +15,7 @@
       "status": {
         "id": "adv_veil",
         "name": "Темп",
-        "turns": 3,
+        "turns": 12,
         "stats": {
           "spd": 0.15
         }
