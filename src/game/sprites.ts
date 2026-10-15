@@ -66,13 +66,35 @@ export function setupSprites(scene: Phaser.Scene, spriteRoles: Record<string, st
   }
 }
 
-function loadImage(url: string): Promise<HTMLImageElement | null> {
+function loadImageOnce(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    img.src = assetUrl(url);
+    img.src = src;
   });
+}
+
+/** Портрет — одна попытка: файла может не быть (тогда вырезаем стойку из листа), повторы только задержали бы загрузку. */
+const loadPortraitImage = (url: string) => loadImageOnce(assetUrl(url));
+
+/** Паузы перед повторами (мс): сбой сети или декодирования в Telegram на телефоне — частое дело, один промах не приговор. */
+const SHEET_RETRY_MS = [700, 2000];
+
+/**
+ * Картинка с повторами: файл сборки (WebP) ещё SHEET_RETRY_MS.length раз с паузами, затем исходный PNG. Без повторов один
+ * сбой превращал лист в плейсхолдер до перезапуска игры (силуэты вместо орков в бою, 15.10).
+ */
+async function loadImage(url: string): Promise<HTMLImageElement | null> {
+  const src = assetUrl(url);
+  let img = await loadImageOnce(src);
+  for (const ms of SHEET_RETRY_MS) {
+    if (img) return img;
+    await new Promise((r) => setTimeout(r, ms));
+    img = await loadImageOnce(src);
+  }
+  if (!img && src !== url) img = await loadImageOnce(url);
+  return img;
 }
 
 /**
@@ -110,7 +132,7 @@ function loadSheet(game: Phaser.Game, id: string): Promise<void> {
       });
     }
     const pk = portraitKey(id);
-    if (!(await ensurePortraitFile(tm, pk, s.portrait, loadImage, Phaser.Textures.FilterMode.NEAREST))) {
+    if (!(await ensurePortraitFile(tm, pk, s.portrait, loadPortraitImage, Phaser.Textures.FilterMode.NEAREST))) {
       // Портрета нет — берём кадр стойки, обрезанный по фигуре (в клетке листа много пустоты). Один раз и навсегда.
       const frame = tm.getFrame(key, String((s.anims.idle?.row ?? 0) * s.columns));
       if (frame) portraitFromFrame(tm, pk, key, frame);
@@ -233,7 +255,7 @@ export function requestPortrait(game: Phaser.Game, id: string): Promise<void> {
   if (running) return running;
   const p = portraitChain
     .then(async () => {
-      if (await ensurePortraitFile(game.textures, pk, SPRITES[id]?.portrait, loadImage, Phaser.Textures.FilterMode.NEAREST)) return;
+      if (await ensurePortraitFile(game.textures, pk, SPRITES[id]?.portrait, loadPortraitImage, Phaser.Textures.FilterMode.NEAREST)) return;
       const had = sheetLoaded(game, id);
       await loadSheet(game, id);
       if (!had && !lru.isHeld(id)) {
