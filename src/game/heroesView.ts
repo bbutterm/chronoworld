@@ -5,6 +5,7 @@
  */
 import {
   ascendPlan,
+  fodderBlocker,
   ascendRequirement,
   activeForm,
   autoFodder,
@@ -362,6 +363,25 @@ export function ascendPower(hero: HeroState, ctx: GameContext, powerOf: (h: Hero
 }
 
 /**
+ * Почему подходящая копия того же героя не идёт в корм — коротко, вместо «Не хватает N карт» (иначе игрок видит три
+ * одинаковые карты и не понимает, почему «не хватает»). Спутника возносят самого — копии идут к нему.
+ */
+function blockedCopyReason(save: SaveState, hero: HeroState, kind: 'same' | 'any', rarity: string, ctx: GameContext): string | null {
+  if (kind !== 'same') return null;
+  const copy = save.heroes.find((h) => h.id !== hero.id && h.templateId === hero.templateId && h.rarity === rarity && fodderBlocker(save, h.id, ctx) !== null);
+  if (!copy) return null;
+  const name = heroTemplate(ctx, hero.templateId).name;
+  if (copy.companion) return `${name} — спутник: возносите его самого`;
+  const tag = fodderTag(save, copy.id);
+  if (tag === 'закреплён') return `${name}: копия закреплена замком`;
+  if (tag) return `${name}: копия ${tag === 'в отряде' || tag === 'в пресете' ? `стоит ${tag}` : tag}`;
+  const core = fodderBlocker(save, copy.id, ctx) ?? '';
+  if (/Башни/.test(core)) return `${name}: копия в забеге Башни`;
+  if (/специализац/.test(core)) return `${name}: копия со специализацией`;
+  return `${name}: копия обучена — верните ресурсы`;
+}
+
+/**
  * Состояние кнопки «Вознести» и понятная причина, если нельзя (первая по важности): нет копий → не выбран корм →
  * не хватает золота → не выбрана ветка. reason — строка для игрока; ready — можно нажимать.
  */
@@ -388,6 +408,8 @@ export function ascendButtonState(
     if (emptyHere > left) {
       const c = fodderSlotCaption(f, hero, ctx);
       const n = emptyHere - left;
+      const why = blockedCopyReason(save, hero, f.kind, f.rarity, ctx);
+      if (why) return { ready: false, reason: why };
       return { ready: false, reason: `Не хватает ${n} ${n === 1 ? 'карты' : 'карт'}: ${c.who === 'Любой' ? 'любой' : c.who}, ${c.rarity}` };
     }
   }
