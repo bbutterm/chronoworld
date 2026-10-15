@@ -199,7 +199,14 @@ describe('H4 «Вознесение»', () => {
       [weak.id, null, true],
       [mid.id, 'в отряде', false],
     ]);
-    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Кай, синий');
+    // Копия есть, но занята — причина называет, чем (раньше «Не хватает 1 карты» при трёх одинаковых картах в составе).
+    expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Кай: копия стоит в отряде');
+    // Спутник (первая карта героя) в корм не идёт — его возносят самого (отчёт тестера 15.10: «Тео-самозванец»).
+    const comp = { ...s, squad: [null, null, null, null, null], heroes: s.heroes.map((h) => (h.id === mid.id ? { ...h, companion: true } : h)) };
+    expect(ascendButtonState(comp, target.id, [weak.id], ctx).reason).toBe('Кай — спутник: возносите его самого');
+    // Копий нет совсем — прежний текст.
+    const none = { ...s, squad: [null, null, null, null, null], heroes: s.heroes.filter((h) => h.id !== mid.id) };
+    expect(ascendButtonState(none, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Кай, синий');
     // LT-07: подпись на карточке — точная причина (копии есть, не хватает золота). Синий → фиолетовый — 30 000 золота.
     const noGold = { ...s, squad: [null, null, null, null, null], resources: { ...s.resources, gold: 100 } };
     expect(ascendHint(noGold, target.id, ctx)).toEqual({ ready: false, text: `нужно ${groupDigits(30_000)} золота` });

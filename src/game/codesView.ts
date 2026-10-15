@@ -10,7 +10,10 @@ import { plate, pressable, SURFACE, text, toast } from './ui';
 /** Сколько символов можно ввести (коды короткие; длиннее — опечатка). */
 const MAX_LEN = 24;
 const FIELD_H = 120;
-const LAB_CODES_ENABLED = import.meta.env.DEV || import.meta.env.VITE_ADVANCE_LAB === '1';
+/** Все тестовые коды («300» и «12» — часы вперёд): dev и сборка лаборатории. */
+const LAB_TIME_ENABLED = import.meta.env.DEV || import.meta.env.VITE_ADVANCE_LAB === '1';
+/** Многоразовый «300» (+300 алмазов) открыт и в проде — для проверки владельцем (15.10.2026); «12» в проде нет. */
+const LAB_CODES_ENABLED = true;
 
 /** Текст результата для игрока. */
 export function codeMessage(r: RedeemResult): string {
@@ -79,6 +82,7 @@ export function openCodes(scene: Phaser.Scene, onDone: () => void): void {
           if (LAB_CODES_ENABLED) {
             const { withLabCodes } = await import('../core/codes/lab');
             cfg = withLabCodes(cfg);
+            if (!LAB_TIME_ENABLED) cfg = { codes: cfg.codes.filter((c) => c.hours === 0) };
           }
         } catch {
           if (input.isConnected) result.setText('Не удалось открыть тестовые коды').setColor(COLOR.negative);
