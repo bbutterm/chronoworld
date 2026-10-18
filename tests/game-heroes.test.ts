@@ -204,6 +204,9 @@ describe('H4 «Вознесение»', () => {
     // Спутник (первая карта героя) в корм не идёт — его возносят самого (отчёт тестера 15.10: «Тео-самозванец»).
     const comp = { ...s, squad: [null, null, null, null, null], heroes: s.heroes.map((h) => (h.id === mid.id ? { ...h, companion: true } : h)) };
     expect(ascendButtonState(comp, target.id, [weak.id], ctx).reason).toBe('Кай — спутник: возносите его самого');
+    // В окне выбора спутник помечен — раньше он выглядел свободным, выбирался, а ядро его не брало.
+    const compReq = ascendRequirement(comp, target.id, ctx)!;
+    expect(fodderOptions(comp, compReq, 0, []).find((o) => o.id === mid.id)?.tag).toBe('спутник');
     // Копий нет совсем — прежний текст.
     const none = { ...s, squad: [null, null, null, null, null], heroes: s.heroes.filter((h) => h.id !== mid.id) };
     expect(ascendButtonState(none, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Кай, синий');
