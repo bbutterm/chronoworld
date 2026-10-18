@@ -98,6 +98,30 @@ async function loadImage(url: string): Promise<HTMLImageElement | null> {
 }
 
 /**
+ * Листы, которые не загрузились даже с повторами (время сбоя): вместо них заглушки. Раньше заглушка оставалась до
+ * перезапуска игры (силуэты орков у тестеров 15–18.10); теперь следующий экран не раньше чем через RETRY_SHEET_MS
+ * пробует снова — когда заглушку уже никто не показывает (удалять текстуру с живым владельцем нельзя).
+ */
+const failedAt = new Map<string, number>();
+/** Портреты-заглушки, поставленные вместо несостоявшегося листа (настоящий портрет-файл так не трогаем). */
+const placeholderPortraits = new Set<string>();
+const RETRY_SHEET_MS = 20_000;
+
+/** Использует ли текстуру key какой-нибудь объект живых сцен (вглубь контейнеров). */
+function textureInUse(game: Phaser.Game, key: string): boolean {
+  const walk = (list: readonly Phaser.GameObjects.GameObject[]): boolean =>
+    list.some((o) => (o as Phaser.GameObjects.Image).texture?.key === key || (o instanceof Phaser.GameObjects.Container && walk(o.list)));
+  return game.scene.scenes.some((sc) => sc.sys.displayList && walk(sc.sys.displayList.list));
+}
+
+/** Пора ли повторить лист после сбоя: прошло RETRY_SHEET_MS и его заглушки не на экране. */
+function retryDue(game: Phaser.Game, id: string): boolean {
+  const at = failedAt.get(id);
+  if (at === undefined || Date.now() - at < RETRY_SHEET_MS) return false;
+  return !textureInUse(game, spriteKey(id)) && !(placeholderPortraits.has(id) && textureInUse(game, portraitKey(id)));
+}
+
+/**
  * Загрузить лист. Не загрузчиком сцены: тот сбрасывается при выключении сцены, а лист нужен и следующей.
  * Не загрузился — плейсхолдер (как раньше в BootScene).
  */
@@ -105,15 +129,25 @@ function loadSheet(game: Phaser.Game, id: string): Promise<void> {
   // The sheet texture can exist while its portrait/fallback is still loading.
   const running = inflight.get(id);
   if (running) return running;
-  if (sheetLoaded(game, id)) return Promise.resolve();
+  if (sheetLoaded(game, id) && !retryDue(game, id)) return Promise.resolve();
   const s = SPRITES[id];
+  if (failedAt.has(id)) {
+    // Повтор после сбоя: убрать заглушки (их уже никто не показывает — retryDue) и грузить заново.
+    failedAt.delete(id);
+    unloadSheet(game, id);
+    if (placeholderPortraits.delete(id)) game.textures.remove(portraitKey(id));
+  }
   const p = loadImage(s.file).then(async (img) => {
     const tm = game.textures;
     if (sheetLoaded(game, id)) return;
     if (!img) {
-      console.warn(`Лист ${s.file} не загрузился, рисую плейсхолдер`);
+      console.warn(`Лист ${s.file} не загрузился, рисую плейсхолдер (повтор — на следующем экране)`);
+      failedAt.set(id, Date.now());
       placeholder(tm, spriteKey(id), 128, 128, roles[id], true);
-      placeholder(tm, portraitKey(id), 128, 128, roles[id], false);
+      if (!tm.exists(portraitKey(id))) {
+        placeholder(tm, portraitKey(id), 128, 128, roles[id], false);
+        placeholderPortraits.add(id);
+      }
       return;
     }
     const key = spriteKey(id);
@@ -212,7 +246,7 @@ export function whenSprites(scene: Phaser.Scene, ids: string[], ready: () => voi
   const want = [...new Set(ids)].filter((id) => SPRITES[id]);
   holdFor(scene, want);
   for (const id of want) lru.touch(id);
-  const missing = want.filter((id) => !sheetLoaded(game, id));
+  const missing = want.filter((id) => !sheetLoaded(game, id) || retryDue(game, id));
   if (!missing.length) {
     ready();
     return;
