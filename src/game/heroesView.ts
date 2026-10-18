@@ -315,13 +315,19 @@ export function fodderSlotCaption(slot: Pick<FodderSlotView, 'kind' | 'rarity'>,
 }
 
 /** Почему карточку нельзя отдать в корм — короткой меткой для плитки (как fodderBlocker ядра): null — свободна. */
-export function fodderTag(save: SaveState, heroId: string): 'закреплён' | 'в отряде' | 'в пресете' | 'в экспедиции' | null {
+export type FodderTag = 'закреплён' | 'в отряде' | 'в пресете' | 'в экспедиции' | 'в Башне' | 'спутник' | 'обучен' | 'специализация' | 'занят';
+
+export function fodderTag(save: SaveState, heroId: string): FodderTag | null {
   const h = save.heroes.find((x) => x.id === heroId);
   if (!h) return null;
   if (h.locked) return 'закреплён';
   if (save.squad.includes(h.id)) return 'в отряде';
   if (save.presets.some((p) => p.squad.includes(h.id))) return 'в пресете';
   if (save.bounties.active.some((b) => b.heroIds.includes(h.id))) return 'в экспедиции';
+  // Остальные причины fodderBlocker ядра (merge.ts): без меток эти карточки выглядели свободными, выбирались, а ядро их не брало.
+  if (save.tower.run?.squad.includes(h.id) || save.tower.run?.fallen.includes(h.id)) return 'в Башне';
+  if (h.training?.gold || h.training?.exp) return 'обучен';
+  if (h.journey?.focus) return 'специализация';
   return null;
 }
 
@@ -349,7 +355,8 @@ export function fodderOptions(save: SaveState, req: { heroId: string; fodder: re
     .sort((a, b) => a.level - b.level || (a.id < b.id ? -1 : 1));
   return [
     ...free.map((h) => ({ id: h.id, level: h.level, chosen: chosen.includes(h.id), tag: null })),
-    ...busy.map((h) => ({ id: h.id, level: h.level, chosen: false, tag: fodderTag(save, h.id) })),
+    // Не в кандидатах ядра — значит занята; метка обязательна, иначе карточку можно «выбрать» впустую.
+    ...busy.map((h) => ({ id: h.id, level: h.level, chosen: false, tag: fodderTag(save, h.id) ?? ('занят' as const) })),
   ];
 }
 
@@ -362,16 +369,29 @@ export function ascendPower(hero: HeroState, ctx: GameContext, powerOf: (h: Hero
   return { from: powerOf(hero), to: powerOf(after) };
 }
 
+/** «Любой» слот: сколько карточек нужной редкости заняты и чем — «Фиолетовые заняты: 4 в отряде, 2 спутника». */
+function busySummary(save: SaveState, hero: HeroState, rarity: string, ctx: GameContext): string | null {
+  const counts = new Map<string, number>();
+  for (const h of save.heroes) {
+    if (h.id === hero.id || h.rarity !== rarity || fodderBlocker(save, h.id, ctx) === null) continue;
+    const tag = fodderTag(save, h.id) ?? 'занят';
+    counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  }
+  if (!counts.size) return null;
+  const plural = (tag: string, n: number) => (tag === 'спутник' ? (n === 1 ? 'спутник' : n < 5 ? 'спутника' : 'спутников') : tag);
+  const parts = [...counts].sort((a, b) => b[1] - a[1]).map(([tag, n]) => `${n} ${plural(tag, n)}`);
+  return `${rarityDef(ctx, rarity as never).name}: заняты ${parts.join(', ')}`;
+}
+
 /**
  * Почему подходящая копия того же героя не идёт в корм — коротко, вместо «Не хватает N карт» (иначе игрок видит три
  * одинаковые карты и не понимает, почему «не хватает»). Спутника возносят самого — копии идут к нему.
  */
 function blockedCopyReason(save: SaveState, hero: HeroState, kind: 'same' | 'any', rarity: string, ctx: GameContext): string | null {
-  if (kind !== 'same') return null;
+  if (kind !== 'same') return busySummary(save, hero, rarity, ctx);
   const copy = save.heroes.find((h) => h.id !== hero.id && h.templateId === hero.templateId && h.rarity === rarity && fodderBlocker(save, h.id, ctx) !== null);
   if (!copy) return null;
   const name = heroTemplate(ctx, hero.templateId).name;
-  if (copy.companion) return `${name} — спутник: возносите его самого`;
   const tag = fodderTag(save, copy.id);
   if (tag === 'закреплён') return `${name}: копия закреплена замком`;
   if (tag) return `${name}: копия ${tag === 'в отряде' || tag === 'в пресете' ? `стоит ${tag}` : tag}`;

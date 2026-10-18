@@ -99,9 +99,12 @@ describe('вознесение: одна дорожка, копии того ж�
     expect(r.consumed).toEqual(['h5']);
     // «Любой»: подходит зелёная копия другого героя (первая Кай h6 — спутник, корм — вторая h7), но не синяя.
     const other = withCards([['iris', 'green'], ['lira', 'blue'], ['kai', 'green'], ['kai', 'green']]);
-    expect(ascendRequirement(other, 'h4', ctx)!.fodder[0].candidates).toEqual(['h7']);
+    // Пересмотр 18.10: спутник h6 — тоже кандидат (вручную), «Авто» берёт h7; отдать h6 — спутником станет h7.
+    expect(ascendRequirement(other, 'h4', ctx)!.fodder[0].candidates).toEqual(['h7', 'h6']);
+    expect(autoFodder(other, 'h4', ctx)).toEqual(['h7']);
     expect(codeOf(() => ascendHero(other, 'h4', ['h5'], ctx))).toBe('bad_fodder');
-    expect(codeOf(() => ascendHero(other, 'h4', ['h6'], ctx))).toBe('fodder_busy');
+    const viaCompanion = ascendHero(other, 'h4', ['h6'], ctx).save;
+    expect(viaCompanion.heroes.find((h) => h.id === 'h7')!.companion).toBe(true);
     const o = ascendHero(other, 'h4', ['h7'], ctx);
     expect(o.save.heroes.find((h) => h.id === 'h4')!.rarity).toBe('blue');
     expect(o.save.heroes.filter((h) => h.templateId === 'kai').map((h) => h.id)).toEqual(['h6']);
@@ -179,7 +182,8 @@ describe('вознесение: одна дорожка, копии того ж�
     // Пересмотр 10.10: слоты «любой» (было 2 такие же) — «Авто» берёт сначала копии других героев, а не вторую Тео;
     // первые Грета и Кай — спутники, в корм идут дополнительные копии.
     const mix = withCards([['teo', 'purple', 60, 'monk'], ['teo', 'purple'], ['greta', 'purple'], ['greta', 'purple'], ['kai', 'purple'], ['kai', 'purple']]);
-    expect(ascendRequirement(mix, 'h4', ctx)!.fodder).toEqual([{ kind: 'any', rarity: 'purple', count: 2, candidates: ['h9', 'h7', 'h5'] }]);
+    // Пересмотр 18.10: спутники h6 и h8 — кандидаты для ручного выбора, «Авто» их не берёт.
+    expect(ascendRequirement(mix, 'h4', ctx)!.fodder[0].candidates.sort()).toEqual(['h5', 'h6', 'h7', 'h8', 'h9']);
     const pick = autoFodder(mix, 'h4', ctx)!;
     expect(pick.sort()).toEqual(['h7', 'h9']);
     const m = ascendHero(mix, 'h4', pick, ctx);
@@ -189,10 +193,12 @@ describe('вознесение: одна дорожка, копии того ж�
 
   it('«Авто» в слоте «любой» не съедает последнюю копию другого героя — только лишнюю', () => {
     // Пересмотр 10.10: у зелёного → синего слот «любой зелёный». h4 — единственная Ирис: первая копия героя — спутник,
-    // в корм не идёт ни через «Авто», ни вручную. h5 — Тео (цель).
+    // «Авто» её не берёт. h5 — Тео (цель). Пересмотр 18.10 (жалоба тестера «7 фиолетовых, отдать можно 1»): вручную
+    // спутника отдать можно — герой уходит из состава, следующая полученная карта станет спутником.
     const lone = withCards([['iris', 'green'], ['teo', 'green']]);
     expect(autoFodder(lone, 'h5', ctx)).toBeNull();
-    expect(codeOf(() => ascendHero(lone, 'h5', ['h4'], ctx))).toBe('fodder_busy');
+    const manual = ascendHero(lone, 'h5', ['h4'], ctx).save;
+    expect(manual.heroes.some((h) => h.templateId === 'iris')).toBe(false);
     // Вторая Ирис — лишняя: «Авто» берёт её, лучшая копия остаётся.
     const spare = withCards([['iris', 'green'], ['teo', 'green'], ['iris', 'green']]);
     const pick = autoFodder(spare, 'h5', ctx)!;

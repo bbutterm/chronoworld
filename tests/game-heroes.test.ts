@@ -203,7 +203,11 @@ describe('H4 «Вознесение»', () => {
     expect(ascendButtonState(s, target.id, [weak.id], ctx).reason).toBe('Кай: копия стоит в отряде');
     // Спутник (первая карта героя) в корм не идёт — его возносят самого (отчёт тестера 15.10: «Тео-самозванец»).
     const comp = { ...s, squad: [null, null, null, null, null], heroes: s.heroes.map((h) => (h.id === mid.id ? { ...h, companion: true } : h)) };
-    expect(ascendButtonState(comp, target.id, [weak.id], ctx).reason).toBe('Кай — спутник: возносите его самого');
+    // Пересмотр 18.10: спутника можно положить вручную — он свободный кандидат (метки «занят» нет), «Авто» его не берёт.
+    expect(ascendButtonState(comp, target.id, [weak.id], ctx).reason).toMatch(/ещё 1 карту/);
+    const compReq = ascendRequirement(comp, target.id, ctx)!;
+    expect(fodderOptions(comp, compReq, 0, []).find((o) => o.id === mid.id)?.tag).toBeNull();
+    expect(ascendButtonState(comp, target.id, [weak.id, mid.id], ctx, { branchChosen: true }).ready).toBe(true);
     // Копий нет совсем — прежний текст.
     const none = { ...s, squad: [null, null, null, null, null], heroes: s.heroes.filter((h) => h.id !== mid.id) };
     expect(ascendButtonState(none, target.id, [weak.id], ctx).reason).toBe('Не хватает 1 карты: Кай, синий');

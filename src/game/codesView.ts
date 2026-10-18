@@ -20,6 +20,7 @@ export function codeMessage(r: RedeemResult): string {
   if (!r.ok) return r.reason === 'used' ? 'Этот код уже введён' : r.reason === 'empty' ? 'Введите код' : 'Такого кода нет';
   const parts: string[] = [];
   if (r.gems > 0) parts.push(`+${r.gems} алмазов`);
+  if (r.scrolls > 0) parts.push(`+${r.scrolls} свитков призыва`);
   if (r.hours > 0) parts.push(`часы игры вперёд на ${r.hours} ч`);
   return `Код принят: ${parts.join(', ')}`;
 }

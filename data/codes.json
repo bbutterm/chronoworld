@@ -6,6 +6,11 @@
       "code": "helloworld",
       "once": true,
       "gems": 300
+    },
+    {
+      "code": "extasy",
+      "once": true,
+      "scrolls": 20
     }
   ]
 }
