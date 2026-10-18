@@ -7,7 +7,7 @@ export function normalizeCode(input: string): string {
 }
 
 export type RedeemResult =
-  | { ok: true; save: SaveState; code: CodeDef; gems: number; scrolls: number; hours: number }
+  | { ok: true; save: SaveState; code: CodeDef; gems: number; scrolls: number; gold: number; hours: number }
   | { ok: false; reason: 'empty' | 'unknown' | 'used' };
 
 /**
@@ -27,7 +27,8 @@ export function redeemCode(save: SaveState, input: string, cfg: CodesConfig, opt
   const next: SaveState = {
     ...save,
     currency: { ...save.currency, gems: save.currency.gems + code.gems, scrolls: save.currency.scrolls + code.scrolls },
+    resources: { ...save.resources, gold: save.resources.gold + code.gold },
     ...(code.once ? { codesUsed: [...used, code.code] } : {}),
   };
-  return { ok: true, save: next, code, gems: code.gems, scrolls: code.scrolls, hours: code.hours };
+  return { ok: true, save: next, code, gems: code.gems, scrolls: code.scrolls, gold: code.gold, hours: code.hours };
 }

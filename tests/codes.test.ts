@@ -9,8 +9,9 @@ const cfg = ctx.codes!;
 describe('коды (Настройки → Коды, data/codes.json)', () => {
   it('production-контент содержит только одноразовый подарок без перевода часов', () => {
     expect(cfg.codes).toEqual([
-      { code: 'helloworld', once: true, gems: 300, hours: 0, scrolls: 0 },
-      { code: 'extasy', once: true, gems: 0, hours: 0, scrolls: 20 },
+      { code: 'helloworld', once: true, gems: 300, hours: 0, scrolls: 0, gold: 0 },
+      { code: 'extasy', once: true, gems: 0, hours: 0, scrolls: 20, gold: 0 },
+      { code: 'greedisgood', once: true, gems: 0, hours: 0, scrolls: 0, gold: 500_000 },
     ]);
   });
 
@@ -20,6 +21,13 @@ describe('коды (Настройки → Коды, data/codes.json)', () => {
     expect(r.ok && r.save.currency.scrolls).toBe(s0.currency.scrolls + 20);
     expect(r.ok && r.save.currency.gems).toBe(s0.currency.gems);
     expect(redeemCode(r.ok ? r.save : s0, 'extasy', cfg)).toEqual({ ok: false, reason: 'used' });
+  });
+
+  it('greedisgood — один раз +500 000 золота', () => {
+    const s0 = newGame(ctx, 0);
+    const r = redeemCode(s0, 'GreedIsGood', cfg);
+    expect(r.ok && r.save.resources.gold).toBe(s0.resources.gold + 500_000);
+    expect(redeemCode(r.ok ? r.save : s0, 'greedisgood', cfg)).toEqual({ ok: false, reason: 'used' });
   });
 
   it('ввод без учёта регистра и пробелов по краям', () => {

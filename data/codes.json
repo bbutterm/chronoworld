@@ -11,6 +11,11 @@
       "code": "extasy",
       "once": true,
       "scrolls": 20
+    },
+    {
+      "code": "greedisgood",
+      "once": true,
+      "gold": 500000
     }
   ]
 }
