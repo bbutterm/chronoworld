@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { redeemCode, type RedeemResult } from '../core';
+import { groupDigits, redeemCode, type RedeemResult } from '../core';
 import { GAME } from './content';
 import { haptic } from './haptics';
 import { bottomSheet, cta } from './screen';
@@ -21,6 +21,7 @@ export function codeMessage(r: RedeemResult): string {
   const parts: string[] = [];
   if (r.gems > 0) parts.push(`+${r.gems} алмазов`);
   if (r.scrolls > 0) parts.push(`+${r.scrolls} свитков призыва`);
+  if (r.gold > 0) parts.push(`+${groupDigits(r.gold)} золота`);
   if (r.hours > 0) parts.push(`часы игры вперёд на ${r.hours} ч`);
   return `Код принят: ${parts.join(', ')}`;
 }
