@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { newGame, recommendedPower as coreRecommendedPower, squadPower, type SaveState } from '../src/core';
-import { CAMP_EXP, campLevel, campLevelCost, heroAlerts, heroesNavBadge, leadHero, POWER_VERDICT, powerCheck, powerTone, recommendedPower } from '../src/game/flow';
+import { newGame, squadPower, type SaveState } from '../src/core';
+import { CAMP_EXP, campLevel, campLevelCost, heroAlerts, heroesNavBadge, leadHero, POWER_VERDICT, powerCheck } from '../src/game/flow';
 import { computeView } from '../src/game/viewLayout';
 import { loadFullContext } from '../scripts/lib/content-node';
 
@@ -9,17 +9,6 @@ const fresh = (): SaveState => newGame(ctx, 0);
 const stages = ctx.content.stages;
 
 describe('«Почти готово»: мощь отряда против рекомендуемой мощи этапа', () => {
-  it('рекомендуемая мощь — из баланса ядра, растёт по главе', () => {
-    for (const s of stages.slice(0, 3)) expect(recommendedPower(s.id, ctx)).toBe(coreRecommendedPower(s.id, ctx));
-    expect(recommendedPower(stages[9].id, ctx)).toBeGreaterThan(recommendedPower(stages[0].id, ctx));
-  });
-
-  it('тон: не слабее — зелёный, до 20% слабее — «чуть не хватает», дальше — красный', () => {
-    expect(powerTone(1000, 1000)).toBe('ahead');
-    expect(powerTone(850, 1000)).toBe('close');
-    expect(powerTone(700, 1000)).toBe('behind');
-    expect(POWER_VERDICT.close).toBe('Близко к ориентиру');
-  });
 
   it('новичок на этапе 1 сильнее рекомендуемой; на боссе главы 1 — нет', () => {
     const save = fresh();

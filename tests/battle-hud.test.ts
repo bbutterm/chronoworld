@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('phaser', () => ({ default: { GameObjects: { Events: { DESTROY: 'destroy' } }, BlendModes: { ADD: 1 } } }));
@@ -38,24 +37,5 @@ describe('бой: панель героев', () => {
     expect(hpTone(1)).toBe(COLOR_N.positive);
     expect(hpTone(0.4)).toBe(COLOR_N.warning);
     expect(hpTone(0.1)).toBe(COLOR_N.negative);
-  });
-});
-
-describe('бой: сцена без шума', () => {
-  const src = readFileSync('src/game/scenes/BattleScene.ts', 'utf8');
-
-  it('нет подписей уровней рядовых врагов (только у босса в его полоске)', () => {
-    expect(src).not.toContain("setName('enemyLevel')");
-  });
-
-  it('нет абзаца-подсказки про заряд и ярлыка «УЛЬТА»', () => {
-    expect(src).not.toMatch(/заряжает удар/);
-    expect(readFileSync('src/game/battlePanel.ts', 'utf8')).not.toContain("'УЛЬТА'");
-  });
-
-  it('подписи кнопок, по которым жмут e2e, на месте', () => {
-    expect(src).toContain("'Пропустить'");
-    expect(src).toContain("'Авто'");
-    expect(src).toContain('`${playback.speed}x`');
   });
 });

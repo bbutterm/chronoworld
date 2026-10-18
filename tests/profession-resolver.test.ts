@@ -7,7 +7,7 @@ import { setSpriteLookup } from '../src/game/spriteRegistry';
 import { portraitSprite, speakerView } from '../src/game/storyView';
 import { buildRegistry, genderedSpriteId, type LegacySprites, type SpritesV2 } from '../src/pipeline/sprites';
 import { loadFullContext } from '../scripts/lib/content-node';
-import { cardHero } from './helpers';
+import { cardHero, forEachCase } from './helpers';
 
 const ROOT = join(import.meta.dirname, '..');
 const json = (path: string) => JSON.parse(readFileSync(join(ROOT, path), 'utf8'));
@@ -37,22 +37,20 @@ beforeEach(() => setSpriteLookup(has));
 afterEach(() => setSpriteLookup(() => false));
 
 describe('profession release sprite routing', () => {
-  for (const [hero, first, branches] of forms) {
-    it(`${hero}: first form and each active promotion resolve to their own registered pack`, () => {
-      expect(heroSprite(cardHero(ctx, hero), ctx)).toBe(first);
-      expect(heroSprite(cardHero(ctx, hero, 40, { rarity: 'purple' }), ctx)).toBe(first);
-      expect(heroSprite({ ...cardHero(ctx, hero, 40), branch: 'unknown' }, ctx)).toBe(first);
-      for (const [branch, promoted] of Object.entries(branches)) {
-        expect(has(promoted), promoted).toBe(true);
-        expect(heroSprite(cardHero(ctx, `${hero}/${branch}`, 40, { rarity: 'blue' }), ctx)).toBe(first);
-        for (const rarity of ['purple', 'gold', 'red'] as const) {
-          const card = cardHero(ctx, `${hero}/${branch}`, 40, { rarity });
-          expect(heroSprite(card, ctx)).toBe(promoted);
-          expect(portraitSprite('hero', ctx, card)).toBe(promoted);
-        }
+  it('у каждого героя первая форма и каждое возвышение берут свой зарегистрированный пакет', () => forEachCase(forms, ([hero]) => hero, ([hero, first, branches]) => {
+    expect(heroSprite(cardHero(ctx, hero), ctx)).toBe(first);
+    expect(heroSprite(cardHero(ctx, hero, 40, { rarity: 'purple' }), ctx)).toBe(first);
+    expect(heroSprite({ ...cardHero(ctx, hero, 40), branch: 'unknown' }, ctx)).toBe(first);
+    for (const [branch, promoted] of Object.entries(branches)) {
+      expect(has(promoted), promoted).toBe(true);
+      expect(heroSprite(cardHero(ctx, `${hero}/${branch}`, 40, { rarity: 'blue' }), ctx)).toBe(first);
+      for (const rarity of ['purple', 'gold', 'red'] as const) {
+        const card = cardHero(ctx, `${hero}/${branch}`, 40, { rarity });
+        expect(heroSprite(card, ctx), `${branch}/${rarity}`).toBe(promoted);
+        expect(portraitSprite('hero', ctx, card), `${branch}/${rarity}`).toBe(promoted);
       }
-    });
-  }
+    }
+  }));
 
   it('available novice packs never replace missing first or promoted packs', () => {
     const onlyNovices = (id: string) => id === noviceM || id === noviceF;

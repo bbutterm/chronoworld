@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { forEachCase } from './helpers';
 import { normalizeV2, type SpritesV2 } from '../src/pipeline/sprites';
 import { packSheet } from '../src/pipeline/sheetPack';
 import fixtures from './fixtures/monster-darkfantasy-ready25.json';
@@ -8,7 +9,7 @@ const read = (path: string) => JSON.parse(readFileSync(new URL(`../${path}`, imp
 const defs = normalizeV2(read('assets/sprites/sprites.json') as SpritesV2, read('assets/sprites/fixes.json'));
 
 describe('готовые dark-fantasy монстры: прежнее движение и полная обрезка кадров', () => {
-  it.each(fixtures)('$id сохраняет сетку, точку ног, темп, удар и пропущенные кадры', (f) => {
+  it('каждый готовый монстр сохраняет сетку, точку ног, темп, удар и пропущенные кадры', () => forEachCase(fixtures, (f) => f.id, (f) => {
     const def = defs.find(d => d.id === f.id)!;
     expect(def.file).toBe(f.file);
     expect(def.cell).toEqual(f.cell);
@@ -23,9 +24,9 @@ describe('готовые dark-fantasy монстры: прежнее движе�
       expect(actual.hitFrame).toBe('hitFrame' in expected ? expected.hitFrame : undefined);
       expect(actual.cols ?? Array.from({ length: actual.frames }, (_, i) => i)).toEqual(expected.source_columns);
     }
-  });
+  }));
 
-  it.each(fixtures)('$id упаковка удерживает все видимые пиксели и исходные координаты', (f) => {
+  it('упаковка каждого готового монстра удерживает все видимые пиксели и исходные координаты', () => forEachCase(fixtures, (f) => f.id, (f) => {
     const def = defs.find(d => d.id === f.id)!;
     const packed = packSheet(def)!;
     expect(packed).not.toBeNull();
@@ -44,5 +45,5 @@ describe('готовые dark-fantasy монстры: прежнее движе�
         expect(cut.sy - cut.dy).toBe(a.row * f.cell[1]);
       }
     }
-  });
+  }));
 });

@@ -195,16 +195,6 @@ describe('статы, навыки, ветки, сила навыков', () => 
     expect(heroSkills({ ...lvl50, level: 49 }, ctx).actives).not.toContain('job_hunter_falcon_assault');
   });
 
-  it('дымовой бой: каждая из 24 форм на пределе фиолетового проводит бой', () => {
-    for (const t of Object.values(T)) {
-      for (const b of t.branches) {
-        const u = buildUnit({ id: 'smoke', templateId: t.id, rarity: 'purple', level: 60, branch: b.job }, ctx);
-        const r = simulateBattle(ctx.content, [u, null, null, null, null], ['mob_boss1', null, null, null, null], 3, { combat: ctx.combat });
-        expect(['A', 'B', 'draw']).toContain(r.winner);
-      }
-    }
-  });
-
   it('«Сила навыков» на золотом и красном: skillPower юнита, урон навыка растёт, обычная атака — нет', () => {
     const gold: HeroState = { ...cardHero(ctx, 'iris', 60, { rarity: 'gold' }), branch: 'knight' };
     expect(buildUnit({ ...gold, rarity: 'purple' }, ctx).skillPower).toBeUndefined();

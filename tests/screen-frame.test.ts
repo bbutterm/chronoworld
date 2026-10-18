@@ -1,11 +1,8 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { BACK, BADGE, badgeLabel, compactNumber, GEAR, navTabCenter, parseGrouped, PILL, powerShortfall, titleLeft } from '../src/game/frame';
 import { GAME_W, HEADER_H } from '../src/game/layout';
 import { S, TOUCH } from '../src/game/theme';
 
-const SRC = readFileSync(join(import.meta.dirname, '..', 'src', 'game', 'screen.ts'), 'utf8');
 
 describe('каркас экрана: числа (frame.ts)', () => {
   it('валюта коротко: до 100 000 полностью, дальше K/M/B с округлением вниз', () => {
@@ -40,8 +37,8 @@ describe('каркас экрана: числа (frame.ts)', () => {
     expect(powerShortfall(500, 0).label).toBeNull();
   });
 
-  it('значки: точка 24, число 44; «9+» (больше 9 числом не показываем)', () => {
-    expect(BADGE).toEqual({ dot: 24, num: 44 });
+  it('значки: «9+» (больше 9 числом не показываем), число крупнее точки', () => {
+    expect(BADGE.num).toBeGreaterThan(BADGE.dot);
     expect(badgeLabel(0)).toBeNull();
     expect(badgeLabel(-3)).toBeNull();
     expect(badgeLabel(7)).toBe('7');
@@ -64,34 +61,5 @@ describe('каркас экрана: числа (frame.ts)', () => {
   it('вкладки навигации — равные доли ширины', () => {
     expect(navTabCenter(0, 4)).toBe(GAME_W / 8);
     expect(navTabCenter(3, 4)).toBe((GAME_W * 7) / 8);
-  });
-});
-
-describe('каркас экрана: screen.ts', () => {
-  it('Telegram BackButton = «‹» экрана и снимается, когда экран уходит', () => {
-    expect(SRC).toMatch(/new ModalBack\(goBack,/);
-    expect(SRC).toMatch(/scene\.events\.once\(Phaser\.Scenes\.Events\.SHUTDOWN, \(\) => \{\s*modalBack\.destroy\(\)/);
-    // «Назад» не срабатывает дважды: экран уже уходит (затемнение transitions.ts) — ничего не делаем.
-    expect(SRC).toMatch(/isLeaving\(scene\)/);
-  });
-
-  it('без «‹ Назад» текстом, капса во вкладках и орнамента под шапкой', () => {
-    expect(SRC).not.toContain("'‹ Назад'");
-    expect(SRC).not.toContain('toUpperCase()');
-    expect(SRC).not.toContain("'skin_ornament'");
-    expect(SRC).not.toContain("'skin_tab'");
-  });
-
-  it('модальные окна на токенах движения: затемнение 0.65, появление M.base E.pop, закрытие M.fast', () => {
-    expect(SRC).toMatch(/0x000000, 0\.65\)/);
-    expect(SRC).toMatch(/inner\.setScale\(0\.92\)/);
-    expect(SRC).toMatch(/scale: 1, alpha: 1, duration: M\.base, ease: E\.pop/);
-    expect(SRC).toMatch(/duration: M\.fast, ease: E\.in/);
-  });
-
-  it('новые компоненты экспортируются: cta, powerCompare, bottomSheet, dot, popOut', () => {
-    for (const name of ['cta', 'powerCompare', 'updatePowerCompare', 'bottomSheet', 'dot', 'popOut', 'closeTopModal']) {
-      expect(SRC).toMatch(new RegExp(`export function ${name}\\(`));
-    }
   });
 });

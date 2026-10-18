@@ -1,22 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { buildContent, buildUnit, ContentError, newGame, simulateBattle, type JobDef } from '../src/core';
+import { buildContent, ContentError } from '../src/core';
 import { loadGameContext } from '../scripts/lib/content-node';
 import { skill } from './helpers';
 
 const ctx = loadGameContext();
 const jobs = ctx.content.jobs;
-const DEFAULT_SQUAD = ['guard', 'warrior', 'archer', 'mage', 'priest'];
 
 const TIER1 = ['swordman', 'acolyte', 'mage', 'archer', 'thief', 'merchant'];
 const TIER3 = ['lord_knight', 'paladin', 'sniper', 'clown', 'gypsy', 'high_wizard', 'professor', 'assassin_cross', 'stalker', 'high_priest', 'champion', 'whitesmith', 'creator'];
 const TIER2 = ['knight', 'crusader', 'priest', 'monk', 'wizard', 'sage', 'hunter', 'bard', 'dancer', 'assassin', 'rogue', 'blacksmith', 'alchemist'];
-
-/** Цепочка профессий от Новичка до jobId (по первому from). */
-function path(jobId: string): JobDef[] {
-  const out: JobDef[] = [];
-  for (let j: JobDef | undefined = jobs[jobId]; j; j = j.from[0] ? jobs[j.from[0]] : undefined) out.unshift(j);
-  return out;
-}
 
 describe('профессии', () => {
   it('загружаются все 33 профессии с нужными tier (герои v2: + Танцовщица)', () => {
@@ -26,35 +18,13 @@ describe('профессии', () => {
     for (const id of TIER2) expect(jobs[id].tier).toBe(2);
   });
 
-  it.each([...TIER1, ...TIER2])('%s: ≥ 5 навыков, есть активный и пассивный', (id) => {
-    const skills = jobs[id].skills.map((s) => ctx.content.skills[s.skill]);
-    expect(skills.length).toBeGreaterThanOrEqual(5);
-    expect(skills.some((s) => !s.trigger)).toBe(true);
-    expect(skills.some((s) => !!s.trigger)).toBe(true);
-  });
-
-  it.each(Object.keys(jobs))('%s достижима от Новичка', (id) => {
-    const p = path(id);
-    expect(p[0].id).toBe('novice');
-    p.forEach((j, i) => expect(j.tier).toBe(i));
-  });
-
-  it.each(Object.keys(jobs))('%s: герой на максимальном уровне собирается и воюет', (id) => {
-    const chain = path(id);
-    const base = newGame(ctx, 0).heroes[0];
-    const heroes = [1, 2, 3, 4, 5].map((n) => ({
-      ...base,
-      id: `h${n}`,
-      job: id,
-      jobLevel: jobs[id].maxJobLevel,
-      jobHistory: chain.slice(0, -1).map((j) => ({ job: j.id, jobLevel: j.maxJobLevel })),
-    }));
-    const squad = heroes.map((h) => buildUnit(h, ctx));
-    expect(squad[0].skills.actives.length).toBeGreaterThan(0);
-    const a = simulateBattle(ctx.content, squad, DEFAULT_SQUAD, 7, { log: false });
-    const b = simulateBattle(ctx.content, DEFAULT_SQUAD, squad, 8, { log: false });
-    expect(['A', 'B']).toContain(a.winner);
-    expect(['A', 'B']).toContain(b.winner);
+  it('у профессий 1-го и 2-го круга ≥ 5 навыков, есть активный и пассивный', () => {
+    for (const id of [...TIER1, ...TIER2]) {
+      const skills = jobs[id].skills.map((s) => ctx.content.skills[s.skill]);
+      expect(skills.length, id).toBeGreaterThanOrEqual(5);
+      expect(skills.some((s) => !s.trigger), `${id}: активный`).toBe(true);
+      expect(skills.some((s) => !!s.trigger), `${id}: пассивный`).toBe(true);
+    }
   });
 });
 

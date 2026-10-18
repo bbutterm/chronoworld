@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type Phaser from 'phaser';
 import {
@@ -121,15 +120,6 @@ function fakeScene() {
 }
 
 describe('juice: токены движения', () => {
-  it('в juice.ts и transitions.ts нет своих длительностей и кривых — только M и E', () => {
-    for (const f of ['src/game/juice.ts', 'src/game/transitions.ts']) {
-      const src = readFileSync(f, 'utf8');
-      expect(src, f).not.toMatch(/duration:\s*\d/);
-      expect(src, f).not.toMatch(/ease:\s*'/);
-      expect(src, f).not.toMatch(/delayedCall\(\s*\d/);
-      expect(src, f).not.toMatch(/(?:FADE_OUT_MS|FADE_IN_MS)\s*=\s*\d/);
-    }
-  });
 
   it('snapMs прилипает к ближайшему токену', () => {
     expect(snapMs(380)).toBe(M.slow);

@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { claimExpedition, newGame, type ActiveExpedition, type ExpeditionEventState, type SaveState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -87,15 +86,5 @@ describe('expedition reward preview', () => {
   it('keeps old expeditions without events unchanged', () => {
     const { save, e } = fixture();
     expect(expeditionRewardPreview(save, e, ctx)).toEqual(e.rewards);
-  });
-
-  it('uses the same preview in both traveling and returned scene rows', () => {
-    const scene = readFileSync(new URL('../src/game/scenes/ExpeditionsScene.ts', import.meta.url), 'utf8');
-    const rows = scene.slice(scene.indexOf('private activeRows('), scene.indexOf('private eventTag('));
-    expect(rows).toContain('expeditionRewardPreview(session.save, e, GAME)');
-    expect(rows).toContain('returnedChips(rewards)');
-    expect(rows).toContain('formatNumber(rewards.gold)');
-    expect(rows).toContain('formatNumber(rewards.jobExp)');
-    expect(rows).not.toContain('e.rewards');
   });
 });

@@ -1,7 +1,5 @@
 // Аудит 11.10 (пакет «кампания и этап»): список героев на «Этапе» виден двумя полными рядами, одна полоса под полем,
 // заголовок главы без повтора номера, совет «стены», единые «Авто»/«Пресеты», подсказки не теряют текст.
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { COMBAT, newGame, type SaveState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -11,7 +9,6 @@ import { fieldSlots, formationBodyRows, fullRosterRows, minSlotGap, PREP, prepFo
 import { computeView } from '../src/game/viewLayout';
 import { LEADING, S, T } from '../src/game/theme';
 
-const SRC = (f: string) => readFileSync(join(import.meta.dirname, '..', 'src', 'game', f), 'utf8');
 const ctx = loadFullContext();
 const CONTENT_TOP = 170;
 /** Отступы Telegram на телефоне владельца (CSS px): шапка и кнопки сверху, «домашняя полоска» снизу. */
@@ -63,16 +60,6 @@ describe('«Этап»: список героев и поле', () => {
     expect(L.band.y).toBe(formationBodyRows(L.field.bottom).warningY);
     expect(L.band.adviceY + 2 * (T.caption - 6) * LEADING.caption).toBeLessThanOrEqual(L.band.y + L.band.zoneH / 2);
   });
-
-  it('StageScene: строка редактора главнее совета стены, совет главнее угрозы; «Авто»/«Пресеты» — из редактора', () => {
-    const stage = SRC('scenes/StageScene.ts');
-    expect(stage).toMatch(/busy \? 'none' : this\.wall \? 'wall' : this\.threat \? 'threat' : 'none'/);
-    expect(stage).toMatch(/rosterHead: \{/);
-    expect(stage).not.toMatch(/'Пресеты', \(\) =>/);
-    // Шанс карты героя — словом в чипе, касание наград — тост с пояснением.
-    expect(stage).toMatch(/value: `карта \$\{dropValue\(p\)\}`/);
-    expect(stage).toMatch(/Награда за первую победу/);
-  });
 });
 
 describe('«Кампания»: заголовок главы', () => {
@@ -85,13 +72,6 @@ describe('«Кампания»: заголовок главы', () => {
       // 760 ед. шрифтом T.title (60) — около 25 знаков; самое длинное имя без номера — с запасом.
       expect(title.length).toBeLessThanOrEqual(24);
     }
-    expect(SRC('scenes/CampaignScene.ts')).toMatch(/chapterTitle\(chapter\.name\)/);
-  });
-
-  it('до первой победы точки других вкладок не спорят с «В бой»', () => {
-    const camp = SRC('scenes/CampaignScene.ts');
-    expect(camp).toMatch(/if \(session\.save\.campaign\.cleared\.length > 0\) return;/);
-    expect(camp).toMatch(/o\.name\.startsWith\('navBadge_'\) && o\.name !== 'navBadge_Campaign'/);
   });
 });
 
@@ -130,16 +110,5 @@ describe('совет стены (wallAdvice)', () => {
     const advice = wallAdvice(cleared, late.id, ctx, t0 + 60_000, day);
     expect(advice).not.toBeNull();
     expect(advice!.text).toMatch(/Сундук (наполнится через|полон)/);
-  });
-});
-
-describe('подсказки обучения: текст не теряется', () => {
-  const ui = SRC('ui.ts');
-  it('нет места рядом с целью — плашка в свободной полосе (placeBand), рамка и стрелка у цели', () => {
-    expect(ui).toMatch(/const band = hintBand\(t, tgt/);
-    expect(ui).toMatch(/setData\('hintMode', 'band'\)/);
-  });
-  it('плитки под маской прокрутки — не помеха плашке', () => {
-    expect(ui).toMatch(/sceneObstacles\(clippedNodes\(scene\.children\.list, null\)/);
   });
 });

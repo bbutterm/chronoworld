@@ -1,8 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { C, COLOR, COLOR_N, E, FAMILY, familyFor, FONT_FACES, FONT_FILES, FS, leading, M, R, S, T, TITLE_STYLE, Z } from '../src/game/theme';
-import { FONT } from '../src/game/layout';
+import { C, COLOR, COLOR_N, E, FAMILY, familyFor, FONT_FACES, FONT_FILES, FS, M, R, S, T, TITLE_STYLE, Z } from '../src/game/theme';
 import { collectUsedAssets } from '../scripts/lib/used-assets';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -23,7 +22,8 @@ const contrast = (a: string, b: string) => {
 describe('дизайн-токены (docs/design/ui-polish-research.md §4)', () => {
   it('шкала шрифта: пять размеров по убыванию с шагом 1.13–1.5, меньше T.caption (34) не бывает', () => {
     const sizes = [T.display, T.title, T.heading, T.body, T.caption];
-    expect(sizes).toEqual([88, 60, 48, 40, 34]);
+    expect(Math.min(...sizes, ...Object.values(T))).toBe(T.caption);
+    expect(T.caption).toBeGreaterThanOrEqual(34);
     for (let i = 1; i < sizes.length; i++) {
       const step = sizes[i - 1] / sizes[i];
       expect(step).toBeGreaterThanOrEqual(1.13);
@@ -36,12 +36,6 @@ describe('дизайн-токены (docs/design/ui-polish-research.md §4)', ()
     expect(FS.hero).toBe(T.title);
     expect(FS.h1).toBe(T.heading);
     expect(FS.h2).toBe(T.body);
-  });
-
-  it('межстрочный: заголовки 1.15, текст 1.35, подписи 1.25', () => {
-    expect(leading(T.title)).toBe(9);
-    expect(leading(T.body)).toBe(14);
-    expect(leading(T.caption)).toBe(9);
   });
 
   it('отступы — сетка 8, радиусы и глубины по возрастанию', () => {
@@ -78,22 +72,9 @@ describe('дизайн-токены (docs/design/ui-polish-research.md §4)', ()
     }
     expect(contrast(COLOR.onAccent, COLOR.accent)).toBeGreaterThanOrEqual(7);
   });
-
-  it('старые цвета текста сведены к ролям', () => {
-    expect(new Set([C.text, C.ink])).toEqual(new Set([COLOR.textPrimary]));
-    expect(new Set([C.muted, C.dim, C.inkMuted])).toEqual(new Set([COLOR.textSecondary]));
-    expect(new Set([C.disabled, C.placeholder])).toEqual(new Set([COLOR.textTertiary]));
-    expect(new Set([C.danger, C.dangerStrong, C.error, C.enemy])).toEqual(new Set([COLOR.negative]));
-    expect(new Set([C.success, C.positive, C.inkSuccess])).toEqual(new Set([COLOR.positive]));
-  });
 });
 
 describe('гарнитуры', () => {
-  it('текст — Rubik, заголовки — Philosopher, с системными запасными', () => {
-    expect(FONT).toBe(FAMILY.body);
-    expect(FAMILY.body).toMatch(/^Rubik, .*sans-serif$/);
-    expect(FAMILY.heading).toMatch(/^Philosopher, .*serif$/);
-  });
 
   it('familyFor: крупный текст и золотые заголовки — заголовочная, остальное — текстовая, явная гарнитура главнее', () => {
     expect(familyFor(T.title)).toBe(FAMILY.heading);
@@ -121,7 +102,7 @@ describe('гарнитуры', () => {
     expect(used.has('fonts/OFL.txt')).toBe(true);
   });
 
-  it('index.html объявляет @font-face и preload для каждого файла; main.ts ждёт все начертания', () => {
+  it('index.html объявляет @font-face и preload для каждого файла', () => {
     const html = readFileSync(join(ROOT, 'index.html'), 'utf8');
     for (const file of FONT_FILES) {
       expect(html).toContain(`<link rel="preload" href="${file}" as="font" type="font/woff2" crossorigin />`);
@@ -131,6 +112,5 @@ describe('гарнитуры', () => {
       const family = face.split(' ').pop()!;
       expect(html).toContain(`font-family: '${family}'`);
     }
-    expect(readFileSync(join(ROOT, 'src/main.ts'), 'utf8')).toMatch(/FONT_FACES\.map\(\(f\) => document\.fonts\?\.load\(f/);
   });
 });

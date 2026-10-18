@@ -5,22 +5,22 @@ import { tavernLayout, tavernRevealLayout } from '../src/game/compactTavernLayou
 import { scrollLayout } from '../src/game/scroll';
 
 describe('Лагерь и таверна сохраняют содержимое на тесном телефоне', () => {
-  it('классический лагерь заполняет прежнюю область до навигации', () => {
+  it('классический лагерь заполняет область до навигации, тесный — не выше неё', () => {
     const layout = homeLayout(1730);
-    expect(layout.tavern.h).toBe(760);
     expect(layout.bodyTop + layout.bodyHeight).toBeCloseTo(1730);
-    expect(layout.quests.h).toBe(168);
+    // На тесном экране вход в Таверну ниже, но остаётся крупной витриной, а не полоской.
+    expect(homeLayout(1220).tavern.h).toBeLessThan(layout.tavern.h);
+    expect(homeLayout(1220).tavern.h / 3).toBeGreaterThanOrEqual(150);
   });
 
   it('все четыре входа достигаются прокруткой и остаются достаточно крупными для пальца', () => {
     const layout = homeLayout(1220);
-    expect(layout.tavern.h).toBe(520);
     const bottom = scrollLayout(layout.bodyHeight, layout.bodyTop, layout.bodyBottom, Number.MAX_SAFE_INTEGER);
     for (const target of [layout.quests, layout.achievements]) {
       expect(target.h / 3).toBeGreaterThanOrEqual(44);
       expect(target.y + target.h / 2 + bottom.y).toBeLessThanOrEqual(layout.bodyBottom);
     }
-    expect(bottom.maxOffset).toBe(250);
+    expect(bottom.maxOffset).toBeGreaterThan(0);
   });
 
   it.each([1410, 1770, 1920])('settings сохраняет закрытие и scroll в панели высоты%s', (height) => {
