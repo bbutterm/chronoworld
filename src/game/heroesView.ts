@@ -326,7 +326,6 @@ export function fodderTag(save: SaveState, heroId: string): FodderTag | null {
   if (save.bounties.active.some((b) => b.heroIds.includes(h.id))) return 'в экспедиции';
   // Остальные причины fodderBlocker ядра (merge.ts): без меток эти карточки выглядели свободными, выбирались, а ядро их не брало.
   if (save.tower.run?.squad.includes(h.id) || save.tower.run?.fallen.includes(h.id)) return 'в Башне';
-  if (h.companion) return 'спутник';
   if (h.training?.gold || h.training?.exp) return 'обучен';
   if (h.journey?.focus) return 'специализация';
   return null;
@@ -393,7 +392,6 @@ function blockedCopyReason(save: SaveState, hero: HeroState, kind: 'same' | 'any
   const copy = save.heroes.find((h) => h.id !== hero.id && h.templateId === hero.templateId && h.rarity === rarity && fodderBlocker(save, h.id, ctx) !== null);
   if (!copy) return null;
   const name = heroTemplate(ctx, hero.templateId).name;
-  if (copy.companion) return `${name} — спутник: возносите его самого`;
   const tag = fodderTag(save, copy.id);
   if (tag === 'закреплён') return `${name}: копия закреплена замком`;
   if (tag) return `${name}: копия ${tag === 'в отряде' || tag === 'в пресете' ? `стоит ${tag}` : tag}`;

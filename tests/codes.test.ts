@@ -9,8 +9,17 @@ const cfg = ctx.codes!;
 describe('коды (Настройки → Коды, data/codes.json)', () => {
   it('production-контент содержит только одноразовый подарок без перевода часов', () => {
     expect(cfg.codes).toEqual([
-      { code: 'helloworld', once: true, gems: 300, hours: 0 },
+      { code: 'helloworld', once: true, gems: 300, hours: 0, scrolls: 0 },
+      { code: 'extasy', once: true, gems: 0, hours: 0, scrolls: 20 },
     ]);
+  });
+
+  it('extasy — один раз +20 свитков призыва', () => {
+    const s0 = newGame(ctx, 0);
+    const r = redeemCode(s0, 'Extasy', cfg);
+    expect(r.ok && r.save.currency.scrolls).toBe(s0.currency.scrolls + 20);
+    expect(r.ok && r.save.currency.gems).toBe(s0.currency.gems);
+    expect(redeemCode(r.ok ? r.save : s0, 'extasy', cfg)).toEqual({ ok: false, reason: 'used' });
   });
 
   it('ввод без учёта регистра и пробелов по краям', () => {

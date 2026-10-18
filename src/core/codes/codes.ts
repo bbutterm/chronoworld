@@ -7,11 +7,11 @@ export function normalizeCode(input: string): string {
 }
 
 export type RedeemResult =
-  | { ok: true; save: SaveState; code: CodeDef; gems: number; hours: number }
+  | { ok: true; save: SaveState; code: CodeDef; gems: number; scrolls: number; hours: number }
   | { ok: false; reason: 'empty' | 'unknown' | 'used' };
 
 /**
- * Ввести код: алмазы — сразу на счёт, одноразовый — в save.codesUsed. Часы (hours) возвращаются вызывающему: игровые
+ * Ввести код: алмазы и свитки — сразу на счёт, одноразовый — в save.codesUsed. Часы (hours) возвращаются вызывающему: игровые
  * часы двигает интерфейс. Неизвестный, пустой или уже введённый одноразовый код — ok: false, сохранение не меняется.
  */
 export function redeemCode(save: SaveState, input: string, cfg: CodesConfig, opts: { allowLab?: boolean } = {}): RedeemResult {
@@ -26,8 +26,8 @@ export function redeemCode(save: SaveState, input: string, cfg: CodesConfig, opt
   if (code.once && used.includes(code.code)) return { ok: false, reason: 'used' };
   const next: SaveState = {
     ...save,
-    currency: { ...save.currency, gems: save.currency.gems + code.gems },
+    currency: { ...save.currency, gems: save.currency.gems + code.gems, scrolls: save.currency.scrolls + code.scrolls },
     ...(code.once ? { codesUsed: [...used, code.code] } : {}),
   };
-  return { ok: true, save: next, code, gems: code.gems, hours: code.hours };
+  return { ok: true, save: next, code, gems: code.gems, scrolls: code.scrolls, hours: code.hours };
 }

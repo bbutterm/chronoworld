@@ -39,7 +39,8 @@ function copyUpgradeBlocker(save: SaveState, hero: HeroState, copy: HeroState, c
   }
   const targetBusy = heroProfessionBlocker(save, hero.id);
   if (targetBusy) return { code: 'hero_busy', message: targetBusy };
-  const protectedCopy = fodderBlocker(save, copy.id, ctx);
+  // Спутник — тот, кому отдают редкость, а не донор (корм вознесения он может быть только по выбору игрока).
+  const protectedCopy = copy.companion ? `${name} — ваш спутник: повышайте профессию этого героя, используя его копии` : fodderBlocker(save, copy.id, ctx);
   if (protectedCopy) return { code: 'fodder_busy', message: heroProfessionBlocker(save, copy.id) ?? protectedCopy };
   const cap = maxLevelOf(ctx, hero.rarity);
   if (copy.level > cap || (copy.grantedLevel ?? 1) > cap) {

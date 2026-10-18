@@ -518,7 +518,7 @@ export class AscendScene extends Phaser.Scene {
         });
         c.setName(`fodderOption_${o.id}`);
         if (busy) c.setAlpha(0.45);
-        const label = o.chosen ? 'выбрана' : (o.tag ?? `ур. ${o.level}`);
+        const label = o.chosen ? 'выбрана' : (o.tag ?? (session.save.heroes.find((h) => h.id === o.id)?.companion ? `спутник · ур. ${o.level}` : `ур. ${o.level}`));
         content.add(text(this, x, y + h / 2 + 30, label, T.caption, o.tag ? COLOR.warning : o.chosen ? COLOR.textTertiary : COLOR.textSecondary, { fontStyle: 'bold' }));
       });
       return Math.ceil(opts.length / cols) * rowH - S.xs;
@@ -573,6 +573,12 @@ export class AscendScene extends Phaser.Scene {
     const eaten = fodder.map((h) => `${heroCard(h, GAME).name} (ур. ${h.level})`).join(', ');
     if (this.chosen.length) lines.push(`Будет использовано: ${eaten || this.chosen.length} · ${formatNumber(req.gold)} золота`);
     if (valuableFodder(session.save, this.chosen).length) lines.push('Выбраны синие карточки и выше');
+    // Спутник в корме — только по выбору игрока: звание перейдёт к лучшей оставшейся карте героя (merge.ts ascendHero).
+    for (const c of fodder.filter((h) => h.companion)) {
+      const cn = heroCard(c, GAME).name;
+      const heir = session.save.heroes.some((h) => h.templateId === c.templateId && h.id !== c.id && !this.chosen.includes(h.id));
+      lines.push(heir ? `${cn} — ваш спутник: спутником станет другая карта ${cn}` : `${cn} — ваш спутник: это последняя карта, герой уйдёт из состава`);
+    }
     this.lockBodyFor(() => {
       const previous = this.children.getByName('confirmModal');
       confirm(this, lines.join('\n'), 'Вознести', () => this.doAscend(hero, choose ? this.branch : undefined));

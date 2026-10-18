@@ -5,6 +5,7 @@ import { z } from 'zod';
  * в data/codes.json код записан в нижнем регистре.
  * - once: true — одноразовый (на сохранение игрока; отметка — save.codesUsed);
  * - gems — алмазы (гемы) на счёт;
+ * - scrolls — свитки призыва Таверны;
  * - hours — игровые часы вперёд (сундук офлайн-наград, экспедиции, новый день). Сдвиг часов делает интерфейс
  *   (src/game/session.ts shiftTime): ядро про «сейчас» не знает.
  */
@@ -14,8 +15,9 @@ export const CodeSchema = z
     once: z.boolean(),
     gems: z.number().int().nonnegative().default(0),
     hours: z.number().int().nonnegative().default(0),
+    scrolls: z.number().int().nonnegative().default(0),
   })
-  .refine((c) => c.gems > 0 || c.hours > 0, { message: 'код ничего не даёт: нужен gems или hours' });
+  .refine((c) => c.gems > 0 || c.hours > 0 || c.scrolls > 0, { message: 'код ничего не даёт: нужен gems, scrolls или hours' });
 
 export const CodesConfigSchema = z
   .object({ codes: z.array(CodeSchema) })

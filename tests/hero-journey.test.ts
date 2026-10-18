@@ -137,7 +137,8 @@ describe('RPG-выучка: реальные альтернативы, без н
     // Пересмотр 10.10: зелёный → синий — герой + 1 любой зелёный, поэтому копия одна (было две).
     const original = addHeroCard(rich(), 'iris', 'green');
     const copy1 = addHeroCard(original.save, 'iris', 'green');
-    expect(fodderBlocker(copy1.save, original.hero.id, ctx)).toMatch(/спутник/);
+    // Пересмотр 18.10: спутника можно отдать только вручную — «Авто» для копии его не берёт.
+    expect(ascendPlan(copy1.save, copy1.hero.id, ctx)!.complete).toBe(false);
     const plan = ascendPlan(copy1.save, original.hero.id, ctx)!;
     expect(plan.complete).toBe(true);
     expect(plan.fodder).toEqual([copy1.hero.id]);

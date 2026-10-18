@@ -65,7 +65,6 @@ export function fodderBlocker(save: SaveState, fodderId: string, ctx: GameContex
   if (save.bounties.active.some((b) => b.heroIds.includes(h.id))) return `${name} в экспедиции`;
   const towerRun = save.tower.run;
   if (towerRun?.squad.includes(h.id) || towerRun?.fallen.includes(h.id)) return `${name} участвует в забеге Башни — сначала завершите забег`;
-  if (h.companion) return `${name} — ваш спутник: повышайте профессию этого героя, используя его копии`;
   const paid = paidHeroTraining(h, ctx);
   if (paid.exp > 0 || paid.gold > 0) return `${name} обучен: сначала верните вложенные ресурсы`;
   if (h.journey?.focus) return `${name} выбрал специализацию тренировки`;
@@ -90,8 +89,9 @@ function slotList(rule: MergeRule): Pick<FodderSlot, 'kind' | 'rarity'>[] {
 }
 
 /** Свободные экземпляры (кроме цели), слабые первыми. */
-function freeHeroes(save: SaveState, heroId: string, ctx: GameContext): HeroState[] {
-  return save.heroes.filter((h) => h.id !== heroId && fodderBlocker(save, h.id, ctx) === null).sort(weakFirst);
+function freeHeroes(save: SaveState, heroId: string, ctx: GameContext, withCompanions = false): HeroState[] {
+  // Спутник — корм только по выбору игрока (кандидаты ascendRequirement); «Авто», цепочки и «Вознести всех» его не берут.
+  return save.heroes.filter((h) => h.id !== heroId && (withCompanions || !h.companion) && fodderBlocker(save, h.id, ctx) === null).sort(weakFirst);
 }
 
 /** Что нужно для вознесения; null — герой на максимальной редкости. */
@@ -104,7 +104,7 @@ export function ascendRequirement(save: SaveState, heroId: string, ctx: GameCont
   const busy = heroProfessionBlocker(save, heroId);
   if (busy) blockers.push(busy);
   if (save.resources.gold < rule.gold) blockers.push(`Не хватает золота: нужно ${groupDigits(rule.gold)}, есть ${groupDigits(save.resources.gold)}`);
-  const free = freeHeroes(save, heroId, ctx);
+  const free = freeHeroes(save, heroId, ctx, true);
   const fodder = rule.fodder.map((f) => ({ kind: f.kind, rarity: f.rarity, count: f.count, candidates: free.filter((h) => fits(hero, h, f)).map((h) => h.id) }));
   const branch = !!rule.branch;
   return {
@@ -263,9 +263,19 @@ export function ascendHero(
     ? rememberHeroJourney({ ...hero, rarity: to, branch })
     : { ...hero, rarity: to };
   const after = activeForm(t, upgraded);
+  // Спутник ушёл в корм — звание переходит к лучшей оставшейся карте того же героя (цель — первой); не осталось
+  // карт — следующая полученная станет спутником сама (roster.ts addHeroCard).
+  let heroes = save.heroes.filter((h) => !gone.has(h.id)).map((h) => (h.id === heroId ? upgraded : h));
+  for (const lost of consumed.filter((h) => h.companion)) {
+    if (heroes.some((h) => h.templateId === lost.templateId && h.companion)) continue;
+    const heir = heroes
+      .filter((h) => h.templateId === lost.templateId)
+      .sort((a, b) => Number(b.id === heroId) - Number(a.id === heroId) || rarityIndex(b.rarity) - rarityIndex(a.rarity) || b.level - a.level || (a.id < b.id ? -1 : 1))[0];
+    if (heir) heroes = heroes.map((h) => (h.id === heir.id ? { ...h, companion: true } : h));
+  }
   const next: SaveState = {
     ...save,
-    heroes: save.heroes.filter((h) => !gone.has(h.id)).map((h) => (h.id === heroId ? upgraded : h)),
+    heroes,
     resources: { ...save.resources, gold: save.resources.gold - rule.gold + refund.gold, heroExp: save.resources.heroExp + refund.exp },
     inventory: gone.size ? { ...save.inventory, items: save.inventory.items.map((it) => (it.equippedBy && gone.has(it.equippedBy) ? { ...it, equippedBy: null } : it)) } : save.inventory,
   };
