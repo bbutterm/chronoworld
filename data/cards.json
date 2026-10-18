@@ -10,7 +10,7 @@
   ],
   "level": {
     "exp": { "base": 100, "power": 1.5 },
-    "gold": { "base": 15, "power": 2 }
+    "gold": { "base": 45, "power": 1.5 }
   },
   "merge": [
     { "from": "green", "to": "blue", "gold": 500, "fodder": [{ "kind": "any", "rarity": "green", "count": 1 }] },

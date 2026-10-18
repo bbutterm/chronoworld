@@ -141,17 +141,17 @@ describe('смоук: путь игрока на состояниях модел
     expect(out.rewards.jobExp).toBeGreaterThan(0);
   });
 
-  it('Лавка: восемь слотов, товар покупается и списывает цену', () => {
-    // На 7-й день модели (≈ 20 тыс. золота) по карману ничего — находка 18.10 для экономики; здесь — что покупка работает.
+  it('Лавка: на 7-й день игроку есть что купить на свои деньги, покупка списывает цену', () => {
+    // До 18.10 уровни съедали всё золото (15·L²): на 7-й день ≈ 20 тыс. при товарах по 30 тыс. — купить было нечего.
     const { save, day } = at(7);
-    const rich = { ...save, resources: { ...save.resources, gold: 10_000_000 }, currency: { ...save.currency, gems: 10_000 } };
     const shop = ctx as Parameters<typeof shopStatus>[2];
-    const st = shopStatus(rich, day, shop);
+    const st = shopStatus(save, day, shop);
     expect(st.slots).toHaveLength(ctx.shop!.slots.length);
-    const slot = st.slots.find((s) => s.affordable && s.bought < s.stock)!;
-    const out = buyShopSlot(rich, day, slot.index, shop);
-    const paid = slot.currency === 'gold' ? rich.resources.gold - out.save.resources.gold : rich.currency.gems - out.save.currency.gems;
-    expect(paid).toBe(slot.price);
+    const slot = st.slots.find((s) => s.affordable && s.bought < s.stock);
+    expect(slot, `золото ${save.resources.gold}, алмазы ${save.currency.gems}: всё не по карману`).toBeDefined();
+    const out = buyShopSlot(save, day, slot!.index, shop);
+    const paid = slot!.currency === 'gold' ? save.resources.gold - out.save.resources.gold : save.currency.gems - out.save.currency.gems;
+    expect(paid).toBe(slot!.price);
   });
 
   it('Кухня: совет повара готовится', () => {
