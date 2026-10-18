@@ -6,7 +6,7 @@ import { heroSprite } from '../src/game/flow';
 import { buildRegistry, type SpritesV2, type LegacySprites } from '../src/pipeline/sprites';
 import { packSheet } from '../src/pipeline/sheetPack';
 import { loadFullContext } from '../scripts/lib/content-node';
-import { cardHero } from './helpers';
+import { cardHero, forEachCase } from './helpers';
 
 const ROOT = join(import.meta.dirname, '..');
 const json = (path: string) => JSON.parse(readFileSync(join(ROOT, path), 'utf8'));
@@ -25,42 +25,40 @@ const release = json('tests/fixtures/profession-release.json') as {
 const cases = release.assets;
 
 describe('Approved 36-pack profession release', () => {
-  for (const { target_id: target, hero_id: hero, job_id: job, stage, new_sprite_id: id, sheet_sha256: sourceHash } of cases) {
-    it(`${target}: unique runtime entry has the agreed frame contract`, () => {
-      if (stage !== 'novice') {
-        const key = stage === 'promotion' ? `${hero}/${job}` : hero;
-        expect(heroSprite(cardHero(ctx, key, stage === 'promotion' ? 40 : 1), ctx, has)).toBe(id);
-      }
-      expect(manifest.sprites.filter(s => s.id === id)).toHaveLength(1);
-      expect(registry[id].anchor).toEqual([104, 144]);
-      expect(registry[id].cell).toEqual([224, 192]);
-      expect(registry[id].scale).toBe(3.2);
-      expect(registry[id].anims.attack?.hitFrame).toBe(3);
-      expect(registry[id].anims.cast?.hitFrame).toBe(4);
-      expect(Object.values(registry[id].anims).map(a => a?.frames)).toEqual([4, 8, 6, 6, 3, 4]);
-      expect(Object.values(registry[id].anims).map(a => a?.ms[0])).toEqual([150, 90, 80, 100, 100, 150]);
-      expect(packSheet(registry[id])?.frames).toHaveLength(31);
-    });
-    it(`${target}: exact approved PNG, own idle0 portrait and fresh WebP pair`, () => {
-      const sprite = registry[id];
-      const bytes = readFileSync(join(ROOT, 'assets', sprite.file));
-      expect(createHash('sha256').update(bytes).digest('hex')).toBe(sourceHash);
-      expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([1792, 1152]);
-      expect(sprite.portrait).toBe(`sprites/portraits/${id}.png`);
-      const portrait = readFileSync(join(ROOT, 'assets', sprite.portrait!));
-      expect([portrait.readUInt32BE(16), portrait.readUInt32BE(20)]).toEqual([256, 256]);
-      expect(provenance[id].portraitSource).toMatchObject({ frame: 0, crop: [72, 56, 136, 120], resample: 'nearest' });
-      expect(createHash('sha256').update(portrait).digest('hex')).toBe(provenance[id].portraitSource.sha256);
-      for (const file of [sprite.file, sprite.portrait!]) {
-        const png = readFileSync(join(ROOT, 'assets', file));
-        const webp = readFileSync(join(ROOT, 'assets-webp', file.replace(/\.png$/, '.webp')));
-        expect(index[file].sha1).toBe(createHash('sha1').update(png).digest('hex'));
-        expect(index[file].webp).toBe(webp.length);
-        expect(webp.toString('ascii', 0, 4)).toBe('RIFF');
-        expect(webp.toString('ascii', 8, 12)).toBe('WEBP');
-      }
-    });
-  }
+  it('каждый лист пакета: своя запись реестра с согласованной сеткой кадров', () => forEachCase(cases, (c) => c.target_id, ({ hero_id: hero, job_id: job, stage, new_sprite_id: id }) => {
+    if (stage !== 'novice') {
+      const key = stage === 'promotion' ? `${hero}/${job}` : hero;
+      expect(heroSprite(cardHero(ctx, key, stage === 'promotion' ? 40 : 1), ctx, has)).toBe(id);
+    }
+    expect(manifest.sprites.filter(s => s.id === id)).toHaveLength(1);
+    expect(registry[id].anchor).toEqual([104, 144]);
+    expect(registry[id].cell).toEqual([224, 192]);
+    expect(registry[id].scale).toBe(3.2);
+    expect(registry[id].anims.attack?.hitFrame).toBe(3);
+    expect(registry[id].anims.cast?.hitFrame).toBe(4);
+    expect(Object.values(registry[id].anims).map(a => a?.frames)).toEqual([4, 8, 6, 6, 3, 4]);
+    expect(Object.values(registry[id].anims).map(a => a?.ms[0])).toEqual([150, 90, 80, 100, 100, 150]);
+    expect(packSheet(registry[id])?.frames).toHaveLength(31);
+  }));
+  it('каждый лист пакета: утверждённый PNG, свой портрет из idle0 и свежая пара WebP', () => forEachCase(cases, (c) => c.target_id, ({ new_sprite_id: id, sheet_sha256: sourceHash }) => {
+    const sprite = registry[id];
+    const bytes = readFileSync(join(ROOT, 'assets', sprite.file));
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(sourceHash);
+    expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([1792, 1152]);
+    expect(sprite.portrait).toBe(`sprites/portraits/${id}.png`);
+    const portrait = readFileSync(join(ROOT, 'assets', sprite.portrait!));
+    expect([portrait.readUInt32BE(16), portrait.readUInt32BE(20)]).toEqual([256, 256]);
+    expect(provenance[id].portraitSource).toMatchObject({ frame: 0, crop: [72, 56, 136, 120], resample: 'nearest' });
+    expect(createHash('sha256').update(portrait).digest('hex')).toBe(provenance[id].portraitSource.sha256);
+    for (const file of [sprite.file, sprite.portrait!]) {
+      const png = readFileSync(join(ROOT, 'assets', file));
+      const webp = readFileSync(join(ROOT, 'assets-webp', file.replace(/\.png$/, '.webp')));
+      expect(index[file].sha1).toBe(createHash('sha1').update(png).digest('hex'));
+      expect(index[file].webp).toBe(webp.length);
+      expect(webp.toString('ascii', 0, 4)).toBe('RIFF');
+      expect(webp.toString('ascii', 8, 12)).toBe('WEBP');
+    }
+  }));
   it('generic professions and unfinished named forms retain their own identities', () => {
     expect(registry.magician_m.file).toBe('sprites/heroes/magician_m.png');
     expect(registry.merchant_f.file).toBe('sprites/heroes/merchant_f.png');

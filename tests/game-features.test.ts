@@ -17,7 +17,6 @@ import {
   STAT_LABELS,
   untilReset,
 } from '../src/game/flow';
-import { FS, T, TOUCH } from '../src/game/theme';
 import { loadEquipmentFiles, loadGameContext, ROOT } from '../scripts/lib/content-node';
 
 const json = (f: string) => JSON.parse(readFileSync(join(ROOT, f), 'utf8'));
@@ -51,12 +50,6 @@ describe('помощники экранов K1–K7', () => {
     expect(STAT_LABELS).toEqual({ hp: 'ОЗ', atk: 'АТК', def: 'ЗАЩ', spd: 'СКР' });
     expect(statsLine({ hp: 450, atk: 40, def: 12, spd: 95 })).toBe('ОЗ 450 · АТК 40 · ЗАЩ 12 · СКР 95');
     expect(statsLine({ hp: 450, atk: 40 }, '\n', ['hp', 'atk'])).toBe('ОЗ 450\nАТК 40');
-  });
-
-  it('P: токены темы — шрифт новой шкалы не меньше 34, старые алиасы FS — не меньше 30, цель нажатия не меньше 96', () => {
-    for (const size of Object.values(T)) expect(size).toBeGreaterThanOrEqual(34);
-    for (const size of Object.values(FS)) expect(size).toBeGreaterThanOrEqual(30);
-    expect(TOUCH).toBeGreaterThanOrEqual(96);
   });
 
   it('itemStatsText / statDiff / diffText', () => {

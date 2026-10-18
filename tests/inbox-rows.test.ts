@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { claimState, groupRows, letterState, ratio, trackPos } from '../src/game/inboxOrder';
 
@@ -41,28 +40,5 @@ describe('порядок строк входящих', () => {
     expect(trackPos(100, 110)).toBeCloseTo(100 / 110);
     expect(trackPos(200, 110)).toBe(1);
     expect(trackPos(10, 0)).toBe(0);
-  });
-});
-
-describe('экраны входящих (по исходникам)', () => {
-  const scenes = ['QuestsScene', 'AchievementsScene', 'MailScene'].map((n) => [n, readFileSync(`src/game/scenes/${n}.ts`, 'utf8')] as const);
-
-  it.each(scenes)('%s: строки — inboxRow (listRow), «Забрать всё» — одна главная и только когда есть что забрать', (_n, src) => {
-    expect(src).toContain('inboxRow(');
-    expect(src).not.toContain("'ui_btn_primary'");
-    // claimAllButton — под условием «есть что забрать».
-    const call = src.split('\n').find((l) => l.includes('claimAllButton(this'));
-    expect(call).toMatch(/^\s*if \(/);
-  });
-
-  it.each(scenes)('%s: без инструкций, литералов цвета и старых размеров шрифта', (_n, src) => {
-    expect(src).not.toMatch(/Нажмите|коснитесь|, чтобы/i);
-    expect(src).not.toMatch(/0x[0-9a-fA-F]{6}|'#[0-9a-fA-F]{3,6}'/);
-    expect(src).not.toMatch(/\bFS\./);
-  });
-
-  it.each(scenes)('%s: успех не дублируется тостом — тосты только для ошибок (и «Контракта героя» в почте)', (_n, src) => {
-    const toasts = src.split('\n').filter((l) => /\btoast\(/.test(l));
-    for (const l of toasts) expect(l.includes('C.error') || l.includes('HeroPick') || l.includes('sc, message')).toBe(true);
   });
 });

@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { COMBAT } from '../src/core';
 import { fieldSlots, minSlotGap, PREP, rosterCardW, slotBand } from '../src/game/prepLayout';
@@ -9,7 +7,6 @@ import { fieldSlots, minSlotGap, PREP, rosterCardW, slotBand } from '../src/game
  * сетка героев без плашек «в отряде», без постоянных инструкций и подписей «фронт/тыл»; меньше Text.
  */
 
-const SRC = (f: string) => readFileSync(join(import.meta.dirname, '..', 'src', 'game', f), 'utf8');
 const TOUCH = 96;
 
 describe('редактор отряда: геометрия', () => {
@@ -39,38 +36,5 @@ describe('редактор отряда: геометрия', () => {
   it('minSlotGap: перекрытие — отрицательное, разные колонки не сравниваются', () => {
     expect(minSlotGap([{ x: 0, y: 0 }, { x: 0, y: 150 }], 200)).toBe(-50);
     expect(minSlotGap([{ x: 0, y: 0 }, { x: 300, y: 10 }], 200)).toBe(Infinity);
-  });
-});
-
-describe('редактор отряда: без шума (§3 правила 3, 4, 11)', () => {
-  const editor = SRC('squadEditor.ts');
-  it('нет плашки «в отряде», постоянной инструкции и подписей «фронт/тыл»', () => {
-    expect(editor).not.toMatch(/'в отряде'/);
-    expect(editor).not.toMatch(/'[^'\n]*(Нажмите на героя|Слот выбран)[^'\n]*'/);
-    expect(editor).not.toMatch(/'(фронт|тыл)'/);
-    // Мощь у каждого героя в слоте и на плитке больше не пишется — общая мощь в powerCompare.
-    expect(editor).not.toMatch(/formatNumber\(heroPower/);
-  });
-
-  it('уровни — растровым шрифтом (BitmapText), а не Text на каждую плитку; пустой слот — пульс, опция hintEmpty', () => {
-    expect(editor).toMatch(/bitmapText\(/);
-    expect(editor).toMatch(/hintEmpty\?: boolean/);
-    expect(editor).toMatch(/showPower\?: boolean/);
-    expect(editor).toMatch(/chrome\?: boolean/);
-    expect(editor).toMatch(/rosterHead\?:/);
-  });
-
-  it('«Отряд»: пресеты — листом снизу, одна главная кнопка', () => {
-    const squad = SRC('scenes/SquadScene.ts');
-    expect(squad).toMatch(/openPresetsSheet/);
-    expect(squad).not.toMatch(/ui_btn_primary/);
-    expect(squad.match(/\bcta\(/g)?.length).toBe(1);
-    expect(squad).not.toMatch(/Пресетов пока нет/);
-  });
-
-  it('«Контракт героя»: без строки-инструкции и подписей роли под плитками', () => {
-    const pick = SRC('scenes/HeroPickScene.ts');
-    expect(pick).not.toMatch(/Выберите героя, затем ветку|Выберите героя — он придёт/);
-    expect(pick).not.toMatch(/ROLE_NAMES\[t\.role\]/);
   });
 });

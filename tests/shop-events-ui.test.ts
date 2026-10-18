@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 /**
@@ -15,7 +13,6 @@ const { CONTENT_BOTTOM } = await import('../src/game/screen');
 const { GAME_W } = await import('../src/game/layout');
 const { S } = await import('../src/game/theme');
 
-const SRC = (f: string) => readFileSync(join(import.meta.dirname, '..', 'src', 'game', 'scenes', f), 'utf8');
 
 /** Разряды в игре — неразрывными пробелами; в ожиданиях — обычными. */
 const sp = (s: string) => s.replace(/\u00a0|\u202f/g, ' ');
@@ -52,14 +49,6 @@ describe('Лавка: сетка товаров', () => {
     expect(Shop.timerText(21 * 3_600_000 + 5 * 60_000)).toBe('21 ч 05 мин');
     expect(Shop.timerText(7 * 60_000)).toBe('7 мин');
   });
-
-  it('одна главная кнопка: золотых «Купить» на плитках нет, «Купить» — cta в листе товара', () => {
-    const src = SRC('ShopScene.ts');
-    expect(src).not.toMatch(/ui_btn_primary/);
-    expect(src.match(/\bcta\(/g)?.length).toBe(1);
-    expect(src).toMatch(/bottomSheet\(/);
-    expect(src).not.toMatch(/Нажмите/);
-  });
 });
 
 describe('События: плитки входа и задания', () => {
@@ -83,13 +72,5 @@ describe('События: плитки входа и задания', () => {
     const t = (id: string, s: Partial<{ ready: boolean; claimed: boolean; locked: boolean }>) => ({ id, ready: false, claimed: false, locked: false, ...s });
     const got = Events.sortTasks([t('a', { claimed: true }), t('b', {}), t('c', { ready: true }), t('d', { locked: true }), t('e', {})]);
     expect(got.map((x) => x.id)).toEqual(['c', 'b', 'e', 'a', 'd']);
-  });
-
-  it('без длинных пояснений и золотых кнопок в плитках', () => {
-    const src = SRC('EventsScene.ts');
-    expect(src).not.toMatch(/ui_btn_primary/);
-    expect(src).not.toMatch(/Пропуски не сбрасывают|Нажмите|нажатием/);
-    // e2e (scripts/e2e.mjs) забирает день 1 по имени готовой плитки.
-    expect(src).toMatch(/loginClaim_\$\{d\.day\}/);
   });
 });

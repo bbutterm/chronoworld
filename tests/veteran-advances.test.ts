@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { forEachCase } from './helpers';
 import { activeForm, buildUnit, cardStats, heroCard, heroJobId, heroSpriteOverride, heroSkills, lineOf, changeBranch, newGame, simulateBattle, levelUpHero, canEquip, sanitizeSave } from '../src/core';
 import type { HeroState } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
@@ -8,7 +9,7 @@ const jobs: Record<string, string> = { knight: 'lord_knight', crusader: 'paladin
 const forms = Object.values(ctx.content.heroes).flatMap(t => t.branches.map(b => ({ t, b })));
 
 describe('ветеранские профессии: стабильные ветки и детерминированное возвышение', () => {
-  it.each(forms)('$t.id/$b.job: границы, пол, статы и старые сохранения', ({ t, b }) => {
+  it('каждая ветеранская форма: границы, пол, статы и старые сохранения', () => forEachCase(forms, ({ t, b }) => `${t.id}/${b.job}`, ({ t, b }) => {
     const hero: HeroState = { id: 'veteran', templateId: t.id, branch: b.job, rarity: 'gold', level: 70 };
     const copy = structuredClone(hero);
     expect(heroJobId(hero, ctx)).toBe(jobs[b.job]);
@@ -41,7 +42,7 @@ describe('ветеранские профессии: стабильные вет
     expect(loaded).toEqual({ ...hero, companion: true });
     expect(heroJobId(loaded, ctx)).toBe(jobs[b.job]);
     expect(hero).toEqual(copy);
-  });
+  }));
 
   it('24 личные ульты, 52 навыка классов, открытия 70/80/90/100 и сохранённые приёмы', () => {
     const ults = new Set<string>();
@@ -76,7 +77,7 @@ describe('ветеранские профессии: стабильные вет
     expect(save).toEqual(before);
   });
 
-  it.each(forms)('$t.id/$b.job: воспроизводимый бой с реальным новым навыком', ({ t, b }) => {
+  it('каждая ветеранская форма: воспроизводимый бой с реальным новым навыком', () => forEachCase(forms, ({ t, b }) => `${t.id}/${b.job}`, ({ t, b }) => {
     const u = buildUnit({ id: 'veteran', templateId: t.id, branch: b.job, rarity: 'red', level: 100 }, ctx);
     // Показ навыков, а не дуэль равной атаки: Кай раньше погибал в 13,9 с при готовности ульты около 20,6 с.
     // Противник держит длинный бой и наносит малый урон; реальные навыки, энергия, касты и выборы героя сохранены.
@@ -91,5 +92,5 @@ describe('ветеранские профессии: стабильные вет
       const cast = simulateBattle(ctx.content, [isolated, null, null, null, null], [enemy, null, null, null, null], 73, { combat: ctx.combat });
       expect(cast.log.some(e => e.type === 'attack' && e.unit === 'A0' && e.skill === id), id).toBe(true);
     }
-  });
+  }));
 });

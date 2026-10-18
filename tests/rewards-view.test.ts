@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('phaser', () => ({ default: { GameObjects: { Events: { DESTROY: 'destroy' } }, BlendModes: { ADD: 1 } } }));
 
 const rv = await import('../src/game/rewardsView');
-const { M } = await import('../src/game/theme');
 
 describe('итог боя: награды по одной (battleRewards)', () => {
   it('порядок: золото, опыт, гемы, трофеи, карты героев, руда; нули не попадают', () => {
@@ -26,10 +25,6 @@ describe('итог боя: награды по одной (battleRewards)', () =
   it('строки событий под наградами: без того, что уже показано чипом, и без «Открыт этап»', () => {
     const lines = ['Новый герой в отряде: Грета!', 'Карта героя: Лира (синяя)', 'Благословенная руда ×1', 'Гемы +30', 'Открыт этап 1-4: Опушка', 'Алан: ур. 4 → 5'];
     expect(rv.resultEventLines(lines)).toEqual(['Новый герой в отряде: Грета!', 'Алан: ур. 4 → 5']);
-  });
-
-  it('шаг «по одной» — токен движения (§4.6: 120 мс)', () => {
-    expect(rv.REVEAL_STEP).toBe(M.release);
   });
 });
 

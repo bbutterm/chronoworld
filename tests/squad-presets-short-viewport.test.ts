@@ -72,14 +72,13 @@ describe('практические цели нажатия в листе пре�
     expect(rowTop - (save.y + Math.max(save.height, 132) / 2)).toBeGreaterThanOrEqual(S.s);
   });
 
-  it('классическая сцена сохраняет прежние размеры, координаты и высоту листа', () => {
+  it('классическая сцена: первая строка под кнопкой сохранения и внутри листа', () => {
     harness.adaptive = false;
     harness.save = savePreset(harness.save, 'Отряд 1', GAME).save;
     const sheet = render(), save = sheet.controls.find((o: any) => o.name === 'presetSave');
     const row = sheet.content.list.find((o: any) => o.name === 'preset_0');
-    expect(save.height).toBe(96);
-    expect(save.y).toBe(44);
-    expect(row.y).toBe(178);
-    expect(sheet.height).toBe(244);
+    const surface = row.list.find((o: any) => o.width === 984);
+    expect(row.y - surface.height / 2).toBeGreaterThanOrEqual(save.y + save.height / 2);
+    expect(row.y + surface.height / 2).toBeLessThanOrEqual(sheet.height);
   });
 });

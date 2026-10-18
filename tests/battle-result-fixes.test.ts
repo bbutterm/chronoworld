@@ -24,7 +24,7 @@ vi.mock('phaser', async () => {
 
 const { EventEmitter } = await import('node:events');
 const Phaser = (await import('phaser')).default;
-const { POWER_MARGIN, powerMark } = await import('../src/game/powerMark');
+const { powerMark } = await import('../src/game/powerMark');
 const { defeatTip, DEFEAT_POWER_OK } = await import('../src/game/defeatTip');
 const { registerModal, sceneBack } = await import('../src/game/screen');
 const { setTgAppForTests, tgBack } = await import('../src/game/telegram');
@@ -33,7 +33,6 @@ const { lootFrameLook } = await import('../src/game/summonLootCard');
 afterEach(() => setTgAppForTests(undefined));
 
 describe('ряд мощи: галка только с запасом и никогда на поражении (ux 0, ui-core 9)', () => {
-  it('запас ×1.1 — как вердикт ядра easy', () => expect(POWER_MARGIN).toBe(1.1));
   it('ниже ориентира — нехватка; ×1–1.1 — жёлтая точка; от ×1.1 — галка', () => {
     expect(powerMark(999, 1000)).toBe('short');
     expect(powerMark(1000, 1000)).toBe('even');

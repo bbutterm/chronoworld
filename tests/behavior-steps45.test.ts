@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { buildUnit, enemySquad, simulateBattle, type BattleEvent, type BattleResult, type CombatConfig, type Squad, type UnitDef } from '../src/core';
 import { loadFullContext } from '../scripts/lib/content-node';
 import { compSquad } from './behavior-scenarios';
+import { forEachCase } from './helpers';
 import { SMOOTH_SQUADS, smoothSquads } from '../scripts/lib/player-model';
 
 const ctx = loadFullContext();
@@ -284,12 +285,11 @@ describe('детерминизм шагов 4–5', () => {
     ['трусы', [...SQ[0]], enemySquad('ch2_s17', ctx)],
     ['стая', [...SQ[1]], compSquad(ctx, 'ch1_s10')],
   ];
-  for (const [name, a, b] of cases)
-    it(`один seed — один лог: ${name}`, () => {
-      for (const seed of [3, 11]) {
-        const x = simulateBattle(ctx.content, a, b, seed, { combat: ctx.combat });
-        const y = simulateBattle(ctx.content, a, b, seed, { combat: ctx.combat });
-        expect(y.log).toEqual(x.log);
-      }
-    });
+  it('один seed — один лог: маги, контрмаг, ауры, таран, трусы, стая', () => forEachCase(cases, ([name]) => name, ([, a, b]) => {
+    for (const seed of [3, 11]) {
+      const x = simulateBattle(ctx.content, a, b, seed, { combat: ctx.combat });
+      const y = simulateBattle(ctx.content, a, b, seed, { combat: ctx.combat });
+      expect(y.log, `seed ${seed}`).toEqual(x.log);
+    }
+  }));
 });

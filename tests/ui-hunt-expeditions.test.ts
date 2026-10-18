@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('phaser', () => {
@@ -19,37 +17,12 @@ vi.mock('phaser', () => {
   };
 });
 
-const SRC = (f: string) => readFileSync(join(import.meta.dirname, '..', 'src', 'game', f), 'utf8');
-const FILES = ['scenes/HuntScene.ts', 'huntBattle.ts', 'scenes/ExpeditionsScene.ts', 'expeditionEventModal.ts'];
 
 const { tierPosition, phasePips, huntRewardChips, huntRewardText } = await import('../src/game/scenes/HuntScene');
 const { huntHudY } = await import('../src/game/huntBattle');
 const { expectedChips, findIcons, returnedChips } = await import('../src/game/scenes/ExpeditionsScene');
 const { outcomeChips, choiceTone } = await import('../src/game/expeditionEventModal');
 const { formatNumber } = await import('../src/game/flow');
-
-/** Итерация 9B полировки: Охота на MVP и Экспедиции — чипы вместо фраз, одна главная кнопка, без инструкций. */
-describe('Охота и Экспедиции: правила экрана (§3)', () => {
-  it('без инструкций «Нажмите…» и литералов размеров шрифта в text()', () => {
-    for (const f of FILES) {
-      const s = SRC(f);
-      expect(s, f).not.toMatch(/Нажмите|нажмите|, чтобы /);
-      // text(scene, x, y, 'строка', 36, …) — размер только токенами T.* (theme.ts).
-      expect(s.match(/text\([^;]*?,\s*['`][^'`]*['`],\s*\d{2,3}\s*,/g) ?? [], f).toEqual([]);
-      expect(s, f).not.toMatch(/\bFS\.|\bOUTLINE\b|TITLE_STYLE/);
-    }
-  });
-
-  it('золотая кнопка: на Охоте — одна «В бой» (cta), в Экспедициях — выбирается одна (pickPrimary)', () => {
-    const hunt = SRC('scenes/HuntScene.ts');
-    expect(hunt.match(/ui_btn_primary/g) ?? []).toHaveLength(0);
-    // cta: «В бой» и «Отлично» в окне итога (окно закрывает экран).
-    expect(hunt.match(/\bcta\(this/g) ?? []).toHaveLength(2);
-    const exp = SRC('scenes/ExpeditionsScene.ts');
-    expect(exp).toMatch(/pickPrimary/);
-    expect(exp).not.toMatch(/k:buttonLong/);
-  });
-});
 
 describe('Охота на MVP: чипы и шкала', () => {
   it('шкала порогов: равные отрезки между порогами', () => {
@@ -77,12 +50,11 @@ describe('Охота на MVP: чипы и шкала', () => {
   });
 
   it('счёт урона в бою — под полоской ОЗ босса и заряда, на любом экране', () => {
-    const battle = SRC('scenes/BattleScene.ts');
-    const hudY = Number(battle.match(/const HUD_Y = (\d+);/)?.[1]);
-    const barDy = Number(battle.match(/const BOSS_BAR_DY = (\d+);/)?.[1]);
+    const base = huntHudY(0);
     for (const band of [0, 120, 300]) {
       const y = huntHudY(band);
-      expect(y.bar).toBe(hudY - band + barDy);
+      // Полоса безопасной зоны сверху сдвигает весь блок на свою высоту.
+      expect(y.bar).toBe(base.bar - band);
       // Полоса заряда — до bar + 45; число не налезает на неё.
       expect(y.main - 30).toBeGreaterThan(y.bar + 45);
       expect(y.sub).toBeGreaterThan(y.main);

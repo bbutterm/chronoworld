@@ -149,3 +149,20 @@ export function withReplay<C extends GameContext>(ctx: C, opts: { multiplier?: n
   if (opts.kitchenReplay && kitchen) (out as { kitchen?: unknown }).kitchen = { ...kitchen, sources: { ...kitchen.sources, replay: opts.kitchenReplay } };
   return out;
 }
+
+// ---------- Табличные проверки ----------
+
+/**
+ * Одна проверка по таблице случаев вместо it.each на каждый элемент контента: падение называет случай
+ * («имя: сообщение»), а число тестов не растёт с каждым новым листом, формой или фикстурой.
+ */
+export function forEachCase<T>(cases: readonly T[], name: (c: T) => string, check: (c: T) => void): void {
+  for (const c of cases) {
+    try {
+      check(c);
+    } catch (e) {
+      if (e instanceof Error) e.message = `${name(c)}: ${e.message}`;
+      throw e;
+    }
+  }
+}

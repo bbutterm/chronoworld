@@ -716,7 +716,13 @@ gems?, heroCards? {blue?, purple?}, item? (редкость)}}` — пороги
 боссы, темы; Σhp/Σatk глав 2–3 без провалов, сила по бою глав 4+ по тренду), прохождение главы 1
   (`chapter1-playthrough.test.ts`), генераторы контента (`content-new.test.ts`). Общие помощники — `tests/helpers.ts`, `invariants.ts`, `formation.ts`, `fixtures/`.
 - `tests/test_*.py` — проверки арт-пайплайна: `python3 -m unittest discover -s tests -p 'test_*.py'`.
-- Интерфейс: `tests/ui-lint.test.ts` — храповик линта дизайн-системы (§5а); `tests/game-features.test.ts` — шрифт не меньше `T.caption`.
+- Интерфейс: `tests/ui-lint.test.ts` — храповик линта дизайн-системы (§5а); `tests/ui-tokens.test.ts` — шрифт не меньше `T.caption`.
+- **Как писать тесты** (чистка 18.10, `docs/qa/tests-cleanup-2026-10-18.md`):
+  1. Новая механика или правка правил = главный путь игрока в `tests/smoke.test.ts` (настоящие сохранения модели игрока).
+  2. Не проверять текст исходников (`readFileSync('src/…')` + `toContain`): правила экранов стережёт ui-lint, подписи — e2e.
+  3. Раскладка — инварианты (не пересекается, внутри безопасной зоны, цель ≥ 44 CSS px) через функции раскладки, а не пиксели.
+  4. Не закреплять значения констант и токенов; проверка по всем элементам контента — один тест через `forEachCase`
+     (`tests/helpers.ts`), а не it.each на каждый лист или форму.
 - Производительность: `tests/sim.test.ts` («1000 боёв» по CPU-времени), `npm run perf` (бой в браузере), `npm run perf:load`
   (холодный старт), `npm run perf:ui` (экраны меню, раздел 14).
 - **e2e** (`scripts/e2e.mjs`, `e2e-chapter1.mjs`) кликают по тексту кнопок в активной сцене через `window.__game` (только dev-сборка);

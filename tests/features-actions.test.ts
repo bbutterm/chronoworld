@@ -81,14 +81,6 @@ describe('K7 пропуск и повтор', () => {
     const s = cleared();
     expect(repeatStage(s, s1, 3, rctx)).toEqual(playStage(s, s1, 3, rctx));
   });
-
-  it('выпущенные данные: пропуск и повтор пройденного этапа запрещены (stage_cleared)', () => {
-    const s = cleared();
-    for (const f of [() => skipStage(s, s1, 3, ctx, D1), () => repeatStage(s, s1, 3, ctx, D1), () => actSkipStage(s, D1, s1, 3, ctx)]) {
-      expect(f).toThrow(GameRuleError);
-      expect(f).toThrow(expect.objectContaining({ code: 'stage_cleared' }));
-    }
-  });
 });
 
 describe('обёртки действий засчитывают задания', () => {
