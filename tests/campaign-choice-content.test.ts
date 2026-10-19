@@ -25,10 +25,11 @@ const ORIGINAL_IDS = ['ch3_s1', 'ch3_s11', 'ch3_s2', 'ch3_s12', 'ch3_s3', 'ch3_s
 describe('локальный пилот выбора главы 3: границы контента', () => {
   it('сохраняет все исходные этапы, их порядок, базовые enemies, награды, находки и offlinePerMinute', () => {
     expect(rawChapter.stages.map((s) => s.id)).toEqual(ORIGINAL_IDS);
-    // Снимок всех полей stages до пилота; исключено только новое поле привязки выбора.
+    // Снимок всех полей stages до пилота; исключено только новое поле привязки выбора. 19.10: золото этапов и сундука ×1.5
+    // по просьбе владельца — снимок пересчитан (остальные поля не менялись).
     const stages = rawChapter.stages.map(({ campaignChoice: _choice, ...s }) => s);
     expect(createHash('sha256').update(JSON.stringify(stages)).digest('hex'))
-      .toBe('a2513cee2722d5d125700eda9aec1c4729c7da59b4facb2daa1a071713f75f5e');
+      .toBe('f6df2c320ef0a64db61902fb3274659a23e129debbcb9502053796fa9616583e');
     expect(stage.enemies).toEqual(ORIGINAL_BASE);
     expect(growthStep(stage, ctx)).toBe(25);
     expect(ctx.content.stages.find((s) => s.id === 'ch3_s10')!.enemies[2]?.unit).toBe('orc_lord');

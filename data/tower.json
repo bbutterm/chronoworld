@@ -7,8 +7,8 @@
   "statGrowthPerFloor": 0.05,
   "rewards": {
     "gold": {
-      "base": 100,
-      "perFloor": 40
+      "base": 150,
+      "perFloor": 60
     },
     "jobExp": {
       "base": 90,

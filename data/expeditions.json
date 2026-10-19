@@ -17,7 +17,7 @@
       "tint": "#9a6a32",
       "monster": "mob_elite",
       "monsterScale": 0.6,
-      "perHour": { "gold": 45, "jobExp": 60 },
+      "perHour": { "gold": 68, "jobExp": 60 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sandals", "shoes", "cotton_shirt", "adventurers_suit", "bandana", "cap"] },
         { "kind": "gems", "chance": 0.12, "count": 3 },
@@ -32,7 +32,7 @@
       "power": 1800,
       "tint": "#4f6b3a",
       "monster": "mob_ranged",
-      "perHour": { "gold": 55, "jobExp": 75 },
+      "perHour": { "gold": 83, "jobExp": 75 },
       "loot": [
         { "kind": "item", "chance": 0.01, "items": ["knife", "dagger", "bow", "sword"] },
         { "kind": "item", "chance": 0.003, "items": ["composite_bow", "gladius"] },
@@ -48,7 +48,7 @@
       "power": 2800,
       "tint": "#b8913c",
       "monster": "mob_osiris",
-      "perHour": { "gold": 60, "jobExp": 80 },
+      "perHour": { "gold": 90, "jobExp": 80 },
       "loot": [
         { "kind": "item", "chance": 0.01, "items": ["rod", "staff", "silk_robe", "biretta"] },
         { "kind": "item", "chance": 0.002, "items": ["wizardry_staff", "saint_robe"] },
@@ -65,7 +65,7 @@
       "power": 3800,
       "tint": "#566a8c",
       "monster": "alde_mimic",
-      "perHour": { "gold": 65, "jobExp": 85 },
+      "perHour": { "gold": 98, "jobExp": 85 },
       "loot": [
         { "kind": "item", "chance": 0.011, "items": ["helm", "chain_mail", "boots", "greaves"] },
         { "kind": "item", "chance": 0.003, "items": ["full_plate", "crown", "sleipnir"] },
@@ -84,7 +84,7 @@
       "power": 4500,
       "tint": "#c9a24a",
       "monster": "mob4_elite",
-      "perHour": { "gold": 280, "jobExp": 400 },
+      "perHour": { "gold": 420, "jobExp": 400 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["desert_sandals", "pharaoh_headdress"] },
         { "kind": "item", "chance": 0.004, "items": ["sograt_scimitar", "isis_mantle"] },
@@ -101,7 +101,7 @@
       "power": 6000,
       "tint": "#7d5aa8",
       "monster": "mob5_elite",
-      "perHour": { "gold": 550, "jobExp": 780 },
+      "perHour": { "gold": 825, "jobExp": 780 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["geta"] },
         { "kind": "item", "chance": 0.004, "items": ["moonlight_dagger", "ninja_suit", "kitsune_mask"] },
@@ -118,7 +118,7 @@
       "power": 7500,
       "tint": "#3f7f8f",
       "monster": "mob6_elite",
-      "perHour": { "gold": 1050, "jobExp": 1500 },
+      "perHour": { "gold": 1575, "jobExp": 1500 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sea_boots", "pirate_bandana"] },
         { "kind": "item", "chance": 0.004, "items": ["pirate_saber", "captain_coat"] },
@@ -135,7 +135,7 @@
       "power": 9000,
       "tint": "#4a4a6a",
       "monster": "mob3_tank",
-      "perHour": { "gold": 2300, "jobExp": 3270 },
+      "perHour": { "gold": 3450, "jobExp": 3270 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["sea_boots", "pirate_bandana"] },
         { "kind": "item", "chance": 0.004, "items": ["abyss_blade", "dark_lord_robe", "helm_of_darkness", "sentry_greaves"] },
@@ -152,7 +152,7 @@
       "power": 10000,
       "tint": "#4f6a3a",
       "monster": "maze_baphomet_jr",
-      "perHour": { "gold": 3400, "jobExp": 4830 },
+      "perHour": { "gold": 5100, "jobExp": 4830 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["abyss_blade", "sentry_greaves"] },
         { "kind": "item", "chance": 0.004, "items": ["crescent_scythe", "pact_robe", "majestic_goat", "maze_boots"] },
@@ -169,7 +169,7 @@
       "power": 11000,
       "tint": "#5a4f7a",
       "monster": "mob7_elite",
-      "perHour": { "gold": 5020, "jobExp": 7150 },
+      "perHour": { "gold": 7530, "jobExp": 7150 },
       "loot": [
         { "kind": "item", "chance": 0.012, "items": ["dark_lord_robe", "helm_of_darkness"] },
         { "kind": "item", "chance": 0.004, "items": ["bloody_axe", "valkyrie_armor", "gjoll_helm", "valkyrie_boots"] },
