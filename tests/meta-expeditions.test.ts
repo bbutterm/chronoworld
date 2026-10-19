@@ -139,8 +139,9 @@ describe('K9 экспедиции: конфиг', () => {
     expect(day.gems).toBeLessThan(40);
     expect(day.heroCards).toBeGreaterThan(0.15);
     expect(day.heroCards).toBeLessThan(0.45);
-    expect(day.gold).toBeGreaterThan(3500);
-    expect(day.gold).toBeLessThan(5500);
+    // 19.10: доход золота ×1.5 по просьбе владельца (было 3500–5500).
+    expect(day.gold).toBeGreaterThan(5250);
+    expect(day.gold).toBeLessThan(8250);
     expect(day.items).toBeGreaterThan(0.5);
     expect(day.items).toBeLessThan(2);
     expect(day.scrolls).toBeLessThan(0.3);
@@ -150,7 +151,8 @@ describe('K9 экспедиции: конфиг', () => {
     const late = LOCS.slice(4);
     late.forEach((l, i) => {
       expect(l.perHour.gold, l.id).toBeGreaterThan((i === 0 ? LOCS[3] : late[i - 1]).perHour.gold * 1.4);
-      expect(l.perHour.jobExp, l.id).toBeGreaterThan(l.perHour.gold);
+      // 19.10: золото ×1.5 — опыт в час не меньше прежнего соотношения (опыт > золото до повышения).
+      expect(l.perHour.jobExp, l.id).toBeGreaterThan(l.perHour.gold / 1.5);
     });
     let gems = 0;
     for (const l of late) for (const h of [4, 4, 4, 8]) gems += expectedExpeditionLoot(l, h, ctx).gems;

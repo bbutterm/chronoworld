@@ -406,14 +406,14 @@
     {
       "damage": 5000,
       "rewards": {
-        "gold": 1200,
+        "gold": 1800,
         "jobExp": 1700
       }
     },
     {
       "damage": 15000,
       "rewards": {
-        "gold": 2000,
+        "gold": 3000,
         "jobExp": 2800,
         "gems": 2
       }
@@ -421,7 +421,7 @@
     {
       "damage": 30000,
       "rewards": {
-        "gold": 3200,
+        "gold": 4800,
         "jobExp": 4500,
         "gems": 3
       }
@@ -429,7 +429,7 @@
     {
       "damage": 50000,
       "rewards": {
-        "gold": 4800,
+        "gold": 7200,
         "jobExp": 6700,
         "gems": 4
       }
@@ -437,7 +437,7 @@
     {
       "damage": 80000,
       "rewards": {
-        "gold": 7000,
+        "gold": 10500,
         "jobExp": 9800,
         "gems": 5,
         "heroCards": {
@@ -448,7 +448,7 @@
     {
       "damage": 120000,
       "rewards": {
-        "gold": 10000,
+        "gold": 15000,
         "jobExp": 14000,
         "gems": 6,
         "heroCards": {
@@ -460,7 +460,7 @@
     {
       "damage": 180000,
       "rewards": {
-        "gold": 15000,
+        "gold": 22500,
         "jobExp": 21000,
         "gems": 8,
         "heroCards": {
@@ -472,7 +472,7 @@
     {
       "damage": 260000,
       "rewards": {
-        "gold": 22000,
+        "gold": 33000,
         "jobExp": 31000,
         "gems": 10,
         "heroCards": {
@@ -485,7 +485,7 @@
     {
       "damage": 380000,
       "rewards": {
-        "gold": 32000,
+        "gold": 48000,
         "jobExp": 45000,
         "gems": 10,
         "heroCards": {
@@ -498,7 +498,7 @@
     {
       "damage": 550000,
       "rewards": {
-        "gold": 45000,
+        "gold": 67500,
         "jobExp": 63000,
         "gems": 10,
         "heroCards": {

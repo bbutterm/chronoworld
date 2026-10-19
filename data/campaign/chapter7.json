@@ -41,11 +41,11 @@
       ],
       "rewards": {
         "jobExp": 33060,
-        "gold": 23220
+        "gold": 34830
       },
       "offlinePerMinute": {
         "jobExp": 1102,
-        "gold": 774
+        "gold": 1161
       }
     },
     {
@@ -73,11 +73,11 @@
       ],
       "rewards": {
         "jobExp": 34380,
-        "gold": 24150
+        "gold": 36225
       },
       "offlinePerMinute": {
         "jobExp": 1146,
-        "gold": 805
+        "gold": 1208
       }
     },
     {
@@ -106,11 +106,11 @@
       ],
       "rewards": {
         "jobExp": 35063,
-        "gold": 24640
+        "gold": 36960
       },
       "offlinePerMinute": {
         "jobExp": 1169,
-        "gold": 821
+        "gold": 1232
       }
     },
     {
@@ -138,11 +138,11 @@
       ],
       "rewards": {
         "jobExp": 35760,
-        "gold": 25140
+        "gold": 37710
       },
       "offlinePerMinute": {
         "jobExp": 1192,
-        "gold": 838
+        "gold": 1257
       }
     },
     {
@@ -173,11 +173,11 @@
       ],
       "rewards": {
         "jobExp": 37200,
-        "gold": 26130
+        "gold": 39195
       },
       "offlinePerMinute": {
         "jobExp": 1240,
-        "gold": 871
+        "gold": 1307
       }
     },
     {
@@ -208,11 +208,11 @@
       ],
       "rewards": {
         "jobExp": 38670,
-        "gold": 27180
+        "gold": 40770
       },
       "offlinePerMinute": {
         "jobExp": 1289,
-        "gold": 906
+        "gold": 1359
       }
     },
     {
@@ -244,11 +244,11 @@
       ],
       "rewards": {
         "jobExp": 39442,
-        "gold": 27715
+        "gold": 41573
       },
       "offlinePerMinute": {
         "jobExp": 1315,
-        "gold": 924
+        "gold": 1386
       },
       "finding": {
         "id": "ch7_f_7a_bell_alloy",
@@ -289,11 +289,11 @@
       ],
       "rewards": {
         "jobExp": 40230,
-        "gold": 28260
+        "gold": 42390
       },
       "offlinePerMinute": {
         "jobExp": 1341,
-        "gold": 942
+        "gold": 1413
       }
     },
     {
@@ -325,11 +325,11 @@
       ],
       "rewards": {
         "jobExp": 41017,
-        "gold": 28824
+        "gold": 43236
       },
       "offlinePerMinute": {
         "jobExp": 1367,
-        "gold": 961
+        "gold": 1442
       }
     },
     {
@@ -360,11 +360,11 @@
       ],
       "rewards": {
         "jobExp": 41820,
-        "gold": 29400
+        "gold": 44100
       },
       "offlinePerMinute": {
         "jobExp": 1394,
-        "gold": 980
+        "gold": 1470
       }
     },
     {
@@ -396,11 +396,11 @@
       ],
       "rewards": {
         "jobExp": 42652,
-        "gold": 29979
+        "gold": 44969
       },
       "offlinePerMinute": {
         "jobExp": 1422,
-        "gold": 999
+        "gold": 1499
       }
     },
     {
@@ -431,11 +431,11 @@
       ],
       "rewards": {
         "jobExp": 43500,
-        "gold": 30570
+        "gold": 45855
       },
       "offlinePerMinute": {
         "jobExp": 1450,
-        "gold": 1019
+        "gold": 1529
       },
       "finding": {
         "id": "ch7_f_7a_grey_hair",
@@ -477,11 +477,11 @@
       ],
       "rewards": {
         "jobExp": 44361,
-        "gold": 31179
+        "gold": 46769
       },
       "offlinePerMinute": {
         "jobExp": 1479,
-        "gold": 1039
+        "gold": 1559
       },
       "finding": {
         "id": "ch7_f_7a_guest_card",
@@ -522,11 +522,11 @@
       ],
       "rewards": {
         "jobExp": 45240,
-        "gold": 31800
+        "gold": 47700
       },
       "offlinePerMinute": {
         "jobExp": 1508,
-        "gold": 1060
+        "gold": 1590
       }
     },
     {
@@ -558,11 +558,11 @@
       ],
       "rewards": {
         "jobExp": 45686,
-        "gold": 32115
+        "gold": 48173
       },
       "offlinePerMinute": {
         "jobExp": 1523,
-        "gold": 1070
+        "gold": 1605
       }
     },
     {
@@ -594,11 +594,11 @@
       ],
       "rewards": {
         "jobExp": 46136,
-        "gold": 32433
+        "gold": 48650
       },
       "offlinePerMinute": {
         "jobExp": 1538,
-        "gold": 1081
+        "gold": 1622
       },
       "finding": {
         "id": "ch7_f_7a_three_thirteen",
@@ -640,11 +640,11 @@
       ],
       "rewards": {
         "jobExp": 46591,
-        "gold": 32755
+        "gold": 49133
       },
       "offlinePerMinute": {
         "jobExp": 1554,
-        "gold": 1091
+        "gold": 1637
       }
     },
     {
@@ -675,11 +675,11 @@
       ],
       "rewards": {
         "jobExp": 70605,
-        "gold": 49590
+        "gold": 74385
       },
       "offlinePerMinute": {
         "jobExp": 1569,
-        "gold": 1102
+        "gold": 1653
       }
     }
   ]
