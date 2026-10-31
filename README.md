@@ -1,4 +1,24 @@
+<div align="center">
+
 # Chronoworld
+
+**Собери отряд. Пройди кампанию. Вернись за новой историей.**
+
+TypeScript · Phaser 3 · Vite · Telegram Mini App
+
+[Играть в браузере](https://chronoworld-ecru.vercel.app/) · [Кейс проекта](https://fatalbazuka.ru/chronoworld/) · [Геймдизайн](docs/GDD.md)
+
+</div>
+
+| Главная и отряд | Бой и способности | Герои |
+| --- | --- | --- |
+| <a href=".github/media/home.webp"><img src=".github/media/home.webp" alt="Главная и отряд" width="260"></a> | <a href=".github/media/battle.webp"><img src=".github/media/battle.webp" alt="Бой и способности" width="260"></a> | <a href=".github/media/heroes.webp"><img src=".github/media/heroes.webp" alt="Герои" width="260"></a> |
+
+*Игровые экраны из портфолио проекта: главная, сражение и коллекция героев. Нажмите на изображение, чтобы открыть его целиком.*
+
+---
+
+## О проекте
 
 Сюжетная idle-RPG в мире Ragnarok Online и отдельный автобатлер «Арена товарищей». TypeScript, Phaser 3, Vite; русский интерфейс, поддержка Telegram Mini App. Исходный дизайн: [docs/GDD.md](docs/GDD.md); актуальная переработка: [аудит 04.10.2026](docs/qa/overhaul-audit.md).
 
